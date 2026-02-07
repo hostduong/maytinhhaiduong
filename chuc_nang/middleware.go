@@ -6,10 +6,8 @@ import (
 	"time"
 
 	"app/bao_mat"
-	"app/bo_nho_dem" // [MỚI] Import để check cờ HeThongDangBan
 	"app/cau_hinh"
-	"app/mo_hinh"
-	"app/nghiep_vu"
+	"app/core" // [QUAN TRỌNG] Sử dụng Core thay vì nghiep_vu/bo_nho_dem
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,8 +30,8 @@ func KhoiTaoBoDemRateLimit() {
 
 // MIDDLEWARE CHÍNH
 func KiemTraQuyenHan(c *gin.Context) {
-	// [MỚI] 1. CHỐT CHẶN BẢO TRÌ (Sửa biến trỏ về bo_nho_dem)
-	if bo_nho_dem.HeThongDangBan && c.Request.Method != "GET" {
+	// 1. CHỐT CHẶN BẢO TRÌ (Dùng biến từ Core)
+	if core.HeThongDangBan && c.Request.Method != "GET" {
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
 			"trang_thai": "he_thong_ban",
 			"thong_diep": "Hệ thống đang đồng bộ dữ liệu, vui lòng thử lại sau 5 giây.",
@@ -73,18 +71,17 @@ func KiemTraQuyenHan(c *gin.Context) {
 	signatureServer := bao_mat.TaoChuKyBaoMat(cookieID, userAgent)
 
 	if err2 != nil || cookieSign != signatureServer {
-		c.SetCookie("session_id", "", -1, "/", "", false, true)
-		c.SetCookie("session_sign", "", -1, "/", "", false, true)
+		// Xóa cookie rác
+		xoaCookie(c)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"loi": "Phát hiện bất thường (Cookie Mismatch)! Vui lòng đăng nhập lại."})
 		return
 	}
 
-	// 4. TÌM USER TRONG RAM (Gọi qua nghiep_vu - logic này đã được update bên trong nghiep_vu ở Bước 2)
-	khachHang, timThay := nghiep_vu.TimKhachHangTheoCookie(cookieID)
+	// 4. TÌM USER TRONG RAM (Dùng hàm của Core)
+	khachHang, timThay := core.TimKhachHangTheoCookie(cookieID)
 
 	if !timThay {
-		c.SetCookie("session_id", "", -1, "/", "", false, true)
-		c.SetCookie("session_sign", "", -1, "/", "", false, true)
+		xoaCookie(c)
 		c.Next()
 		return
 	}
@@ -95,8 +92,7 @@ func KiemTraQuyenHan(c *gin.Context) {
 
 	// Nếu đã hết hạn -> Đá ra
 	if now > thoiGianHetHan {
-		c.SetCookie("session_id", "", -1, "/", "", false, true)
-		c.SetCookie("session_sign", "", -1, "/", "", false, true)
+		xoaCookie(c)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"loi": "Phiên đăng nhập hết hạn"})
 		return
 	}
@@ -106,27 +102,42 @@ func KiemTraQuyenHan(c *gin.Context) {
 	if thoiGianConLai < cau_hinh.ThoiGianAnHan {
 		
 		newExp := time.Now().Add(cau_hinh.ThoiGianHetHanCookie).Unix()
+		
+		// Cập nhật RAM (Thread-safe nhờ Lock bên trong Core nếu cần, hoặc ta lock ở đây)
+		// Ở đây ta gán trực tiếp vì Core struct là pointer, tuy nhiên để an toàn tuyệt đối
+		// nên dùng hàm setter của core hoặc lock. Tạm thời gán thẳng:
+		core.KhoaHeThong.Lock()
 		khachHang.CookieExpired = newExp
+		core.KhoaHeThong.Unlock()
 
-		// Gọi qua nghiep_vu để đẩy vào hàng chờ
-		rowID := nghiep_vu.LayDongKhachHang(khachHang.MaKhachHang)
-		if rowID > 0 {
-			nghiep_vu.ThemVaoHangCho(
-				cau_hinh.BienCauHinh.IdFileSheet,
-				"KHACH_HANG",
-				rowID,
-				mo_hinh.CotKH_CookieExpired,
-				newExp,
-			)
-		}
+		// Đẩy vào Hàng Chờ Ghi (Dùng Core Write Queue)
+		// Lấy ID Sheet từ Config hoặc từ Struct KhachHang (nếu hỗ trợ đa shop)
+		sID := khachHang.SpreadsheetID
+		if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+		
+		core.ThemVaoHangCho(
+			sID,
+			"KHACH_HANG",
+			khachHang.DongTrongSheet,
+			core.CotKH_CookieExpired, // Dùng Const từ Core
+			newExp,
+		)
 
 		maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
 		c.SetCookie("session_id", cookieID, maxAge, "/", "", false, true)
 		c.SetCookie("session_sign", cookieSign, maxAge, "/", "", false, true)
 	}
 
+	// Lưu thông tin vào Context để các Controller sau dùng
 	c.Set("USER_ID", khachHang.MaKhachHang)
 	c.Set("USER_ROLE", khachHang.VaiTroQuyenHan)
+	c.Set("USER_NAME", khachHang.TenKhachHang)
 	
 	c.Next()
+}
+
+// Helper xóa cookie gọn
+func xoaCookie(c *gin.Context) {
+	c.SetCookie("session_id", "", -1, "/", "", false, true)
+	c.SetCookie("session_sign", "", -1, "/", "", false, true)
 }
