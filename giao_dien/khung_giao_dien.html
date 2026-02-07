@@ -1,0 +1,161 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .TieuDe }} - MayTinhShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        /* Hiệu ứng scroll bar đẹp hơn */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between gap-8">
+            
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25" />
+                    </svg>
+                </div>
+                <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">
+                    MayTinhShop
+                </span>
+            </a>
+
+            <div class="flex-1 max-w-2xl hidden md:block relative">
+                <input type="text" placeholder="Bạn cần tìm linh kiện gì hôm nay?..." 
+                    class="w-full pl-5 pr-12 py-3 rounded-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition outline-none text-sm font-medium">
+                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <a href="#" class="relative group p-2 rounded-full hover:bg-gray-100 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-600 group-hover:text-blue-600 transition">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                    <span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-sm border-2 border-white transform scale-90 group-hover:scale-110 transition">0</span>
+                </a>
+
+                {{ if .DaDangNhap }}
+                    <div class="flex items-center gap-4 pl-6 border-l border-gray-200">
+                        <a href="/tai-khoan" class="flex items-center gap-3 group">
+                            <div class="text-right hidden lg:block">
+                                <p class="text-xs text-gray-500 font-medium">Xin chào,</p>
+                                <p class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition truncate max-w-[120px]">{{ .TenNguoiDung }}</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full border-2 border-gray-100 overflow-hidden group-hover:border-blue-500 transition shadow-sm">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .TenNguoiDung }}" class="w-full h-full object-cover">
+                            </div>
+                        </a>
+                        
+                        <a href="/logout" class="bg-gray-50 p-2.5 rounded-xl hover:bg-red-50 text-gray-500 hover:text-red-600 transition border border-gray-100 shadow-sm group relative" title="Đăng xuất">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                            </svg>
+                        </a>
+                    </div>
+                {{ else }}
+                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                        <a href="/login" class="text-gray-600 hover:text-blue-600 font-medium text-sm px-3 py-2 transition">Đăng nhập</a>
+                        <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-blue-300 transition transform hover:-translate-y-0.5">
+                            Đăng ký
+                        </a>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </header>
+    
+    <main class="flex-grow container mx-auto px-4 py-8">
+{{ end }}
+
+{{ define "footer" }}
+    </main>
+
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-sm">M</span>
+                        MayTinhShop
+                    </h3>
+                    <p class="text-sm leading-relaxed text-slate-400">
+                        Hệ thống bán lẻ linh kiện máy tính, laptop chính hãng hàng đầu. Cam kết chất lượng, bảo hành uy tín.
+                    </p>
+                    <div class="flex gap-4 pt-2">
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition">fb</a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition">ig</a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 hover:text-white transition">yt</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-6">Hỗ trợ khách hàng</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Chính sách bảo hành</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Chính sách đổi trả</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Tra cứu đơn hàng</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-6">Về chúng tôi</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Giới thiệu công ty</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Tuyển dụng</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Liên hệ hợp tác</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition flex items-center gap-2">› Hệ thống cửa hàng</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-6">Liên hệ</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li class="flex items-start gap-3">
+                            <span class="text-blue-500 mt-0.5">📍</span>
+                            <span>Số 123, Đường ABC, Quận XYZ, TP. Hà Nội</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-blue-500">📞</span>
+                            <span class="font-bold text-white text-lg">1900 xxxx</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-blue-500">📧</span>
+                            <span>support@maytinhshop.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-8 text-center text-xs text-slate-500">
+                <p>&copy; 2026 MayTinhShop. Powered by Golang & Google Sheets Database.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{ end }}
+
+{{/* GIỮ NGUYÊN BLOCK NÀY */}}
+{{ define "khung_giao_dien" }}
+    {{ template "header" . }}
+    {{ template "noi_dung" . }}
+    {{ template "footer" . }}
+{{ end }}
