@@ -1,0 +1,140 @@
+{{ define "quen_mat_khau" }}
+    {{ template "header" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style> 
+        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; } 
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2; }
+        .input-success { border-color: #22c55e !important; background-color: #f0fdf4; }
+        .input-normal { border-color: #d1d5db !important; background-color: #ffffff; }
+        .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .error-text.show { display: block; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; background-color: #9ca3af !important; }
+        .hidden { display: none; }
+    </style>
+
+    <div class="bg-gray-50 min-h-[calc(100vh-200px)] flex items-center justify-center py-10 px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+            <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Khôi phục mật khẩu</h1>
+
+            <div class="flex border-b mb-6">
+                <button onclick="switchTab('pin')" id="btnTabPin" class="flex-1 pb-3 text-gray-500 tab-active transition">Dùng Mã PIN</button>
+                <button onclick="switchTab('email')" id="btnTabEmail" class="flex-1 pb-3 text-gray-500 transition">Dùng Email</button>
+            </div>
+
+            <div id="formPin" class="space-y-4">
+                <div>
+                    <input type="text" id="pinUser" placeholder="Mã KH / Tên đăng nhập / Email" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <p class="error-text" id="err_pinUser">Vui lòng nhập định danh hợp lệ.</p>
+                </div>
+                <div>
+                    <input type="text" id="pinCode" maxlength="8" placeholder="Mã PIN bảo mật" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <p class="error-text" id="err_pinCode">Mã PIN phải đúng 8 chữ số.</p>
+                </div>
+                <div>
+                    <div class="relative">
+                        <input type="password" id="pinNewPass" placeholder="Mật khẩu mới" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <button type="button" onclick="togglePass('pinNewPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600">
+                            <svg id="eye_slash_pinNewPass" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_pinNewPass" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                    <p class="error-text" id="err_pinNewPass">8-30 ký tự gồm chữ, số, ký tự !@#$%^&*()-+_.,?</p>
+                </div>
+                <button id="btnResetByPin" onclick="resetByPin()" disabled class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition">ĐỔI MẬT KHẨU</button>
+            </div>
+
+            <div id="formEmail" class="space-y-4 hidden">
+                <div id="step1">
+                    <div class="bg-blue-50 text-blue-700 p-3 text-xs rounded border border-blue-200 mb-3">
+                        ℹ️ Hệ thống sẽ tự tìm Email đăng ký để gửi mã.
+                    </div>
+                    <div>
+                        <input type="text" id="otpUser" placeholder="Mã KH / Tên đăng nhập / Email" class="w-full p-3 border rounded-lg bg-gray-50 mb-3 focus:ring-2 focus:ring-purple-500 outline-none">
+                        <p class="error-text" id="err_otpUser">Vui lòng nhập định danh hợp lệ.<br/></p>
+                    </div>
+                    <button id="btnSendOtp" onclick="sendOtp()" disabled class="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 shadow-lg shadow-purple-500/30 transition">GỬI MÃ OTP</button>
+                    <div id="countdownArea" class="hidden text-center mt-3 text-sm text-gray-500">Gửi lại sau <span id="timer" class="font-bold text-purple-600">60</span>s</div>
+                </div>
+                
+                <div id="step2" class="hidden space-y-3">
+                    <div class="bg-green-50 text-green-700 p-3 text-sm rounded border border-green-200 flex items-center gap-2"><span>✅</span> Đã gửi thành công mã OTP về email.</div>
+                    <div>
+                        <input type="text" id="otpInput" placeholder="Nhập mã OTP" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none">
+                        <p class="error-text" id="err_otpInput">Mã OTP phải đủ 6 chữ số.</p>
+                    </div>
+                    <div>
+                        <div class="relative">
+                            <input type="password" id="otpNewPass" placeholder="Mật khẩu mới (min 8 ký tự)" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none">
+                            <button type="button" onclick="togglePass('otpNewPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-600">
+                                <svg id="eye_slash_otpNewPass" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_otpNewPass" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+                        <p class="error-text" id="err_otpNewPass">8-30 ký tự gồm chữ, số, ký tự !@#$%^&*()-+_.,?</p>
+                    </div>
+                    <button id="btnResetByOtp" onclick="resetByOtp()" disabled class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg shadow-green-500/30 transition">XÁC NHẬN ĐỔI</button>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center text-sm">
+                <a href="/login" class="text-blue-600 hover:underline font-medium">← Quay lại đăng nhập</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // HÀM TOGGLE CHUẨN 2 ICON
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id);
+            const eyeOpen = document.getElementById('eye_open_' + id);
+            if (input.type === "password") {
+                input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden');
+            } else {
+                input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden');
+            }
+        }
+
+        // UI Helpers
+        function setBtnLoading(id, text) { const b=document.getElementById(id); b.disabled=true; b.dataset.old=b.innerHTML; b.innerHTML=`<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></path><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${text}`; }
+        function setBtnNormal(id) { const b=document.getElementById(id); b.disabled=false; if(b.dataset.old) b.innerHTML=b.dataset.old; checkAllForms(); }
+        function setError(inputId, errId, isError) { const i=document.getElementById(inputId); const m=document.getElementById(errId); if(isError){ i.classList.add('input-error'); i.classList.remove('input-success'); m.classList.add('show'); } else { i.classList.remove('input-error'); if(i.value.trim()!="") i.classList.add('input-success'); m.classList.remove('show'); } checkAllForms(); }
+        function switchTab(tab) { if(tab==='pin'){document.getElementById('formPin').classList.remove('hidden');document.getElementById('formEmail').classList.add('hidden');document.getElementById('btnTabPin').classList.add('tab-active');document.getElementById('btnTabEmail').classList.remove('tab-active');} else {document.getElementById('formEmail').classList.remove('hidden');document.getElementById('formPin').classList.add('hidden');document.getElementById('btnTabEmail').classList.add('tab-active');document.getElementById('btnTabPin').classList.remove('tab-active');} }
+
+        // Rules
+        const regexUser={char:/[^a-zA-Z0-9@._\-]/, full:/.{4,}/};
+        const regexPass={char:/[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/, full:/^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/};
+        const regexPin={char:/[^0-9]/, full:/^\d{8}$/}; const regexOtp={char:/[^0-9]/, full:/^\d{6}$/};
+
+        function handleInput(id, rules, errId) { const val=document.getElementById(id).value; if(val!="" && rules.char.test(val)) setError(id, errId, true); else { document.getElementById(id).classList.remove('input-error','input-success'); document.getElementById(id).classList.add('input-normal'); document.getElementById(errId).classList.remove('show'); checkAllForms(); } }
+        function handleBlur(id, rules, errId) { const val=document.getElementById(id).value.trim(); if(val==="")return; if(!rules.full.test(val)) setError(id, errId, true); else setError(id, errId, false); }
+
+        const f = [
+            {id:'pinUser',rule:regexUser,err:'err_pinUser'}, {id:'pinCode',rule:regexPin,err:'err_pinCode'}, {id:'pinNewPass',rule:regexPass,err:'err_pinNewPass'},
+            {id:'otpUser',rule:regexUser,err:'err_otpUser'}, {id:'otpInput',rule:regexOtp,err:'err_otpInput'}, {id:'otpNewPass',rule:regexPass,err:'err_otpNewPass'}
+        ];
+        f.forEach(x=>{const el=document.getElementById(x.id); el.addEventListener('input',()=>handleInput(x.id,x.rule,x.err)); el.addEventListener('blur',()=>handleBlur(x.id,x.rule,x.err));});
+
+        function checkAllForms() {
+            const pU=!document.getElementById('pinUser').classList.contains('input-error') && document.getElementById('pinUser').value.length>=4;
+            const pC=document.getElementById('pinCode').classList.contains('input-success');
+            const pP=document.getElementById('pinNewPass').classList.contains('input-success');
+            document.getElementById('btnResetByPin').disabled=!(pU&&pC&&pP);
+
+            const oU=!document.getElementById('otpUser').classList.contains('input-error') && document.getElementById('otpUser').value.length>=4;
+            document.getElementById('btnSendOtp').disabled=!oU;
+            const oC=document.getElementById('otpInput').classList.contains('input-success');
+            const oP=document.getElementById('otpNewPass').classList.contains('input-success');
+            document.getElementById('btnResetByOtp').disabled=!(oC&&oP);
+        }
+
+        async function postData(url, d) { const fd=new FormData(); for(const k in d) fd.append(k,d[k]); try{ const r=await fetch(url,{method:'POST',body:fd}); return await r.json(); }catch(e){return {status:'error',msg:'Lỗi mạng'};} }
+        async function resetByPin() { setBtnLoading('btnResetByPin','Xử lý...'); const r=await postData('/api/auth/reset-by-pin',{dinh_danh:document.getElementById('pinUser').value, pin:document.getElementById('pinCode').value, pass_moi:document.getElementById('pinNewPass').value}); if(r.status==='ok') Swal.fire({icon:'success',title:'Xong',text:r.msg}).then(()=>location.href='/login'); else {setBtnNormal('btnResetByPin'); Swal.fire({icon:'error',title:'Lỗi',text:r.msg});} }
+        
+        let interval;
+        async function sendOtp() { setBtnLoading('btnSendOtp','Gửi...'); const r=await postData('/api/auth/send-otp',{dinh_danh:document.getElementById('otpUser').value}); if(r.status==='ok'){ document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); document.getElementById('countdownArea').classList.remove('hidden'); let t=60; const tm=document.getElementById('timer'); interval=setInterval(()=>{t--;tm.innerText=t;if(t<=0){clearInterval(interval);setBtnNormal('btnSendOtp');}},1000); } else {setBtnNormal('btnSendOtp'); Swal.fire({icon:'error',title:'Lỗi',text:r.msg});} }
+        
+        async function resetByOtp() { setBtnLoading('btnResetByOtp','Xác nhận...'); const r=await postData('/api/auth/reset-by-otp',{dinh_danh:document.getElementById('otpUser').value, otp:document.getElementById('otpInput').value, pass_moi:document.getElementById('otpNewPass').value}); if(r.status==='ok') Swal.fire({icon:'success',title:'Xong',text:r.msg}).then(()=>location.href='/login'); else {setBtnNormal('btnResetByOtp'); Swal.fire({icon:'error',title:'Lỗi',text:r.msg});} }
+    </script>
+    {{ template "footer" . }}
+{{ end }}
