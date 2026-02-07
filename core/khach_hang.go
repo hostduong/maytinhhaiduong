@@ -4,52 +4,55 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"app/cau_hinh"
 )
 
 // =============================================================
-// 1. CẤU HÌNH CỘT (KHACH_HANG: A -> AA)
+// 1. CẤU HÌNH CỘT
 // =============================================================
 const (
-	CotKH_MaKhachHang      = 0  // A
-	CotKH_TenDangNhap      = 1  // B
-	CotKH_MatKhauHash      = 2  // C
-	CotKH_Cookie           = 3  // D
-	CotKH_CookieExpired    = 4  // E
-	CotKH_MaPinHash        = 5  // F
-	CotKH_LoaiKhachHang    = 6  // G
-	CotKH_TenKhachHang     = 7  // H
-	CotKH_DienThoai        = 8  // I
-	CotKH_Email            = 9  // J
-	CotKH_UrlFb            = 10 // K
-	CotKH_Zalo             = 11 // L
-	CotKH_UrlTele          = 12 // M
-	CotKH_UrlTiktok        = 13 // N
-	CotKH_DiaChi           = 14 // O
-	CotKH_NgaySinh         = 15 // P
-	CotKH_GioiTinh         = 16 // Q (Nam/Nữ)
-	CotKH_MaSoThue         = 17 // R
-	CotKH_DangNo           = 18 // S
-	CotKH_TongMua          = 19 // T
-	CotKH_ChucVu           = 20 // U
-	CotKH_VaiTroQuyenHan   = 21 // V
-	CotKH_TrangThai        = 22 // W
-	CotKH_GhiChu           = 23 // X
-	CotKH_NguoiTao         = 24 // Y
-	CotKH_NgayTao          = 25 // Z
-	CotKH_NgayCapNhat      = 26 // AA
+	CotKH_MaKhachHang      = 0
+	CotKH_TenDangNhap      = 1
+	CotKH_MatKhauHash      = 2
+	CotKH_Cookie           = 3
+	CotKH_CookieExpired    = 4
+	CotKH_MaPinHash        = 5
+	CotKH_LoaiKhachHang    = 6
+	CotKH_TenKhachHang     = 7
+	CotKH_DienThoai        = 8
+	CotKH_Email            = 9
+	CotKH_UrlFb            = 10
+	CotKH_Zalo             = 11
+	CotKH_UrlTele          = 12
+	CotKH_UrlTiktok        = 13
+	CotKH_DiaChi           = 14
+	CotKH_NgaySinh         = 15
+	CotKH_GioiTinh         = 16
+	CotKH_MaSoThue         = 17
+	CotKH_DangNo           = 18
+	CotKH_TongMua          = 19
+	CotKH_ChucVu           = 20
+	CotKH_VaiTroQuyenHan   = 21
+	CotKH_TrangThai        = 22
+	CotKH_GhiChu           = 23
+	CotKH_NguoiTao         = 24
+	CotKH_NgayTao          = 25
+	CotKH_NgayCapNhat      = 26
 )
 
 // =============================================================
 // 2. STRUCT DỮ LIỆU
 // =============================================================
 type KhachHang struct {
-	// Dùng con trỏ để update trạng thái (Cookie) dễ dàng hơn
-	DongTrongSheet int `json:"-"` 
+	// [QUAN TRỌNG - PHƯƠNG ÁN B]
+	SpreadsheetID  string `json:"-"` // Thuộc file sheet nào
+	DongTrongSheet int    `json:"-"` // Dòng thứ mấy
 
 	MaKhachHang      string  `json:"ma_khach_hang"`
 	TenDangNhap      string  `json:"ten_dang_nhap"`
-	MatKhauHash      string  `json:"-"` // Ẩn khi trả về JSON
-	Cookie           string  `json:"-"` 
+	MatKhauHash      string  `json:"-"`
+	Cookie           string  `json:"-"`
 	CookieExpired    int64   `json:"cookie_expired"`
 	MaPinHash        string  `json:"-"`
 	LoaiKhachHang    string  `json:"loai_khach_hang"`
@@ -76,32 +79,48 @@ type KhachHang struct {
 }
 
 // =============================================================
-// 3. KHO LƯU TRỮ (In-Memory)
+// 3. KHO LƯU TRỮ
 // =============================================================
 var (
-	_DS_KhachHang  []*KhachHang          // Slice chứa con trỏ
-	_Map_KhachHang map[string]*KhachHang // Map tìm nhanh theo ID
+	_DS_KhachHang  []*KhachHang
+	// Map Key = Composite Key (SpreadsheetID__MaKH)
+	_Map_KhachHang map[string]*KhachHang
 )
 
 // =============================================================
 // 4. LOGIC NẠP DỮ LIỆU
 // =============================================================
-func NapKhachHang() {
-	raw, err := loadSheetData("KHACH_HANG")
+// Input: ID File cần nạp. Nếu rỗng -> Lấy ID mặc định từ Config
+func NapKhachHang(targetSpreadsheetID string) {
+	if targetSpreadsheetID == "" {
+		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+	}
+
+	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
-	tempList := []*KhachHang{}
-	tempMap := make(map[string]*KhachHang)
+	// Khởi tạo lại nếu chưa có (Chỉ reset khi chạy lần đầu hoặc reload full)
+	if _Map_KhachHang == nil {
+		_Map_KhachHang = make(map[string]*KhachHang)
+		_DS_KhachHang = []*KhachHang{}
+	}
+
+	// [LƯU Ý] Nếu nạp nhiều file, ta không nên reset _DS_KhachHang bằng rỗng ở đây
+	// mà phải có cơ chế quản lý thông minh hơn.
+	// Nhưng hiện tại để đơn giản cho Single File, ta tạm reset.
+	// (Khi nào bạn chạy nhiều file thật sự, ta sửa dòng này sau)
+	_DS_KhachHang = []*KhachHang{} 
 
 	for i, r := range raw {
-		if i < DongBatDauDuLieu-1 { continue }
+		if i < 2-1 { continue } // Bỏ qua Header (DongBatDauDuLieu = 2)
 		
 		maKH := layString(r, CotKH_MaKhachHang)
 		if maKH == "" { continue }
 
-		// Tạo struct
 		kh := &KhachHang{
-			DongTrongSheet: i + 1, // Google Sheet index từ 1
+			SpreadsheetID:  targetSpreadsheetID, // Gắn ID File
+			DongTrongSheet: i + 1,
+			
 			MaKhachHang:    maKH,
 			TenDangNhap:    layString(r, CotKH_TenDangNhap),
 			MatKhauHash:    layString(r, CotKH_MatKhauHash),
@@ -131,56 +150,62 @@ func NapKhachHang() {
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
 
-		tempList = append(tempList, kh)
-		tempMap[maKH] = kh
+		_DS_KhachHang = append(_DS_KhachHang, kh)
+		
+		// Tạo Composite Key để lưu Map
+		key := TaoCompositeKey(targetSpreadsheetID, maKH)
+		_Map_KhachHang[key] = kh
 	}
-
-	// Cập nhật biến toàn cục
-	_DS_KhachHang = tempList
-	_Map_KhachHang = tempMap
 }
 
 // =============================================================
-// 5. CÁC HÀM TRUY VẤN & NGHIỆP VỤ (Logic Nghiệp Vụ)
+// 5. NGHIỆP VỤ & TRUY VẤN
 // =============================================================
 
-// Lấy danh sách khách hàng (Trả về copy để an toàn)
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	
-	// Copy slice of pointers
 	kq := make([]*KhachHang, len(_DS_KhachHang))
 	copy(kq, _DS_KhachHang)
 	return kq
 }
 
-// Tìm khách hàng theo ID
+// Tìm Khách Hàng (Mặc định tìm trong File chính)
 func LayKhachHang(maKH string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	kh, ok := _Map_KhachHang[maKH]
+	
+	// Mặc định lấy từ File Config hiện tại
+	sheetID := cau_hinh.BienCauHinh.IdFileSheet
+	key := TaoCompositeKey(sheetID, maKH)
+	
+	kh, ok := _Map_KhachHang[key]
 	return kh, ok
 }
 
-// Tìm khách hàng theo Cookie (Dùng cho Auth)
+// Helper: Cho phép tìm từ Sheet bất kỳ (Advanced)
+func LayKhachHangTuSheet(sheetID, maKH string) (*KhachHang, bool) {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	key := TaoCompositeKey(sheetID, maKH)
+	kh, ok := _Map_KhachHang[key]
+	return kh, ok
+}
+
 func TimKhachHangTheoCookie(cookie string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 
 	for _, kh := range _DS_KhachHang {
 		if kh.Cookie == cookie && cookie != "" {
-			// Kiểm tra hạn cookie
-			if time.Now().Unix() > kh.CookieExpired {
-				return nil, false
-			}
+			if time.Now().Unix() > kh.CookieExpired { return nil, false }
 			return kh, true
 		}
 	}
 	return nil, false
 }
 
-// Tìm theo Tên Đăng Nhập hoặc Email (Dùng cho Login)
 func TimKhachHangTheoUserOrEmail(input string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
@@ -188,18 +213,20 @@ func TimKhachHangTheoUserOrEmail(input string) (*KhachHang, bool) {
 	input = strings.ToLower(strings.TrimSpace(input))
 	for _, kh := range _DS_KhachHang {
 		if strings.ToLower(kh.TenDangNhap) == input { return kh, true }
-		if strings.ToLower(kh.Email) == input && input != "" { return kh, true }
+		if kh.Email != "" && strings.ToLower(kh.Email) == input { return kh, true }
 	}
 	return nil, false
 }
 
-// Tạo mã khách hàng mới (KH_0001)
 func TaoMaKhachHangMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 
 	maxID := 0
 	for _, kh := range _DS_KhachHang {
+		// Chỉ đếm ID của file hiện tại để tránh xung đột logic
+		if kh.SpreadsheetID != cau_hinh.BienCauHinh.IdFileSheet { continue }
+
 		parts := strings.Split(kh.MaKhachHang, "_")
 		if len(parts) == 2 {
 			var id int
@@ -210,26 +237,17 @@ func TaoMaKhachHangMoi() string {
 	return fmt.Sprintf("KH_%04d", maxID+1)
 }
 
-// Kiểm tra trùng User/Email
-func KiemTraTonTaiUserEmail(user, email string) bool {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-
-	user = strings.ToLower(strings.TrimSpace(user))
-	email = strings.ToLower(strings.TrimSpace(email))
-
-	for _, kh := range _DS_KhachHang {
-		if strings.ToLower(kh.TenDangNhap) == user { return true }
-		if email != "" && strings.ToLower(kh.Email) == email { return true }
-	}
-	return false
-}
-
-// Hàm thêm khách hàng vào RAM (Logic Ghi Sheet sẽ gọi ở layer khác hoặc qua Callback)
 func ThemKhachHangVaoRam(kh *KhachHang) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
 
+	// Gán mặc định ID Sheet hiện tại nếu chưa có
+	if kh.SpreadsheetID == "" {
+		kh.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+	}
+
 	_DS_KhachHang = append(_DS_KhachHang, kh)
-	_Map_KhachHang[kh.MaKhachHang] = kh
+	
+	key := TaoCompositeKey(kh.SpreadsheetID, kh.MaKhachHang)
+	_Map_KhachHang[key] = kh
 }
