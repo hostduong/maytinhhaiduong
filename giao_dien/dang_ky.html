@@ -1,0 +1,220 @@
+{{ define "dang_ky" }}
+    {{ template "header" . }}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .iti { width: 100%; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2; }
+        .input-success { border-color: #22c55e !important; background-color: #f0fdf4; }
+        .input-normal { border-color: #d1d5db !important; background-color: #ffffff; }
+        .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .error-text.show { display: block; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; background-color: #9ca3af !important; box-shadow: none; }
+    </style>
+
+    <div class="flex items-center justify-center min-h-[calc(100vh-200px)] py-12 px-4 bg-gray-50">
+        <div class="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-green-600">Đăng Ký Thành Viên</h2>
+                <p class="mt-2 text-sm text-gray-600">Hệ thống MayTinhShop</p>
+            </div>
+
+            {{ if .Loi }}
+            <script>document.addEventListener('DOMContentLoaded', () => { Swal.fire({ icon: 'error', title: 'Lỗi', text: '{{ .Loi }}' }); });</script>
+            {{ end }}
+
+            <form id="formDangKy" action="/register" method="POST" novalidate class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Họ và tên <span class="text-red-500">*</span></label>
+                        <input id="ho_ten" name="ho_ten" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition input-normal" placeholder="Nguyễn Văn A">
+                        <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự, không chứa số hoặc ký tự lạ.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Giới tính</label>
+                        <select name="gioi_tinh" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ngày sinh</label>
+                        <input id="ngay_sinh" name="ngay_sinh" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Điện thoại</label>
+                        <input id="dien_thoai" name="dien_thoai" type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <p id="err_dien_thoai" class="error-text">Số điện thoại không hợp lệ.</p>
+                        <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                        <input id="email" name="email" type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 input-normal" placeholder="abc@gmail.com">
+                        <p id="err_email" class="error-text">Email không đúng định dạng (VD: abc@mail.com).</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mã PIN (8 số) <span class="text-red-500">*</span></label>
+                        <input id="ma_pin" name="ma_pin" type="text" maxlength="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 input-normal" placeholder="12345678">
+                        <p id="err_ma_pin" class="error-text">Mã PIN phải đúng 8 chữ số.</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tên đăng nhập <span class="text-red-500">*</span></label>
+                    <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 input-normal" placeholder="user123">
+                    <p id="err_ten_dang_nhap" class="error-text">6-30 ký tự. Chỉ gồm chữ, số và . hoặc _</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="mat_khau" name="mat_khau" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 input-normal" placeholder="••••••••">
+                            <button type="button" onclick="togglePass('mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-600">
+                                <svg id="eye_slash_mat_khau" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_mat_khau" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+                        <p id="err_mat_khau" class="error-text">8-30 ký tự. Chỉ gồm chữ, số và !@#$%^&*()-_+.,?</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nhập lại mật khẩu <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="re_mat_khau" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 input-normal" placeholder="••••••••">
+                            <button type="button" onclick="togglePass('re_mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-green-600">
+                                <svg id="eye_slash_re_mat_khau" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_re_mat_khau" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+                        <p id="err_re_mat_khau" class="error-text">Mật khẩu nhập lại không khớp.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" name="terms" type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="font-medium text-gray-700 cursor-pointer">Tôi đồng ý với <a href="#" class="text-green-600 hover:underline">Điều khoản</a></label>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" id="btnSubmit" disabled
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-green-600 hover:bg-green-700 shadow-lg transition transform active:scale-95">
+                        ĐĂNG KÝ NGAY
+                    </button>
+                </div>
+                <div class="text-center text-sm mt-4">
+                    Đã có tài khoản? <a href="/login" class="font-medium text-blue-600 hover:text-blue-500">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const inputPhone = document.querySelector("#dien_thoai");
+        const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        // QUY TẮC VALIDATE CHUẨN
+        const RULES = {
+            ho_ten: { regex: /^[\p{L}\s]{6,50}$/u },
+            email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/ },
+            ma_pin: { regex: /^\d{8}$/ },
+            ten_dang_nhap: { regex: /^[a-z0-9](?!.*(\.\.|__|_\.|\._))[a-z0-9._]{4,28}[a-z0-9]$/ },
+            mat_khau: { regex: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ }
+        };
+
+        function setError(id, isError) {
+            const input = document.getElementById(id); const msg = document.getElementById('err_' + id);
+            if (isError) { input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal'); msg.classList.add('show'); }
+            else { input.classList.remove('input-error'); if(input.value.trim()!=="") input.classList.add('input-success'); else input.classList.add('input-normal'); msg.classList.remove('show'); }
+            checkSubmitButton();
+        }
+
+        // Logic check 1: Input (Chặn ký tự cấm)
+        // Regex riêng cho Input event
+        const CHAR_RULES = {
+            ho_ten: /[^\p{L}\s]/u, email: /[^a-z0-9._%+\-@]/, ma_pin: /[^0-9]/,
+            ten_dang_nhap: /[^a-z0-9._]/, mat_khau: /[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/
+        };
+
+        function handleInput(id) {
+            const el = document.getElementById(id);
+            if (id === 'email' || id === 'ten_dang_nhap') el.value = el.value.toLowerCase();
+            const val = el.value;
+            if (val !== "" && CHAR_RULES[id].test(val)) setError(id, true);
+            else {
+                el.classList.remove('input-error', 'input-success'); el.classList.add('input-normal');
+                document.getElementById('err_'+id).classList.remove('show');
+                checkSubmitButton();
+            }
+        }
+
+        function handleBlur(id) {
+            const val = document.getElementById(id).value.trim();
+            if (val === "") return;
+            // Check length email tay
+            if (id === 'email' && (val.length < 6 || val.length > 100)) { setError(id, true); return; }
+            if (!RULES[id].regex.test(val)) setError(id, true); else setError(id, false);
+        }
+
+        Object.keys(RULES).forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => handleInput(id));
+            el.addEventListener('blur', () => handleBlur(id));
+        });
+
+        // Re-Pass
+        const rePass = document.getElementById('re_mat_khau'); const pass = document.getElementById('mat_khau');
+        rePass.addEventListener('input', function() { if (CHAR_RULES.mat_khau.test(this.value)) setError('re_mat_khau', true); else { document.getElementById('err_re_mat_khau').classList.remove('show'); this.classList.remove('input-error'); } checkSubmitButton(); });
+        rePass.addEventListener('blur', function() { if (this.value !== "" && this.value !== pass.value) setError('re_mat_khau', true); else if (this.value !== "") setError('re_mat_khau', false); });
+
+        // Phone
+        inputPhone.addEventListener('blur', () => {
+            if (inputPhone.value.trim() !== "") {
+                if (!iti.isValidNumber()) { inputPhone.classList.add('input-error'); document.getElementById('err_dien_thoai').classList.add('show'); }
+                else { inputPhone.classList.add('input-success'); inputPhone.classList.remove('input-error'); document.getElementById('err_dien_thoai').classList.remove('show'); }
+            } else { inputPhone.classList.remove('input-error', 'input-success'); document.getElementById('err_dien_thoai').classList.remove('show'); }
+            checkSubmitButton();
+        });
+
+        document.getElementById('terms').addEventListener('change', checkSubmitButton);
+
+        function checkSubmitButton() {
+            const ids = ['ho_ten', 'email', 'ma_pin', 'ten_dang_nhap', 'mat_khau', 're_mat_khau'];
+            let allOk = true;
+            ids.forEach(id => { if (!document.getElementById(id).classList.contains('input-success')) allOk = false; });
+            if (inputPhone.value.trim() !== "" && !iti.isValidNumber()) allOk = false;
+            if (!document.getElementById('terms').checked) allOk = false;
+            document.getElementById('btnSubmit').disabled = !allOk;
+        }
+
+        document.getElementById('formDangKy').addEventListener('submit', function(e) {
+            if (document.getElementById('btnSubmit').disabled) { e.preventDefault(); return; }
+            if(inputPhone.value.trim() !== "") document.getElementById("dien_thoai_full").value = iti.getNumber();
+            document.getElementById('btnSubmit').disabled = true;
+            document.getElementById('btnSubmit').innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang xử lý...`;
+        });
+
+        // HÀM TOGGLE CHUẨN 2 ICON
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id);
+            const eyeOpen = document.getElementById('eye_open_' + id);
+            if (input.type === "password") {
+                input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden');
+            } else {
+                input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden');
+            }
+        }
+    </script>
+    {{ template "footer" . }}
+{{ end }}
