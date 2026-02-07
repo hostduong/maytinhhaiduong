@@ -1,13 +1,16 @@
 package core
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
+
+	"app/cau_hinh"
 )
 
 // =============================================================
-// 1. CẤU HÌNH CỘT (Copy từ chi_muc.go)
+// 1. CẤU HÌNH CỘT (SAN_PHAM: A -> S)
 // =============================================================
 const (
 	DongBatDauDuLieu = 2 // Dữ liệu bắt đầu từ dòng 2
@@ -34,9 +37,13 @@ const (
 )
 
 // =============================================================
-// 2. STRUCT DỮ LIỆU (Copy từ bang_du_lieu.go)
+// 2. STRUCT DỮ LIỆU
 // =============================================================
 type SanPham struct {
+	// [QUAN TRỌNG] Định danh thuộc về Shop nào
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
 	MaSanPham    string  `json:"ma_san_pham"`
 	TenSanPham   string  `json:"ten_san_pham"`
 	TenRutGon    string  `json:"ten_rut_gon"`
@@ -59,34 +66,46 @@ type SanPham struct {
 }
 
 // =============================================================
-// 3. KHO LƯU TRỮ (Thay thế bo_nho_dem)
+// 3. KHO LƯU TRỮ (In-Memory)
 // =============================================================
 var (
-	_DS_SanPham  []SanPham          // Slice để duyệt danh sách
-	_Map_SanPham map[string]SanPham // Map để tìm nhanh theo ID
+	_DS_SanPham  []*SanPham          // Slice chứa toàn bộ (của mọi shop)
+	_Map_SanPham map[string]*SanPham // Map Key = "SheetID__MaSP"
 )
 
 // =============================================================
-// 4. LOGIC NẠP DỮ LIỆU (Thay thế bo_nho_dem/san_pham.go)
+// 4. LOGIC NẠP DỮ LIỆU
 // =============================================================
-func NapSanPham() {
-	raw, err := loadSheetData("SAN_PHAM")
-	if err != nil {
-		return
+func NapSanPham(targetSpreadsheetID string) {
+	if targetSpreadsheetID == "" {
+		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
 	}
 
-	// Reset bộ nhớ
-	tempList := []SanPham{}
-	tempMap := make(map[string]SanPham)
+	raw, err := loadSheetData(targetSpreadsheetID, "SAN_PHAM")
+	if err != nil { return }
+
+	// Khởi tạo map nếu chưa có
+	if _Map_SanPham == nil {
+		_Map_SanPham = make(map[string]*SanPham)
+		_DS_SanPham = []*SanPham{}
+	}
+	
+	// Reset danh sách (Tạm thời cho Single File logic)
+	// Lưu ý: Nếu chạy Multi-File thật sự, ta không được reset biến toàn cục thế này
+	// mà phải lọc bỏ các item thuộc targetSpreadsheetID cũ đi.
+	// Nhưng để code gọn cho giai đoạn này, ta tạm reset.
+	_DS_SanPham = []*SanPham{}
 
 	for i, r := range raw {
-		if i < DongBatDauDuLieu-1 { continue } // Bỏ qua Header
+		if i < DongBatDauDuLieu-1 { continue }
 		
-		// Validate cơ bản
 		maSP := layString(r, CotSP_MaSanPham)
 		if maSP == "" { continue }
 
-		item := SanPham{
+		sp := &SanPham{
+			SpreadsheetID:  targetSpreadsheetID,
+			DongTrongSheet: i + 1,
+			
 			MaSanPham:    maSP,
 			TenSanPham:   layString(r, CotSP_TenSanPham),
 			TenRutGon:    layString(r, CotSP_TenRutGon),
@@ -108,59 +127,81 @@ func NapSanPham() {
 			NgayCapNhat:  layString(r, CotSP_NgayCapNhat),
 		}
 
-		tempList = append(tempList, item)
-		tempMap[maSP] = item
+		_DS_SanPham = append(_DS_SanPham, sp)
+		
+		// Key đa nhiệm: "SheetID__MaSP"
+		key := TaoCompositeKey(targetSpreadsheetID, maSP)
+		_Map_SanPham[key] = sp
 	}
-
-	// Gán vào biến toàn cục (Thread-safe logic xử lý ở hàm gọi hoặc dùng Lock nếu cần)
-	// Ở đây ta gán thẳng vì hàm NapSanPham thường chạy khi khởi động hoặc Reload (đã có Lock tổng)
-	_DS_SanPham = tempList
-	_Map_SanPham = tempMap
 }
 
 // =============================================================
-// 5. LOGIC TRUY VẤN (Thay thế nghiep_vu/truy_xuat.go)
+// 5. TRUY VẤN & NGHIỆP VỤ
 // =============================================================
 
-// Lấy toàn bộ danh sách (Có Lock an toàn)
-func LayDanhSachSanPham() []SanPham {
+// Lấy danh sách (CHỈ CỦA SHOP HIỆN TẠI)
+func LayDanhSachSanPham() []*SanPham {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	
-	// Trả về bản copy để an toàn
-	ketQua := make([]SanPham, len(_DS_SanPham))
-	copy(ketQua, _DS_SanPham)
-	return ketQua
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	var kq []*SanPham
+
+	for _, sp := range _DS_SanPham {
+		// Chỉ lấy sản phẩm thuộc về Shop này
+		if sp.SpreadsheetID == currentSheetID {
+			kq = append(kq, sp)
+		}
+	}
+	return kq
 }
 
-// Lấy chi tiết 1 sản phẩm
-func LayChiTietSanPham(maSP string) (SanPham, bool) {
+// Tìm chi tiết (Trong Shop hiện tại)
+func LayChiTietSanPham(maSP string) (*SanPham, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	sp, ok := _Map_SanPham[maSP]
+	
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	key := TaoCompositeKey(currentSheetID, maSP)
+	
+	sp, ok := _Map_SanPham[key]
 	return sp, ok
 }
 
-// Helper: Tạo mã sản phẩm mới tự động (SP_0001)
+// Tạo mã mới (Không đụng hàng với Shop khác)
 func TaoMaSPMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
 	maxID := 0
+
 	for _, sp := range _DS_SanPham {
+		// Bỏ qua sản phẩm của shop khác
+		if sp.SpreadsheetID != currentSheetID { continue }
+
 		parts := strings.Split(sp.MaSanPham, "_")
 		if len(parts) == 2 {
-			// Giả sử format SP_xxxx. Cần parse int cẩn thận hơn thực tế
-			// nhưng đây là logic cũ của bạn, tôi giữ nguyên.
-			// Logic tối ưu hơn: Dùng regex hoặc TrimPrefix
-			soStr := strings.TrimPrefix(sp.MaSanPham, "SP_")
-			// Remove leading zeros... (phức tạp, giữ logic đơn giản tạm thời)
-			// Để đơn giản, ta chỉ đếm số lượng + 1 nếu ko parse được
-			// Logic cũ của bạn đang split "_", ok giữ nguyên.
-			// ...
+			var id int
+			fmt.Sscanf(parts[1], "%d", &id)
+			if id > maxID { maxID = id }
 		}
 	}
-	// Logic đơn giản hóa: Đếm số lượng + 1 (hoặc lấy max id thực tế nếu cần)
-	// Tạm thời return len + 1 cho nhanh gọn
-	return "SP_" + time.Now().Format("150405") // Trick: Dùng giờ phút giây để tránh trùng :D
+	
+	// Format: SP_0001
+	return fmt.Sprintf("SP_%04d", maxID+1)
+}
+
+// Thêm vào RAM (Helper)
+func ThemSanPhamVaoRam(sp *SanPham) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	
+	if sp.SpreadsheetID == "" {
+		sp.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+	}
+	
+	_DS_SanPham = append(_DS_SanPham, sp)
+	key := TaoCompositeKey(sp.SpreadsheetID, sp.MaSanPham)
+	_Map_SanPham[key] = sp
 }
