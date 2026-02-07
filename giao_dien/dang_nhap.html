@@ -1,0 +1,142 @@
+{{ define "dang_nhap" }}
+    {{ template "header" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2; }
+        .input-success { border-color: #22c55e !important; background-color: #f0fdf4; }
+        .input-normal { border-color: #d1d5db !important; background-color: #ffffff; }
+        .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .error-text.show { display: block; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; background-color: #9ca3af !important; }
+    </style>
+
+    <div class="flex items-center justify-center min-h-[calc(100vh-200px)] py-12 px-4 bg-gray-50">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-blue-600">Đăng Nhập</h2>
+                <p class="mt-2 text-sm text-gray-600">Chào mừng bạn quay trở lại ^^</p>
+            </div>
+
+            {{ if .Loi }}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    Swal.fire({ icon: 'error', title: 'Thất bại', text: '{{ .Loi }}' });
+                });
+            </script>
+            {{ end }}
+
+            <form id="formLogin" class="mt-8 space-y-6" action="/login" method="POST" novalidate>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mã KH / Tên đăng nhập / Email</label>
+                        <input id="user" name="input_dinh_danh" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition input-normal" placeholder="Mã KH / Tên đăng nhập / Email">
+                        <p id="err_user" class="error-text">Chứa ký tự không cho phép (Chỉ a-z, 0-9, @, ., _, -).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                        <div class="relative">
+                            <input id="pass" name="mat_khau" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition input-normal" placeholder="••••••••">
+                            <button type="button" onclick="togglePass('pass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600">
+                                <svg id="eye_slash_pass" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_pass" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+                        <p id="err_pass" class="error-text">Vui lòng nhập mật khẩu.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center">
+                        <input id="remember" name="ghi_nho" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer">
+                        <label for="remember" class="ml-2 block text-sm text-gray-700 cursor-pointer select-none">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-500">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" id="btnSubmit" disabled
+                    class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition transform active:scale-95">
+                    ĐĂNG NHẬP
+                </button>
+
+                <div class="text-center mt-6">
+                    <span class="text-sm text-gray-600">Bạn chưa có tài khoản? </span>
+                    <a href="/register" class="text-sm font-bold text-blue-600 hover:underline">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const u = document.getElementById('user');
+        const p = document.getElementById('pass');
+        const btn = document.getElementById('btnSubmit');
+
+        function setError(input, msgId, isError) {
+            const msgEl = document.getElementById(msgId);
+            if (isError) {
+                input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal');
+                msgEl.classList.add('show');
+            } else {
+                input.classList.remove('input-error');
+                if (input.value.trim() !== "") input.classList.add('input-success');
+                else input.classList.add('input-normal');
+                msgEl.classList.remove('show');
+            }
+            checkSubmit();
+        }
+
+        function checkSubmit() {
+            const hasError = document.querySelectorAll('.error-text.show').length > 0;
+            const notEmpty = u.value.trim().length > 0 && p.value.length > 0;
+            if (!hasError && notEmpty) btn.removeAttribute('disabled');
+            else btn.setAttribute('disabled', 'true');
+        }
+
+        // Validate Tài khoản
+        u.addEventListener('input', function() {
+            if (/[^a-zA-Z0-9@._\-]/.test(this.value)) setError(this, 'err_user', true);
+            else {
+                this.classList.remove('input-error', 'input-success');
+                this.classList.add('input-normal');
+                document.getElementById('err_user').classList.remove('show');
+            }
+            checkSubmit();
+        });
+        
+        u.addEventListener('blur', function() {
+            if (this.value.trim() === "") return;
+            if (this.value.trim().length < 4) setError(this, 'err_user', true);
+            else setError(this, 'err_user', false);
+        });
+
+        // Validate Mật khẩu
+        p.addEventListener('input', function() {
+            setError(this, 'err_pass', false); 
+            checkSubmit();
+        });
+        
+        p.addEventListener('blur', function() {
+            setError(this, 'err_pass', this.value.length === 0);
+        });
+
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id);
+            const eyeOpen = document.getElementById('eye_open_' + id);
+            if (input.type === "password") {
+                input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden');
+            } else {
+                input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            if (btn.disabled) { e.preventDefault(); return; }
+            btn.setAttribute('disabled', 'true');
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang đăng nhập...`;
+        });
+    </script>
+    {{ template "footer" . }}
+{{ end }}
