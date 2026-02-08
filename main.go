@@ -31,6 +31,7 @@ func main() {
 
 	// 3. Nạp dữ liệu vào RAM
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
+	core.NapPhanQuyen("")
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
 	core.NapSanPham("")
