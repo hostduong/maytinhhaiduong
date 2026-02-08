@@ -7,41 +7,35 @@ import (
 	"app/cau_hinh"
 )
 
-// =============================================================
-// 1. CẤU HÌNH CỘT (SAN_PHAM: A -> S)
-// =============================================================
-const (
-	DongBatDauDuLieu = 2 // Dữ liệu bắt đầu từ dòng 2
+// ... (Giữ nguyên Struct và Const) ...
+// Chỉ thay đổi hàm NapSanPham
 
-	CotSP_MaSanPham    = 0  // A
-	CotSP_TenSanPham   = 1  // B
-	CotSP_TenRutGon    = 2  // C
-	CotSP_Sku          = 3  // D
-	CotSP_MaDanhMuc    = 4  // E
-	CotSP_MaThuongHieu = 5  // F
-	CotSP_DonVi        = 6  // G
-	CotSP_MauSac       = 7  // H
-	CotSP_UrlHinhAnh   = 8  // I
-	CotSP_ThongSo      = 9  // J
-	CotSP_MoTaChiTiet  = 10 // K
-	CotSP_BaoHanhThang = 11 // L
-	CotSP_TinhTrang    = 12 // M
-	CotSP_TrangThai    = 13 // N
-	CotSP_GiaBanLe     = 14 // O
-	CotSP_GhiChu       = 15 // P
-	CotSP_NguoiTao     = 16 // Q
-	CotSP_NgayTao      = 17 // R
-	CotSP_NgayCapNhat  = 18 // S
+const (
+	DongBatDauDuLieu = 2
+	CotSP_MaSanPham    = 0
+	CotSP_TenSanPham   = 1
+	CotSP_TenRutGon    = 2
+	CotSP_Sku          = 3
+	CotSP_MaDanhMuc    = 4
+	CotSP_MaThuongHieu = 5
+	CotSP_DonVi        = 6
+	CotSP_MauSac       = 7
+	CotSP_UrlHinhAnh   = 8
+	CotSP_ThongSo      = 9
+	CotSP_MoTaChiTiet  = 10
+	CotSP_BaoHanhThang = 11
+	CotSP_TinhTrang    = 12
+	CotSP_TrangThai    = 13
+	CotSP_GiaBanLe     = 14
+	CotSP_GhiChu       = 15
+	CotSP_NguoiTao     = 16
+	CotSP_NgayTao      = 17
+	CotSP_NgayCapNhat  = 18
 )
 
-// =============================================================
-// 2. STRUCT DỮ LIỆU
-// =============================================================
 type SanPham struct {
-	// [QUAN TRỌNG] Định danh thuộc về Shop nào
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
-
 	MaSanPham    string  `json:"ma_san_pham"`
 	TenSanPham   string  `json:"ten_san_pham"`
 	TenRutGon    string  `json:"ten_rut_gon"`
@@ -63,17 +57,11 @@ type SanPham struct {
 	NgayCapNhat  string  `json:"ngay_cap_nhat"`
 }
 
-// =============================================================
-// 3. KHO LƯU TRỮ (In-Memory)
-// =============================================================
 var (
-	_DS_SanPham  []*SanPham          // Slice chứa toàn bộ
-	_Map_SanPham map[string]*SanPham // Map Key = "SheetID__MaSP"
+	_DS_SanPham  []*SanPham
+	_Map_SanPham map[string]*SanPham
 )
 
-// =============================================================
-// 4. LOGIC NẠP DỮ LIỆU
-// =============================================================
 func NapSanPham(targetSpreadsheetID string) {
 	if targetSpreadsheetID == "" {
 		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
@@ -86,21 +74,24 @@ func NapSanPham(targetSpreadsheetID string) {
 		_Map_SanPham = make(map[string]*SanPham)
 		_DS_SanPham = []*SanPham{}
 	}
-	
 	_DS_SanPham = []*SanPham{}
 
 	for i, r := range raw {
 		if i < DongBatDauDuLieu-1 { continue }
 		
 		maSP := layString(r, CotSP_MaSanPham)
-		if maSP == "" { continue }
+		tenSP := layString(r, CotSP_TenSanPham)
+
+		// [BỘ LỌC]: Mã sản phẩm phải có giá trị và độ dài > 3, Tên phải có
+		if maSP == "" || len(maSP) < 3 { continue }
+		if tenSP == "" { continue }
 
 		sp := &SanPham{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
 			
 			MaSanPham:    maSP,
-			TenSanPham:   layString(r, CotSP_TenSanPham),
+			TenSanPham:   tenSP,
 			TenRutGon:    layString(r, CotSP_TenRutGon),
 			Sku:          layString(r, CotSP_Sku),
 			MaDanhMuc:    layString(r, CotSP_MaDanhMuc),
@@ -126,49 +117,34 @@ func NapSanPham(targetSpreadsheetID string) {
 	}
 }
 
-// =============================================================
-// 5. TRUY VẤN & NGHIỆP VỤ
-// =============================================================
-
-// Lấy danh sách (CHỈ CỦA SHOP HIỆN TẠI)
+// ... (Các hàm truy vấn giữ nguyên) ...
 func LayDanhSachSanPham() []*SanPham {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
 	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
 	var kq []*SanPham
-
 	for _, sp := range _DS_SanPham {
-		if sp.SpreadsheetID == currentSheetID {
-			kq = append(kq, sp)
-		}
+		if sp.SpreadsheetID == currentSheetID { kq = append(kq, sp) }
 	}
 	return kq
 }
 
-// Tìm chi tiết (Trong Shop hiện tại)
 func LayChiTietSanPham(maSP string) (*SanPham, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
 	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
 	key := TaoCompositeKey(currentSheetID, maSP)
-	
 	sp, ok := _Map_SanPham[key]
 	return sp, ok
 }
 
-// Tạo mã mới (Không đụng hàng với Shop khác)
 func TaoMaSPMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
 	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
 	maxID := 0
-
 	for _, sp := range _DS_SanPham {
 		if sp.SpreadsheetID != currentSheetID { continue }
-
 		parts := strings.Split(sp.MaSanPham, "_")
 		if len(parts) == 2 {
 			var id int
@@ -176,18 +152,13 @@ func TaoMaSPMoi() string {
 			if id > maxID { maxID = id }
 		}
 	}
-	
 	return fmt.Sprintf("SP_%04d", maxID+1)
 }
 
 func ThemSanPhamVaoRam(sp *SanPham) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	
-	if sp.SpreadsheetID == "" {
-		sp.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
-	}
-	
+	if sp.SpreadsheetID == "" { sp.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
 	_DS_SanPham = append(_DS_SanPham, sp)
 	key := TaoCompositeKey(sp.SpreadsheetID, sp.MaSanPham)
 	_Map_SanPham[key] = sp
