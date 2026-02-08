@@ -12,8 +12,8 @@ import (
 // 1. CẤU HÌNH CỘT
 // =============================================================
 const (
-	// [CHUẨN HÓA] Tên biến theo format: DongBatDau_<TênSheet>
-	DongBatDau_KhachHang = 11 
+	// [CHUẨN HÓA TUYỆT ĐỐI]
+	DongBatDau_KhachHang = 11
 
 	CotKH_MaKhachHang      = 0
 	CotKH_TenDangNhap      = 1
@@ -44,12 +44,49 @@ const (
 	CotKH_NgayCapNhat      = 26
 )
 
-// ... (Phần Struct và Code bên dưới GIỮ NGUYÊN như cũ) ...
-// ... (Lưu ý: Trong hàm NapKhachHang, nhớ sửa dòng kiểm tra i < DongBatDau... nhé)
+type KhachHang struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
 
-// Tôi viết lại hàm NapKhachHang để bạn copy đè cho chắc:
+	MaKhachHang      string  `json:"ma_khach_hang"`
+	TenDangNhap      string  `json:"ten_dang_nhap"`
+	MatKhauHash      string  `json:"-"`
+	Cookie           string  `json:"-"`
+	CookieExpired    int64   `json:"cookie_expired"`
+	MaPinHash        string  `json:"-"`
+	LoaiKhachHang    string  `json:"loai_khach_hang"`
+	TenKhachHang     string  `json:"ten_khach_hang"`
+	DienThoai        string  `json:"dien_thoai"`
+	Email            string  `json:"email"`
+	UrlFb            string  `json:"url_fb"`
+	Zalo             string  `json:"zalo"`
+	UrlTele          string  `json:"url_tele"`
+	UrlTiktok        string  `json:"url_tiktok"`
+	DiaChi           string  `json:"dia_chi"`
+	NgaySinh         string  `json:"ngay_sinh"`
+	GioiTinh         string  `json:"gioi_tinh"`
+	MaSoThue         string  `json:"ma_so_thue"`
+	DangNo           float64 `json:"dang_no"`
+	TongMua          float64 `json:"tong_mua"`
+	ChucVu           string  `json:"chuc_vu"`
+	VaiTroQuyenHan   string  `json:"vai_tro_quyen_han"`
+	TrangThai        int     `json:"trang_thai"`
+	GhiChu           string  `json:"ghi_chu"`
+	NguoiTao         string  `json:"nguoi_tao"`
+	NgayTao          string  `json:"ngay_tao"`
+	NgayCapNhat      string  `json:"ngay_cap_nhat"`
+}
+
+var (
+	_DS_KhachHang  []*KhachHang
+	_Map_KhachHang map[string]*KhachHang
+)
+
 func NapKhachHang(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
+	if targetSpreadsheetID == "" {
+		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+	}
+
 	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
@@ -57,18 +94,25 @@ func NapKhachHang(targetSpreadsheetID string) {
 	_DS_KhachHang = []*KhachHang{}
 
 	for i, r := range raw {
-		// [SỬA] Dùng biến chuẩn DongBatDau_KhachHang
+		// [SỬA ĐÚNG TÊN BIẾN]
 		if i < DongBatDau_KhachHang-1 { continue }
 		
 		maKH := layString(r, CotKH_MaKhachHang)
-		if maKH == "" { continue } // Logic lọc rác nới lỏng (chỉ cần có mã)
+		
+		// Logic lọc rác (Chỉ cần có Mã)
+		if maKH == "" { continue }
 		
 		key := TaoCompositeKey(targetSpreadsheetID, maKH)
-		if _, daTonTai := _Map_KhachHang[key]; daTonTai { continue }
+
+		// Chống trùng lặp
+		if _, daTonTai := _Map_KhachHang[key]; daTonTai {
+			continue
+		}
 
 		kh := &KhachHang{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
+			
 			MaKhachHang:    maKH,
 			TenDangNhap:    layString(r, CotKH_TenDangNhap),
 			MatKhauHash:    layString(r, CotKH_MatKhauHash),
@@ -97,11 +141,13 @@ func NapKhachHang(targetSpreadsheetID string) {
 			NgayTao:        layString(r, CotKH_NgayTao),
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
+
 		_DS_KhachHang = append(_DS_KhachHang, kh)
 		_Map_KhachHang[key] = kh
 	}
 }
 
+// ... (Các hàm truy vấn giữ nguyên như cũ) ...
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
