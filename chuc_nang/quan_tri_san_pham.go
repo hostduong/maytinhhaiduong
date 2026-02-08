@@ -16,11 +16,12 @@ import (
 func TrangQuanLySanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	
-	// [SỬA LỖI CHÍ MẠNG] Kiểm tra kỹ dữ liệu người dùng
+	// [QUAN TRỌNG] Lấy thông tin người dùng an toàn
 	kh, found := core.LayKhachHang(userID)
 	
-	// NẾU KHÔNG TÌM THẤY (Do lỗi data hoặc chưa load xong) -> ĐÁ VỀ LOGIN
-	// Nếu không có dòng này, server sẽ sập (Panic) và ra màn hình trắng
+	// [CHỐT CHẶN LỖI TRẮNG TRANG]
+	// Nếu không tìm thấy user (do chưa load xong hoặc session lỗi)
+	// Bắt buộc chuyển hướng về Login, không được render tiếp để tránh Sập (Panic)
 	if !found || kh == nil {
 		c.Redirect(http.StatusFound, "/login")
 		return
@@ -45,14 +46,14 @@ func TrangQuanLySanPham(c *gin.Context) {
 
 // API_LuuSanPham : Xử lý Thêm/Sửa
 func API_LuuSanPham(c *gin.Context) {
-	// 1. Check quyền
+	// Check quyền chặt chẽ
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" && vaiTro != "quan_ly" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
 		return
 	}
 
-	// 2. Lấy dữ liệu form
+	// Lấy dữ liệu form
 	maSP        := strings.TrimSpace(c.PostForm("ma_san_pham"))
 	tenSP       := strings.TrimSpace(c.PostForm("ten_san_pham"))
 	tenRutGon   := strings.TrimSpace(c.PostForm("ten_rut_gon"))
@@ -83,7 +84,7 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
-	// 3. Logic Thêm/Sửa dùng Core
+	// Logic Core
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
@@ -128,14 +129,14 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.NgayCapNhat = nowStr
 
 	if isNew {
-		// Dùng biến chuẩn
+		// [CHUẨN] Dùng biến DongBatDau_SanPham
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
 	
 	core.KhoaHeThong.Unlock()
 
-	// 4. Đẩy xuống Hàng Chờ Ghi
+	// Ghi xuống Sheet
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
