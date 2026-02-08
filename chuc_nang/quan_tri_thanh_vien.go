@@ -2,9 +2,9 @@ package chuc_nang
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
+	"app/bao_mat" // [MỚI] Import để dùng HashMatKhau
 	"app/cau_hinh"
 	"app/core"
 
@@ -71,15 +71,18 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	
 	// Đổi pass nếu có
 	if pass != "" {
-		// Import "app/bao_mat" ở trên đầu file nếu chưa có
-		// hash, _ := bao_mat.HashMatKhau(pass)
-		// kh.MatKhauHash = hash
-		// TODO: Bạn cần import package bao_mat để dùng hàm Hash
+		hash, _ := bao_mat.HashMatKhau(pass)
+		kh.MatKhauHash = hash
+		
+		// Ghi đè pass xuống Sheet
+		sID := cau_hinh.BienCauHinh.IdFileSheet
+		core.ThemVaoHangCho(sID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
 	}
+	
 	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
-	// 5. Ghi xuống Sheet
+	// 5. Ghi xuống Sheet (Các thông tin khác)
 	sID := cau_hinh.BienCauHinh.IdFileSheet
 	row := kh.DongTrongSheet
 	
