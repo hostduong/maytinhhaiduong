@@ -1,14 +1,13 @@
 package chuc_nang
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"app/cau_hinh"
-	"app/core" // [MỚI] Dùng Core
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
