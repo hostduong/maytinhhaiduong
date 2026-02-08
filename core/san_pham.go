@@ -7,11 +7,13 @@ import (
 	"app/cau_hinh"
 )
 
-// ... (Giữ nguyên Struct và Const) ...
-// Chỉ thay đổi hàm NapSanPham
-
+// =============================================================
+// 1. CẤU HÌNH CỘT
+// =============================================================
 const (
-	DongBatDauDuLieu = 2
+	// [CẬP NHẬT] Dữ liệu bắt đầu từ dòng 11
+	DongBatDauDuLieuSP = 11
+
 	CotSP_MaSanPham    = 0
 	CotSP_TenSanPham   = 1
 	CotSP_TenRutGon    = 2
@@ -70,28 +72,31 @@ func NapSanPham(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "SAN_PHAM")
 	if err != nil { return }
 
-	if _Map_SanPham == nil {
-		_Map_SanPham = make(map[string]*SanPham)
-		_DS_SanPham = []*SanPham{}
-	}
+	_Map_SanPham = make(map[string]*SanPham)
 	_DS_SanPham = []*SanPham{}
 
 	for i, r := range raw {
-		if i < DongBatDauDuLieu-1 { continue }
+		// [CẬP NHẬT] Bỏ qua 10 dòng đầu
+		if i < DongBatDauDuLieuSP-1 { continue }
 		
 		maSP := layString(r, CotSP_MaSanPham)
-		tenSP := layString(r, CotSP_TenSanPham)
+		
+		// [LOGIC MỚI] Chỉ cần có mã là lấy (Bỏ check SP_)
+		if maSP == "" { continue }
 
-		// [BỘ LỌC]: Mã sản phẩm phải có giá trị và độ dài > 3, Tên phải có
-		if maSP == "" || len(maSP) < 3 { continue }
-		if tenSP == "" { continue }
+		key := TaoCompositeKey(targetSpreadsheetID, maSP)
+
+		// Chống trùng lặp (Ưu tiên dòng đầu)
+		if _, daTonTai := _Map_SanPham[key]; daTonTai {
+			continue
+		}
 
 		sp := &SanPham{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
 			
 			MaSanPham:    maSP,
-			TenSanPham:   tenSP,
+			TenSanPham:   layString(r, CotSP_TenSanPham),
 			TenRutGon:    layString(r, CotSP_TenRutGon),
 			Sku:          layString(r, CotSP_Sku),
 			MaDanhMuc:    layString(r, CotSP_MaDanhMuc),
@@ -112,7 +117,6 @@ func NapSanPham(targetSpreadsheetID string) {
 		}
 
 		_DS_SanPham = append(_DS_SanPham, sp)
-		key := TaoCompositeKey(targetSpreadsheetID, maSP)
 		_Map_SanPham[key] = sp
 	}
 }
