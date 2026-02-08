@@ -94,6 +94,10 @@ func main() {
 		admin.GET("/san-pham", chuc_nang.TrangQuanLySanPham)
 		admin.POST("/api/product/save", chuc_nang.API_LuuSanPham)
 		
+        // Quản lý thành viên & Phân quyền
+        admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien) // Trang danh sách
+        admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) // API Lưu quyền	
+		
 		// Quản lý thành viên (API)
 		admin.POST("/api/member/update", chuc_nang.API_Admin_SuaThanhVien)
 	}
