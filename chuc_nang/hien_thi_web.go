@@ -2,46 +2,42 @@ package chuc_nang
 
 import (
 	"net/http"
-	"app/core" // [QUAN TRỌNG] Sử dụng Core
+	"app/core" // Sử dụng Core mới
+
 	"github.com/gin-gonic/gin"
 )
 
-// Hàm hỗ trợ lấy thông tin User từ Cookie (Dùng Core)
+// Helper: Lấy thông tin User từ Cookie
 func layThongTinNguoiDung(c *gin.Context) (bool, string, string) {
 	cookie, _ := c.Cookie("session_id")
 	if cookie != "" {
-		// Tìm Khách Hàng trong Core
+		// Tìm trong RAM Core
 		if kh, ok := core.TimKhachHangTheoCookie(cookie); ok {
-			// Trả về: Đã đăng nhập, Tên hiển thị (Họ tên), Quyền hạn
 			return true, kh.TenKhachHang, kh.VaiTroQuyenHan
 		}
 	}
 	return false, "", ""
 }
 
-// TrangChu : Hiển thị trang chủ
+// 1. Trang Chủ
 func TrangChu(c *gin.Context) {
-	// 1. Lấy dữ liệu sản phẩm từ Core
+	// Lấy danh sách sản phẩm từ Core
 	danhSachSP := core.LayDanhSachSanPham()
 	
-	// 2. Kiểm tra đăng nhập
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 
-	// 3. Trả về HTML kèm thông tin User
 	c.HTML(http.StatusOK, "khung_giao_dien", gin.H{
 		"TieuDe":          "Trang Chủ",
-		"DanhSachSanPham": danhSachSP, // Core trả về []*SanPham
+		"DanhSachSanPham": danhSachSP,
 		"DaDangNhap":      daLogin,
 		"TenNguoiDung":    tenUser,
 		"QuyenHan":        quyen,
 	})
 }
 
-// ChiTietSanPham : Hiển thị trang chi tiết
+// 2. Chi Tiết Sản Phẩm
 func ChiTietSanPham(c *gin.Context) {
 	id := c.Param("id")
-	
-	// Lấy từ Core
 	sp, tonTai := core.LayChiTietSanPham(id)
 
 	if !tonTai {
@@ -49,7 +45,6 @@ func ChiTietSanPham(c *gin.Context) {
 		return
 	}
 
-	// Kiểm tra đăng nhập
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 
 	c.HTML(http.StatusOK, "khung_giao_dien", gin.H{
@@ -60,26 +55,26 @@ func ChiTietSanPham(c *gin.Context) {
 		"QuyenHan":     quyen,
 	})
 }
-// TrangHoSo : Hiển thị trang hồ sơ cá nhân
+
+// 3. [MỚI] Trang Hồ Sơ Cá Nhân
 func TrangHoSo(c *gin.Context) {
-	// 1. Kiểm tra đăng nhập
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
+	
+	// Chưa đăng nhập thì đá về Login
 	if !daLogin {
-		// Chưa đăng nhập thì đá về Login
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// 2. Lấy thông tin chi tiết từ Core
+	// Lấy chi tiết khách hàng để điền vào Form
 	cookie, _ := c.Cookie("session_id")
 	kh, _ := core.TimKhachHangTheoCookie(cookie)
 
-	// 3. Hiển thị View "ho_so.html"
 	c.HTML(http.StatusOK, "ho_so", gin.H{
 		"TieuDe":       "Hồ sơ cá nhân",
 		"DaDangNhap":   daLogin,
 		"TenNguoiDung": tenUser,
 		"QuyenHan":     quyen,
-		"KhachHang":    kh, // Truyền biến này để form điền sẵn thông tin (Họ tên, SĐT...)
+		"NhanVien":     kh, // Truyền biến 'NhanVien' khớp với template ho_so.html
 	})
 }
