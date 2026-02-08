@@ -1,33 +1,47 @@
 package core
 
 import (
-	"sort"
 	"app/cau_hinh"
 )
 
-// 1. CẤU HÌNH CỘT
+// =============================================================
+// 1. CẤU HÌNH CỘT (THUONG_HIEU)
+// =============================================================
 const (
+	DongBatDauDuLieuTH = 2 // [CẬP NHẬT] Tự định nghĩa riêng
+
 	CotTH_MaThuongHieu  = 0
 	CotTH_TenThuongHieu = 1
-	CotTH_LogoUrl       = 2
+	CotTH_HinhAnh       = 2
+	CotTH_MoTa          = 3
+	CotTH_TrangThai     = 4
 )
 
-// 2. STRUCT
+// =============================================================
+// 2. STRUCT DỮ LIỆU
+// =============================================================
 type ThuongHieu struct {
-	SpreadsheetID string `json:"-"`
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
 
 	MaThuongHieu  string `json:"ma_thuong_hieu"`
 	TenThuongHieu string `json:"ten_thuong_hieu"`
-	LogoUrl       string `json:"logo_url"`
+	HinhAnh       string `json:"hinh_anh"`
+	MoTa          string `json:"mo_ta"`
+	TrangThai     int    `json:"trang_thai"`
 }
 
+// =============================================================
 // 3. KHO LƯU TRỮ
+// =============================================================
 var (
 	_DS_ThuongHieu  []*ThuongHieu
 	_Map_ThuongHieu map[string]*ThuongHieu
 )
 
-// 4. NẠP DỮ LIỆU
+// =============================================================
+// 4. LOGIC NẠP DỮ LIỆU
+// =============================================================
 func NapThuongHieu(targetSpreadsheetID string) {
 	if targetSpreadsheetID == "" {
 		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
@@ -43,51 +57,43 @@ func NapThuongHieu(targetSpreadsheetID string) {
 	_DS_ThuongHieu = []*ThuongHieu{}
 
 	for i, r := range raw {
-		if i < DongBatDauDuLieu-1 { continue }
+		// [SỬA ĐỔI] Dùng biến riêng DongBatDauDuLieuTH
+		if i < DongBatDauDuLieuTH-1 { continue }
 		
-		ma := layString(r, CotTH_MaThuongHieu)
-		if ma == "" { continue }
+		maTH := layString(r, CotTH_MaThuongHieu)
+		if maTH == "" { continue }
 
-		item := &ThuongHieu{
-			SpreadsheetID: targetSpreadsheetID,
-			MaThuongHieu:  ma,
+		th := &ThuongHieu{
+			SpreadsheetID:  targetSpreadsheetID,
+			DongTrongSheet: i + 1,
+			
+			MaThuongHieu:  maTH,
 			TenThuongHieu: layString(r, CotTH_TenThuongHieu),
-			LogoUrl:       layString(r, CotTH_LogoUrl),
+			HinhAnh:       layString(r, CotTH_HinhAnh),
+			MoTa:          layString(r, CotTH_MoTa),
+			TrangThai:     layInt(r, CotTH_TrangThai),
 		}
 
-		_DS_ThuongHieu = append(_DS_ThuongHieu, item)
-		key := TaoCompositeKey(targetSpreadsheetID, ma)
-		_Map_ThuongHieu[key] = item
+		_DS_ThuongHieu = append(_DS_ThuongHieu, th)
+		key := TaoCompositeKey(targetSpreadsheetID, maTH)
+		_Map_ThuongHieu[key] = th
 	}
 }
 
+// =============================================================
 // 5. TRUY VẤN
+// =============================================================
 func LayDanhSachThuongHieu() []*ThuongHieu {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
-	currentID := cau_hinh.BienCauHinh.IdFileSheet
-	var kq []*ThuongHieu
 	
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	var kq []*ThuongHieu
+
 	for _, th := range _DS_ThuongHieu {
-		if th.SpreadsheetID == currentID {
+		if th.SpreadsheetID == currentSheetID {
 			kq = append(kq, th)
 		}
 	}
-
-	// Sắp xếp A-Z
-	sort.Slice(kq, func(i, j int) bool {
-		return kq[i].TenThuongHieu < kq[j].TenThuongHieu
-	})
-	
 	return kq
-}
-
-func LayThuongHieu(maTH string) (*ThuongHieu, bool) {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	
-	key := TaoCompositeKey(cau_hinh.BienCauHinh.IdFileSheet, maTH)
-	th, ok := _Map_ThuongHieu[key]
-	return th, ok
 }
