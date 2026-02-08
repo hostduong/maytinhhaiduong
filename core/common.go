@@ -29,7 +29,7 @@ var (
 	HeThongDangBan bool
 )
 
-// Struct phục vụ cho Hàng Chờ Ghi
+// Struct phục vụ cho Hàng Chờ Ghi (Giữ lại Struct này vì các file khác cần dùng)
 type YeuCauGhi struct {
 	SpreadsheetID string      // ID file Google Sheet
 	SheetName     string      // Tên Sheet
@@ -97,17 +97,7 @@ func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, erro
 	return resp.Values, nil
 }
 
-func ThemVaoHangCho(sheetID, sheetName string, row, col int, val interface{}) {
-	if CallbackThemVaoHangCho != nil {
-		CallbackThemVaoHangCho(YeuCauGhi{
-			SpreadsheetID: sheetID,
-			SheetName:     sheetName,
-			RowIndex:      row,
-			ColIndex:      col,
-			Value:         val,
-		})
-	}
-}
+// [ĐÃ XÓA HÀM ThemVaoHangCho TẠI ĐÂY ĐỂ KHÔNG BỊ TRÙNG VỚI write_queue.go]
 
 // --- CÁC HÀM PARSE DỮ LIỆU ---
 
