@@ -1,0 +1,120 @@
+{{ define "quan_tri_thanh_vien" }}
+    {{ template "header" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">👥 Quản Lý Thành Viên & Phân Quyền</h1>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3">Mã KH</th>
+                            <th class="px-6 py-3">Họ Tên / User</th>
+                            <th class="px-6 py-3">Vai Trò (Role)</th>
+                            <th class="px-6 py-3">Chức Vụ</th>
+                            <th class="px-6 py-3 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .DanhSach }}
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 font-bold">{{ .MaKhachHang }}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-gray-800">{{ .TenKhachHang }}</div>
+                                <div class="text-xs text-gray-400">{{ .TenDangNhap }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ if eq .VaiTroQuyenHan "admin_root" }}
+                                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">SUPER ADMIN</span>
+                                {{ else if eq .VaiTroQuyenHan "admin" }}
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">ADMIN</span>
+                                {{ else if eq .VaiTroQuyenHan "sale" }}
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded">SALE</span>
+                                {{ else if eq .VaiTroQuyenHan "kho" }}
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded">KHO</span>
+                                {{ else }}
+                                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">CUSTOMER</span>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4">{{ .ChucVu }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editMember('{{ .MaKhachHang }}', '{{ .TenKhachHang }}', '{{ .VaiTroQuyenHan }}')" 
+                                    class="text-blue-600 hover:underline font-bold">Phân Quyền</button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMember" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800">Cấp Quyền Thành Viên</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editMaKH">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Họ Tên</label>
+                    <input type="text" id="editTen" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vai Trò Hệ Thống</label>
+                    <select id="editRole" class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="customer">Khách hàng (Customer)</option>
+                        <option value="sale">Nhân viên kinh doanh (Sale)</option>
+                        <option value="kho">Thủ kho (Stock)</option>
+                        <option value="admin">Quản trị viên (Admin)</option>
+                        <option value="admin_root" disabled>Super Admin (Không thể cấp)</option>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">Vai trò quyết định quyền hạn trong Sheet PHAN_QUYEN.</p>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-bold">Hủy</button>
+                <button onclick="saveMember()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg">Lưu Quyền</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeModal() { document.getElementById('modalMember').classList.add('hidden'); }
+        
+        function editMember(ma, ten, role) {
+            document.getElementById('editMaKH').value = ma;
+            document.getElementById('editTen').value = ten;
+            document.getElementById('editRole').value = role;
+            document.getElementById('modalMember').classList.remove('hidden');
+        }
+
+        async function saveMember() {
+            const fd = new FormData();
+            fd.append('ma_khach_hang', document.getElementById('editMaKH').value);
+            fd.append('ten_khach_hang', document.getElementById('editTen').value);
+            fd.append('vai_tro', document.getElementById('editRole').value);
+
+            try {
+                const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false})
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                }
+            } catch(e) {
+                Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
+            }
+        }
+    </script>
+    {{ template "footer" . }}
+{{ end }}
