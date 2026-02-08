@@ -16,23 +16,24 @@ import (
 func TrangQuanLySanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	
-	// [LOGIC CHUẨN] Lấy thông tin người dùng
+	// [SỬA LỖI CHÍ MẠNG] Kiểm tra kỹ dữ liệu người dùng
 	kh, found := core.LayKhachHang(userID)
 	
-	// NẾU KHÔNG TÌM THẤY (Lỗi data hoặc Session ảo) -> ĐÁ VỀ LOGIN NGAY
+	// NẾU KHÔNG TÌM THẤY (Do lỗi data hoặc chưa load xong) -> ĐÁ VỀ LOGIN
+	// Nếu không có dòng này, server sẽ sập (Panic) và ra màn hình trắng
 	if !found || kh == nil {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// 1. Lấy dữ liệu từ Core (Đã sort sẵn)
+	// 1. Lấy dữ liệu từ Core
 	listSP := core.LayDanhSachSanPham()
 	listDM := core.LayDanhSachDanhMuc()
 	listTH := core.LayDanhSachThuongHieu()
 
 	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
-		"NhanVien":       kh,             // Biến này giờ chắc chắn có dữ liệu
+		"NhanVien":       kh, 
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
@@ -44,11 +45,8 @@ func TrangQuanLySanPham(c *gin.Context) {
 
 // API_LuuSanPham : Xử lý Thêm/Sửa
 func API_LuuSanPham(c *gin.Context) {
-	// 1. Check quyền (Dùng Middleware chặn trước, nhưng check lại cho chắc)
+	// 1. Check quyền
 	vaiTro := c.GetString("USER_ROLE")
-	
-	// [QUAN TRỌNG] Hệ thống phân quyền chặt chẽ
-	// Chỉ Admin Root, Admin và Quản lý mới được sửa
 	if vaiTro != "admin_root" && vaiTro != "admin" && vaiTro != "quan_ly" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
 		return
@@ -60,7 +58,6 @@ func API_LuuSanPham(c *gin.Context) {
 	tenRutGon   := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku         := strings.TrimSpace(c.PostForm("sku"))
 	
-	// Xử lý giá tiền
 	giaBanStr   := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr    = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _   := strconv.ParseFloat(giaBanStr, 64)
@@ -96,7 +93,6 @@ func API_LuuSanPham(c *gin.Context) {
 	core.KhoaHeThong.Lock()
 	
 	if maSP == "" {
-		// TẠO MỚI
 		isNew = true
 		maSP = core.TaoMaSPMoi()
 		sp = &core.SanPham{
@@ -106,17 +102,14 @@ func API_LuuSanPham(c *gin.Context) {
 			NguoiTao:      userID,
 		}
 	} else {
-		// SỬA: Tìm trong Core
 		foundSP, ok := core.LayChiTietSanPham(maSP)
 		if ok {
 			sp = foundSP
 		} else {
-			// Fallback an toàn (tạo obj tạm để update nếu data chưa sync kịp)
 			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP, NgayTao: nowStr}
 		}
 	}
 
-	// Update thông tin
 	sp.TenSanPham = tenSP
 	sp.TenRutGon = tenRutGon
 	sp.Sku = sku
@@ -134,16 +127,15 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.GhiChu = ghiChu
 	sp.NgayCapNhat = nowStr
 
-	// Nếu mới -> Thêm vào RAM
 	if isNew {
-		// Dùng đúng biến DongBatDau_SanPham
+		// Dùng biến chuẩn
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
 	
 	core.KhoaHeThong.Unlock()
 
-	// 4. Đẩy xuống Hàng Chờ Ghi (Core Queue)
+	// 4. Đẩy xuống Hàng Chờ Ghi
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
