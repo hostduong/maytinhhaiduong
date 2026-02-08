@@ -8,15 +8,17 @@ const (
 	ThoiGianHetHanCookie = 30 * time.Minute
 
 	// Thời gian "ân hạn" (Grace Period)
+	// Nếu user thao tác khi còn < 5 phút thì tự động gia hạn thêm
 	ThoiGianAnHan = 5 * time.Minute 
 
 	// RATE LIMIT (GIỚI HẠN TỐC ĐỘ)
 	GioiHanNguoiDung   = 10   // request / giây
 )
 
-// Mapping Cột Trong Sheet NHAN_VIEN
-// (Để code Middleware gọi được các biến CotNV_...)
+// [ĐÃ ĐỒNG BỘ CHÍNH XÁC]
+// Mapping Cột Trong Sheet KHACH_HANG (Dùng cho cấu hình nhanh nếu cần)
+// Lưu ý: Giá trị này phải khớp với app/core/khach_hang.go
 const (
-	CotNV_Cookie          = 7 // Cột H
-	CotNV_CookieExpired   = 8 // Cột I
+	CotKH_Cookie          = 3 // Cột D (Index 3)
+	CotKH_CookieExpired   = 4 // Cột E (Index 4)
 )
