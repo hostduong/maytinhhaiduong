@@ -2,22 +2,20 @@ package chuc_nang
 
 import (
 	"net/http"
-	"sort"
 	"time"
 
-	"app/bo_nho_dem" // [MỚI] Import gói chứa dữ liệu gốc
-	"app/mo_hinh"
-	"app/nghiep_vu"
+	"app/core" // [MỚI] Chỉ dùng Core
 
 	"github.com/gin-gonic/gin"
 )
 
+// Struct dữ liệu hiển thị (Giữ nguyên cấu trúc để View không lỗi)
 type DuLieuDashboard struct {
 	TongDoanhThu    float64
 	DonHangHomNay   int
 	TongSanPham     int
 	TongKhachHang   int
-	DonHangMoiNhat  []mo_hinh.PhieuXuat
+	// DonHangMoiNhat []mo_hinh.PhieuXuat // Tạm đóng vì chưa có Struct PhieuXuat trong Core
 	ChartNhan       []string
 	ChartDoanhThu   []float64
 }
@@ -25,15 +23,18 @@ type DuLieuDashboard struct {
 func TrangTongQuan(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	vaiTro := c.GetString("USER_ROLE")
-	kh, _ := nghiep_vu.LayThongTinKhachHang(userID)
+	
+	// 1. Lấy thông tin Admin từ Core
+	kh, _ := core.LayKhachHang(userID)
 
+	// 2. Tính toán thống kê
 	stats := tinhToanThongKe()
 
 	c.HTML(http.StatusOK, "quan_tri", gin.H{
 		"TieuDe":       "Tổng quan hệ thống",
 		"NhanVien":     kh,
 		"DaDangNhap":   true,
-		"TenNguoiDung": kh.TenKhachHang,
+		"TenNguoiDung": c.GetString("USER_NAME"),
 		"QuyenHan":     vaiTro,
 		"ThongKe":      stats,
 	})
@@ -42,70 +43,54 @@ func TrangTongQuan(c *gin.Context) {
 func tinhToanThongKe() DuLieuDashboard {
 	var kq DuLieuDashboard
 
-	// [SỬA] Dùng Lock từ bo_nho_dem
-	bo_nho_dem.KhoaHeThong.RLock()
-	defer bo_nho_dem.KhoaHeThong.RUnlock()
+	// Lock để đọc an toàn
+	core.KhoaHeThong.RLock()
+	defer core.KhoaHeThong.RUnlock()
 
-	// [SỬA] Truy cập trực tiếp vào bo_nho_dem để đếm
-	// 1. Đếm sản phẩm (Dựa trên danh sách)
-	kq.TongSanPham = len(bo_nho_dem.CacheSanPham.DanhSach)
+	// 1. Đếm sản phẩm từ Core
+	kq.TongSanPham = len(core.LayDanhSachSanPham())
 	
-	// 2. Đếm khách hàng (Dựa trên danh sách mới tạo -> ĐẾM ĐÚNG)
-	kq.TongKhachHang = len(bo_nho_dem.CacheKhachHang.DanhSach)
+	// 2. Đếm khách hàng từ Core
+	kq.TongKhachHang = len(core.LayDanhSachKhachHang())
 
-	now := time.Now().Format("2006-01-02")
-	mapDoanhThuNgay := make(map[string]float64)
-	var listPX []mo_hinh.PhieuXuat
-
-	// [SỬA] Duyệt CachePhieuXuat từ bo_nho_dem
-	for _, px := range bo_nho_dem.CachePhieuXuat.DuLieu {
-		listPX = append(listPX, px)
-		
-		if px.TrangThai != "Đã hủy" {
-			kq.TongDoanhThu += px.TongTienPhieu
-			if len(px.NgayTao) >= 10 {
-				ngay := px.NgayTao[:10]
-				mapDoanhThuNgay[ngay] += px.TongTienPhieu
-			}
-		}
-
-		if len(px.NgayTao) >= 10 && px.NgayTao[:10] == now {
-			kq.DonHangHomNay++
-		}
-	}
-
-	sort.Slice(listPX, func(i, j int) bool {
-		return listPX[i].NgayTao > listPX[j].NgayTao
-	})
-
-	limit := 5
-	if len(listPX) < 5 { limit = len(listPX) }
-	kq.DonHangMoiNhat = listPX[:limit]
-
+	// 3. Phần Thống Kê Doanh Thu & Đơn Hàng
+	// TODO: Mở lại phần này sau khi chuyển đổi module DonHang sang Core
+	// Hiện tại để giá trị 0 để hệ thống chạy được mà không cần file cũ.
+	kq.TongDoanhThu = 0
+	kq.DonHangHomNay = 0
+	
+	// Giả lập biểu đồ rỗng để giao diện không bị méo
 	for i := 6; i >= 0; i-- {
 		t := time.Now().AddDate(0, 0, -i)
-		key := t.Format("2006-01-02")
 		label := t.Format("02/01")
-		
 		kq.ChartNhan = append(kq.ChartNhan, label)
-		kq.ChartDoanhThu = append(kq.ChartDoanhThu, mapDoanhThuNgay[key])
+		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0)
 	}
 
 	return kq
 }
 
+// API Reload dữ liệu (Nút đồng bộ trên Menu)
 func API_NapLaiDuLieu(c *gin.Context) {
+	// Logic check quyền đơn giản
 	vaiTro := c.GetString("USER_ROLE")
-	if !nghiep_vu.KiemTraQuyen(vaiTro, "system.reload") {
+	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"trang_thai": "loi", "thong_diep": "Không có quyền!"})
 		return
 	}
 
-	// [SỬA] Gọi hàm reload từ bo_nho_dem
-	bo_nho_dem.LamMoiHeThong()
+	// Gọi Core nạp lại dữ liệu (Mặc định ID Config)
+	go func() {
+		core.HeThongDangBan = true
+		core.NapDanhMuc("")
+		core.NapThuongHieu("")
+		core.NapSanPham("")
+		core.NapKhachHang("")
+		core.HeThongDangBan = false
+	}()
 
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong", 
-		"thong_diep": "Đã đồng bộ dữ liệu mới nhất!",
+		"thong_diep": "Đang tiến hành đồng bộ dữ liệu...",
 	})
 }
