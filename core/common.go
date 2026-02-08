@@ -17,6 +17,7 @@ import (
 // =============================================================
 // 1. CẤU TRÚC HẠ TẦNG (INFRASTRUCTURE)
 // =============================================================
+
 var (
 	// Khóa an toàn (Mutex) bảo vệ toàn bộ dữ liệu RAM
 	KhoaHeThong sync.RWMutex
@@ -53,18 +54,14 @@ func KhoiTaoNenTang() {
 	var err error
 
 	if jsonKey != "" {
-		// TRƯỜNG HỢP 1: Có JSON Key (Thường dùng khi chạy Local)
 		log.Println("🔑 [AUTH] Phát hiện JSON Key, sử dụng chế độ Service Account Key.")
 		srv, err = sheets.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
 	} else {
-		// TRƯỜNG HỢP 2: Không có JSON -> Dùng Cloud Run Default (ADC)
 		log.Println("☁️ [AUTH] Không có JSON Key, chuyển sang chế độ Cloud Run (ADC).")
-		// Tự động lấy quyền từ tài khoản Service Account đang chạy Cloud Run
 		srv, err = sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsScope))
 	}
 
 	if err != nil {
-		// Soft Fail: Chỉ báo lỗi, không tắt Server để còn vào debug
 		log.Printf("❌ LỖI KẾT NỐI GOOGLE SHEETS: %v", err)
 		log.Println("⚠️ Hệ thống sẽ chạy ở chế độ Offline (Chỉ xem giao diện, không có dữ liệu).")
 		return
@@ -82,9 +79,7 @@ func TaoCompositeKey(sheetID, entityID string) string {
 	return fmt.Sprintf("%s__%s", sheetID, entityID)
 }
 
-// Hàm đọc dữ liệu hỗ trợ chỉ định ID File
 func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
-	// Kiểm tra kết nối trước
 	if DichVuSheet == nil {
 		return nil, fmt.Errorf("chưa kết nối được Google Sheets")
 	}
@@ -100,6 +95,18 @@ func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, erro
 		return nil, err
 	}
 	return resp.Values, nil
+}
+
+func ThemVaoHangCho(sheetID, sheetName string, row, col int, val interface{}) {
+	if CallbackThemVaoHangCho != nil {
+		CallbackThemVaoHangCho(YeuCauGhi{
+			SpreadsheetID: sheetID,
+			SheetName:     sheetName,
+			RowIndex:      row,
+			ColIndex:      col,
+			Value:         val,
+		})
+	}
 }
 
 // --- CÁC HÀM PARSE DỮ LIỆU ---
