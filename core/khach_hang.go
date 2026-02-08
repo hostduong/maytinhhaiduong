@@ -8,6 +8,9 @@ import (
 	"app/cau_hinh"
 )
 
+// ... (Giữ nguyên phần Constant 1 và Struct 2) ...
+// Để ngắn gọn, tôi chỉ gửi đoạn code xử lý Logic Nạp Dữ Liệu đã sửa đổi
+
 // =============================================================
 // 1. CẤU HÌNH CỘT
 // =============================================================
@@ -77,23 +80,19 @@ type KhachHang struct {
 	NgayCapNhat      string  `json:"ngay_cap_nhat"`
 }
 
-// =============================================================
-// 3. KHO LƯU TRỮ
-// =============================================================
 var (
 	_DS_KhachHang  []*KhachHang
 	_Map_KhachHang map[string]*KhachHang
 )
 
 // =============================================================
-// 4. LOGIC NẠP DỮ LIỆU
+// 4. LOGIC NẠP DỮ LIỆU (ĐÃ NÂNG CẤP BỘ LỌC)
 // =============================================================
 func NapKhachHang(targetSpreadsheetID string) {
 	if targetSpreadsheetID == "" {
 		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
 	}
 
-	// Gọi hàm loadSheetData từ common.go (2 tham số)
 	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
@@ -101,14 +100,18 @@ func NapKhachHang(targetSpreadsheetID string) {
 		_Map_KhachHang = make(map[string]*KhachHang)
 		_DS_KhachHang = []*KhachHang{}
 	}
-	// Tạm reset
 	_DS_KhachHang = []*KhachHang{} 
 
 	for i, r := range raw {
 		if i < 2-1 { continue } // Header
 		
 		maKH := layString(r, CotKH_MaKhachHang)
-		if maKH == "" { continue }
+		tenKH := layString(r, CotKH_TenKhachHang)
+
+		// [BỘ LỌC MẠNH MẼ]: Chỉ lấy dòng có Mã KH và độ dài Mã > 3 (Tránh dòng rác)
+		if maKH == "" || len(maKH) < 3 { continue }
+		// Nếu muốn chặt hơn: Phải có tên mới lấy
+		if tenKH == "" { continue }
 
 		kh := &KhachHang{
 			SpreadsheetID:  targetSpreadsheetID,
@@ -121,7 +124,7 @@ func NapKhachHang(targetSpreadsheetID string) {
 			CookieExpired:  int64(layFloat(r, CotKH_CookieExpired)),
 			MaPinHash:      layString(r, CotKH_MaPinHash),
 			LoaiKhachHang:  layString(r, CotKH_LoaiKhachHang),
-			TenKhachHang:   layString(r, CotKH_TenKhachHang),
+			TenKhachHang:   tenKH,
 			DienThoai:      layString(r, CotKH_DienThoai),
 			Email:          layString(r, CotKH_Email),
 			UrlFb:          layString(r, CotKH_UrlFb),
@@ -149,14 +152,10 @@ func NapKhachHang(targetSpreadsheetID string) {
 	}
 }
 
-// =============================================================
-// 5. NGHIỆP VỤ & TRUY VẤN
-// =============================================================
-
+// ... (Giữ nguyên các hàm LayDanhSach, LayKhachHang bên dưới) ...
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
 	kq := make([]*KhachHang, len(_DS_KhachHang))
 	copy(kq, _DS_KhachHang)
 	return kq
@@ -165,7 +164,6 @@ func LayDanhSachKhachHang() []*KhachHang {
 func LayKhachHang(maKH string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 	key := TaoCompositeKey(sheetID, maKH)
 	kh, ok := _Map_KhachHang[key]
@@ -175,7 +173,6 @@ func LayKhachHang(maKH string) (*KhachHang, bool) {
 func TimKhachHangTheoCookie(cookie string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
 	for _, kh := range _DS_KhachHang {
 		if kh.Cookie == cookie && cookie != "" {
 			if time.Now().Unix() > kh.CookieExpired { return nil, false }
@@ -188,7 +185,6 @@ func TimKhachHangTheoCookie(cookie string) (*KhachHang, bool) {
 func TimKhachHangTheoUserOrEmail(input string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
 	input = strings.ToLower(strings.TrimSpace(input))
 	for _, kh := range _DS_KhachHang {
 		if strings.ToLower(kh.TenDangNhap) == input { return kh, true }
@@ -200,10 +196,8 @@ func TimKhachHangTheoUserOrEmail(input string) (*KhachHang, bool) {
 func KiemTraTonTaiUserEmail(user, email string) bool {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
 	user = strings.ToLower(strings.TrimSpace(user))
 	email = strings.ToLower(strings.TrimSpace(email))
-
 	for _, kh := range _DS_KhachHang {
 		if strings.ToLower(kh.TenDangNhap) == user { return true }
 		if email != "" && strings.ToLower(kh.Email) == email { return true }
@@ -214,11 +208,9 @@ func KiemTraTonTaiUserEmail(user, email string) bool {
 func TaoMaKhachHangMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
 	maxID := 0
 	for _, kh := range _DS_KhachHang {
 		if kh.SpreadsheetID != cau_hinh.BienCauHinh.IdFileSheet { continue }
-
 		parts := strings.Split(kh.MaKhachHang, "_")
 		if len(parts) == 2 {
 			var id int
@@ -232,11 +224,7 @@ func TaoMaKhachHangMoi() string {
 func ThemKhachHangVaoRam(kh *KhachHang) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-
-	if kh.SpreadsheetID == "" {
-		kh.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
-	}
-
+	if kh.SpreadsheetID == "" { kh.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
 	_DS_KhachHang = append(_DS_KhachHang, kh)
 	key := TaoCompositeKey(kh.SpreadsheetID, kh.MaKhachHang)
 	_Map_KhachHang[key] = kh
