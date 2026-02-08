@@ -2,7 +2,7 @@ package chuc_nang
 
 import (
 	"net/http"
-	"app/nghiep_vu"
+	"app/core" // [MỚI] Dùng Core
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,8 +10,8 @@ import (
 // API_LayDanhSachSanPham : Trả về JSON list sản phẩm
 // Method: GET /api/san-pham
 func API_LayDanhSachSanPham(c *gin.Context) {
-	// Gọi lớp nghiệp vụ lấy dữ liệu an toàn
-	danhSach := nghiep_vu.LayDanhSachSanPham()
+	// Lấy từ Core (Đã lọc theo Shop hiện tại)
+	danhSach := core.LayDanhSachSanPham()
 
 	// Trả về JSON thành công
 	c.JSON(http.StatusOK, gin.H{
@@ -21,11 +21,14 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 	})
 }
 
-// API_LayMenu : Trả về danh mục và cấu hình web
+// API_LayMenu : Trả về danh mục
 // Method: GET /api/cau-hinh
 func API_LayMenu(c *gin.Context) {
-	menu := nghiep_vu.LayDanhSachDanhMuc()
-	banner := nghiep_vu.LayCauHinhWeb()
+	menu := core.LayDanhSachDanhMuc()
+	
+	// Banner/Cấu hình web chưa chuyển sang Core nên tạm trả về rỗng
+	// để không phụ thuộc vào code cũ.
+	banner := map[string]interface{}{} 
 
 	c.JSON(http.StatusOK, gin.H{
 		"danh_muc": menu,
@@ -37,7 +40,9 @@ func API_LayMenu(c *gin.Context) {
 // Method: GET /api/san-pham/:id
 func API_ChiTietSanPham(c *gin.Context) {
 	id := c.Param("id")
-	sp, tonTai := nghiep_vu.LayChiTietSanPham(id)
+	
+	// Lấy từ Core
+	sp, tonTai := core.LayChiTietSanPham(id)
 
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{
