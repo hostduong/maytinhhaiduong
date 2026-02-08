@@ -6,8 +6,7 @@ import (
 
 	"app/bao_mat"
 	"app/cau_hinh"
-	"app/mo_hinh"
-	"app/nghiep_vu"
+	"app/core" // [QUAN TRỌNG] Sử dụng Core
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,52 +14,56 @@ import (
 // API_Admin_SuaThanhVien : Dành cho Admin/Sale sửa thông tin người khác
 // Method: POST /admin/api/member/update
 func API_Admin_SuaThanhVien(c *gin.Context) {
-	// 1. KIỂM TRA QUYỀN HẠN
-	vaiTroNguoiSua := c.GetString("USER_ROLE")
-	if !nghiep_vu.KiemTraQuyen(vaiTroNguoiSua, "member.edit") {
+	// 1. KIỂM TRA QUYỀN HẠN (Logic thay thế nghiep_vu.KiemTraQuyen)
+	vaiTro := c.GetString("USER_ROLE")
+	choPhep := false
+	if vaiTro == "admin_root" || vaiTro == "admin" || vaiTro == "quan_ly" {
+		choPhep = true
+	}
+
+	if !choPhep {
 		c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Bạn không có quyền sửa thành viên!"})
 		return
 	}
 
 	// 2. LẤY DỮ LIỆU
-	maKhachHangCanSua := c.PostForm("ma_khach_hang") // ID của người bị sửa
+	maKhachHangCanSua := c.PostForm("ma_khach_hang")
 	
-	// Tìm khách hàng trong RAM
-	khachHang, tonTai := nghiep_vu.LayThongTinKhachHang(maKhachHangCanSua)
+	// Tìm khách hàng trong RAM Core
+	khachHang, tonTai := core.LayKhachHang(maKhachHangCanSua)
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "msg": "Không tìm thấy khách hàng này!"})
 		return
 	}
 
-	// 3. CẬP NHẬT THÔNG TIN (Chỉ cập nhật những gì gửi lên)
+	// 3. CẬP NHẬT THÔNG TIN
 	hoTenMoi := strings.TrimSpace(c.PostForm("ho_ten"))
 	sdtMoi   := strings.TrimSpace(c.PostForm("dien_thoai"))
 	
-	// [ĐÃ XÓA BIẾN EMAIL THỪA TẠI ĐÂY ĐỂ FIX LỖI BUILD]
-	// Logic sửa Email phức tạp hơn vì dính đến Key Map, tạm thời chưa cho sửa Email ở đây
-	
-	idSheet := cau_hinh.BienCauHinh.IdFileSheet
+	// Lấy ID Sheet chuẩn (Hỗ trợ đa Shop)
+	idSheet := khachHang.SpreadsheetID
+	if idSheet == "" { idSheet = cau_hinh.BienCauHinh.IdFileSheet }
 	row := khachHang.DongTrongSheet
 
-	// Cập nhật RAM & Đẩy vào Hàng Chờ Ghi
+	// Cập nhật RAM Core & Đẩy vào Hàng Chờ Ghi
 	if hoTenMoi != "" {
+		// Lưu ý: Cần Lock nếu muốn thread-safe tuyệt đối, hoặc gán trực tiếp
 		khachHang.TenKhachHang = hoTenMoi
-		nghiep_vu.ThemVaoHangCho(idSheet, "KHACH_HANG", row, mo_hinh.CotKH_TenKhachHang, hoTenMoi)
+		core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_TenKhachHang, hoTenMoi)
 	}
 	if sdtMoi != "" {
 		khachHang.DienThoai = sdtMoi
-		nghiep_vu.ThemVaoHangCho(idSheet, "KHACH_HANG", row, mo_hinh.CotKH_DienThoai, sdtMoi)
+		core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_DienThoai, sdtMoi)
 	}
 
 	// Reset Mật khẩu (Nếu có)
 	passMoi := c.PostForm("new_password")
 	if passMoi != "" {
-		// Chỉ Admin mới được reset pass (Ví dụ thêm logic check sâu hơn)
-		// Hoặc dùng mã quyền riêng: member.reset_pass
-		if nghiep_vu.KiemTraQuyen(vaiTroNguoiSua, "member.reset_pass") {
+		// Chỉ Admin Root hoặc Admin mới được reset pass
+		if vaiTro == "admin_root" || vaiTro == "admin" {
 			hash, _ := bao_mat.HashMatKhau(passMoi)
 			khachHang.MatKhauHash = hash
-			nghiep_vu.ThemVaoHangCho(idSheet, "KHACH_HANG", row, mo_hinh.CotKH_MatKhauHash, hash)
+			core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_MatKhauHash, hash)
 		} else {
 			c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Bạn không có quyền reset mật khẩu!"})
 			return
