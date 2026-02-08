@@ -24,11 +24,11 @@ var (
 	// Dịch vụ Google Sheets API
 	DichVuSheet *sheets.Service
 
-	// Cờ báo hiệu hệ thống đang bận (khi Reload toàn bộ)
+	// Cờ báo hiệu hệ thống đang bận
 	HeThongDangBan bool
 )
 
-// Struct phục vụ cho Hàng Chờ Ghi (Write Queue)
+// Struct phục vụ cho Hàng Chờ Ghi
 type YeuCauGhi struct {
 	SpreadsheetID string      // ID file Google Sheet
 	SheetName     string      // Tên Sheet
@@ -44,19 +44,30 @@ var CallbackThemVaoHangCho func(req YeuCauGhi)
 // 2. KHỞI TẠO KẾT NỐI
 // =============================================================
 func KhoiTaoNenTang() {
-	log.Println("🔌 [CORE] Đang kết nối Google Sheets (Chế độ Đa Nhiệm)...")
+	log.Println("🔌 [CORE] Đang kết nối Google Sheets...")
 
 	ctx := context.Background()
 	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson
 
-	// Nếu không có JSON Key thì báo lỗi hoặc tìm cách xử lý
-	if jsonKey == "" {
-		log.Println("⚠️ CẢNH BÁO: Chưa cấu hình GoogleAuthJson (Env: GOOGLE_JSON_KEY).")
+	var srv *sheets.Service
+	var err error
+
+	if jsonKey != "" {
+		// TRƯỜNG HỢP 1: Có JSON Key (Thường dùng khi chạy Local)
+		log.Println("🔑 [AUTH] Phát hiện JSON Key, sử dụng chế độ Service Account Key.")
+		srv, err = sheets.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	} else {
+		// TRƯỜNG HỢP 2: Không có JSON -> Dùng Cloud Run Default (ADC)
+		log.Println("☁️ [AUTH] Không có JSON Key, chuyển sang chế độ Cloud Run (ADC).")
+		// Tự động lấy quyền từ tài khoản Service Account đang chạy Cloud Run
+		srv, err = sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsScope))
 	}
 
-	srv, err := sheets.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
 	if err != nil {
-		log.Fatalf("❌ LỖI KẾT NỐI GOOGLE SHEETS: %v", err)
+		// Soft Fail: Chỉ báo lỗi, không tắt Server để còn vào debug
+		log.Printf("❌ LỖI KẾT NỐI GOOGLE SHEETS: %v", err)
+		log.Println("⚠️ Hệ thống sẽ chạy ở chế độ Offline (Chỉ xem giao diện, không có dữ liệu).")
+		return
 	}
 
 	DichVuSheet = srv
@@ -67,22 +78,25 @@ func KhoiTaoNenTang() {
 // 3. HÀM TIỆN ÍCH CỐT LÕI (HELPER)
 // =============================================================
 
-// Tạo khóa duy nhất trong RAM: "SheetID__EntityID"
 func TaoCompositeKey(sheetID, entityID string) string {
 	return fmt.Sprintf("%s__%s", sheetID, entityID)
 }
 
-// Hàm đọc dữ liệu hỗ trợ chỉ định ID File (QUAN TRỌNG: 2 THAM SỐ)
+// Hàm đọc dữ liệu hỗ trợ chỉ định ID File
 func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
-	// Nếu không truyền ID, lấy ID mặc định trong Config
+	// Kiểm tra kết nối trước
+	if DichVuSheet == nil {
+		return nil, fmt.Errorf("chưa kết nối được Google Sheets")
+	}
+
 	if spreadsheetID == "" {
 		spreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
 	}
 
-	readRange := tenSheet + "!A:AZ" // Đọc rộng
+	readRange := tenSheet + "!A:AZ"
 	resp, err := DichVuSheet.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
-		log.Printf("⚠️ Lỗi đọc sheet %s (ID: %s...): %v", tenSheet, spreadsheetID[:5], err)
+		log.Printf("⚠️ Lỗi đọc sheet %s: %v", tenSheet, err)
 		return nil, err
 	}
 	return resp.Values, nil
