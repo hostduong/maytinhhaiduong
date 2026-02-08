@@ -125,8 +125,8 @@ func API_LuuSanPham(c *gin.Context) {
 
 	// Nếu mới -> Thêm vào RAM
 	if isNew {
-		// Tính dòng mới = Dòng bắt đầu + Số lượng hiện có
-		sp.DongTrongSheet = core.DongBatDauDuLieu + len(core.LayDanhSachSanPham()) 
+		// [CHÍNH XÁC] Dùng biến chuẩn DongBatDau_SanPham
+		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
 	
