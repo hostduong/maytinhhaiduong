@@ -15,8 +15,15 @@ import (
 // TrangQuanLySanPham : Hiển thị danh sách
 func TrangQuanLySanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
-	// Lấy info admin từ Core
-	kh, _ := core.LayKhachHang(userID)
+	
+	// [LOGIC CHUẨN] Lấy thông tin người dùng
+	kh, found := core.LayKhachHang(userID)
+	
+	// NẾU KHÔNG TÌM THẤY (Lỗi data hoặc Session ảo) -> ĐÁ VỀ LOGIN NGAY
+	if !found || kh == nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
 
 	// 1. Lấy dữ liệu từ Core (Đã sort sẵn)
 	listSP := core.LayDanhSachSanPham()
@@ -25,7 +32,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
-		"NhanVien":       kh,
+		"NhanVien":       kh,             // Biến này giờ chắc chắn có dữ liệu
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
@@ -37,8 +44,11 @@ func TrangQuanLySanPham(c *gin.Context) {
 
 // API_LuuSanPham : Xử lý Thêm/Sửa
 func API_LuuSanPham(c *gin.Context) {
-	// 1. Check quyền
+	// 1. Check quyền (Dùng Middleware chặn trước, nhưng check lại cho chắc)
 	vaiTro := c.GetString("USER_ROLE")
+	
+	// [QUAN TRỌNG] Hệ thống phân quyền chặt chẽ
+	// Chỉ Admin Root, Admin và Quản lý mới được sửa
 	if vaiTro != "admin_root" && vaiTro != "admin" && vaiTro != "quan_ly" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
 		return
@@ -101,6 +111,7 @@ func API_LuuSanPham(c *gin.Context) {
 		if ok {
 			sp = foundSP
 		} else {
+			// Fallback an toàn (tạo obj tạm để update nếu data chưa sync kịp)
 			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP, NgayTao: nowStr}
 		}
 	}
@@ -125,7 +136,7 @@ func API_LuuSanPham(c *gin.Context) {
 
 	// Nếu mới -> Thêm vào RAM
 	if isNew {
-		// [CHÍNH XÁC] Dùng biến chuẩn DongBatDau_SanPham
+		// Dùng đúng biến DongBatDau_SanPham
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
@@ -174,6 +185,5 @@ func xuLyTags(raw string) string {
 }
 
 func taoMaSPMoi() string {
-	// Wrapper gọi Core
 	return core.TaoMaSPMoi()
 }
