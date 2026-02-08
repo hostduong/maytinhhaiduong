@@ -11,7 +11,7 @@ import (
 
 	"app/cau_hinh"
 	"app/chuc_nang"
-	"app/core" // Sử dụng Core
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +31,10 @@ func main() {
 
 	// 3. Nạp dữ liệu vào RAM
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
-	core.NapPhanQuyen("")
+	
+	// [QUAN TRỌNG] Nạp bảng phân quyền đầu tiên
+	core.NapPhanQuyen("") 
+	
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
 	core.NapSanPham("")
@@ -53,21 +56,20 @@ func main() {
 	router.POST("/login", chuc_nang.XuLyDangNhap)
 	router.GET("/register", chuc_nang.TrangDangKy)
 	router.POST("/register", chuc_nang.XuLyDangKy)
-	router.GET("/logout", chuc_nang.DangXuat) // Hàm này nằm trong dang_nhap.go
+	router.GET("/logout", chuc_nang.DangXuat)
 
 	// Chức năng Tài khoản & Quên mật khẩu
-	router.GET("/tai-khoan", chuc_nang.TrangHoSo)           // [MỚI]
-	router.GET("/quen-mat-khau", chuc_nang.TrangQuenMatKhau) // [MỚI]
+	router.GET("/tai-khoan", chuc_nang.TrangHoSo)
+	router.GET("/quen-mat-khau", chuc_nang.TrangQuenMatKhau)
 
 	// B. API Public (Ajax gọi)
 	api := router.Group("/api")
 	{
-		// Sản phẩm & Menu
 		api.GET("/san-pham", chuc_nang.API_LayDanhSachSanPham)
 		api.GET("/cau-hinh", chuc_nang.API_LayMenu)
 		api.GET("/san-pham/:id", chuc_nang.API_ChiTietSanPham)
 
-		// Quên mật khẩu (Auth API)
+		// Quên mật khẩu
 		api.POST("/auth/send-otp", chuc_nang.XuLyGuiOTPEmail)
 		api.POST("/auth/reset-by-pin", chuc_nang.XuLyQuenPassBangPIN)
 		api.POST("/auth/reset-by-otp", chuc_nang.XuLyQuenPassBangOTP)
@@ -75,7 +77,7 @@ func main() {
 
 	// C. API User (Cần đăng nhập)
 	userApi := router.Group("/api/user")
-	userApi.Use(chuc_nang.KiemTraDangNhap) // Middleware chặn nếu chưa login
+	userApi.Use(chuc_nang.KiemTraDangNhap)
 	{
 		userApi.POST("/update-info", chuc_nang.API_DoiThongTin)
 		userApi.POST("/change-pass", chuc_nang.API_DoiMatKhau)
@@ -85,7 +87,7 @@ func main() {
 
 	// D. Admin Group
 	admin := router.Group("/admin")
-	admin.Use(chuc_nang.KiemTraQuyenHan) // Middleware check quyền Admin
+	admin.Use(chuc_nang.KiemTraQuyenHan) 
 	{
 		admin.GET("/tong-quan", chuc_nang.TrangTongQuan)
 		admin.GET("/reload", chuc_nang.API_NapLaiDuLieu)
@@ -94,12 +96,11 @@ func main() {
 		admin.GET("/san-pham", chuc_nang.TrangQuanLySanPham)
 		admin.POST("/api/product/save", chuc_nang.API_LuuSanPham)
 		
-        // Quản lý thành viên & Phân quyền
-        admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien) // Trang danh sách
-        admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) // API Lưu quyền	
+		// [MỚI] Quản lý thành viên & Phân quyền
+		admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien)
 		
-		// Quản lý thành viên (API)
-		admin.POST("/api/member/update", chuc_nang.API_Admin_SuaThanhVien)
+		// [SỬA LẠI TÊN HÀM CHO ĐÚNG]
+		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) 
 	}
 
 	// --- KHỞI CHẠY SERVER ---
