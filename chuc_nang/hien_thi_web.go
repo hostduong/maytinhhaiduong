@@ -60,3 +60,26 @@ func ChiTietSanPham(c *gin.Context) {
 		"QuyenHan":     quyen,
 	})
 }
+// TrangHoSo : Hiển thị trang hồ sơ cá nhân
+func TrangHoSo(c *gin.Context) {
+	// 1. Kiểm tra đăng nhập
+	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
+	if !daLogin {
+		// Chưa đăng nhập thì đá về Login
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+
+	// 2. Lấy thông tin chi tiết từ Core
+	cookie, _ := c.Cookie("session_id")
+	kh, _ := core.TimKhachHangTheoCookie(cookie)
+
+	// 3. Hiển thị View "ho_so.html"
+	c.HTML(http.StatusOK, "ho_so", gin.H{
+		"TieuDe":       "Hồ sơ cá nhân",
+		"DaDangNhap":   daLogin,
+		"TenNguoiDung": tenUser,
+		"QuyenHan":     quyen,
+		"KhachHang":    kh, // Truyền biến này để form điền sẵn thông tin (Họ tên, SĐT...)
+	})
+}
