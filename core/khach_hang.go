@@ -8,12 +8,9 @@ import (
 	"app/cau_hinh"
 )
 
-// ... (Giữ nguyên phần Constant 1 và Struct 2) ...
-// Để ngắn gọn, tôi chỉ gửi đoạn code xử lý Logic Nạp Dữ Liệu đã sửa đổi
+// ... (Giữ nguyên phần Constant và Struct cũ) ...
+// Copy đè từ dòng import đến hết file để đảm bảo logic chuẩn
 
-// =============================================================
-// 1. CẤU HÌNH CỘT
-// =============================================================
 const (
 	CotKH_MaKhachHang      = 0
 	CotKH_TenDangNhap      = 1
@@ -44,9 +41,6 @@ const (
 	CotKH_NgayCapNhat      = 26
 )
 
-// =============================================================
-// 2. STRUCT DỮ LIỆU
-// =============================================================
 type KhachHang struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -85,9 +79,6 @@ var (
 	_Map_KhachHang map[string]*KhachHang
 )
 
-// =============================================================
-// 4. LOGIC NẠP DỮ LIỆU (ĐÃ NÂNG CẤP BỘ LỌC)
-// =============================================================
 func NapKhachHang(targetSpreadsheetID string) {
 	if targetSpreadsheetID == "" {
 		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
@@ -96,22 +87,27 @@ func NapKhachHang(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
-	if _Map_KhachHang == nil {
-		_Map_KhachHang = make(map[string]*KhachHang)
-		_DS_KhachHang = []*KhachHang{}
-	}
-	_DS_KhachHang = []*KhachHang{} 
+	// Reset bộ nhớ
+	_Map_KhachHang = make(map[string]*KhachHang)
+	_DS_KhachHang = []*KhachHang{}
 
 	for i, r := range raw {
-		if i < 2-1 { continue } // Header
+		if i < 2-1 { continue } // Bỏ qua Header
 		
 		maKH := layString(r, CotKH_MaKhachHang)
-		tenKH := layString(r, CotKH_TenKhachHang)
+		
+		// [BỘ LỌC KHẮT KHE]
+		// 1. Phải bắt đầu bằng chữ "KH_" (Tránh dòng rác, dòng số thứ tự)
+		if !strings.HasPrefix(strings.ToUpper(maKH), "KH_") { continue }
+		
+		// 2. Tạo Key duy nhất
+		key := TaoCompositeKey(targetSpreadsheetID, maKH)
 
-		// [BỘ LỌC MẠNH MẼ]: Chỉ lấy dòng có Mã KH và độ dài Mã > 3 (Tránh dòng rác)
-		if maKH == "" || len(maKH) < 3 { continue }
-		// Nếu muốn chặt hơn: Phải có tên mới lấy
-		if tenKH == "" { continue }
+		// 3. Kiểm tra trùng lặp: Nếu mã này đã có trong Map rồi thì BỎ QUA dòng này
+		// (Chỉ lấy dòng đầu tiên tìm thấy)
+		if _, daTonTai := _Map_KhachHang[key]; daTonTai {
+			continue
+		}
 
 		kh := &KhachHang{
 			SpreadsheetID:  targetSpreadsheetID,
@@ -124,7 +120,7 @@ func NapKhachHang(targetSpreadsheetID string) {
 			CookieExpired:  int64(layFloat(r, CotKH_CookieExpired)),
 			MaPinHash:      layString(r, CotKH_MaPinHash),
 			LoaiKhachHang:  layString(r, CotKH_LoaiKhachHang),
-			TenKhachHang:   tenKH,
+			TenKhachHang:   layString(r, CotKH_TenKhachHang),
 			DienThoai:      layString(r, CotKH_DienThoai),
 			Email:          layString(r, CotKH_Email),
 			UrlFb:          layString(r, CotKH_UrlFb),
@@ -146,13 +142,13 @@ func NapKhachHang(targetSpreadsheetID string) {
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
 
+		// Chỉ append khi đã qua hết các vòng kiểm tra
 		_DS_KhachHang = append(_DS_KhachHang, kh)
-		key := TaoCompositeKey(targetSpreadsheetID, maKH)
 		_Map_KhachHang[key] = kh
 	}
 }
 
-// ... (Giữ nguyên các hàm LayDanhSach, LayKhachHang bên dưới) ...
+// ... (Các hàm truy vấn giữ nguyên) ...
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
