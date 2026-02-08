@@ -1,27 +1,25 @@
 package chuc_nang
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"app/cau_hinh"
-	"app/core" // [QUAN TRỌNG] Chỉ dùng Core, không dùng nghiep_vu/mo_hinh cũ
-	"app/nghiep_vu" // Vẫn cần cho hàm KiemTraQuyen (sẽ chuyển nốt sau)
+	"app/core" // [MỚI] Dùng Core
 
 	"github.com/gin-gonic/gin"
 )
 
 // TrangQuanLySanPham : Hiển thị danh sách
 func TrangQuanLySanPham(c *gin.Context) {
-	// Lấy User ID từ Session (Logic cũ)
 	userID := c.GetString("USER_ID")
-	
-	// Tạm thời dùng hàm cũ để lấy thông tin nhân viên (Sẽ refactor sau)
-	kh, _ := nghiep_vu.LayThongTinKhachHang(userID)
+	// Lấy info admin từ Core
+	kh, _ := core.LayKhachHang(userID)
 
-	// [MỚI] Lấy dữ liệu từ Core (Đã được sort và filter sẵn)
+	// 1. Lấy dữ liệu từ Core (Đã sort sẵn)
 	listSP := core.LayDanhSachSanPham()
 	listDM := core.LayDanhSachDanhMuc()
 	listTH := core.LayDanhSachThuongHieu()
@@ -30,10 +28,10 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"TieuDe":         "Quản lý sản phẩm",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang, // Nếu kh nil sẽ crash, nhưng tạm chấp nhận để test
+		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       listSP,
-		"ListDanhMuc":    listDM,
+		"ListDanhMuc":    listDM, 
 		"ListThuongHieu": listTH,
 	})
 }
@@ -42,8 +40,8 @@ func TrangQuanLySanPham(c *gin.Context) {
 func API_LuuSanPham(c *gin.Context) {
 	// 1. Check quyền
 	vaiTro := c.GetString("USER_ROLE")
-	if !nghiep_vu.KiemTraQuyen(vaiTro, "product.edit") {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền này!"})
+	if vaiTro != "admin_root" && vaiTro != "admin" && vaiTro != "quan_ly" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
 		return
 	}
 
@@ -59,7 +57,7 @@ func API_LuuSanPham(c *gin.Context) {
 	giaBan, _   := strconv.ParseFloat(giaBanStr, 64)
 
 	danhMucRaw  := c.PostForm("ma_danh_muc")
-	danhMuc     := xuLyTags(danhMucRaw) // Hàm helper ở dưới
+	danhMuc     := xuLyTags(danhMucRaw)
 
 	thuongHieu  := c.PostForm("ma_thuong_hieu")
 	donVi       := c.PostForm("don_vi")
@@ -79,20 +77,19 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
-	// 3. Logic Thêm/Sửa dùng CORE
+	// 3. Logic Thêm/Sửa dùng Core
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
 	userID := c.GetString("USER_ID")
-	sheetID := cau_hinh.BienCauHinh.IdFileSheet // Lấy Sheet ID hiện tại
+	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 
-	// Lock logic xử lý
 	core.KhoaHeThong.Lock()
 	
 	if maSP == "" {
 		// TẠO MỚI
 		isNew = true
-		maSP = core.TaoMaSPMoi() // Hàm mới trong core
+		maSP = core.TaoMaSPMoi()
 		sp = &core.SanPham{
 			SpreadsheetID: sheetID,
 			MaSanPham:     maSP,
@@ -100,25 +97,16 @@ func API_LuuSanPham(c *gin.Context) {
 			NguoiTao:      userID,
 		}
 	} else {
-		// SỬA: Tìm trong Map của Core
-		// Lưu ý: Core dùng composite key, nhưng hàm LayChiTietSanPham đã xử lý giúp ta
-		// Tuy nhiên ở đây ta cần truy cập biến global để sửa, hoặc dùng setter.
-		// Để đơn giản, ta tìm lại con trỏ trong map và update.
-		// (Logic này hơi hack một chút khi truy cập thẳng biến core,
-		// chuẩn ra nên viết hàm UpdateSanPham trong core. Nhưng tạm thời OK).
-		
-		// Cách an toàn: Gọi hàm Core tìm
-		// Vì hàm LayChiTietSanPham trả về con trỏ, nên sửa nó là sửa trong RAM luôn!
+		// SỬA: Tìm trong Core
 		foundSP, ok := core.LayChiTietSanPham(maSP)
 		if ok {
 			sp = foundSP
 		} else {
-			// Trường hợp hiếm: ID gửi lên không tồn tại -> coi như mới hoặc lỗi
 			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP, NgayTao: nowStr}
 		}
 	}
 
-	// Cập nhật thông tin
+	// Update thông tin
 	sp.TenSanPham = tenSP
 	sp.TenRutGon = tenRutGon
 	sp.Sku = sku
@@ -136,57 +124,45 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.GhiChu = ghiChu
 	sp.NgayCapNhat = nowStr
 
-	// Nếu là mới thì phải append vào danh sách RAM
+	// Nếu mới -> Thêm vào RAM
 	if isNew {
-		// Tính dòng mới (Logic đơn giản: Dòng cuối + 1)
-		// Core nên có hàm GetNextRowIndex, tạm thời ta tính thủ công hoặc để core tự lo
-		// Để đơn giản: Gán đại DongTrongSheet = 0, Worker sẽ tự append (nếu worker thông minh)
-		// Hoặc:
+		// Tính dòng mới = Dòng bắt đầu + Số lượng hiện có
 		sp.DongTrongSheet = core.DongBatDauDuLieu + len(core.LayDanhSachSanPham()) 
-		
-		// Thêm vào RAM Core
 		core.ThemSanPhamVaoRam(sp)
 	}
 	
 	core.KhoaHeThong.Unlock()
 
-	// 4. Đẩy xuống Hàng Chờ Ghi (Dùng Core Write Queue)
+	// 4. Đẩy xuống Hàng Chờ Ghi (Core Queue)
 	targetRow := sp.DongTrongSheet
-	// Nếu dòng <= 0 (chưa xác định), Worker Smart Queue của bạn sẽ tự xử lý append?
-	// Với Smart Queue của bạn: row là int key. Nếu row chưa có, nó tạo mới.
-	// Để an toàn, ta cần row chính xác.
-	
 	if targetRow > 0 {
-		// Ghi từng cột (Hơi dài dòng nhưng an toàn)
-		// Format: ThemVaoHangCho(SpreadID, SheetName, Row, Col, Value)
 		ghi := core.ThemVaoHangCho
-		sName := "SAN_PHAM"
+		sheet := "SAN_PHAM"
 
-		ghi(sheetID, sName, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
-		ghi(sheetID, sName, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
-		ghi(sheetID, sName, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sName, targetRow, core.CotSP_Sku, sp.Sku)
-		ghi(sheetID, sName, targetRow, core.CotSP_MaDanhMuc, sp.MaDanhMuc)
-		ghi(sheetID, sName, targetRow, core.CotSP_MaThuongHieu, sp.MaThuongHieu)
-		ghi(sheetID, sName, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(sheetID, sName, targetRow, core.CotSP_MauSac, sp.MauSac)
-		ghi(sheetID, sName, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
-		ghi(sheetID, sName, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(sheetID, sName, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		ghi(sheetID, sName, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanhThang)
-		ghi(sheetID, sName, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
-		ghi(sheetID, sName, targetRow, core.CotSP_TrangThai, sp.TrangThai)
-		ghi(sheetID, sName, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
-		ghi(sheetID, sName, targetRow, core.CotSP_GhiChu, sp.GhiChu)
-		ghi(sheetID, sName, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
-		ghi(sheetID, sName, targetRow, core.CotSP_NgayTao, sp.NgayTao)
-		ghi(sheetID, sName, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
+		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
+		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
+		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MaDanhMuc, sp.MaDanhMuc)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MaThuongHieu, sp.MaThuongHieu)
+		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
+		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
+		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
+		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanhThang)
+		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
+		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
+		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
+		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
+		ghi(sheetID, sheet, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
+		ghi(sheetID, sheet, targetRow, core.CotSP_NgayTao, sp.NgayTao)
+		ghi(sheetID, sheet, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công (Core)!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
-// Helper xử lý tags (giữ nguyên)
 func xuLyTags(raw string) string {
 	if !strings.Contains(raw, "[") { return raw }
 	res := strings.ReplaceAll(raw, "[", "")
@@ -196,4 +172,9 @@ func xuLyTags(raw string) string {
 	res = strings.ReplaceAll(res, "\"value\":", "")
 	res = strings.ReplaceAll(res, "\"", "")
 	return res
+}
+
+func taoMaSPMoi() string {
+	// Wrapper gọi Core
+	return core.TaoMaSPMoi()
 }
