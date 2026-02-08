@@ -7,15 +7,15 @@ import (
 )
 
 type CauHinhHeThong struct {
-	IdFileSheet string
-	CongChayWeb string
+	IdFileSheet    string
+	CongChayWeb    string
+	GoogleAuthJson string // [MỚI] Thêm trường này
 }
 
 var BienCauHinh CauHinhHeThong
 
-// [CẤU HÌNH] Chu kỳ ghi dữ liệu xuống Sheet (5 Giây)
 const (
-	ChuKyGhiSheet = 2 * time.Second
+	ChuKyGhiSheet = 5 * time.Second
 )
 
 func KhoiTaoCauHinh() {
@@ -29,10 +29,15 @@ func KhoiTaoCauHinh() {
 		congWeb = "8080"
 	}
 
+	// Lấy JSON Key từ biến môi trường
+	jsonKey := os.Getenv("GOOGLE_JSON_KEY")
+	// Nếu không có, bạn có thể hardcode chuỗi JSON vào đây để test (nhưng không khuyến khích)
+	
 	BienCauHinh = CauHinhHeThong{
-		IdFileSheet: idSheet,
-		CongChayWeb: congWeb,
+		IdFileSheet:    idSheet,
+		CongChayWeb:    congWeb,
+		GoogleAuthJson: jsonKey,
 	}
 
-	log.Println("--- [CẤU HÌNH] Đã tải xong (Mode: Public + Batch 5s) ---")
+	log.Println("--- [CẤU HÌNH] Đã tải xong ---")
 }
