@@ -97,7 +97,8 @@ func XuLyDangKy(c *gin.Context) {
 	sID := cau_hinh.BienCauHinh.IdFileSheet
 	
 	// Tính dòng mới = Dòng bắt đầu + Số lượng hiện có
-	newRow := core.DongBatDauDuLieu + soLuongUser
+	// [CHÍNH XÁC] Dùng biến chuẩn DongBatDau_KhachHang
+	newRow := core.DongBatDau_KhachHang + soLuongUser
 
 	newKH := &core.KhachHang{
 		SpreadsheetID:  sID,
