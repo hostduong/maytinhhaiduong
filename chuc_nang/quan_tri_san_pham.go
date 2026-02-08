@@ -1,6 +1,7 @@
 package chuc_nang
 
 import (
+	"fmt" // [THÊM] Để in log debug
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,27 +15,32 @@ import (
 
 // TrangQuanLySanPham : Hiển thị danh sách
 func TrangQuanLySanPham(c *gin.Context) {
+	// [DEBUG] In ra console để biết hàm này ĐÃ ĐƯỢC GỌI
+	fmt.Println(">>> [DEBUG] Đang truy cập TrangQuanLySanPham...")
+
 	userID := c.GetString("USER_ID")
 	
-	// [QUAN TRỌNG] Lấy thông tin người dùng an toàn
+	// Check user
 	kh, found := core.LayKhachHang(userID)
-	
-	// [CHỐT CHẶN LỖI TRẮNG TRANG]
-	// Nếu không tìm thấy user (do chưa load xong hoặc session lỗi)
-	// Bắt buộc chuyển hướng về Login, không được render tiếp để tránh Sập (Panic)
 	if !found || kh == nil {
+		fmt.Println(">>> [DEBUG] User không hợp lệ -> Redirect Login")
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// 1. Lấy dữ liệu từ Core
+	// Lấy dữ liệu
 	listSP := core.LayDanhSachSanPham()
+	
+	// [DEBUG] Kiểm tra số lượng sản phẩm load được
+	fmt.Printf(">>> [DEBUG] Load được %d sản phẩm.\n", len(listSP))
+
 	listDM := core.LayDanhSachDanhMuc()
 	listTH := core.LayDanhSachThuongHieu()
 
-	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
+	// [SỬA TÊN TEMPLATE] Gọi đúng "view_quan_tri_san_pham"
+	c.HTML(http.StatusOK, "view_quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
-		"NhanVien":       kh, 
+		"NhanVien":       kh,
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
