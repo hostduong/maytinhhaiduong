@@ -8,10 +8,13 @@ import (
 	"app/cau_hinh"
 )
 
-// ... (Giữ nguyên phần Constant và Struct cũ) ...
-// Copy đè từ dòng import đến hết file để đảm bảo logic chuẩn
-
+// =============================================================
+// 1. CẤU HÌNH CỘT
+// =============================================================
 const (
+	// [CẬP NHẬT] Dữ liệu bắt đầu từ dòng 11 (Bỏ qua 10 dòng đầu)
+	DongBatDauDuLieuKH = 11 
+
 	CotKH_MaKhachHang      = 0
 	CotKH_TenDangNhap      = 1
 	CotKH_MatKhauHash      = 2
@@ -87,24 +90,23 @@ func NapKhachHang(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
-	// Reset bộ nhớ
 	_Map_KhachHang = make(map[string]*KhachHang)
 	_DS_KhachHang = []*KhachHang{}
 
 	for i, r := range raw {
-		if i < 2-1 { continue } // Bỏ qua Header
+		// [CẬP NHẬT] Bỏ qua các dòng tiêu đề (Dòng 1 -> 10)
+		// i bắt đầu từ 0 (tương ứng dòng 1)
+		// DongBatDauDuLieuKH = 11 -> i phải >= 10 mới lấy
+		if i < DongBatDauDuLieuKH-1 { continue }
 		
 		maKH := layString(r, CotKH_MaKhachHang)
 		
-		// [BỘ LỌC KHẮT KHE]
-		// 1. Phải bắt đầu bằng chữ "KH_" (Tránh dòng rác, dòng số thứ tự)
-		if !strings.HasPrefix(strings.ToUpper(maKH), "KH_") { continue }
+		// [LOGIC MỚI] Chỉ cần có Mã KH là lấy (Bỏ check KH_)
+		if maKH == "" { continue }
 		
-		// 2. Tạo Key duy nhất
 		key := TaoCompositeKey(targetSpreadsheetID, maKH)
 
-		// 3. Kiểm tra trùng lặp: Nếu mã này đã có trong Map rồi thì BỎ QUA dòng này
-		// (Chỉ lấy dòng đầu tiên tìm thấy)
+		// Vẫn giữ kiểm tra trùng lặp để đếm đúng số lượng
 		if _, daTonTai := _Map_KhachHang[key]; daTonTai {
 			continue
 		}
@@ -142,13 +144,12 @@ func NapKhachHang(targetSpreadsheetID string) {
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
 
-		// Chỉ append khi đã qua hết các vòng kiểm tra
 		_DS_KhachHang = append(_DS_KhachHang, kh)
 		_Map_KhachHang[key] = kh
 	}
 }
 
-// ... (Các hàm truy vấn giữ nguyên) ...
+// ... (Các hàm dưới giữ nguyên) ...
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
