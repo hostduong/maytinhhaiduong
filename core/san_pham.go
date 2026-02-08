@@ -7,8 +7,11 @@ import (
 	"app/cau_hinh"
 )
 
+// =============================================================
+// 1. CẤU HÌNH CỘT
+// =============================================================
 const (
-	// [CHUẨN HÓA]
+	// [CHUẨN HÓA TUYỆT ĐỐI]
 	DongBatDau_SanPham = 11
 
 	CotSP_MaSanPham    = 0
@@ -32,10 +35,40 @@ const (
 	CotSP_NgayCapNhat  = 18
 )
 
-// ... (Struct SanPham giữ nguyên) ...
+type SanPham struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+	MaSanPham    string  `json:"ma_san_pham"`
+	TenSanPham   string  `json:"ten_san_pham"`
+	TenRutGon    string  `json:"ten_rut_gon"`
+	Sku          string  `json:"sku"`
+	MaDanhMuc    string  `json:"ma_danh_muc"`
+	MaThuongHieu string  `json:"ma_thuong_hieu"`
+	DonVi        string  `json:"don_vi"`
+	MauSac       string  `json:"mau_sac"`
+	UrlHinhAnh   string  `json:"url_hinh_anh"`
+	ThongSo      string  `json:"thong_so"`
+	MoTaChiTiet  string  `json:"mo_ta_chi_tiet"`
+	BaoHanhThang int     `json:"bao_hanh_thang"`
+	TinhTrang    string  `json:"tinh_trang"`
+	TrangThai    int     `json:"trang_thai"`
+	GiaBanLe     float64 `json:"gia_ban_le"`
+	GhiChu       string  `json:"ghi_chu"`
+	NguoiTao     string  `json:"nguoi_tao"`
+	NgayTao      string  `json:"ngay_tao"`
+	NgayCapNhat  string  `json:"ngay_cap_nhat"`
+}
+
+var (
+	_DS_SanPham  []*SanPham
+	_Map_SanPham map[string]*SanPham
+)
 
 func NapSanPham(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
+	if targetSpreadsheetID == "" {
+		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+	}
+
 	raw, err := loadSheetData(targetSpreadsheetID, "SAN_PHAM")
 	if err != nil { return }
 
@@ -43,18 +76,25 @@ func NapSanPham(targetSpreadsheetID string) {
 	_DS_SanPham = []*SanPham{}
 
 	for i, r := range raw {
-		// [SỬA] Dùng biến chuẩn DongBatDau_SanPham
+		// [SỬA ĐÚNG TÊN BIẾN]
 		if i < DongBatDau_SanPham-1 { continue }
 		
 		maSP := layString(r, CotSP_MaSanPham)
+		
+		// Logic lọc rác (Chỉ cần có Mã)
 		if maSP == "" { continue }
 
 		key := TaoCompositeKey(targetSpreadsheetID, maSP)
-		if _, daTonTai := _Map_SanPham[key]; daTonTai { continue }
+
+		// Chống trùng lặp
+		if _, daTonTai := _Map_SanPham[key]; daTonTai {
+			continue
+		}
 
 		sp := &SanPham{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
+			
 			MaSanPham:    maSP,
 			TenSanPham:   layString(r, CotSP_TenSanPham),
 			TenRutGon:    layString(r, CotSP_TenRutGon),
@@ -75,11 +115,13 @@ func NapSanPham(targetSpreadsheetID string) {
 			NgayTao:      layString(r, CotSP_NgayTao),
 			NgayCapNhat:  layString(r, CotSP_NgayCapNhat),
 		}
+
 		_DS_SanPham = append(_DS_SanPham, sp)
 		_Map_SanPham[key] = sp
 	}
 }
 
+// ... (Các hàm truy vấn giữ nguyên như cũ) ...
 func LayDanhSachSanPham() []*SanPham {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
