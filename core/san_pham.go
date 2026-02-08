@@ -2,9 +2,7 @@ package core
 
 import (
 	"fmt"
-	"sort"
 	"strings"
-	"time"
 
 	"app/cau_hinh"
 )
@@ -69,7 +67,7 @@ type SanPham struct {
 // 3. KHO LƯU TRỮ (In-Memory)
 // =============================================================
 var (
-	_DS_SanPham  []*SanPham          // Slice chứa toàn bộ (của mọi shop)
+	_DS_SanPham  []*SanPham          // Slice chứa toàn bộ
 	_Map_SanPham map[string]*SanPham // Map Key = "SheetID__MaSP"
 )
 
@@ -84,16 +82,11 @@ func NapSanPham(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "SAN_PHAM")
 	if err != nil { return }
 
-	// Khởi tạo map nếu chưa có
 	if _Map_SanPham == nil {
 		_Map_SanPham = make(map[string]*SanPham)
 		_DS_SanPham = []*SanPham{}
 	}
 	
-	// Reset danh sách (Tạm thời cho Single File logic)
-	// Lưu ý: Nếu chạy Multi-File thật sự, ta không được reset biến toàn cục thế này
-	// mà phải lọc bỏ các item thuộc targetSpreadsheetID cũ đi.
-	// Nhưng để code gọn cho giai đoạn này, ta tạm reset.
 	_DS_SanPham = []*SanPham{}
 
 	for i, r := range raw {
@@ -128,8 +121,6 @@ func NapSanPham(targetSpreadsheetID string) {
 		}
 
 		_DS_SanPham = append(_DS_SanPham, sp)
-		
-		// Key đa nhiệm: "SheetID__MaSP"
 		key := TaoCompositeKey(targetSpreadsheetID, maSP)
 		_Map_SanPham[key] = sp
 	}
@@ -148,7 +139,6 @@ func LayDanhSachSanPham() []*SanPham {
 	var kq []*SanPham
 
 	for _, sp := range _DS_SanPham {
-		// Chỉ lấy sản phẩm thuộc về Shop này
 		if sp.SpreadsheetID == currentSheetID {
 			kq = append(kq, sp)
 		}
@@ -177,7 +167,6 @@ func TaoMaSPMoi() string {
 	maxID := 0
 
 	for _, sp := range _DS_SanPham {
-		// Bỏ qua sản phẩm của shop khác
 		if sp.SpreadsheetID != currentSheetID { continue }
 
 		parts := strings.Split(sp.MaSanPham, "_")
@@ -188,11 +177,9 @@ func TaoMaSPMoi() string {
 		}
 	}
 	
-	// Format: SP_0001
 	return fmt.Sprintf("SP_%04d", maxID+1)
 }
 
-// Thêm vào RAM (Helper)
 func ThemSanPhamVaoRam(sp *SanPham) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
