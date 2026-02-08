@@ -7,34 +7,44 @@ import (
 
 	"app/bao_mat"
 	"app/cau_hinh"
-	"app/core" // [QUAN TRỌNG] Sử dụng Core thay vì nghiep_vu/bo_nho_dem
+	"app/core" // [MỚI] Sử dụng Core
 
 	"github.com/gin-gonic/gin"
 )
 
-// Bộ nhớ đếm Request cho Rate Limit
+// =============================================================
+// PHẦN 1: RATE LIMIT (GIỮ NGUYÊN LOGIC CŨ)
+// =============================================================
 var boDem = make(map[string]int)
 var mtx sync.Mutex
 
-// Khởi chạy bộ đếm (Reset mỗi giây)
 func KhoiTaoBoDemRateLimit() {
 	go func() {
 		for {
 			time.Sleep(1 * time.Second)
 			mtx.Lock()
-			boDem = make(map[string]int) // Xóa sạch bộ đếm cũ
+			boDem = make(map[string]int) // Reset bộ đếm mỗi giây
 			mtx.Unlock()
 		}
 	}()
 }
 
-// MIDDLEWARE CHÍNH
-func KiemTraQuyenHan(c *gin.Context) {
+// Helper xóa cookie
+func xoaCookie(c *gin.Context) {
+	c.SetCookie("session_id", "", -1, "/", "", false, true)
+	c.SetCookie("session_sign", "", -1, "/", "", false, true)
+}
+
+// =============================================================
+// PHẦN 2: MIDDLEWARE XÁC THỰC (AUTH & RENEW)
+// =============================================================
+
+// KiemTraDangNhap: Dùng cho API User & các trang cần đăng nhập
+func KiemTraDangNhap(c *gin.Context) {
 	// 1. CHỐT CHẶN BẢO TRÌ (Dùng biến từ Core)
 	if core.HeThongDangBan && c.Request.Method != "GET" {
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"trang_thai": "he_thong_ban",
-			"thong_diep": "Hệ thống đang đồng bộ dữ liệu, vui lòng thử lại sau 5 giây.",
+			"status": "error", "msg": "Hệ thống đang đồng bộ dữ liệu, vui lòng thử lại sau 5 giây.",
 		})
 		return
 	}
@@ -56,44 +66,50 @@ func KiemTraQuyenHan(c *gin.Context) {
 	mtx.Unlock()
 
 	if soLanGoi > cau_hinh.GioiHanNguoiDung {
-		c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"loi": "Thao tác quá nhanh! Vui lòng chậm lại."})
+		c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"status": "error", "msg": "Thao tác quá nhanh! Vui lòng chậm lại."})
 		return
 	}
 
-	// 3. KIỂM TRA ĐĂNG NHẬP & BẢO MẬT (AUTH)
-	if cookieID == "" {
-		c.Next()
+	// 3. KIỂM TRA COOKIE CƠ BẢN
+	if err1 != nil || cookieID == "" {
+		// Nếu là API (AJAX) -> Trả lỗi JSON
+		if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" || c.Request.Method == "POST" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "msg": "Vui lòng đăng nhập!"})
+		} else {
+			c.Redirect(http.StatusFound, "/login") // Nếu là trình duyệt -> Chuyển hướng
+			c.Abort()
+		}
 		return
 	}
 
-	// KIỂM TRA TÍNH TOÀN VẸN (SECURITY CHECK)
+	// 4. KIỂM TRA CHỮ KÝ BẢO MẬT (SECURITY CHECK)
 	userAgent := c.Request.UserAgent()
 	signatureServer := bao_mat.TaoChuKyBaoMat(cookieID, userAgent)
 
 	if err2 != nil || cookieSign != signatureServer {
-		// Xóa cookie rác
 		xoaCookie(c)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"loi": "Phát hiện bất thường (Cookie Mismatch)! Vui lòng đăng nhập lại."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "msg": "Phát hiện bất thường (Cookie Mismatch)!"})
 		return
 	}
 
-	// 4. TÌM USER TRONG RAM (Dùng hàm của Core)
+	// 5. TÌM USER TRONG CORE (Thay thế nghiep_vu cũ)
 	khachHang, timThay := core.TimKhachHangTheoCookie(cookieID)
 
 	if !timThay {
 		xoaCookie(c)
-		c.Next()
+		c.Redirect(http.StatusFound, "/login")
+		c.Abort()
 		return
 	}
 
-	// 5. LOGIC GIA HẠN THÔNG MINH (Auto-Renew)
-	thoiGianHetHan := khachHang.CookieExpired // Dạng int64
+	// 6. LOGIC GIA HẠN THÔNG MINH (Auto-Renew)
+	thoiGianHetHan := khachHang.CookieExpired
 	now := time.Now().Unix()
 
 	// Nếu đã hết hạn -> Đá ra
 	if now > thoiGianHetHan {
 		xoaCookie(c)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"loi": "Phiên đăng nhập hết hạn"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "msg": "Phiên đăng nhập hết hạn"})
 		return
 	}
 
@@ -103,32 +119,32 @@ func KiemTraQuyenHan(c *gin.Context) {
 		
 		newExp := time.Now().Add(cau_hinh.ThoiGianHetHanCookie).Unix()
 		
-		// Cập nhật RAM (Thread-safe nhờ Lock bên trong Core nếu cần, hoặc ta lock ở đây)
-		// Ở đây ta gán trực tiếp vì Core struct là pointer, tuy nhiên để an toàn tuyệt đối
-		// nên dùng hàm setter của core hoặc lock. Tạm thời gán thẳng:
+		// Cập nhật RAM Core an toàn
 		core.KhoaHeThong.Lock()
 		khachHang.CookieExpired = newExp
 		core.KhoaHeThong.Unlock()
 
-		// Đẩy vào Hàng Chờ Ghi (Dùng Core Write Queue)
-		// Lấy ID Sheet từ Config hoặc từ Struct KhachHang (nếu hỗ trợ đa shop)
+		// Đẩy vào hàng chờ (Sử dụng hàm Core mới)
 		sID := khachHang.SpreadsheetID
 		if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
 		
+		// Ghi đè cột Cookie Expired (Cột E / Index 4)
+		// Lưu ý: Core dùng const CotKH_... nên rất chuẩn
 		core.ThemVaoHangCho(
 			sID,
 			"KHACH_HANG",
 			khachHang.DongTrongSheet,
-			core.CotKH_CookieExpired, // Dùng Const từ Core
+			core.CotKH_CookieExpired, 
 			newExp,
 		)
 
+		// Set lại Cookie mới cho trình duyệt
 		maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
 		c.SetCookie("session_id", cookieID, maxAge, "/", "", false, true)
 		c.SetCookie("session_sign", cookieSign, maxAge, "/", "", false, true)
 	}
 
-	// Lưu thông tin vào Context để các Controller sau dùng
+	// 7. LƯU THÔNG TIN VÀO CONTEXT (Để Controller dùng)
 	c.Set("USER_ID", khachHang.MaKhachHang)
 	c.Set("USER_ROLE", khachHang.VaiTroQuyenHan)
 	c.Set("USER_NAME", khachHang.TenKhachHang)
@@ -136,8 +152,32 @@ func KiemTraQuyenHan(c *gin.Context) {
 	c.Next()
 }
 
-// Helper xóa cookie gọn
-func xoaCookie(c *gin.Context) {
-	c.SetCookie("session_id", "", -1, "/", "", false, true)
-	c.SetCookie("session_sign", "", -1, "/", "", false, true)
+// =============================================================
+// PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN)
+// =============================================================
+
+func KiemTraQuyenHan(c *gin.Context) {
+	// 1. Phải đăng nhập trước đã
+	KiemTraDangNhap(c)
+	if c.IsAborted() { return }
+
+	// 2. Lấy quyền từ Context (đã được hàm trên set)
+	role := c.GetString("USER_ROLE")
+
+	// 3. Danh sách quyền được vào Admin
+	choPhep := false
+	if role == "admin_root" || role == "admin" || role == "quan_ly" {
+		choPhep = true
+	}
+
+	if !choPhep {
+		c.HTML(http.StatusForbidden, "quan_tri", gin.H{
+			"TieuDe": "Không có quyền truy cập",
+			"Error":  "Bạn không có quyền truy cập trang quản trị!",
+		})
+		c.Abort()
+		return
+	}
+
+	c.Next()
 }
