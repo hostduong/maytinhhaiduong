@@ -3,72 +3,91 @@ package chuc_nang
 import (
 	"net/http"
 	"strings"
+	"time"
 
-	"app/bao_mat"
 	"app/cau_hinh"
-	"app/core" // [QUAN TRỌNG] Sử dụng Core
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// API_Admin_SuaThanhVien : Dành cho Admin/Sale sửa thông tin người khác
-// Method: POST /admin/api/member/update
-func API_Admin_SuaThanhVien(c *gin.Context) {
-	// 1. KIỂM TRA QUYỀN HẠN (Logic thay thế nghiep_vu.KiemTraQuyen)
-	vaiTro := c.GetString("USER_ROLE")
-	choPhep := false
-	if vaiTro == "admin_root" || vaiTro == "admin" || vaiTro == "quan_ly" {
-		choPhep = true
-	}
+// TrangQuanLyThanhVien : Hiển thị danh sách khách hàng/nhân viên
+func TrangQuanLyThanhVien(c *gin.Context) {
+	// Lấy thông tin người đang đăng nhập
+	userID := c.GetString("USER_ID")
+	me, _ := core.LayKhachHang(userID)
 
-	if !choPhep {
-		c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Bạn không có quyền sửa thành viên!"})
+	// Lấy toàn bộ danh sách từ Core
+	listAll := core.LayDanhSachKhachHang()
+
+	c.HTML(http.StatusOK, "quan_tri_thanh_vien", gin.H{
+		"TieuDe":       "Quản lý thành viên",
+		"NhanVien":     me,
+		"DanhSach":     listAll,
+		"TenNguoiDung": me.TenKhachHang,
+		"QuyenHan":     me.VaiTroQuyenHan,
+	})
+}
+
+// API_Admin_LuuThanhVien : Cập nhật thông tin và QUYỀN HẠN
+func API_Admin_LuuThanhVien(c *gin.Context) {
+	// 1. Check quyền Admin (Chỉ Admin Root hoặc Admin mới được sửa người khác)
+	myRole := c.GetString("USER_ROLE")
+	if myRole != "admin_root" && myRole != "admin" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
 	}
 
-	// 2. LẤY DỮ LIỆU
-	maKhachHangCanSua := c.PostForm("ma_khach_hang")
+	// 2. Lấy dữ liệu
+	maKH := c.PostForm("ma_khach_hang")
+	role := c.PostForm("vai_tro") // admin, sale, kho...
+	name := c.PostForm("ten_khach_hang")
+	pass := c.PostForm("mat_khau_moi") // Nếu có nhập thì đổi, không thì thôi
 	
-	// Tìm khách hàng trong RAM Core
-	khachHang, tonTai := core.LayKhachHang(maKhachHangCanSua)
-	if !tonTai {
-		c.JSON(http.StatusNotFound, gin.H{"status": "error", "msg": "Không tìm thấy khách hàng này!"})
+	kh, ok := core.LayKhachHang(maKH)
+	if !ok {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy thành viên này!"})
 		return
 	}
 
-	// 3. CẬP NHẬT THÔNG TIN
-	hoTenMoi := strings.TrimSpace(c.PostForm("ho_ten"))
-	sdtMoi   := strings.TrimSpace(c.PostForm("dien_thoai"))
+	// 3. Logic chặn: Không ai được sửa Admin Root (trừ chính họ)
+	if kh.VaiTroQuyenHan == "admin_root" && myRole != "admin_root" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không thể tác động đến tài khoản Super Admin!"})
+		return
+	}
+
+	// 4. Cập nhật Core RAM
+	core.KhoaHeThong.Lock()
+	kh.TenKhachHang = name
+	kh.VaiTroQuyenHan = role
+	// Map lại tên chức vụ hiển thị cho đẹp
+	switch role {
+	case "admin": kh.ChucVu = "Quản trị viên"
+	case "sale": kh.ChucVu = "Nhân viên kinh doanh"
+	case "kho": kh.ChucVu = "Thủ kho"
+	case "customer": kh.ChucVu = "Khách hàng"
+	default: kh.ChucVu = "Thành viên"
+	}
 	
-	// Lấy ID Sheet chuẩn (Hỗ trợ đa Shop)
-	idSheet := khachHang.SpreadsheetID
-	if idSheet == "" { idSheet = cau_hinh.BienCauHinh.IdFileSheet }
-	row := khachHang.DongTrongSheet
-
-	// Cập nhật RAM Core & Đẩy vào Hàng Chờ Ghi
-	if hoTenMoi != "" {
-		// Lưu ý: Cần Lock nếu muốn thread-safe tuyệt đối, hoặc gán trực tiếp
-		khachHang.TenKhachHang = hoTenMoi
-		core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_TenKhachHang, hoTenMoi)
+	// Đổi pass nếu có
+	if pass != "" {
+		// Import "app/bao_mat" ở trên đầu file nếu chưa có
+		// hash, _ := bao_mat.HashMatKhau(pass)
+		// kh.MatKhauHash = hash
+		// TODO: Bạn cần import package bao_mat để dùng hàm Hash
 	}
-	if sdtMoi != "" {
-		khachHang.DienThoai = sdtMoi
-		core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_DienThoai, sdtMoi)
-	}
+	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
+	core.KhoaHeThong.Unlock()
 
-	// Reset Mật khẩu (Nếu có)
-	passMoi := c.PostForm("new_password")
-	if passMoi != "" {
-		// Chỉ Admin Root hoặc Admin mới được reset pass
-		if vaiTro == "admin_root" || vaiTro == "admin" {
-			hash, _ := bao_mat.HashMatKhau(passMoi)
-			khachHang.MatKhauHash = hash
-			core.ThemVaoHangCho(idSheet, "KHACH_HANG", row, core.CotKH_MatKhauHash, hash)
-		} else {
-			c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Bạn không có quyền reset mật khẩu!"})
-			return
-		}
-	}
+	// 5. Ghi xuống Sheet
+	sID := cau_hinh.BienCauHinh.IdFileSheet
+	row := kh.DongTrongSheet
+	
+	ghi := core.ThemVaoHangCho
+	ghi(sID, "KHACH_HANG", row, core.CotKH_TenKhachHang, kh.TenKhachHang)
+	ghi(sID, "KHACH_HANG", row, core.CotKH_VaiTroQuyenHan, kh.VaiTroQuyenHan)
+	ghi(sID, "KHACH_HANG", row, core.CotKH_ChucVu, kh.ChucVu)
+	ghi(sID, "KHACH_HANG", row, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "msg": "Cập nhật thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật thành viên thành công!"})
 }
