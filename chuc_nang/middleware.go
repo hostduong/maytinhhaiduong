@@ -152,31 +152,30 @@ func KiemTraDangNhap(c *gin.Context) {
 	c.Next()
 }
 
-
 // =============================================================
 // PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN GATEKEEPER)
 // =============================================================
 
-
 func KiemTraQuyenHan(c *gin.Context) {
+	// Lưu ý: Hàm này chạy SAU KiemTraDangNhap nên đã có USER_ROLE trong context
 	role := c.GetString("USER_ROLE")
 
+	// 1. Nếu mất role (lỗi session) -> Về Login
 	if role == "" {
 		c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 		return
 	}
 
-	// [SỬA LẠI] Chặn cả "khach_hang" (theo PDF) và "customer" (theo code đăng ký)
+	// 2. CHẶN KHÁCH HÀNG (SỬA LẠI ĐÚNG LOGIC)
+	// Nếu là khách -> Đá về trang chủ ngay lập tức.
+	// KHÔNG render template "quan_tri" nữa (nguyên nhân gây ra việc khách vẫn thấy khung admin).
 	if role == "khach_hang" || role == "customer" {
-		c.HTML(http.StatusForbidden, "khung_giao_dien", gin.H{ // Dùng khung_giao_dien cho nhẹ, tránh lỗi
-			"TieuDe": "Không có quyền truy cập",
-			"DaDangNhap": true,
-			"NoiDung": "<h3>⛔ KHÔNG CÓ QUYỀN TRUY CẬP</h3><p>Tài khoản khách hàng không thể vào trang quản trị.</p>",
-		})
+		c.Redirect(http.StatusFound, "/") // <--- ĐÁ VỀ TRANG CHỦ
 		c.Abort()
 		return
 	}
 
+	// 3. Cho phép Admin/Nhân viên đi tiếp
 	c.Next()
 }
