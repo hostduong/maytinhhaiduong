@@ -158,15 +158,20 @@ func KiemTraDangNhap(c *gin.Context) {
 // =============================================================
 
 func KiemTraQuyenHan(c *gin.Context) {
-	// 1. Phải đăng nhập trước
-	KiemTraDangNhap(c)
-	if c.IsAborted() { return }
+	// [XÓA ĐOẠN NÀY] Vì KiemTraDangNhap đã có c.Next(), gọi ở đây sẽ gây chạy 2 lần
+	// KiemTraDangNhap(c)
+	// if c.IsAborted() { return }
 
 	role := c.GetString("USER_ROLE")
 
+	// 1. CHẶN NẾU CHƯA CÓ ROLE (Trường hợp bypass hoặc lỗi)
+	if role == "" {
+		c.Redirect(http.StatusFound, "/login")
+		c.Abort()
+		return
+	}
+
 	// 2. CHẶN KHÁCH HÀNG
-	// Theo logic PDF: Khách hàng không được vào trang quản trị chung
-	// Các vai trò khác (thu_kho, ke_toan...) được vào, nhưng sẽ bị chặn ở từng trang cụ thể nếu không có quyền
 	if role == "khach_hang" || role == "customer" {
 		c.HTML(http.StatusForbidden, "quan_tri", gin.H{
 			"TieuDe": "Không có quyền truy cập",
@@ -176,7 +181,6 @@ func KiemTraQuyenHan(c *gin.Context) {
 		return
 	}
 
-	// Nếu là nhân viên (admin, sale, kho...) -> Cho qua
-	// Quyền cụ thể (như xem sản phẩm, xem doanh thu) sẽ check ở Controller
+	// 3. Cho qua
 	c.Next()
 }
