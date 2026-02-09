@@ -19,25 +19,25 @@ import (
 func TrangQuanLySanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	
+	// Lấy thông tin user & Chốt chặn lỗi
 	kh, found := core.LayKhachHang(userID)
 	if !found || kh == nil {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// [SỬA LẠI ĐOẠN NÀY ĐỂ TRÁNH LỖI PANIC]
-	// Nếu không có quyền, hiển thị thông báo đơn giản thay vì load trang Dashboard
+	// [MỚI] CHECK QUYỀN XEM (product.view)
+	// Theo bảng phân quyền: Khách hàng = 0, Admin/Sale/Kho = 1
 	if !core.KiemTraQuyen(kh.VaiTroQuyenHan, "product.view") {
-		c.HTML(http.StatusForbidden, "khung_giao_dien", gin.H{
-			"TieuDe":       "Từ chối truy cập",
-			"DaDangNhap":   true,
-			"TenNguoiDung": kh.TenKhachHang,
-			"QuyenHan":     kh.VaiTroQuyenHan,
-			"NoiDung":      "<h3>⛔ Bạn không có quyền truy cập trang này (product.view).</h3><p>Vui lòng liên hệ quản trị viên.</p>",
+		c.HTML(http.StatusForbidden, "quan_tri", gin.H{ // Hoặc dùng template báo lỗi riêng
+			"TieuDe":   "Từ chối truy cập",
+			"Error":    "Bạn không có quyền xem danh sách sản phẩm (product.view)!",
+			"NhanVien": kh,
 		})
 		return
 	}
 
+	// Lấy dữ liệu từ Core
 	listSP := core.LayDanhSachSanPham()
 	listDM := core.LayDanhSachDanhMuc()
 	listTH := core.LayDanhSachThuongHieu()
