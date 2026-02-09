@@ -8,7 +8,8 @@ import (
 // 1. CẤU HÌNH CỘT (THUONG_HIEU)
 // =============================================================
 const (
-	DongBatDauDuLieuTH = 2 // [CẬP NHẬT] Tự định nghĩa riêng
+	// [CHUẨN HÓA]
+	DongBatDau_ThuongHieu = 11 
 
 	CotTH_MaThuongHieu  = 0
 	CotTH_TenThuongHieu = 1
@@ -50,18 +51,22 @@ func NapThuongHieu(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "THUONG_HIEU")
 	if err != nil { return }
 
-	if _Map_ThuongHieu == nil {
-		_Map_ThuongHieu = make(map[string]*ThuongHieu)
-		_DS_ThuongHieu = []*ThuongHieu{}
-	}
+	_Map_ThuongHieu = make(map[string]*ThuongHieu)
 	_DS_ThuongHieu = []*ThuongHieu{}
 
 	for i, r := range raw {
-		// [SỬA ĐỔI] Dùng biến riêng DongBatDauDuLieuTH
-		if i < DongBatDauDuLieuTH-1 { continue }
+		// [CHUẨN HÓA] Dùng biến DongBatDau_ThuongHieu
+		if i < DongBatDau_ThuongHieu-1 { continue }
 		
 		maTH := layString(r, CotTH_MaThuongHieu)
 		if maTH == "" { continue }
+
+		key := TaoCompositeKey(targetSpreadsheetID, maTH)
+
+		// [AN TOÀN] Chống trùng lặp
+		if _, daTonTai := _Map_ThuongHieu[key]; daTonTai {
+			continue
+		}
 
 		th := &ThuongHieu{
 			SpreadsheetID:  targetSpreadsheetID,
@@ -75,7 +80,6 @@ func NapThuongHieu(targetSpreadsheetID string) {
 		}
 
 		_DS_ThuongHieu = append(_DS_ThuongHieu, th)
-		key := TaoCompositeKey(targetSpreadsheetID, maTH)
 		_Map_ThuongHieu[key] = th
 	}
 }
