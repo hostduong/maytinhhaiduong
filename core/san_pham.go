@@ -142,21 +142,44 @@ func LayChiTietSanPham(maSP string) (*SanPham, bool) {
 	return sp, ok
 }
 
-func TaoMaSPMoi() string {
+// [MỚI - FINAL] Hàm sinh mã SP: HD + Brand + YYMM + 4 Random
+// Ví dụ: HD28426029999
+func TaoMaSPMoi(maThuongHieu string) string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
+	
 	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
-	maxID := 0
-	for _, sp := range _DS_SanPham {
-		if sp.SpreadsheetID != currentSheetID { continue }
-		parts := strings.Split(sp.MaSanPham, "_")
-		if len(parts) == 2 {
-			var id int
-			fmt.Sscanf(parts[1], "%d", &id)
-			if id > maxID { maxID = id }
+	
+	// 1. XỬ LÝ MÃ HÃNG (Lấy 3 ký tự)
+	// Ví dụ: "TH284" -> "284"
+	partBrand := "000"
+	maThuongHieu = strings.ToUpper(strings.TrimSpace(maThuongHieu))
+	
+	if strings.HasPrefix(maThuongHieu, "TH") && len(maThuongHieu) >= 5 {
+		partBrand = maThuongHieu[2:] 
+	} else if len(maThuongHieu) >= 3 {
+		partBrand = maThuongHieu[len(maThuongHieu)-3:]
+	}
+	// Cắt gọn phòng trường hợp lỗi
+	if len(partBrand) > 3 { partBrand = partBrand[:3] }
+
+	// 2. XỬ LÝ THỜI GIAN (YYMM)
+	// Go layout: 06 = Năm (2 số), 01 = Tháng
+	// Ví dụ: Tháng 2 năm 2026 -> "2602"
+	partTime := time.Now().Format("0601")
+
+	for {
+		// 3. SINH MÃ: HD + Brand + Time + 4 Random
+		// Cấu trúc: HD + 284 + 2602 + 1234
+		rand4 := LayChuoiSoNgauNhien(4)
+		id := fmt.Sprintf("HD%s%s%s", partBrand, partTime, rand4)
+		
+		// 4. CHECK TRÙNG LẶP
+		key := TaoCompositeKey(currentSheetID, id)
+		if _, tonTai := _Map_SanPham[key]; !tonTai {
+			return id
 		}
 	}
-	return fmt.Sprintf("SP_%04d", maxID+1)
 }
 
 func ThemSanPhamVaoRam(sp *SanPham) {
