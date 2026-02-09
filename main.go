@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings" // [1] BẮT BUỘC CÓ để dùng hàm split
+	"strings"
 	"syscall"
 
 	"app/cau_hinh"
