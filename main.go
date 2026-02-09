@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
+	"strings" // [1] BẮT BUỘC CÓ để dùng hàm split
 	"syscall"
 
 	"app/cau_hinh"
@@ -86,9 +86,12 @@ func main() {
 		userApi.POST("/send-otp-pin", chuc_nang.API_GuiOTPPin)
 	}
 
-	// D. Admin Group (Cần quyền)
+// D. Admin Group
 	admin := router.Group("/admin")
-	admin.Use(chuc_nang.KiemTraQuyenHan) 
+	
+	// [QUAN TRỌNG] Gọi chuỗi 2 Middleware tại đây
+	// Gin sẽ chạy: KiemTraDangNhap -> Next() -> KiemTraQuyenHan -> Next() -> Controller
+	admin.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan) 
 	{
 		admin.GET("/tong-quan", chuc_nang.TrangTongQuan)
 		admin.GET("/reload", chuc_nang.API_NapLaiDuLieu)
@@ -97,7 +100,7 @@ func main() {
 		admin.GET("/san-pham", chuc_nang.TrangQuanLySanPham)
 		admin.POST("/api/product/save", chuc_nang.API_LuuSanPham)
 		
-		// [3] ĐÃ MỞ LẠI VÌ ĐÃ CÓ FILE QUAN_TRI_THANH_VIEN.GO
+		// Quản lý thành viên
 		admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien)
 		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) 
 	}
