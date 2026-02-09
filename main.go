@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings" // [QUAN TRỌNG] Nhớ thêm import strings
 	"syscall"
 
 	"app/cau_hinh"
@@ -20,34 +21,36 @@ import (
 var f embed.FS
 
 func main() {
-	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG MỚI (CORE)...")
+	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG...")
 
-	// 1. Tải cấu hình
+	// 1. Tải cấu hình & Core
 	cau_hinh.KhoiTaoCauHinh()
-
-	// 2. Khởi tạo Core (Kết nối & Worker)
 	core.KhoiTaoNenTang()
 	core.KhoiTaoWorkerGhiSheet()
 
-	// 3. Nạp dữ liệu vào RAM
+	// 2. Nạp dữ liệu
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
-	
-	// [QUAN TRỌNG] Nạp bảng phân quyền đầu tiên
 	core.NapPhanQuyen("") 
-	
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
 	core.NapSanPham("")
 	core.NapKhachHang("")
 
-	// 4. Cấu hình Router
+	// 3. Cấu hình Router & Template
 	router := gin.Default()
-	templ := template.Must(template.New("").ParseFS(f, "giao_dien/*.html"))
+
+	// [FIX QUAN TRỌNG] Đăng ký các hàm tiện ích cho HTML (như split)
+	funcMap := template.FuncMap{
+		"split": strings.Split, // Hàm tách chuỗi
+	}
+
+	// Nạp template với FuncMap
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// --- ĐỊNH NGHĨA ROUTER ---
+	// --- ĐỊNH NGHĨA ROUTER (Giữ nguyên như cũ) ---
 
-	// A. Public (Không cần đăng nhập)
+	// A. Public
 	router.GET("/", chuc_nang.TrangChu)
 	router.GET("/san-pham/:id", chuc_nang.ChiTietSanPham)
 	
@@ -58,24 +61,21 @@ func main() {
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
 
-	// Chức năng Tài khoản & Quên mật khẩu
 	router.GET("/tai-khoan", chuc_nang.TrangHoSo)
 	router.GET("/quen-mat-khau", chuc_nang.TrangQuenMatKhau)
 
-	// B. API Public (Ajax gọi)
+	// B. API Public
 	api := router.Group("/api")
 	{
 		api.GET("/san-pham", chuc_nang.API_LayDanhSachSanPham)
 		api.GET("/cau-hinh", chuc_nang.API_LayMenu)
 		api.GET("/san-pham/:id", chuc_nang.API_ChiTietSanPham)
-
-		// Quên mật khẩu
 		api.POST("/auth/send-otp", chuc_nang.XuLyGuiOTPEmail)
 		api.POST("/auth/reset-by-pin", chuc_nang.XuLyQuenPassBangPIN)
 		api.POST("/auth/reset-by-otp", chuc_nang.XuLyQuenPassBangOTP)
 	}
 
-	// C. API User (Cần đăng nhập)
+	// C. API User
 	userApi := router.Group("/api/user")
 	userApi.Use(chuc_nang.KiemTraDangNhap)
 	{
@@ -96,10 +96,8 @@ func main() {
 		admin.GET("/san-pham", chuc_nang.TrangQuanLySanPham)
 		admin.POST("/api/product/save", chuc_nang.API_LuuSanPham)
 		
-		// [MỚI] Quản lý thành viên & Phân quyền
+		// Quản lý thành viên
 		admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien)
-		
-		// [SỬA LẠI TÊN HÀM CHO ĐÚNG]
 		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) 
 	}
 
