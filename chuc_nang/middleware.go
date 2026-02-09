@@ -157,30 +157,26 @@ func KiemTraDangNhap(c *gin.Context) {
 // PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN GATEKEEPER)
 // =============================================================
 
-func KiemTraQuyenHan(c *gin.Context) {
-	// [XÓA ĐOẠN NÀY] Vì KiemTraDangNhap đã có c.Next(), gọi ở đây sẽ gây chạy 2 lần
-	// KiemTraDangNhap(c)
-	// if c.IsAborted() { return }
 
+func KiemTraQuyenHan(c *gin.Context) {
 	role := c.GetString("USER_ROLE")
 
-	// 1. CHẶN NẾU CHƯA CÓ ROLE (Trường hợp bypass hoặc lỗi)
 	if role == "" {
 		c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 		return
 	}
 
-	// 2. CHẶN KHÁCH HÀNG
+	// [SỬA LẠI] Chặn cả "khach_hang" (theo PDF) và "customer" (theo code đăng ký)
 	if role == "khach_hang" || role == "customer" {
-		c.HTML(http.StatusForbidden, "quan_tri", gin.H{
+		c.HTML(http.StatusForbidden, "khung_giao_dien", gin.H{ // Dùng khung_giao_dien cho nhẹ, tránh lỗi
 			"TieuDe": "Không có quyền truy cập",
-			"Error":  "Tài khoản khách hàng không được truy cập trang này!",
+			"DaDangNhap": true,
+			"NoiDung": "<h3>⛔ KHÔNG CÓ QUYỀN TRUY CẬP</h3><p>Tài khoản khách hàng không thể vào trang quản trị.</p>",
 		})
 		c.Abort()
 		return
 	}
 
-	// 3. Cho qua
 	c.Next()
 }
