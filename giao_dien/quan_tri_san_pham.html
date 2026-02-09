@@ -1,4 +1,4 @@
-{{ define "quan_tri_san_pham" }}
+{{ define "admin_product_fix_v1" }}
     {{ template "header" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
@@ -7,13 +7,12 @@
 
     <style>
         .tagify { --tags-border-color: #e5e7eb; --tags-focus-border-color: #3b82f6; border-radius: 0.5rem; padding: 4px; }
-        /* Modal scroll fix */
         .modal-body { max-height: calc(100vh - 200px); overflow-y: auto; }
     </style>
 
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">📦 Quản Lý Sản Phẩm</h1>
+            <h1 class="text-2xl font-bold text-gray-800">📦 Quản Lý Sản Phẩm (Fix)</h1>
             <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2">
                 ➕ Thêm Sản Phẩm
             </button>
@@ -167,7 +166,7 @@
     </div>
 
     <script>
-        // 1. INIT TAGIFY (Danh mục)
+        // 1. INIT TAGIFY
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
             whitelist: [
@@ -176,7 +175,7 @@
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
-        // 2. DỮ LIỆU SẢN PHẨM (JSON MAP)
+        // 2. DATA MAP
         const mapSP = {};
         {{ range .DanhSach }}
             mapSP["{{ .MaSanPham }}"] = {
@@ -195,26 +194,18 @@
             };
         {{ end }}
 
-        // 3. FORMAT TIỀN TỆ (1500000 -> 1.500.000)
-        function formatNumber(n) {
-            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        function formatCurrency(input) {
-            input.value = formatNumber(input.value);
-        }
+        // 3. UTILS
+        function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        function formatCurrency(input) { input.value = formatNumber(input.value); }
+        function previewImg(url) { document.getElementById('imgPreview').src = url || "https://via.placeholder.com/40"; }
 
-        // 4. PREVIEW ẢNH
-        function previewImg(url) {
-            document.getElementById('imgPreview').src = url || "https://via.placeholder.com/40";
-        }
-
-        // 5. CÁC HÀM MODAL
+        // 4. MODAL
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
             document.getElementById('imgPreview').src = "https://via.placeholder.com/40";
-            tagifyDM.removeAllTags(); // Reset tags
+            tagifyDM.removeAllTags();
             document.getElementById('modalSP').classList.remove('hidden');
         }
 
@@ -226,7 +217,6 @@
             const sp = mapSP[id];
             if(!sp) return;
             
-            // Fill dữ liệu
             document.getElementById('ma_san_pham').value = id;
             document.getElementById('ten_san_pham').value = sp.ten;
             document.getElementById('ten_rut_gon').value = sp.rutgon;
@@ -240,7 +230,6 @@
             document.getElementById('mo_ta_chi_tiet').value = sp.mota;
             document.getElementById('trang_thai').checked = (sp.trangthai === 1);
             
-            // Load ảnh & Tags
             previewImg(sp.img);
             tagifyDM.removeAllTags();
             if(sp.dm) tagifyDM.addTags(sp.dm.split(","));
@@ -252,23 +241,15 @@
         async function saveSP() {
             const form = document.getElementById('formSP');
             const fd = new FormData(form);
-            
-            // Fix checkbox value
-            if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off');
-            else fd.set('trang_thai', 'on');
+            if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
 
             try {
                 const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500})
-                    .then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi', data.msg, 'error');
-                }
-            } catch(e) {
-                Swal.fire('Lỗi', 'Không thể kết nối server', 'error');
-            }
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
+                } else { Swal.fire('Lỗi', data.msg, 'error'); }
+            } catch(e) { Swal.fire('Lỗi', 'Không thể kết nối server', 'error'); }
         }
     </script>
     {{ template "footer" . }}
