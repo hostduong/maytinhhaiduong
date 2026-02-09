@@ -152,32 +152,31 @@ func KiemTraDangNhap(c *gin.Context) {
 	c.Next()
 }
 
+
 // =============================================================
-// PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN)
+// PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN GATEKEEPER)
 // =============================================================
 
 func KiemTraQuyenHan(c *gin.Context) {
-	// 1. Phải đăng nhập trước đã
+	// 1. Phải đăng nhập trước
 	KiemTraDangNhap(c)
 	if c.IsAborted() { return }
 
-	// 2. Lấy quyền từ Context (đã được hàm trên set)
 	role := c.GetString("USER_ROLE")
 
-	// 3. Danh sách quyền được vào Admin
-	choPhep := false
-	if role == "admin_root" || role == "admin" || role == "quan_ly" {
-		choPhep = true
-	}
-
-	if !choPhep {
+	// 2. CHẶN KHÁCH HÀNG
+	// Theo logic PDF: Khách hàng không được vào trang quản trị chung
+	// Các vai trò khác (thu_kho, ke_toan...) được vào, nhưng sẽ bị chặn ở từng trang cụ thể nếu không có quyền
+	if role == "khach_hang" || role == "customer" {
 		c.HTML(http.StatusForbidden, "quan_tri", gin.H{
 			"TieuDe": "Không có quyền truy cập",
-			"Error":  "Bạn không có quyền truy cập trang quản trị!",
+			"Error":  "Tài khoản khách hàng không được truy cập trang này!",
 		})
 		c.Abort()
 		return
 	}
 
+	// Nếu là nhân viên (admin, sale, kho...) -> Cho qua
+	// Quyền cụ thể (như xem sản phẩm, xem doanh thu) sẽ check ở Controller
 	c.Next()
 }
