@@ -1,7 +1,6 @@
 package chuc_nang
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,31 +14,25 @@ import (
 
 // TrangQuanLySanPham : Hiển thị danh sách
 func TrangQuanLySanPham(c *gin.Context) {
-	// [DEBUG] Log này sẽ hiện trong Terminal/Cloud Logs để chứng minh code đã chạy
-	fmt.Println(">>> [DEBUG] Đang truy cập Controller: TrangQuanLySanPham")
-
 	userID := c.GetString("USER_ID")
 	
-	// Lấy thông tin người dùng
+	// [QUAN TRỌNG] Lấy thông tin người dùng an toàn
 	kh, found := core.LayKhachHang(userID)
 	
-	// Chốt chặn an toàn: Nếu user lỗi -> Về Login
+	// [CHỐT CHẶN LỖI TRẮNG TRANG]
+	// Nếu không tìm thấy user (do chưa load xong hoặc session lỗi)
+	// Bắt buộc chuyển hướng về Login, không được render tiếp để tránh Sập (Panic)
 	if !found || kh == nil {
-		fmt.Println(">>> [DEBUG] User nil hoặc không tìm thấy -> Redirect Login")
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// Lấy dữ liệu từ Core
+	// 1. Lấy dữ liệu từ Core
 	listSP := core.LayDanhSachSanPham()
-	fmt.Printf(">>> [DEBUG] Đã load được %d sản phẩm từ Core\n", len(listSP))
-
 	listDM := core.LayDanhSachDanhMuc()
 	listTH := core.LayDanhSachThuongHieu()
 
-	// [QUAN TRỌNG] Gọi tên template MỚI HOÀN TOÀN: "admin_product_fix_v1"
-	// Điều này giúp tránh trùng lặp với bất kỳ file cũ nào
-	c.HTML(http.StatusOK, "admin_product_fix_v1", gin.H{
+	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
 		"NhanVien":       kh, 
 		"DaDangNhap":     true,
@@ -53,7 +46,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 
 // API_LuuSanPham : Xử lý Thêm/Sửa
 func API_LuuSanPham(c *gin.Context) {
-	// Check quyền
+	// Check quyền chặt chẽ
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" && vaiTro != "quan_ly" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
@@ -132,12 +125,11 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.BaoHanhThang = baoHanh
 	sp.TinhTrang = tinhTrang
 	sp.TrangThai = trangThai
-	sp.GiaBanLe = giaBan
 	sp.GhiChu = ghiChu
 	sp.NgayCapNhat = nowStr
-	sp.NguoiTao = userID // Cập nhật người sửa cuối
 
 	if isNew {
+		// [CHUẨN] Dùng biến DongBatDau_SanPham
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
