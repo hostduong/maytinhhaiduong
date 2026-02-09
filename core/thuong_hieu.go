@@ -101,3 +101,14 @@ func LayDanhSachThuongHieu() []*ThuongHieu {
 	}
 	return kq
 }
+
+func TaoMaThuongHieuMoi() string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	for {
+		id := fmt.Sprintf("TH%s", LayChuoiSoNgauNhien(3))
+		key := TaoCompositeKey(currentSheetID, id)
+		if _, tonTai := _Map_ThuongHieu[key]; !tonTai { return id }
+	}
+}
