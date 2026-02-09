@@ -26,11 +26,11 @@ func main() {
 	// 1. Tải cấu hình
 	cau_hinh.KhoiTaoCauHinh()
 
-	// 2. Khởi tạo Core
+	// 2. Khởi tạo Core (Kết nối & Worker)
 	core.KhoiTaoNenTang()
 	core.KhoiTaoWorkerGhiSheet()
 
-	// 3. Nạp dữ liệu
+	// 3. Nạp dữ liệu vào RAM
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
 	core.NapPhanQuyen("") 
 	core.NapDanhMuc("")
@@ -38,15 +38,16 @@ func main() {
 	core.NapSanPham("")
 	core.NapKhachHang("")
 
-	// 4. Cấu hình Router & Template
+	// 4. Cấu hình Router
 	router := gin.Default()
 
-	// [2. QUAN TRỌNG: Đăng ký hàm "split" cho HTML dùng]
+	// [2. KHẮC PHỤC LỖI TRẮNG TRANG TẠI ĐÂY]
+	// Đăng ký hàm "split" để file HTML hiểu được lệnh {{ split .MaDanhMuc "|" }}
 	funcMap := template.FuncMap{
 		"split": strings.Split,
 	}
 
-	// Nạp template với FuncMap (Phải đặt Funcs trước ParseFS)
+	// Nạp template KÈM THEO FuncMap (Phải đặt .Funcs trước .ParseFS)
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html"))
 	router.SetHTMLTemplate(templ)
 
@@ -63,6 +64,7 @@ func main() {
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
 
+	// Tài khoản
 	router.GET("/tai-khoan", chuc_nang.TrangHoSo)
 	router.GET("/quen-mat-khau", chuc_nang.TrangQuenMatKhau)
 
