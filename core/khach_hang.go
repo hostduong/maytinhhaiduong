@@ -203,17 +203,12 @@ func KiemTraTonTaiUserEmail(user, email string) bool {
 func TaoMaKhachHangMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	maxID := 0
-	for _, kh := range _DS_KhachHang {
-		if kh.SpreadsheetID != cau_hinh.BienCauHinh.IdFileSheet { continue }
-		parts := strings.Split(kh.MaKhachHang, "_")
-		if len(parts) == 2 {
-			var id int
-			fmt.Sscanf(parts[1], "%d", &id)
-			if id > maxID { maxID = id }
-		}
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	for {
+		id := LayChuoiSoNgauNhien(19)
+		key := TaoCompositeKey(currentSheetID, id)
+		if _, tonTai := _Map_KhachHang[key]; !tonTai { return id }
 	}
-	return fmt.Sprintf("KH_%04d", maxID+1)
 }
 
 func ThemKhachHangVaoRam(kh *KhachHang) {
