@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"app/cau_hinh"
 
@@ -126,4 +128,14 @@ func layFloat(row []interface{}, index int) float64 {
 	s = strings.ReplaceAll(s, ",", "")
 	val, _ := strconv.ParseFloat(s, 64)
 	return val
+}
+
+func LayChuoiSoNgauNhien(doDai int) string {
+	rand.Seed(time.Now().UnixNano())
+	digits := "0123456789"
+	b := make([]byte, doDai)
+	for i := range b {
+		b[i] = digits[rand.Intn(len(digits))]
+	}
+	return string(b)
 }
