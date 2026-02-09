@@ -7,7 +7,7 @@ import (
 
 	"app/bao_mat"
 	"app/cau_hinh"
-	"app/core" // [QUAN TRỌNG] Sử dụng Core
+	"app/core" 
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +15,6 @@ import (
 func TrangDangKy(c *gin.Context) {
 	cookie, _ := c.Cookie("session_id")
 	if cookie != "" {
-		// Kiểm tra bằng Core
 		if _, ok := core.TimKhachHangTheoCookie(cookie); ok {
 			c.Redirect(http.StatusFound, "/")
 			return
@@ -27,11 +26,8 @@ func TrangDangKy(c *gin.Context) {
 func XuLyDangKy(c *gin.Context) {
 	// Lấy dữ liệu và chuẩn hóa
 	hoTen     := strings.TrimSpace(c.PostForm("ho_ten"))
-	
-	// User & Email phải ép về chữ thường
 	user      := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email     := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
-	
 	pass      := strings.TrimSpace(c.PostForm("mat_khau"))
 	maPin     := strings.TrimSpace(c.PostForm("ma_pin"))
 	
@@ -41,7 +37,7 @@ func XuLyDangKy(c *gin.Context) {
 	ngaySinh  := strings.TrimSpace(c.PostForm("ngay_sinh"))
 	gioiTinh  := strings.TrimSpace(c.PostForm("gioi_tinh"))
 
-	// 1. VALIDATE SERVER-SIDE (Giữ nguyên logic bảo mật)
+	// 1. VALIDATE SERVER-SIDE
 	if !bao_mat.KiemTraHoTen(hoTen) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Họ tên không hợp lệ!"})
 		return
@@ -63,31 +59,30 @@ func XuLyDangKy(c *gin.Context) {
 		return
 	}
 
-	// 2. Kiểm tra trùng lặp (Dùng Core)
+	// 2. Kiểm tra trùng lặp
 	if core.KiemTraTonTaiUserEmail(user, email) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập hoặc Email đã tồn tại!"})
 		return
 	}
 
-	// 3. Logic tạo tài khoản (Dùng Core)
+	// 3. [SỬA LỖI 1] Logic tạo ID & Role
 	var maKH, vaiTro, loaiKH string
-	
-	// Đếm số lượng từ Core
 	soLuongUser := len(core.LayDanhSachKhachHang())
 
 	if soLuongUser == 0 {
-		maKH = "KH_0001"
-		vaiTro = "admin_root" // Admin đầu tiên
+		// Người đầu tiên: ID 19 số đặc biệt, là Admin Root
+		maKH = "0000000000000000001"
+		vaiTro = "admin_root" 
 		loaiKH = "Quản trị viên"
 	} else {
+		// Người thứ 2 trở đi: ID ngẫu nhiên 19 số từ hàm Core
 		maKH = core.TaoMaKhachHangMoi()
 		vaiTro = "customer" 
 		loaiKH = "Khách lẻ"
 	}
 
-	// 4. Mã hóa
+	// 4. Mã hóa & Session
 	passHash, _ := bao_mat.HashMatKhau(pass)
-	// Hash luôn mã PIN để lưu an toàn
 	pinHash, _ := bao_mat.HashMatKhau(maPin)
 	
 	cookie := bao_mat.TaoSessionIDAnToan()
@@ -95,21 +90,17 @@ func XuLyDangKy(c *gin.Context) {
 
 	// 5. Tạo Struct Core
 	sID := cau_hinh.BienCauHinh.IdFileSheet
-	
-	// Tính dòng mới = Dòng bắt đầu + Số lượng hiện có
-	// [CHÍNH XÁC] Dùng biến chuẩn DongBatDau_KhachHang
 	newRow := core.DongBatDau_KhachHang + soLuongUser
 
 	newKH := &core.KhachHang{
 		SpreadsheetID:  sID,
 		DongTrongSheet: newRow,
-
 		MaKhachHang:    maKH,
 		TenDangNhap:    user,
 		Email:          email,
 		DienThoai:      dienThoai,
 		MatKhauHash:    passHash,
-		MaPinHash:      pinHash, // Lưu đã hash
+		MaPinHash:      pinHash,
 		TenKhachHang:   hoTen,
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
@@ -121,10 +112,9 @@ func XuLyDangKy(c *gin.Context) {
 		NgayTao:        time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	// 6. Lưu vào RAM Core
+	// 6. Lưu vào RAM & Sheet
 	core.ThemKhachHangVaoRam(newKH)
 	
-	// 7. Đẩy xuống Hàng Chờ Ghi (Dùng Core Queue)
 	ghi := core.ThemVaoHangCho
 	sheet := "KHACH_HANG"
 	
@@ -144,9 +134,17 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(sID, sheet, newRow, core.CotKH_CookieExpired, newKH.CookieExpired)
 	ghi(sID, sheet, newRow, core.CotKH_NgayTao, newKH.NgayTao)
 	
-	// 8. Set Cookie và Redirect
-	c.SetCookie("session_id", cookie, int(cau_hinh.ThoiGianHetHanCookie.Seconds()), "/", "", false, true)
+	// 7. [SỬA LỖI 2] Tạo chữ ký bảo mật & Set Cookie
+	// Nguyên nhân lỗi Mismatch là do thiếu bước này
+	userAgent := c.Request.UserAgent()
+	signature := bao_mat.TaoChuKyBaoMat(cookie, userAgent)
+	
+	maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
+	c.SetCookie("session_id", cookie, maxAge, "/", "", false, true)
+	// Phải set thêm cookie này thì Middleware mới cho qua
+	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
 
+	// Điều hướng
 	if vaiTro == "admin_root" {
 		c.Redirect(http.StatusFound, "/admin/tong-quan")
 	} else {
