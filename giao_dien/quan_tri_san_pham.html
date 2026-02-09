@@ -41,12 +41,12 @@
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
-                                {{ if .MaDanhMuc }}
-                                    {{ range (split .MaDanhMuc "|") }}
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-1 px-2 py-0.5 rounded">{{ . }}</span>
-                                    {{ end }}
-                                {{ end }}
-                            </td>
+                            {{ if .MaDanhMuc }}
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                            {{ .MaDanhMuc }}
+                            </span>
+                             {{ end }}
+                             </td>
                             <td class="px-6 py-4 text-right font-bold text-red-600">{{ printf "%.0f" .GiaBanLe }}</td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}
