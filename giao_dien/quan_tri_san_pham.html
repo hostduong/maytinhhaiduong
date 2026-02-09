@@ -44,11 +44,11 @@
                                 <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}https://via.placeholder.com/50{{ end }}" class="w-10 h-10 object-cover rounded border bg-gray-50">
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
-                            <td class="px-6 py-4">
+<td class="px-6 py-4">
                                 {{ if .MaDanhMuc }}
-                                    {{ range (split .MaDanhMuc "|") }}
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-1 px-2 py-0.5 rounded">{{ . }}</span>
-                                    {{ end }}
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-1 px-2 py-0.5 rounded">
+                                        {{ .MaDanhMuc }}
+                                    </span>
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-right font-bold text-red-600">{{ printf "%.0f" .GiaBanLe }} ₫</td>
