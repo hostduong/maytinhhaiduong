@@ -39,12 +39,10 @@
                             <td class="px-6 py-4">
                                 <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}https://via.placeholder.com/50{{ end }}" class="w-10 h-10 object-cover rounded border">
                             </td>
-                            <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
                                 {{ if .MaDanhMuc }}
-                                    {{ range (split .MaDanhMuc "|") }}
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-1 px-2 py-0.5 rounded">{{ . }}</span>
-                                    {{ end }}
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{{ .MaDanhMuc }}</span>
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-right font-bold text-red-600">{{ printf "%.0f" .GiaBanLe }}</td>
@@ -56,7 +54,14 @@
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button onclick="editSP('{{ .MaSanPham }}')" class="text-blue-600 hover:underline font-medium">Sửa</button>
+                                <button onclick="editSP(this)"
+                                    data-id="{{ .MaSanPham }}"
+                                    data-ten="{{ .TenSanPham }}"
+                                    data-gia="{{ .GiaBanLe }}"
+                                    data-dm="{{ .MaDanhMuc }}"
+                                    data-img="{{ .UrlHinhAnh }}"
+                                    data-mota="{{ .MoTaChiTiet }}"
+                                    class="text-blue-600 hover:underline font-medium">Sửa</button>
                             </td>
                         </tr>
                         {{ end }}
@@ -72,97 +77,36 @@
                 <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
-            
             <div class="p-6 modal-body">
                 <form id="formSP" class="space-y-6">
                     <input type="hidden" name="ma_san_pham" id="ma_san_pham">
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên sản phẩm <span class="text-red-500">*</span></label>
-                                <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên rút gọn</label>
-                                <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none">
-                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên sản phẩm <span class="text-red-500">*</span></label><input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên rút gọn</label><input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none"></div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SKU</label>
-                                    <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Đơn vị</label>
-                                    <select name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
-                                        <option value="Cái">Cái</option>
-                                        <option value="Bộ">Bộ</option>
-                                        <option value="Hộp">Hộp</option>
-                                    </select>
-                                </div>
+                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">SKU</label><input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Đơn vị</label><select name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white"><option value="Cái">Cái</option><option value="Bộ">Bộ</option><option value="Hộp">Hộp</option></select></div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Giá bán lẻ <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-red-600 text-lg" onkeyup="formatCurrency(this)">
-                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Giá bán lẻ <span class="text-red-500">*</span></label><input type="text" name="gia_ban_le" id="gia_ban_le" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-red-600 text-lg" onkeyup="formatCurrency(this)"></div>
                         </div>
-
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Danh mục</label>
-                                <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg">
-                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Danh mục</label><input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg"></div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thương hiệu</label>
-                                    <select name="ma_thuong_hieu" id="ma_thuong_hieu" class="w-full p-2.5 border border-gray-300 rounded-lg bg-white">
-                                        <option value="">-- Chọn --</option>
-                                        {{ range .ListThuongHieu }}
-                                        <option value="{{ .MaThuongHieu }}">{{ .TenThuongHieu }}</option>
-                                        {{ end }}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bảo hành</label>
-                                    <input type="number" name="bao_hanh_thang" id="bao_hanh_thang" class="w-full p-2.5 border border-gray-300 rounded-lg" value="12">
-                                </div>
+                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thương hiệu</label><select name="ma_thuong_hieu" id="ma_thuong_hieu" class="w-full p-2.5 border border-gray-300 rounded-lg bg-white"><option value="">-- Chọn --</option>{{ range .ListThuongHieu }}<option value="{{ .MaThuongHieu }}">{{ .TenThuongHieu }}</option>{{ end }}</select></div>
+                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bảo hành</label><input type="number" name="bao_hanh_thang" id="bao_hanh_thang" class="w-full p-2.5 border border-gray-300 rounded-lg" value="12"></div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Ảnh</label>
-                                <div class="flex gap-2">
-                                    <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="flex-1 p-2.5 border border-gray-300 rounded-lg outline-none">
-                                    <img id="imgPreview" src="https://via.placeholder.com/40" class="w-10 h-10 object-cover rounded border">
-                                </div>
-                            </div>
-                            <div class="flex items-center pt-6 gap-4">
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded" checked>
-                                    <span class="ml-2 text-sm font-bold text-gray-700">Đang kinh doanh</span>
-                                </label>
-                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Ảnh</label><div class="flex gap-2"><input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="flex-1 p-2.5 border border-gray-300 rounded-lg outline-none"><img id="imgPreview" src="https://via.placeholder.com/40" class="w-10 h-10 object-cover rounded border"></div></div>
+                            <div class="flex items-center pt-6 gap-4"><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded" checked><span class="ml-2 text-sm font-bold text-gray-700">Đang kinh doanh</span></label></div>
                         </div>
                     </div>
-
                     <div class="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số</label>
-                            <textarea name="thong_so" id="thong_so" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả</label>
-                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none"></textarea>
-                        </div>
+                        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số</label><textarea name="thong_so" id="thong_so" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm"></textarea></div>
+                        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả</label><textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none"></textarea></div>
                     </div>
-                    <div>
-                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ghi chú</label>
-                         <textarea name="ghi_chu" id="ghi_chu" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50"></textarea>
-                    </div>
-
-                    <input type="hidden" name="mau_sac" id="mau_sac">
-                    <input type="hidden" name="tinh_trang" id="tinh_trang" value="Mới">
+                    <input type="hidden" name="mau_sac" id="mau_sac"><input type="hidden" name="tinh_trang" id="tinh_trang" value="Mới"><input type="hidden" name="ghi_chu" id="ghi_chu">
                 </form>
             </div>
-
             <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
                 <button onclick="closeModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-200 rounded-xl font-bold">Hủy bỏ</button>
                 <button onclick="saveSP()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg">Lưu Sản Phẩm</button>
@@ -172,65 +116,26 @@
 
     <script>
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
-        var tagifyDM = new Tagify(inputDM, {
-            whitelist: [ {{ range .ListDanhMuc }} "{{ .TenDanhMuc }}", {{ end }} ],
-            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
-        });
-
-        // Mapping Data để hiển thị lên Form Sửa
-        const mapSP = {};
-        {{ range .DanhSach }}
-            mapSP["{{ .MaSanPham }}"] = {
-                ten: "{{ .TenSanPham }}",
-                rutgon: "{{ .TenRutGon }}",
-                sku: "{{ .Sku }}",
-                gia: {{ printf "%.0f" .GiaBanLe }},
-                dm: "{{ .MaDanhMuc }}",
-                th: "{{ .MaThuongHieu }}",
-                img: "{{ .UrlHinhAnh }}",
-                thongso: `{{ .ThongSo }}`,
-                mota: `{{ .MoTaChiTiet }}`,
-                ghichu: `{{ .GhiChu }}`, // Đã thêm ghi chú
-                trangthai: {{ .TrangThai }}
-            };
-        {{ end }}
+        var tagifyDM = new Tagify(inputDM, { whitelist: [ {{ range .ListDanhMuc }} "{{ .TenDanhMuc }}", {{ end }} ], dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false } });
 
         function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function previewImg(url) { document.getElementById('imgPreview').src = url || "https://via.placeholder.com/40"; }
-        
-        function openModal() {
-            document.getElementById('formSP').reset();
-            document.getElementById('ma_san_pham').value = "";
-            document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
-            tagifyDM.removeAllTags();
-            document.getElementById('modalSP').classList.remove('hidden');
-        }
+        function openModal() { document.getElementById('formSP').reset(); document.getElementById('ma_san_pham').value = ""; document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới"; tagifyDM.removeAllTags(); document.getElementById('modalSP').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
-        function editSP(id) {
-            const sp = mapSP[id];
-            if(!sp) return;
+        function editSP(btn) {
+            document.getElementById('ma_san_pham').value = btn.dataset.id;
+            document.getElementById('ten_san_pham').value = btn.dataset.ten;
+            document.getElementById('gia_ban_le').value = formatNumber(btn.dataset.gia);
+            document.getElementById('url_hinh_anh').value = btn.dataset.img;
+            document.getElementById('mo_ta_chi_tiet').value = btn.dataset.mota;
             
-            document.getElementById('ma_san_pham').value = id;
-            document.getElementById('ten_san_pham').value = sp.ten;
-            document.getElementById('ten_rut_gon').value = sp.rutgon;
-            document.getElementById('sku').value = sp.sku;
-            document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
-            document.getElementById('ma_thuong_hieu').value = sp.th;
-            document.getElementById('url_hinh_anh').value = sp.img;
-            document.getElementById('thong_so').value = sp.thongso;
-            document.getElementById('mo_ta_chi_tiet').value = sp.mota;
-            document.getElementById('ghi_chu').value = sp.ghichu;
-            document.getElementById('trang_thai').checked = (sp.trangthai === 1);
-            
-            previewImg(sp.img);
-            
-            // Tách chuỗi bằng | để hiển thị tag
+            // Xử lý tagify danh mục
             tagifyDM.removeAllTags();
-            if(sp.dm) tagifyDM.addTags(sp.dm.split("|"));
+            if(btn.dataset.dm) tagifyDM.addTags(btn.dataset.dm.split(","));
 
-            document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
+            document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + btn.dataset.id;
             document.getElementById('modalSP').classList.remove('hidden');
         }
 
