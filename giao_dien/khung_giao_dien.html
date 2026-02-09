@@ -1,312 +1,172 @@
-{{ define "quan_tri_san_pham" }}
-    {{ template "header" . }}
+{{ define "header" }}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .TieuDe }} - MayTinhShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .tagify { --tags-border-color: #d1d5db; --tags-focus-border-color: #2563eb; border-radius: 0.5rem; padding: 4px; }
-        .modal-body { max-height: calc(100vh - 200px); overflow-y: auto; }
-        /* Tùy chỉnh thanh cuộn cho đẹp */
-        .modal-body::-webkit-scrollbar { width: 6px; }
-        .modal-body::-webkit-scrollbar-track { background: #f1f1f1; }
-        .modal-body::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
     </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800">
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">📦 Quản Lý Sản Phẩm</h1>
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition">
-                ➕ Thêm Sản Phẩm
-            </button>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3">Mã SP</th>
-                            <th class="px-6 py-3">Ảnh</th>
-                            <th class="px-6 py-3">Tên Sản Phẩm</th>
-                            <th class="px-6 py-3">Danh Mục</th>
-                            <th class="px-6 py-3 text-right">Giá Bán</th>
-                            <th class="px-6 py-3 text-center">TT</th>
-                            <th class="px-6 py-3 text-center">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{ range .DanhSach }}
-                        <tr class="bg-white border-b hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 font-bold text-gray-700">{{ .MaSanPham }}</td>
-                            <td class="px-6 py-4">
-                                <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}https://via.placeholder.com/50{{ end }}" class="w-10 h-10 object-cover rounded border bg-gray-50">
-                            </td>
-                            <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
-                            <td class="px-6 py-4">
-                                {{ if .MaDanhMuc }}
-                                    {{ range (split .MaDanhMuc "|") }}
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-1 px-2 py-0.5 rounded">{{ . }}</span>
-                                    {{ end }}
-                                {{ end }}
-                            </td>
-                            <td class="px-6 py-4 text-right font-bold text-red-600">{{ printf "%.0f" .GiaBanLe }} ₫</td>
-                            <td class="px-6 py-4 text-center">
-                                {{ if eq .TrangThai 1 }}
-                                <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    <span class="w-2 h-2 mr-1 bg-green-500 rounded-full"></span> Bán
-                                </span>
-                                {{ else }}
-                                <span class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                    <span class="w-2 h-2 mr-1 bg-gray-500 rounded-full"></span> Tắt
-                                </span>
-                                {{ end }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button onclick="editSP('{{ .MaSanPham }}')" class="text-blue-600 hover:text-blue-900 font-medium hover:underline">Sửa</button>
-                            </td>
-                        </tr>
-                        {{ end }}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalSP" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all flex flex-col max-h-[90vh]">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
-                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Thêm Sản Phẩm Mới</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
-            </div>
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between gap-8">
             
-            <div class="p-6 modal-body">
-                <form id="formSP" class="space-y-6">
-                    <input type="hidden" name="ma_san_pham" id="ma_san_pham">
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25" />
+                    </svg>
+                </div>
+                <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">
+                    MayTinhShop
+                </span>
+            </a>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="col-span-1 md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên sản phẩm <span class="text-red-500">*</span></label>
-                            <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="VD: Mainboard Asus H610M..." required>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tên rút gọn</label>
-                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="VD: Asus H610M">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SKU (Mã kho)</label>
-                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Giá bán lẻ (VNĐ) <span class="text-red-500">*</span></label>
-                            <input type="text" name="gia_ban_le" id="gia_ban_le" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-red-600 text-lg" placeholder="0" onkeyup="formatCurrency(this)">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Đơn vị tính</label>
-                            <select name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
-                                <option value="Cái">Cái</option>
-                                <option value="Bộ">Bộ</option>
-                                <option value="Hộp">Hộp</option>
-                                <option value="Chiếc">Chiếc</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Danh mục (Tags)</label>
-                            <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Chọn hoặc gõ...">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thương hiệu</label>
-                            <select name="ma_thuong_hieu" id="ma_thuong_hieu" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
-                                <option value="">-- Chọn --</option>
-                                {{ range .ListThuongHieu }}
-                                <option value="{{ .MaThuongHieu }}">{{ .TenThuongHieu }}</option>
-                                {{ end }}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bảo hành (Tháng)</label>
-                            <input type="number" name="bao_hanh_thang" id="bao_hanh_thang" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" value="12">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Hình Ảnh</label>
-                        <div class="flex gap-2">
-                            <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="flex-1 p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
-                            <img id="imgPreview" src="https://via.placeholder.com/40" class="w-10 h-10 object-cover rounded border bg-gray-50">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số kỹ thuật</label>
-                            <textarea name="thong_so" id="thong_so" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm" placeholder="- CPU: i5...&#10;- RAM: 8GB..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả chi tiết</label>
-                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ghi chú nội bộ (Chỉ Admin thấy)</label>
-                        <textarea name="ghi_chu" id="ghi_chu" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50 focus:ring-2 focus:ring-yellow-400" placeholder="Nhập ghi chú nhập hàng, lưu ý..."></textarea>
-                    </div>
-
-                    <div class="flex items-center gap-4 pt-2">
-                        <label class="flex items-center cursor-pointer select-none">
-                            <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500" checked>
-                            <span class="ml-2 text-sm font-bold text-gray-700">Đang kinh doanh</span>
-                        </label>
-                    </div>
-
-                    <input type="hidden" name="mau_sac" id="mau_sac">
-                    <input type="hidden" name="tinh_trang" id="tinh_trang" value="Mới">
-                </form>
+            <div class="flex-1 max-w-2xl hidden md:block relative">
+                <input type="text" placeholder="Bạn cần tìm linh kiện gì hôm nay?..." 
+                    class="w-full pl-5 pr-12 py-3 rounded-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition outline-none text-sm font-medium">
+                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </button>
             </div>
 
-            <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-200 rounded-xl font-bold transition">Hủy bỏ</button>
-                <button onclick="saveSP()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5">Lưu Sản Phẩm</button>
+            <div class="flex items-center gap-6">
+                
+                {{/* --- LOGIC PHÂN QUYỀN HEADER --- */}}
+                
+                {{ if or (eq .QuyenHan "admin_root") (eq .QuyenHan "admin") (eq .QuyenHan "quan_ly") }}
+                    <div class="flex items-center gap-3">
+                        <button onclick="reloadSystemGlobal(this)" class="flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-full transition text-sm font-bold border border-indigo-100" title="Đồng bộ dữ liệu từ Sheet">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                            <span class="hidden xl:inline">Đồng bộ</span>
+                        </button>
+
+                        <a href="/admin/tong-quan" class="flex items-center gap-2 bg-slate-800 text-white hover:bg-black px-4 py-2 rounded-full transition text-sm font-bold shadow-lg shadow-slate-300/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg>
+                            <span>Quản Trị</span>
+                        </a>
+                    </div>
+
+                {{ else }}
+                    <a href="#" class="relative group p-2 rounded-full hover:bg-gray-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-600 group-hover:text-blue-600 transition">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                        </svg>
+                        <span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-sm border-2 border-white transform scale-90 group-hover:scale-110 transition">0</span>
+                    </a>
+                {{ end }}
+
+                {{ if .DaDangNhap }}
+                    <div class="flex items-center gap-4 pl-6 border-l border-gray-200">
+                        <a href="/tai-khoan" class="flex items-center gap-3 group">
+                            <div class="text-right hidden lg:block">
+                                <p class="text-xs text-gray-500 font-medium">Xin chào,</p>
+                                <p class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition truncate max-w-[120px]">{{ .TenNguoiDung }}</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full border-2 border-gray-100 overflow-hidden group-hover:border-blue-500 transition shadow-sm">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .TenNguoiDung }}" class="w-full h-full object-cover">
+                            </div>
+                        </a>
+                        
+                        <a href="/logout" class="bg-gray-50 p-2.5 rounded-xl hover:bg-red-50 text-gray-500 hover:text-red-600 transition border border-gray-100 shadow-sm group relative" title="Đăng xuất">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                            </svg>
+                        </a>
+                    </div>
+                {{ else }}
+                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                        <a href="/login" class="text-gray-600 hover:text-blue-600 font-medium text-sm px-3 py-2 transition">Đăng nhập</a>
+                        <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-blue-300 transition transform hover:-translate-y-0.5">
+                            Đăng ký
+                        </a>
+                    </div>
+                {{ end }}
             </div>
         </div>
-    </div>
-
+    </header>
+    
     <script>
-        // 1. KHỞI TẠO TAGIFY CHO DANH MỤC
-        // Lấy danh sách danh mục từ Go template đưa vào whitelist
-        var inputDM = document.querySelector('input[name=ma_danh_muc]');
-        var tagifyDM = new Tagify(inputDM, {
-            whitelist: [
-                {{ range .ListDanhMuc }} "{{ .TenDanhMuc }}", {{ end }}
-            ],
-            dropdown: {
-                maxItems: 20,           // Hiển thị tối đa 20 mục
-                classname: "tags-look", // Style
-                enabled: 0,             // Gõ là gợi ý ngay
-                closeOnSelect: false    // Chọn xong không đóng ngay
-            }
-        });
-
-        // 2. MAP DỮ LIỆU ĐỂ FILL VÀO FORM (FIX LỖI GIÁ)
-        // [QUAN TRỌNG] printf "%.0f" giúp giá trị là số nguyên chuẩn (VD: 1690000) thay vì 1.69e+06
-        const mapSP = {};
-        {{ range .DanhSach }}
-            mapSP["{{ .MaSanPham }}"] = {
-                ten: "{{ .TenSanPham }}",
-                rutgon: "{{ .TenRutGon }}",
-                sku: "{{ .Sku }}",
-                gia: {{ printf "%.0f" .GiaBanLe }}, 
-                dm: "{{ .MaDanhMuc }}",
-                th: "{{ .MaThuongHieu }}",
-                img: "{{ .UrlHinhAnh }}",
-                thongso: `{{ .ThongSo }}`,
-                mota: `{{ .MoTaChiTiet }}`,
-                donvi: "{{ .DonVi }}",
-                baohanh: {{ .BaoHanhThang }},
-                trangthai: {{ .TrangThai }},
-                ghichu: `{{ .GhiChu }}` // [FIX] Thêm ghi chú vào Map
-            };
-        {{ end }}
-
-        // 3. CÁC HÀM TIỆN ÍCH
-        function formatNumber(n) {
-            // Chỉ giữ lại số, sau đó thêm dấu chấm phân cách hàng nghìn
-            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        function formatCurrency(input) {
-            input.value = formatNumber(input.value);
-        }
-        function previewImg(url) {
-            document.getElementById('imgPreview').src = url || "https://via.placeholder.com/40";
-        }
-
-        // 4. MỞ/ĐÓNG MODAL
-        function openModal() {
-            document.getElementById('formSP').reset();
-            document.getElementById('ma_san_pham').value = "";
-            document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
-            document.getElementById('imgPreview').src = "https://via.placeholder.com/40";
-            tagifyDM.removeAllTags(); // Xóa sạch tags cũ
-            document.getElementById('modalSP').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modalSP').classList.add('hidden');
-        }
-
-        // 5. HÀM SỬA (FILL DỮ LIỆU)
-        function editSP(id) {
-            const sp = mapSP[id];
-            if(!sp) return;
+        async function reloadSystemGlobal(btn) {
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
             
-            document.getElementById('ma_san_pham').value = id;
-            document.getElementById('ten_san_pham').value = sp.ten;
-            document.getElementById('ten_rut_gon').value = sp.rutgon;
-            document.getElementById('sku').value = sp.sku;
-            
-            // [FIX] Giá hiển thị đúng định dạng (VD: 1.690.000)
-            document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
-            
-            document.getElementById('ma_thuong_hieu').value = sp.th;
-            document.getElementById('don_vi').value = sp.donvi || "Cái";
-            document.getElementById('bao_hanh_thang').value = sp.baohanh;
-            document.getElementById('url_hinh_anh').value = sp.img;
-            document.getElementById('thong_so').value = sp.thongso;
-            document.getElementById('mo_ta_chi_tiet').value = sp.mota;
-            document.getElementById('ghi_chu').value = sp.ghichu; // [FIX] Fill ghi chú
-            document.getElementById('trang_thai').checked = (sp.trangthai === 1);
-            
-            previewImg(sp.img);
-            
-            // [FIX] Xử lý Tags danh mục (Dùng dấu | để tách)
-            tagifyDM.removeAllTags();
-            if(sp.dm) {
-                // Tách chuỗi Laptop|Gaming thành mảng và add vào Tagify
-                tagifyDM.addTags(sp.dm.split("|"));
-            }
-
-            document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
-            document.getElementById('modalSP').classList.remove('hidden');
-        }
-
-        // 6. LƯU DỮ LIỆU
-        async function saveSP() {
-            const form = document.getElementById('formSP');
-            const fd = new FormData(form);
-            
-            // Xử lý checkbox
-            if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off');
-            else fd.set('trang_thai', 'on');
-
             try {
-                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd });
+                const res = await fetch('/admin/reload');
                 const data = await res.json();
-                if(data.status === 'ok') {
-                    Swal.fire({
-                        icon: 'success', 
-                        title: 'Thành công', 
-                        text: data.msg, 
-                        showConfirmButton: false, 
-                        timer: 1500
-                    }).then(() => location.reload());
+                if (res.ok) {
+                    const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true});
+                    Toast.fire({icon: 'success', title: data.thong_diep});
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    Swal.fire('Lỗi', data.msg, 'error');
+                    Swal.fire({icon: 'error', title: 'Lỗi', text: data.thong_diep});
                 }
-            } catch(e) {
-                Swal.fire('Lỗi', 'Không kết nối được server', 'error');
+            } catch (e) {
+                Swal.fire({icon: 'error', title: 'Lỗi mạng', text: 'Không kết nối được server'});
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
         }
     </script>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+{{ end }}
+
+{{ define "footer" }}
+    </main>
+
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-sm">M</span>
+                        MayTinhShop
+                    </h3>
+                    <p class="text-sm leading-relaxed text-slate-400">
+                        Hệ thống bán lẻ linh kiện máy tính, laptop chính hãng hàng đầu.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-6">Hỗ trợ khách hàng</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-blue-400 transition">› Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition">› Chính sách bảo hành</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-6">Liên hệ</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li class="flex items-center gap-3"><span class="text-blue-500">📞</span> <span class="font-bold text-white text-lg">1900 xxxx</span></li>
+                        <li class="flex items-center gap-3"><span class="text-blue-500">📧</span> <span>support@maytinhshop.com</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-xs text-slate-500">
+                <p>&copy; 2026 MayTinhShop. Powered by Golang & Google Sheets.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{ end }}
+
+{{ define "khung_giao_dien" }}
+    {{ template "header" . }}
+    {{ template "noi_dung" . }}
     {{ template "footer" . }}
 {{ end }}
