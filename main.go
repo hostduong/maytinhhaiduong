@@ -89,9 +89,9 @@ func main() {
 // D. Admin Group
 	admin := router.Group("/admin")
 	
-	// [QUAN TRỌNG] Gọi chuỗi 2 Middleware tại đây
-	// Gin sẽ chạy: KiemTraDangNhap -> Next() -> KiemTraQuyenHan -> Next() -> Controller
-	admin.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan) 
+	// [SỬA LẠI]: Chỉ gọi KiemTraQuyenHan (Vì trong đó đã tự gọi KiemTraDangNhap rồi)
+	// Nếu để cả 2 sẽ bị chạy lặp lại 2 lần -> Gây lỗi hệ thống
+	admin.Use(chuc_nang.KiemTraQuyenHan) 
 	{
 		admin.GET("/tong-quan", chuc_nang.TrangTongQuan)
 		admin.GET("/reload", chuc_nang.API_NapLaiDuLieu)
