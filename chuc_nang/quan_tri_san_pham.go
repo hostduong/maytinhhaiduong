@@ -25,12 +25,15 @@ func TrangQuanLySanPham(c *gin.Context) {
 		return
 	}
 
-	// CHECK QUYỀN XEM
+	// [SỬA LẠI ĐOẠN NÀY ĐỂ TRÁNH LỖI PANIC]
+	// Nếu không có quyền, hiển thị thông báo đơn giản thay vì load trang Dashboard
 	if !core.KiemTraQuyen(kh.VaiTroQuyenHan, "product.view") {
-		c.HTML(http.StatusForbidden, "quan_tri", gin.H{
-			"TieuDe":   "Từ chối truy cập",
-			"Error":    "Bạn không có quyền xem danh sách sản phẩm (product.view)!",
-			"NhanVien": kh,
+		c.HTML(http.StatusForbidden, "khung_giao_dien", gin.H{
+			"TieuDe":       "Từ chối truy cập",
+			"DaDangNhap":   true,
+			"TenNguoiDung": kh.TenKhachHang,
+			"QuyenHan":     kh.VaiTroQuyenHan,
+			"NoiDung":      "<h3>⛔ Bạn không có quyền truy cập trang này (product.view).</h3><p>Vui lòng liên hệ quản trị viên.</p>",
 		})
 		return
 	}
