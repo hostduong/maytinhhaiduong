@@ -101,3 +101,14 @@ func LayDanhSachDanhMuc() []*DanhMuc {
 	}
 	return kq
 }
+
+func TaoMaDanhMucMoi() string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
+	for {
+		id := fmt.Sprintf("DM%s", LayChuoiSoNgauNhien(3))
+		key := TaoCompositeKey(currentSheetID, id)
+		if _, tonTai := _Map_DanhMuc[key]; !tonTai { return id }
+	}
+}
