@@ -8,7 +8,8 @@ import (
 // 1. CẤU HÌNH CỘT (DANH_MUC)
 // =============================================================
 const (
-	DongBatDauDuLieuDM = 11
+	// [CHUẨN HÓA]
+	DongBatDau_DanhMuc = 11
 
 	CotDM_MaDanhMuc  = 0
 	CotDM_TenDanhMuc = 1
@@ -50,18 +51,22 @@ func NapDanhMuc(targetSpreadsheetID string) {
 	raw, err := loadSheetData(targetSpreadsheetID, "DANH_MUC")
 	if err != nil { return }
 
-	if _Map_DanhMuc == nil {
-		_Map_DanhMuc = make(map[string]*DanhMuc)
-		_DS_DanhMuc = []*DanhMuc{}
-	}
+	_Map_DanhMuc = make(map[string]*DanhMuc)
 	_DS_DanhMuc = []*DanhMuc{}
 
 	for i, r := range raw {
-		// [SỬA ĐỔI] Dùng biến riêng DongBatDauDuLieuDM
-		if i < DongBatDauDuLieuDM-1 { continue }
+		// [CHUẨN HÓA] Dùng biến DongBatDau_DanhMuc
+		if i < DongBatDau_DanhMuc-1 { continue }
 		
 		maDM := layString(r, CotDM_MaDanhMuc)
 		if maDM == "" { continue }
+
+		key := TaoCompositeKey(targetSpreadsheetID, maDM)
+
+		// [AN TOÀN] Chống trùng lặp
+		if _, daTonTai := _Map_DanhMuc[key]; daTonTai {
+			continue
+		}
 
 		dm := &DanhMuc{
 			SpreadsheetID:  targetSpreadsheetID,
@@ -75,7 +80,6 @@ func NapDanhMuc(targetSpreadsheetID string) {
 		}
 
 		_DS_DanhMuc = append(_DS_DanhMuc, dm)
-		key := TaoCompositeKey(targetSpreadsheetID, maDM)
 		_Map_DanhMuc[key] = dm
 	}
 }
