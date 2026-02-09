@@ -10,7 +10,7 @@ import (
 // 1. CẤU HÌNH DÒNG & CỘT
 // =============================================================
 const (
-	DongBatDau_PhanQuyen = 2 
+	DongBatDau_PhanQuyen = 11
 	
 	CotPQ_MaChucNang = 0
 	CotPQ_Nhom       = 1
