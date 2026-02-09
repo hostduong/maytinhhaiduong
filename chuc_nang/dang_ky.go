@@ -65,23 +65,28 @@ func XuLyDangKy(c *gin.Context) {
 		return
 	}
 
-	// 3. [SỬA LỖI 1] Logic tạo ID & Role
-	var maKH, vaiTro, loaiKH string
+	// 3. [UPDATE] Logic tạo Người dùng mới (Chuẩn hóa ID, Chức vụ, Loại KH)
+	var maKH, vaiTro, chucVu string
+	
+	// Loại khách hàng luôn là "web" (để biết nguồn khách đến từ website)
+	loaiKH := "web" 
+	
 	soLuongUser := len(core.LayDanhSachKhachHang())
 
 	if soLuongUser == 0 {
-		// Người đầu tiên: ID 19 số đặc biệt, là Admin Root
-		maKH = "0000000000000000001"
+		// --- NGƯỜI ĐẦU TIÊN (SUPER ADMIN) ---
+		maKH   = "0000000000000000001"
 		vaiTro = "admin_root" 
-		loaiKH = "Quản trị viên"
+		chucVu = "Quản trị viên"
 	} else {
-		// Người thứ 2 trở đi: ID ngẫu nhiên 19 số từ hàm Core
-		maKH = core.TaoMaKhachHangMoi()
+		// --- NGƯỜI THỨ 2 TRỞ ĐI (KHÁCH HÀNG) ---
+		// Dùng hàm sinh mã 19 số ngẫu nhiên từ Core
+		maKH   = core.TaoMaKhachHangMoi()
 		vaiTro = "customer" 
-		loaiKH = "Khách lẻ"
+		chucVu = "Khách hàng"
 	}
 
-	// 4. Mã hóa & Session
+	// 4. Mã hóa
 	passHash, _ := bao_mat.HashMatKhau(pass)
 	pinHash, _ := bao_mat.HashMatKhau(maPin)
 	
@@ -104,8 +109,9 @@ func XuLyDangKy(c *gin.Context) {
 		TenKhachHang:   hoTen,
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
-		LoaiKhachHang:  loaiKH,
-		VaiTroQuyenHan: vaiTro,
+		LoaiKhachHang:  loaiKH, // web
+		ChucVu:         chucVu, // Quản trị viên hoặc Khách hàng
+		VaiTroQuyenHan: vaiTro, // admin_root hoặc customer
 		Cookie:         cookie,
 		CookieExpired:  expiredTime,
 		TrangThai:      1,
@@ -127,22 +133,25 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(sID, sheet, newRow, core.CotKH_TenKhachHang, newKH.TenKhachHang)
 	ghi(sID, sheet, newRow, core.CotKH_NgaySinh, newKH.NgaySinh)
 	ghi(sID, sheet, newRow, core.CotKH_GioiTinh, newKH.GioiTinh)
+	
+	// [QUAN TRỌNG] Ghi đúng cột Loại KH và Chức vụ
 	ghi(sID, sheet, newRow, core.CotKH_LoaiKhachHang, newKH.LoaiKhachHang)
+	ghi(sID, sheet, newRow, core.CotKH_ChucVu, newKH.ChucVu)
 	ghi(sID, sheet, newRow, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
+	
 	ghi(sID, sheet, newRow, core.CotKH_TrangThai, newKH.TrangThai)
 	ghi(sID, sheet, newRow, core.CotKH_Cookie, newKH.Cookie)
 	ghi(sID, sheet, newRow, core.CotKH_CookieExpired, newKH.CookieExpired)
 	ghi(sID, sheet, newRow, core.CotKH_NgayTao, newKH.NgayTao)
 	
-	// 7. [SỬA LỖI 2] Tạo chữ ký bảo mật & Set Cookie
-	// Nguyên nhân lỗi Mismatch là do thiếu bước này
+	// 7. [FIX LỖI COOKIE MISMATCH]
+	// Phải tạo chữ ký và set cookie session_sign
 	userAgent := c.Request.UserAgent()
 	signature := bao_mat.TaoChuKyBaoMat(cookie, userAgent)
 	
 	maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
 	c.SetCookie("session_id", cookie, maxAge, "/", "", false, true)
-	// Phải set thêm cookie này thì Middleware mới cho qua
-	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
+	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true) // <-- Dòng này sửa lỗi Mismatch
 
 	// Điều hướng
 	if vaiTro == "admin_root" {
