@@ -63,7 +63,7 @@ func main() {
 	
 	// User Profile
 	router.GET("/tai-khoan", chuc_nang.TrangHoSo)
-	router.GET("/quen-mat-khau", chuc_nang.TrangQuenMatKhau)
+	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau)
 
 	// B. API Public
 	api := router.Group("/api")
