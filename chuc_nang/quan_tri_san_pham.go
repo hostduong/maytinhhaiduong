@@ -1,7 +1,7 @@
 package chuc_nang
 
 import (
-	"encoding/json" // [THÊM] Để xử lý Tags JSON
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,14 +26,38 @@ func TrangQuanLySanPham(c *gin.Context) {
 		return
 	}
 
-	// [MỚI] CHECK QUYỀN XEM (product.view)
-	// Theo bảng phân quyền: Khách hàng = 0, Admin/Sale/Kho = 1
+	// [FIX LỖI TRẮNG TRANG]
+	// Kiểm tra quyền xem (product.view)
+	// Nếu không có quyền -> Trả về trang HTML báo lỗi trực tiếp (Không dùng template Dashboard để tránh Panic thiếu dữ liệu)
 	if !core.KiemTraQuyen(kh.VaiTroQuyenHan, "product.view") {
-		c.HTML(http.StatusForbidden, "quan_tri", gin.H{ // Hoặc dùng template báo lỗi riêng
-			"TieuDe":   "Từ chối truy cập",
-			"Error":    "Bạn không có quyền xem danh sách sản phẩm (product.view)!",
-			"NhanVien": kh,
-		})
+		c.Writer.WriteHeader(http.StatusForbidden)
+		c.Writer.Write([]byte(`
+			<!DOCTYPE html>
+			<html lang="vi">
+			<head>
+				<meta charset="UTF-8">
+				<title>Truy cập bị từ chối</title>
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<style>
+					body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+					.card { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; max-width: 400px; width: 90%; }
+					.icon { font-size: 3rem; margin-bottom: 1rem; }
+					h2 { color: #dc2626; margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+					p { color: #4b5563; margin-bottom: 1.5rem; }
+					a { display: inline-block; background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+					a:hover { background-color: #1d4ed8; }
+				</style>
+			</head>
+			<body>
+				<div class="card">
+					<div class="icon">⛔</div>
+					<h2>Truy cập bị từ chối</h2>
+					<p>Bạn không có quyền xem danh sách sản phẩm.<br><small>(Mã quyền: product.view)</small></p>
+					<a href="/admin/tong-quan">Quay lại Dashboard</a>
+				</div>
+			</body>
+			</html>
+		`))
 		return
 	}
 
@@ -60,8 +84,8 @@ func TrangQuanLySanPham(c *gin.Context) {
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 
-	maSP      := strings.TrimSpace(c.PostForm("ma_san_pham"))
-	thuongHieu := c.PostForm("ma_thuong_hieu") // [LẤY SỚM] Để dùng cho sinh mã
+	maSP       := strings.TrimSpace(c.PostForm("ma_san_pham"))
+	thuongHieu := c.PostForm("ma_thuong_hieu")
 
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
@@ -93,7 +117,7 @@ func API_LuuSanPham(c *gin.Context) {
 	tenRutGon   := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku         := strings.TrimSpace(c.PostForm("sku"))
 	
-	// [SỬA LẠI] Xử lý danh mục ngăn cách bởi dấu |
+	// Xử lý Tags JSON từ Tagify -> Chuỗi "Tag1|Tag2"
 	danhMucRaw  := c.PostForm("ma_danh_muc")
 	danhMuc     := xuLyTags(danhMucRaw) 
 
@@ -125,15 +149,14 @@ func API_LuuSanPham(c *gin.Context) {
 	
 	if maSP == "" {
 		isNew = true
-		
-		// [QUAN TRỌNG] Truyền thương hiệu vào để sinh mã (HD + Brand + YYMM...)
+		// Sinh mã mới (HD + Brand + YYMM...)
 		maSP = core.TaoMaSPMoi(thuongHieu) 
 		
 		sp = &core.SanPham{
 			SpreadsheetID: sheetID,
 			MaSanPham:     maSP,
 			NgayTao:       nowStr,
-			NguoiTao:      userID, // Người tạo ban đầu
+			NguoiTao:      userID,
 		}
 	} else {
 		foundSP, ok := core.LayChiTietSanPham(maSP)
@@ -144,7 +167,7 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Gán dữ liệu mới
+	// Gán dữ liệu
 	sp.TenSanPham = tenSP
 	sp.TenRutGon = tenRutGon
 	sp.Sku = sku
@@ -160,8 +183,6 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.TinhTrang = tinhTrang
 	sp.TrangThai = trangThai
 	sp.GhiChu = ghiChu
-	
-	// Luôn cập nhật ngày sửa (Người tạo không đổi)
 	sp.NgayCapNhat = nowStr
 
 	if isNew {
@@ -201,28 +222,20 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
-// [MỚI] Struct để hứng JSON từ Tagify
+// Struct JSON Tagify
 type TagifyItem struct {
 	Value string `json:"value"`
 }
 
-// [MỚI] Hàm xử lý Tags chuẩn JSON -> Pipe (|)
-// Input:  [{"value":"Laptop"}, {"value":"Dell"}]
-// Output: Laptop|Dell (Giữ nguyên thứ tự ưu tiên)
+// Hàm xử lý Tags: Input `[{"value":"A"}, {"value":"B"}]` -> Output `A|B`
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
-	
-	// 1. Nếu không phải JSON (trường hợp sửa thủ công hoặc lỗi), trả về nguyên gốc
 	if !strings.Contains(raw, "[") { return raw }
 
-	// 2. Parse JSON
 	var items []TagifyItem
 	err := json.Unmarshal([]byte(raw), &items)
-	if err != nil {
-		return raw // Fallback
-	}
+	if err != nil { return raw }
 
-	// 3. Gom lại thành mảng string
 	var values []string
 	for _, item := range items {
 		val := strings.TrimSpace(item.Value)
@@ -230,12 +243,9 @@ func xuLyTags(raw string) string {
 			values = append(values, val)
 		}
 	}
-
-	// 4. Nối bằng dấu gạch đứng
 	return strings.Join(values, "|")
 }
 
 func taoMaSPMoi() string {
-	// Wrapper cũ, không dùng nữa nhưng để đó tránh lỗi compile nếu có chỗ nào lỡ gọi
 	return core.TaoMaSPMoi("") 
 }
