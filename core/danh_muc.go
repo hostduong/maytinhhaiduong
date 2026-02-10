@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 	"app/cau_hinh"
 )
 
@@ -11,11 +12,11 @@ import (
 const (
 	DongBatDau_DanhMuc = 11
 
-	CotDM_MaDanhMuc  = 0 // A: Mã (VD: MAIN, CPU, MON)
-	CotDM_TenDanhMuc = 1 // B: Tên hiển thị
-	CotDM_ThueVAT    = 2 // C: Thuế đầu ra (%)
-	CotDM_LoiNhuan   = 3 // D: Biên lợi nhuận mong muốn (%)
-	CotDM_STT        = 4 // E: Số thứ tự hiện tại (Để sinh SKU: MAIN0001)
+	CotDM_MaDanhMuc  = 0 // A: Mã (VD: MAIN)
+	CotDM_TenDanhMuc = 1 // B: Tên (VD: Mainboard)
+	CotDM_ThueVAT    = 2 // C
+	CotDM_LoiNhuan   = 3 // D
+	CotDM_STT        = 4 // E: Đếm số (VD: 105)
 )
 
 type DanhMuc struct {
@@ -26,7 +27,7 @@ type DanhMuc struct {
 	TenDanhMuc string  `json:"ten_danh_muc"`
 	ThueVAT    float64 `json:"thue_vat"`
 	LoiNhuan   float64 `json:"loi_nhuan"`
-	STT        int     `json:"stt"` // Số đếm để sinh mã
+	STT        int     `json:"stt"`
 }
 
 var (
@@ -66,7 +67,6 @@ func NapDanhMuc(targetSpreadsheetID string) {
 func LayDanhSachDanhMuc() []*DanhMuc {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	// Trả về slice để frontend dùng
 	return _DS_DanhMuc
 }
 
@@ -78,20 +78,37 @@ func LayChiTietDanhMuc(maDM string) (*DanhMuc, bool) {
 	return dm, ok
 }
 
-// [MỚI] Hàm lấy số thứ tự tiếp theo và cập nhật RAM + Sheet
+// [MỚI] Tìm Mã (MAIN) dựa trên Tên (Mainboard)
+// Vì giao diện gửi tên lên, nên ta phải tìm ngược lại mã
+func TimMaDanhMucTheoTen(tenDM string) string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	
+	tenDM = strings.ToLower(strings.TrimSpace(tenDM))
+	for _, dm := range _DS_DanhMuc {
+		if strings.ToLower(dm.TenDanhMuc) == tenDM {
+			return dm.MaDanhMuc
+		}
+	}
+	return "" // Không tìm thấy
+}
+
+// [MỚI] Lấy STT tiếp theo và cập nhật luôn vào Sheet
 func LaySTTtiepTheo(maDM string) int {
-	KhoaHeThong.Lock()
+	KhoaHeThong.Lock() // Lock ghi
 	defer KhoaHeThong.Unlock()
 
 	key := TaoCompositeKey(cau_hinh.BienCauHinh.IdFileSheet, maDM)
 	dm, ok := _Map_DanhMuc[key]
+	
+	// Nếu danh mục chưa có, hoặc lỗi, trả về 1
 	if !ok { return 1 }
 
-	// Tăng số
+	// Tăng số đếm
 	dm.STT++ 
 	newSTT := dm.STT
 
-	// Ghi ngay xuống Sheet để tránh trùng lặp nếu restart
+	// Ghi ngay xuống Sheet cột E (Index 4) để lưu lại trạng thái
 	ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_STT, newSTT)
 	
 	return newSTT
