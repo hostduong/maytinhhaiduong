@@ -13,7 +13,6 @@
         
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 0.25rem; display: block; }
         
-        /* Style cho danh sách ảnh */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         .btn-remove-img { color: #ef4444; cursor: pointer; padding: 4px; font-weight: bold; }
         .btn-remove-img:hover { background: #fee2e2; border-radius: 4px; }
@@ -62,9 +61,11 @@
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
-                                <div class="font-bold text-red-600">{{ format_money .GiaBanLe }} ₫</div>
                                 {{ if gt .GiamGia 0.0 }}
-                                    <div class="text-xs text-gray-400 line-through italic">Giảm {{ .GiamGia }}%</div>
+                                    <div class="font-bold text-red-600">{{ format_money .GiaBanThuc }} ₫</div>
+                                    <div class="text-xs text-gray-400 line-through">{{ format_money .GiaBanLe }} ₫</div>
+                                {{ else }}
+                                    <div class="font-bold text-red-600">{{ format_money .GiaBanLe }} ₫</div>
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
@@ -86,7 +87,7 @@
     </div>
 
     <div id="modalSP" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh]">
             <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
                 <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Thêm Sản Phẩm</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
@@ -99,17 +100,17 @@
 
                     <div>
                         <label>Tên sản phẩm <span class="text-red-500">*</span></label>
-                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="Nhập tên đầy đủ của sản phẩm...">
+                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="Nhập tên đầy đủ...">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
                             <label>SKU (Mã kho)</label>
-                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MB-H610-ASUS">
+                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MAIN-H81-PEG">
                         </div>
                         <div class="md:col-span-4">
                             <label>Tên rút gọn</label>
-                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: H610M-K">
+                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: H81 Pegatron">
                         </div>
                         <div class="md:col-span-4">
                             <label>Thương hiệu</label>
@@ -120,26 +121,30 @@
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-8">
                             <label>Danh mục (Tags)</label>
-                            <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Mainboard, Ram, VGA...">
+                            <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Mainboard, Ram...">
                         </div>
                         <div class="md:col-span-4">
                             <label>Màu sắc</label>
-                            <input name="mau_sac" id="mau_sac" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Đen, Trắng...">
+                            <input name="mau_sac" id="mau_sac" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Đen...">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                        <div class="md:col-span-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <div class="md:col-span-3">
                             <label>Giá Nhập (Vốn)</label>
-                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600 font-medium" placeholder="Giá nhập..." onkeyup="formatCurrency(this)">
+                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600 font-medium" placeholder="0" onkeyup="formatCurrency(this)">
                         </div>
-                        <div class="md:col-span-4">
+                        <div class="md:col-span-3">
                             <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
-                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-lg" placeholder="Giá bán..." onkeyup="formatCurrency(this)">
+                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-blue-600 text-lg" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
                         </div>
-                        <div class="md:col-span-4">
+                        <div class="md:col-span-3">
                             <label>Giảm giá (%)</label>
-                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-green-600 font-bold" placeholder="0">
+                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold text-orange-500" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label>Giá Bán Thực Tế (Web)</label>
+                            <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-xl bg-gray-100 cursor-not-allowed" placeholder="0">
                         </div>
                     </div>
 
@@ -170,8 +175,7 @@
                             <span>Link Hình Ảnh (Nhiều ảnh)</span>
                             <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full font-bold hover:bg-blue-200 transition">+ Thêm link ảnh</button>
                         </label>
-                        <div id="imgContainer" class="space-y-2">
-                            </div>
+                        <div id="imgContainer" class="space-y-2"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,7 +218,6 @@
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
-        // --- KHỞI TẠO TAGIFY (Thủ công) ---
         var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
         var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
 
@@ -228,7 +231,6 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
-        // --- MAP SẢN PHẨM (Cập nhật trường giá mới) ---
         const mapSP = {};
         {{ range .DanhSach }}
         mapSP["{{ .MaSanPham }}"] = {
@@ -236,12 +238,9 @@
             ten_san_pham: "{{ .TenSanPham }}",
             ten_rut_gon: "{{ .TenRutGon }}",
             sku: "{{ .Sku }}",
-            
-            // Map giá trị tài chính
             gia_nhap: {{ printf "%.0f" .GiaNhap }},
             gia_ban_le: {{ printf "%.0f" .GiaBanLe }},
             giam_gia: {{ printf "%.0f" .GiamGia }},
-            
             thuong_hieu: "{{ .ThuongHieu }}",
             don_vi: "{{ .DonVi }}",
             bao_hanh: "{{ .BaoHanh }}",
@@ -259,7 +258,22 @@
         function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
 
-        // --- LOGIC ẢNH ĐỘNG (THÊM/XÓA) ---
+        // [HÀM TÍNH TOÁN GIÁ THỰC TẾ]
+        function tinhGiaThuc() {
+            // Lấy giá niêm yết (bỏ dấu chấm)
+            let rawGiaBan = document.getElementById('gia_ban_le').value.replace(/\./g, "");
+            let giaBan = parseFloat(rawGiaBan) || 0;
+
+            // Lấy % giảm giá
+            let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
+
+            // Tính toán: Giá thực = Giá bán * (1 - %/100)
+            let giaThuc = giaBan * (1 - (giamGia / 100));
+
+            // Làm tròn và hiển thị
+            document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
+        }
+
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
@@ -272,17 +286,15 @@
             container.appendChild(div);
         }
 
-        // --- MỞ MODAL THÊM ---
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
+            document.getElementById('gia_ban_thuc').value = ""; // Reset giá thực
             
-            // Reset Tagify
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
             tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
 
-            // Reset Ảnh: Thêm 1 ô trống mặc định
             document.getElementById('imgContainer').innerHTML = '';
             addImgInput('');
 
@@ -290,7 +302,6 @@
         }
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
-        // --- MỞ MODAL SỬA ---
         function editSP(id) {
             const sp = mapSP[id];
             if(!sp) return;
@@ -300,10 +311,11 @@
             document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
             document.getElementById('sku').value = sp.sku;
             
-            // Fill dữ liệu giá
+            // Fill Giá
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             document.getElementById('giam_gia').value = sp.giam_gia;
+            tinhGiaThuc(); // Tự động tính giá thực khi mở modal sửa
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
@@ -330,7 +342,6 @@
             document.getElementById('ghi_chu').value = sp.ghi_chu;
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
 
-            // [XỬ LÝ ẢNH]
             const container = document.getElementById('imgContainer');
             container.innerHTML = '';
             if (sp.url_hinh_anh) {
@@ -348,7 +359,6 @@
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
-            // [GOM ẢNH] Nối chuỗi
             const inputs = document.querySelectorAll('.img-link-input');
             const links = [];
             inputs.forEach(inp => {
