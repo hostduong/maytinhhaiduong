@@ -14,8 +14,9 @@
             background-position: center;
             background-color: #f9fafb;
         }
-        /* Fix lỗi hiển thị Tagify mode select */
         .tagify__input { margin: 0; }
+        /* Fix style cho Tagify Select */
+        .tagify--select .tagify__input::before { top: 50%; transform: translateY(-50%); }
     </style>
 
     <div class="container mx-auto px-4 py-8">
@@ -156,7 +157,6 @@
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tình trạng (Chọn/Nhập)</label>
                             <input name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Mới 100%...">
                         </div>
-                        
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Hình Ảnh</label>
                             <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
@@ -166,7 +166,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số kỹ thuật</label>
-                            <textarea name="thong_so" id="thong_so" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="Thông số kỹ thuật (Hỗ trợ HTML)..."></textarea>
+                            <textarea name="thong_so" id="thong_so" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả chi tiết</label>
@@ -206,27 +206,27 @@
     </div>
 
     <script>
-        // CẤU HÌNH TAGIFY CHUNG (Select mode)
+        // CẤU HÌNH TAGIFY CHUNG
         const tagifySelectConfig = {
             mode: 'select',
             dropdown: {
                 maxItems: 20,
                 classname: "tags-look",
                 enabled: 0,
-                closeOnSelect: true,
-                highlightFirst: true
+                closeOnSelect: true
             }
         };
 
-        // Khởi tạo các ô Tagify (Giờ đây chúng đều là input)
-        new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
-            whitelist: [{{ range .ListDanhMuc }} "{{ . }}", {{ end }}],
+        // [QUAN TRỌNG] Dùng | json để tránh lỗi cú pháp JS khi render
+        var inputDM = document.querySelector('input[name=ma_danh_muc]');
+        var tagifyDM = new Tagify(inputDM, {
+            whitelist: {{ .ListDanhMuc | json }},
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), {
             ...tagifySelectConfig,
-            whitelist: [{{ range .ListThuongHieu }} "{{ . }}", {{ end }}]
+            whitelist: {{ .ListThuongHieu | json }}
         });
 
         const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), {
@@ -273,7 +273,7 @@
             previewImg(""); 
             
             // Reset Tagify value
-            document.querySelector('input[name=ma_danh_muc]')._tagify.removeAllTags();
+            tagifyDM.removeAllTags();
             tagifyTH.removeAllTags();
             tagifyDonVi.removeAllTags();
             tagifyTinhTrang.removeAllTags();
@@ -292,7 +292,7 @@
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             
-            // Set Tagify values (Check empty string to avoid Tagify error)
+            // Load Tags
             if(sp.thuong_hieu) tagifyTH.loadTags([sp.thuong_hieu]); else tagifyTH.removeAllTags();
             if(sp.don_vi) tagifyDonVi.loadTags([sp.don_vi]); else tagifyDonVi.removeAllTags();
             if(sp.tinh_trang) tagifyTinhTrang.loadTags([sp.tinh_trang]); else tagifyTinhTrang.removeAllTags();
@@ -317,9 +317,8 @@
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
             previewImg(sp.url_hinh_anh);
             
-            const dmTagify = document.querySelector('input[name=ma_danh_muc]')._tagify;
-            dmTagify.removeAllTags();
-            if(sp.danh_muc) dmTagify.addTags(sp.danh_muc.split("|"));
+            tagifyDM.removeAllTags();
+            if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
 
             document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
             document.getElementById('modalSP').classList.remove('hidden');
