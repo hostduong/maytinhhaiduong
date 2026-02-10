@@ -50,7 +50,6 @@ func TrangQuanLySanPham(c *gin.Context) {
 					if p = strings.TrimSpace(p); p != "" { uniqueDM[p] = true }
 				}
 			}
-			// Xử lý thương hiệu (bỏ các ký tự JSON nếu lỡ lưu nhầm)
 			th := strings.TrimSpace(sp.ThuongHieu)
 			if th != "" { uniqueTH[th] = true }
 		}
@@ -99,8 +98,6 @@ func API_LuuSanPham(c *gin.Context) {
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
-	// [CẬP NHẬT] Dùng xuLyTags cho tất cả các trường dùng Tagify
-	// Để đảm bảo dù gửi lên "Cái" hay [{"value":"Cái"}] thì đều lưu đúng là "Cái"
 	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := xuLyTags(c.PostForm("don_vi"))
@@ -120,16 +117,6 @@ func API_LuuSanPham(c *gin.Context) {
 	if bhNum != "" {
 		baoHanh = bhNum + " " + bhUnit
 	}
-	// Gán mặc định Bảo hành là 0 nếu rỗng
-	if bhNum != "" {
-		_, err := strconv.Atoi(bhNum)
-		if err == nil {
-			baoHanhThangCheck, _ := strconv.Atoi(bhNum) // Chỉ để check logic cũ nếu cần
-			_ = baoHanhThangCheck
-		}
-	}
-	// Lưu số tháng int để tương thích code cũ (nếu cần), ở đây ta lưu string vào struct
-	baoHanhInt, _ := strconv.Atoi(bhNum) // Tạm lấy số
 
 	slug := taoSlugChuan(tenSP)
 
@@ -172,9 +159,9 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.MoTaChiTiet= moTa
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
+	
+	// [QUAN TRỌNG] Chỉ lưu vào trường BaoHanh (String), bỏ BaoHanhThang (Int)
 	sp.BaoHanh    = baoHanh
-	// Giữ lại cột BaoHanhThang (int) nếu sheet cần sort, nhưng ở đây struct dùng string
-	sp.BaoHanhThang = baoHanhInt 
 	
 	sp.TrangThai  = trangThai
 	sp.GiaBanLe   = giaBan
@@ -206,7 +193,10 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh) // Cột M lưu string "12 Tháng"
+		
+		// [SỬA] Ghi cột bảo hành (String) - KHÔNG CÒN GHI INT
+		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh)
+		
 		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
@@ -223,18 +213,13 @@ type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
-	// Nếu không phải JSON (không chứa ngoặc vuông), trả về nguyên gốc
 	if !strings.Contains(raw, "[") { return raw }
-	
 	var items []TagifyItem
 	if err := json.Unmarshal([]byte(raw), &items); err != nil { return raw }
-	
 	var values []string
 	for _, item := range items {
 		if v := strings.TrimSpace(item.Value); v != "" { values = append(values, v) }
 	}
-	// Nếu có nhiều giá trị thì ngăn cách bởi | (cho Danh mục)
-	// Nếu chỉ có 1 giá trị (Thương hiệu, Đơn vị...) thì nó trả về chính nó
 	return strings.Join(values, "|")
 }
 
