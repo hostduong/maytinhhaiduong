@@ -94,12 +94,20 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
-	// Xử lý giá (Loại bỏ dấu chấm)
-	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
-	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
-	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
+	// 1. LẤY DỮ LIỆU TỪ FORM
+	
+	// Giá trị tài chính
+	giaNhap, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_nhap"), ".", ""), ",", ""), 64)
+	giaBanLe, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", ""), ",", ""), 64)
+	giamGia, _ := strconv.ParseFloat(c.PostForm("giam_gia"), 64)
+	
+	// Tính giá bán thực
+	giaBanThuc := giaBanLe
+	if giamGia > 0 {
+		giaBanThuc = giaBanLe * (1 - giamGia/100)
+	}
 
-	// Các trường khác
+	// Các thông tin khác
 	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := xuLyTags(c.PostForm("don_vi"))
@@ -113,6 +121,7 @@ func API_LuuSanPham(c *gin.Context) {
 	thongSo    := c.PostForm("thong_so")
 	ghiChu     := c.PostForm("ghi_chu")
 	
+	// Xử lý bảo hành (ghép số + đơn vị)
 	bhNum := c.PostForm("bao_hanh_num")
 	bhUnit := c.PostForm("bao_hanh_unit")
 	baoHanh := ""
@@ -125,6 +134,7 @@ func API_LuuSanPham(c *gin.Context) {
 	trangThai := 0
 	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 
+	// 2. KHỞI TẠO ĐỐI TƯỢNG SẢN PHẨM
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
@@ -133,18 +143,11 @@ func API_LuuSanPham(c *gin.Context) {
 
 	if maSP == "" {
 		isNew = true
-		
-		// [LOGIC SINH MÃ MỚI]
-		// 1. Lấy danh mục đầu tiên (nếu có nhiều tag)
+		// [LOGIC SINH MÃ THEO DANH MỤC]
 		firstDM := ""
-		if danhMuc != "" {
-			firstDM = strings.Split(danhMuc, "|")[0]
-		}
-		
-		// 2. Tìm mã code (VD: Mainboard -> MAIN)
+		if danhMuc != "" { firstDM = strings.Split(danhMuc, "|")[0] }
 		maCodeDM := core.TimMaDanhMucTheoTen(firstDM)
 		
-		// 3. Sinh mã sản phẩm (MAIN0001)
 		maSP = core.TaoMaSPMoi(maCodeDM) 
 		
 		sp = &core.SanPham{
@@ -162,6 +165,7 @@ func API_LuuSanPham(c *gin.Context) {
 
 	if !isNew { core.KhoaHeThong.Lock() }
 
+	// 3. CẬP NHẬT DỮ LIỆU VÀO RAM
 	sp.TenSanPham = tenSP
 	sp.TenRutGon  = tenRutGon
 	sp.Slug       = slug
@@ -177,9 +181,11 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.BaoHanh    = baoHanh
 	sp.TrangThai  = trangThai
 	
-	// Cập nhật giá (Tạm thời chỉ cập nhật giá bán lẻ, các giá khác để mặc định hoặc tính sau)
-	sp.GiaBanLe   = giaBan
-	sp.GiaBanThuc = giaBan // Tạm thời giá thực = giá niêm yết
+	// [UPDATE GIÁ]
+	sp.GiaNhap    = giaNhap
+	sp.GiaBanLe   = giaBanLe
+	sp.GiamGia    = giamGia
+	sp.GiaBanThuc = giaBanThuc
 	
 	sp.GhiChu     = ghiChu
 	sp.NgayCapNhat= nowStr
@@ -192,6 +198,7 @@ func API_LuuSanPham(c *gin.Context) {
 		core.ThemSanPhamVaoRam(sp)
 	}
 
+	// 4. GHI XUỐNG SHEET (QUEUE)
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -209,11 +216,14 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh)
+		
+		// [SỬA TÊN BIẾN Ở ĐÂY]
+		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanh, sp.BaoHanh)
+		
 		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		
-		// [GHI CÁC CỘT GIÁ MỚI]
+		// Ghi giá
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaNhap, sp.GiaNhap)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiamGia, sp.GiamGia)
@@ -228,7 +238,7 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
-// ... (Giữ nguyên các hàm helper xuLyTags, taoSlugChuan ...)
+// ... (Giữ nguyên phần helper xuLyTags ...)
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
