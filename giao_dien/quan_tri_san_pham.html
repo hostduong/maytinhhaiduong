@@ -15,7 +15,6 @@
             background-color: #f9fafb;
         }
         .tagify__input { margin: 0; }
-        /* Fix style cho Tagify Select */
         .tagify--select .tagify__input::before { top: 50%; transform: translateY(-50%); }
     </style>
 
@@ -206,27 +205,28 @@
     </div>
 
     <script>
-        // CẤU HÌNH TAGIFY CHUNG
+        // CẤU HÌNH TAGIFY
         const tagifySelectConfig = {
             mode: 'select',
             dropdown: {
                 maxItems: 20,
                 classname: "tags-look",
                 enabled: 0,
-                closeOnSelect: true
+                closeOnSelect: true,
+                highlightFirst: true
             }
         };
 
-        // [QUAN TRỌNG] Dùng | json để tránh lỗi cú pháp JS khi render
+        // [QUAN TRỌNG] Thêm || [] để tránh lỗi nếu dữ liệu là null
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
-            whitelist: {{ .ListDanhMuc | json }},
+            whitelist: {{ .ListDanhMuc | json }} || [], 
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), {
             ...tagifySelectConfig,
-            whitelist: {{ .ListThuongHieu | json }}
+            whitelist: {{ .ListThuongHieu | json }} || []
         });
 
         const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), {
@@ -244,7 +244,7 @@
             whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"]
         });
 
-        const allProducts = {{ .DanhSach | json }};
+        const allProducts = {{ .DanhSach | json }} || [];
         const mapSP = {};
         if (allProducts) { allProducts.forEach(sp => { mapSP[sp.ma_san_pham] = sp; }); }
 
@@ -272,7 +272,7 @@
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
             previewImg(""); 
             
-            // Reset Tagify value
+            // Reset Tagify
             tagifyDM.removeAllTags();
             tagifyTH.removeAllTags();
             tagifyDonVi.removeAllTags();
@@ -292,7 +292,6 @@
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             
-            // Load Tags
             if(sp.thuong_hieu) tagifyTH.loadTags([sp.thuong_hieu]); else tagifyTH.removeAllTags();
             if(sp.don_vi) tagifyDonVi.loadTags([sp.don_vi]); else tagifyDonVi.removeAllTags();
             if(sp.tinh_trang) tagifyTinhTrang.loadTags([sp.tinh_trang]); else tagifyTinhTrang.removeAllTags();
