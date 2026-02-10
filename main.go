@@ -2,6 +2,8 @@ package main
 
 import (
 	"embed"
+	"encoding/json" // [MỚI] Thêm thư viện này
+	"fmt"           // [MỚI] Thêm thư viện này
 	"html/template"
 	"log"
 	"net/http"
@@ -15,13 +17,15 @@ import (
 	"app/core"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 //go:embed giao_dien/*.html
 var f embed.FS
 
 func main() {
-	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG (CHẾ ĐỘ TỐI ƯU)...")
+	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG...")
 
 	cau_hinh.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang()
@@ -29,17 +33,33 @@ func main() {
 
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
 	core.NapPhanQuyen("") 
-	// [ĐÃ XÓA] core.NapDanhMuc và core.NapThuongHieu
-	core.NapSanPham("") // Chỉ cần nạp Sản phẩm
+	core.NapSanPham("")
 	core.NapKhachHang("")
 
 	router := gin.Default()
 
-	funcMap := template.FuncMap{ "split": strings.Split }
+	// --- [QUAN TRỌNG] Đăng ký các hàm hỗ trợ cho HTML (FuncMap) ---
+	funcMap := template.FuncMap{
+		"split": strings.Split,
+		
+		// 1. Hàm format tiền: 1000000 -> 1.000.000
+		"format_money": func(n float64) string {
+			p := message.NewPrinter(language.Vietnamese)
+			return p.Sprintf("%.0f", n)
+		},
+
+		// 2. Hàm chuyển struct sang JSON (Để JS dùng an toàn)
+		"json": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+	}
+	// -------------------------------------------------------------
+
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// --- ĐỊNH NGHĨA ROUTER ---
+	// --- ĐỊNH NGHĨA ROUTER (Giữ nguyên như cũ) ---
 	router.GET("/", chuc_nang.TrangChu)
 	router.GET("/san-pham/:id", chuc_nang.ChiTietSanPham)
 	
@@ -58,7 +78,7 @@ func main() {
 	api := router.Group("/api")
 	{
 		api.GET("/san-pham", chuc_nang.API_LayDanhSachSanPham)
-		api.GET("/cau-hinh", chuc_nang.API_LayMenu) // Menu giờ lấy từ Sản phẩm
+		api.GET("/cau-hinh", chuc_nang.API_LayMenu)
 		api.GET("/san-pham/:id", chuc_nang.API_ChiTietSanPham)
 		api.POST("/auth/send-otp", chuc_nang.XuLyGuiOTPEmail)
 		api.POST("/auth/reset-by-pin", chuc_nang.XuLyQuenPassBangPIN)
