@@ -9,32 +9,36 @@ import (
 )
 
 // =============================================================
-// 1. CẤU HÌNH CỘT (CẬP NHẬT THEO CHIẾN THUẬT MỚI)
+// CẤU HÌNH CỘT (CẬP NHẬT MỚI NHẤT P-Q-R-S)
 // =============================================================
 const (
 	DongBatDau_SanPham = 11
 
-	// A=0, B=1, ... T=19
-	CotSP_MaSanPham      = 0  // A
-	CotSP_TenSanPham     = 1  // B
-	CotSP_TenRutGon      = 2  // C
-	CotSP_Slug           = 3  // D [MỚI]
-	CotSP_Sku            = 4  // E
-	CotSP_DanhMuc        = 5  // F (Lưu trực tiếp: "Main|Máy tính")
-	CotSP_ThuongHieu     = 6  // G (Lưu trực tiếp: "Asus")
-	CotSP_DonVi          = 7  // H
-	CotSP_MauSac         = 8  // I
-	CotSP_UrlHinhAnh     = 9  // J
-	CotSP_ThongSo        = 10 // K
-	CotSP_MoTaChiTiet    = 11 // L
-	CotSP_BaoHanhThang   = 12 // M
-	CotSP_TinhTrang      = 13 // N
-	CotSP_TrangThai      = 14 // O
-	CotSP_GiaBanLe       = 15 // P
-	CotSP_GhiChu         = 16 // Q
-	CotSP_NguoiTao       = 17 // R
-	CotSP_NgayTao        = 18 // S
-	CotSP_NgayCapNhat    = 19 // T
+	CotSP_MaSanPham      = 0  
+	CotSP_TenSanPham     = 1  
+	CotSP_TenRutGon      = 2  
+	CotSP_Slug           = 3  
+	CotSP_Sku            = 4  
+	CotSP_DanhMuc        = 5  
+	CotSP_ThuongHieu     = 6  
+	CotSP_DonVi          = 7  
+	CotSP_MauSac         = 8  
+	CotSP_UrlHinhAnh     = 9  
+	CotSP_ThongSo        = 10 
+	CotSP_MoTaChiTiet    = 11 
+	CotSP_BaoHanhThang   = 12 
+	CotSP_TinhTrang      = 13 
+	CotSP_TrangThai      = 14 
+	
+	CotSP_GiaNhap        = 15 // P
+	CotSP_GiaBanLe       = 16 // Q
+	CotSP_GiamGia        = 17 // R
+	CotSP_GiaBanThuc     = 18 // S
+	
+	CotSP_GhiChu         = 19 // T
+	CotSP_NguoiTao       = 20 // U
+	CotSP_NgayTao        = 21 // V
+	CotSP_NgayCapNhat    = 22 // W
 )
 
 type SanPham struct {
@@ -53,13 +57,15 @@ type SanPham struct {
 	UrlHinhAnh     string  `json:"url_hinh_anh"`
 	ThongSo        string  `json:"thong_so"`
 	MoTaChiTiet    string  `json:"mo_ta_chi_tiet"`
-	
-	// [SỬA] Đổi từ Int sang String để lưu "12 Tháng" hoặc "7 Ngày"
 	BaoHanh        string  `json:"bao_hanh"` 
-	
 	TinhTrang      string  `json:"tinh_trang"`
 	TrangThai      int     `json:"trang_thai"`
+	
+	GiaNhap        float64 `json:"gia_nhap"`
 	GiaBanLe       float64 `json:"gia_ban_le"`
+	GiamGia        float64 `json:"giam_gia"`
+	GiaBanThuc     float64 `json:"gia_ban_thuc"`
+	
 	GhiChu         string  `json:"ghi_chu"`
 	NguoiTao       string  `json:"nguoi_tao"`
 	NgayTao        string  `json:"ngay_tao"`
@@ -105,7 +111,12 @@ func NapSanPham(targetSpreadsheetID string) {
 			BaoHanh:        layString(r, CotSP_BaoHanhThang), 		
 			TinhTrang:      layString(r, CotSP_TinhTrang),
 			TrangThai:      layInt(r, CotSP_TrangThai),
+			
+			GiaNhap:        layFloat(r, CotSP_GiaNhap),
 			GiaBanLe:       layFloat(r, CotSP_GiaBanLe),
+			GiamGia:        layFloat(r, CotSP_GiamGia),
+			GiaBanThuc:     layFloat(r, CotSP_GiaBanThuc),
+			
 			GhiChu:         layString(r, CotSP_GhiChu),
 			NguoiTao:       layString(r, CotSP_NguoiTao),
 			NgayTao:        layString(r, CotSP_NgayTao),
@@ -144,31 +155,20 @@ func ThemSanPhamVaoRam(sp *SanPham) {
 	_Map_SanPham[key] = sp
 }
 
-// [HÀM SINH MÃ CHUẨN]
-func TaoMaSPMoi(prefixThuongHieu string) string {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+// [HÀM SINH MÃ MỚI: DỰA VÀO DANH MỤC]
+// Input: maDanhMuc (VD: "MAIN")
+// Output: "MAIN0001", "MAIN0002"...
+func TaoMaSPMoi(maDanhMuc string) string {
+	// Không cần Lock ở đây vì hàm LaySTTtiepTheo đã tự Lock rồi
 	
-	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
-	
-	partBrand := "000"
-	prefixThuongHieu = strings.ToUpper(strings.TrimSpace(prefixThuongHieu))
-	
-	// Logic lấy 3 ký tự đầu của thương hiệu làm mã (VD: ASUS -> ASU)
-	if len(prefixThuongHieu) >= 3 {
-		partBrand = prefixThuongHieu[:3]
-	} else if len(prefixThuongHieu) > 0 {
-		partBrand = prefixThuongHieu + "X" // VD: HP -> HPX
+	maDanhMuc = strings.ToUpper(strings.TrimSpace(maDanhMuc))
+	if maDanhMuc == "" {
+		maDanhMuc = "SP" // Fallback nếu không có danh mục
 	}
 
-	partTime := time.Now().Format("0601") // YYMM
+	// Lấy số thứ tự tiếp theo từ core/danh_muc.go
+	stt := LaySTTtiepTheo(maDanhMuc)
 
-	for {
-		rand4 := LayChuoiSoNgauNhien(4)
-		id := fmt.Sprintf("HD%s%s%s", partBrand, partTime, rand4)
-		key := TaoCompositeKey(currentSheetID, id)
-		if _, tonTai := _Map_SanPham[key]; !tonTai {
-			return id
-		}
-	}
+	// Format thành chuỗi 4 số (0001, 0015...)
+	return fmt.Sprintf("%s%04d", maDanhMuc, stt)
 }
