@@ -7,7 +7,7 @@ import (
 
 	"app/bao_mat"
 	"app/cau_hinh"
-	"app/core" // [QUAN TRỌNG] Sử dụng Core
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +15,6 @@ import (
 func TrangDangNhap(c *gin.Context) {
 	cookie, _ := c.Cookie("session_id")
 	if cookie != "" {
-		// Kiểm tra Cookie bằng Core
 		if _, ok := core.TimKhachHangTheoCookie(cookie); ok {
 			c.Redirect(http.StatusFound, "/") 
 			return
@@ -25,43 +24,36 @@ func TrangDangNhap(c *gin.Context) {
 }
 
 func XuLyDangNhap(c *gin.Context) {
-	// Nhận input đa năng (Mã KH / User / Email)
 	inputDinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("input_dinh_danh")))
 	pass          := strings.TrimSpace(c.PostForm("mat_khau"))
-	ghiNho        := c.PostForm("ghi_nho") // Checkbox: "on" hoặc ""
+	ghiNho        := c.PostForm("ghi_nho")
 
-	// 1. Tìm user bằng Core
+	// 1. Tìm user
 	kh, ok := core.TimKhachHangTheoUserOrEmail(inputDinhDanh)
 	if !ok {
 		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản không tồn tại!"})
 		return
 	}
 
-	// 2. Kiểm tra mật khẩu
+	// 2. Check Pass
 	if !bao_mat.KiemTraMatKhau(pass, kh.MatKhauHash) {
 		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Mật khẩu không đúng!"})
 		return
 	}
 
-	// 3. Kiểm tra trạng thái
 	if kh.TrangThai == 0 {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản đã bị khóa vĩnh viễn!"})
-		return
-	}
-	if kh.TrangThai == 2 {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản đang bị tạm khóa!"})
+		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản bị khóa!"})
 		return
 	}
 
-	// 4. Xử lý "Ghi nhớ đăng nhập"
+	// 3. Tạo Session
 	var thoiGianSong time.Duration
 	if ghiNho == "on" {
-		thoiGianSong = 30 * 24 * time.Hour // 30 ngày
+		thoiGianSong = 30 * 24 * time.Hour
 	} else {
-		thoiGianSong = cau_hinh.ThoiGianHetHanCookie // Mặc định (30 phút)
+		thoiGianSong = cau_hinh.ThoiGianHetHanCookie
 	}
 
-	// 5. Tạo Session & Chữ ký
 	sessionID := bao_mat.TaoSessionIDAnToan()
 	userAgent := c.Request.UserAgent()
 	signature := bao_mat.TaoChuKyBaoMat(sessionID, userAgent)
@@ -69,22 +61,22 @@ func XuLyDangNhap(c *gin.Context) {
 	expTime := time.Now().Add(thoiGianSong).Unix()
 	maxAge  := int(thoiGianSong.Seconds())
 
-	// 6. Cập nhật vào Struct trong RAM (Core)
+	// 4. Cập nhật RAM (Nhanh)
 	core.KhoaHeThong.Lock()
 	kh.Cookie = sessionID
 	kh.CookieExpired = expTime
 	core.KhoaHeThong.Unlock()
 	
-	// 7. Ghi xuống Sheet (Dùng Core Queue)
-	// Lấy ID Sheet chuẩn (Hỗ trợ đa Shop)
-	sID := kh.SpreadsheetID
-	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
-	
-	// Đẩy 2 lệnh ghi vào hàng chờ (Cột Cookie và Cột Expired)
-	core.ThemVaoHangCho(sID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_Cookie, sessionID)
-	core.ThemVaoHangCho(sID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_CookieExpired, expTime)
+	// 5. Ghi Sheet (Bất đồng bộ - Không block người dùng)
+	// Việc này sẽ được Worker xử lý sau, người dùng không cần chờ
+	go func() {
+		sID := kh.SpreadsheetID
+		if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+		core.ThemVaoHangCho(sID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_Cookie, sessionID)
+		core.ThemVaoHangCho(sID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_CookieExpired, expTime)
+	}()
 
-	// 8. Set Cookie xuống trình duyệt
+	// 6. Set Cookie & Redirect ngay lập tức
 	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
 	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
 
@@ -92,7 +84,6 @@ func XuLyDangNhap(c *gin.Context) {
 }
 
 func DangXuat(c *gin.Context) {
-	// Xóa sạch cookie
 	c.SetCookie("session_id", "", -1, "/", "", false, true)
 	c.SetCookie("session_sign", "", -1, "/", "", false, true)
 	c.Redirect(http.StatusFound, "/login")
