@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TrangQuanLySanPham : Hiển thị
+// ... (Giữ nguyên hàm TrangQuanLySanPham) ...
 func TrangQuanLySanPham(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -94,10 +94,12 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
+	// Xử lý giá (Loại bỏ dấu chấm)
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
+	// Các trường khác
 	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := xuLyTags(c.PostForm("don_vi"))
@@ -131,7 +133,20 @@ func API_LuuSanPham(c *gin.Context) {
 
 	if maSP == "" {
 		isNew = true
-		maSP = core.TaoMaSPMoi(thuongHieu) 
+		
+		// [LOGIC SINH MÃ MỚI]
+		// 1. Lấy danh mục đầu tiên (nếu có nhiều tag)
+		firstDM := ""
+		if danhMuc != "" {
+			firstDM = strings.Split(danhMuc, "|")[0]
+		}
+		
+		// 2. Tìm mã code (VD: Mainboard -> MAIN)
+		maCodeDM := core.TimMaDanhMucTheoTen(firstDM)
+		
+		// 3. Sinh mã sản phẩm (MAIN0001)
+		maSP = core.TaoMaSPMoi(maCodeDM) 
+		
 		sp = &core.SanPham{
 			SpreadsheetID: sheetID,
 			MaSanPham:     maSP,
@@ -159,12 +174,13 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.MoTaChiTiet= moTa
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
-	
-	// [QUAN TRỌNG] Chỉ lưu vào trường BaoHanh (String), bỏ BaoHanhThang (Int)
 	sp.BaoHanh    = baoHanh
-	
 	sp.TrangThai  = trangThai
+	
+	// Cập nhật giá (Tạm thời chỉ cập nhật giá bán lẻ, các giá khác để mặc định hoặc tính sau)
 	sp.GiaBanLe   = giaBan
+	sp.GiaBanThuc = giaBan // Tạm thời giá thực = giá niêm yết
+	
 	sp.GhiChu     = ghiChu
 	sp.NgayCapNhat= nowStr
 
@@ -193,13 +209,16 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		
-		// [SỬA] Ghi cột bảo hành (String) - KHÔNG CÒN GHI INT
 		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh)
-		
 		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
+		
+		// [GHI CÁC CỘT GIÁ MỚI]
+		ghi(sheetID, sheet, targetRow, core.CotSP_GiaNhap, sp.GiaNhap)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
+		ghi(sheetID, sheet, targetRow, core.CotSP_GiamGia, sp.GiamGia)
+		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanThuc, sp.GiaBanThuc)
+		
 		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
 		ghi(sheetID, sheet, targetRow, core.CotSP_NgayTao, sp.NgayTao)
@@ -209,6 +228,7 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
+// ... (Giữ nguyên các hàm helper xuLyTags, taoSlugChuan ...)
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
