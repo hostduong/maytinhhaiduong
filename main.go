@@ -2,8 +2,7 @@ package main
 
 import (
 	"embed"
-	"encoding/json" // [MỚI] Thêm thư viện này
-	"fmt"           // [MỚI] Thêm thư viện này
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
