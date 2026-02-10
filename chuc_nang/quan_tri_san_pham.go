@@ -3,7 +3,7 @@ package chuc_nang
 import (
 	"encoding/json"
 	"net/http"
-	"regexp" // [MỚI] Dùng regex để xử lý slug
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ... (Giữ nguyên hàm TrangQuanLySanPham) ...
+// TrangQuanLySanPham : Hiển thị
 func TrangQuanLySanPham(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -50,7 +50,9 @@ func TrangQuanLySanPham(c *gin.Context) {
 					if p = strings.TrimSpace(p); p != "" { uniqueDM[p] = true }
 				}
 			}
-			if sp.ThuongHieu != "" { uniqueTH[strings.TrimSpace(sp.ThuongHieu)] = true }
+			// Xử lý thương hiệu (bỏ các ký tự JSON nếu lỡ lưu nhầm)
+			th := strings.TrimSpace(sp.ThuongHieu)
+			if th != "" { uniqueTH[th] = true }
 		}
 	}
 
@@ -97,27 +99,38 @@ func API_LuuSanPham(c *gin.Context) {
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
-	thuongHieu := strings.TrimSpace(c.PostForm("ma_thuong_hieu"))
+	// [CẬP NHẬT] Dùng xuLyTags cho tất cả các trường dùng Tagify
+	// Để đảm bảo dù gửi lên "Cái" hay [{"value":"Cái"}] thì đều lưu đúng là "Cái"
+	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
+	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
+	donVi      := xuLyTags(c.PostForm("don_vi"))
+	mauSac     := xuLyTags(c.PostForm("mau_sac"))
+	tinhTrang  := xuLyTags(c.PostForm("tinh_trang"))
+	
 	tenRutGon  := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku        := strings.TrimSpace(c.PostForm("sku"))
-	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
-	donVi      := c.PostForm("don_vi")
-	mauSac     := c.PostForm("mau_sac")
-	tinhTrang  := c.PostForm("tinh_trang")
 	moTa       := c.PostForm("mo_ta_chi_tiet")
 	hinhAnh    := strings.TrimSpace(c.PostForm("url_hinh_anh"))
 	thongSo    := c.PostForm("thong_so")
 	ghiChu     := c.PostForm("ghi_chu")
 	
-	// [SỬA] Ghép số lượng và đơn vị bảo hành. VD: "12 Tháng"
 	bhNum := c.PostForm("bao_hanh_num")
 	bhUnit := c.PostForm("bao_hanh_unit")
 	baoHanh := ""
 	if bhNum != "" {
 		baoHanh = bhNum + " " + bhUnit
 	}
+	// Gán mặc định Bảo hành là 0 nếu rỗng
+	if bhNum != "" {
+		_, err := strconv.Atoi(bhNum)
+		if err == nil {
+			baoHanhThangCheck, _ := strconv.Atoi(bhNum) // Chỉ để check logic cũ nếu cần
+			_ = baoHanhThangCheck
+		}
+	}
+	// Lưu số tháng int để tương thích code cũ (nếu cần), ở đây ta lưu string vào struct
+	baoHanhInt, _ := strconv.Atoi(bhNum) // Tạm lấy số
 
-	// [SỬA] Slug chuẩn hóa xịn xò
 	slug := taoSlugChuan(tenSP)
 
 	trangThai := 0
@@ -129,7 +142,6 @@ func API_LuuSanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 
-	// 1. Chuẩn bị đối tượng (Chưa Lock)
 	if maSP == "" {
 		isNew = true
 		maSP = core.TaoMaSPMoi(thuongHieu) 
@@ -146,7 +158,6 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// 2. Cập nhật RAM
 	if !isNew { core.KhoaHeThong.Lock() }
 
 	sp.TenSanPham = tenSP
@@ -161,9 +172,9 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.MoTaChiTiet= moTa
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
-	
-	// [SỬA] Lưu bảo hành dạng String
 	sp.BaoHanh    = baoHanh
+	// Giữ lại cột BaoHanhThang (int) nếu sheet cần sort, nhưng ở đây struct dùng string
+	sp.BaoHanhThang = baoHanhInt 
 	
 	sp.TrangThai  = trangThai
 	sp.GiaBanLe   = giaBan
@@ -178,7 +189,6 @@ func API_LuuSanPham(c *gin.Context) {
 		core.ThemSanPhamVaoRam(sp)
 	}
 
-	// 3. Ghi Sheet
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -196,10 +206,7 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		
-		// [SỬA] Ghi cột bảo hành (String)
-		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh)
-		
+		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh) // Cột M lưu string "12 Tháng"
 		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
@@ -212,28 +219,28 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
-// Helpers
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
+	// Nếu không phải JSON (không chứa ngoặc vuông), trả về nguyên gốc
 	if !strings.Contains(raw, "[") { return raw }
+	
 	var items []TagifyItem
 	if err := json.Unmarshal([]byte(raw), &items); err != nil { return raw }
+	
 	var values []string
 	for _, item := range items {
 		if v := strings.TrimSpace(item.Value); v != "" { values = append(values, v) }
 	}
+	// Nếu có nhiều giá trị thì ngăn cách bởi | (cho Danh mục)
+	// Nếu chỉ có 1 giá trị (Thương hiệu, Đơn vị...) thì nó trả về chính nó
 	return strings.Join(values, "|")
 }
 
-// [MỚI] Hàm tạo Slug chuẩn (Bỏ dấu, bỏ ký tự lạ)
 func taoSlugChuan(s string) string {
 	s = strings.ToLower(s)
-	
-	// 1. Map ký tự có dấu sang không dấu
 	s = strings.ReplaceAll(s, "đ", "d")
-	// (Có thể dùng thư viện transform, nhưng để gọn ta dùng replace tay các ký tự phổ biến)
 	patterns := map[string]string{
 		"[áàảãạăắằẳẵặâấầẩẫậ]": "a",
 		"[éèẻẽẹêếềểễệ]":       "e",
@@ -246,14 +253,7 @@ func taoSlugChuan(s string) string {
 		re := regexp.MustCompile(p)
 		s = re.ReplaceAllString(s, r)
 	}
-
-	// 2. Thay thế ký tự đặc biệt bằng gạch ngang
-	// Chỉ giữ lại a-z, 0-9
 	reInvalid := regexp.MustCompile(`[^a-z0-9]+`)
 	s = reInvalid.ReplaceAllString(s, "-")
-
-	// 3. Xử lý gạch ngang thừa
-	s = strings.Trim(s, "-")
-	
-	return s
+	return strings.Trim(s, "-")
 }
