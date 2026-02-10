@@ -44,16 +44,19 @@ type SanPham struct {
 	MaSanPham      string  `json:"ma_san_pham"`
 	TenSanPham     string  `json:"ten_san_pham"`
 	TenRutGon      string  `json:"ten_rut_gon"`
-	Slug           string  `json:"slug"` // [MỚI]
+	Slug           string  `json:"slug"`
 	Sku            string  `json:"sku"`
-	DanhMuc        string  `json:"danh_muc"`    // Chuỗi trực tiếp
-	ThuongHieu     string  `json:"thuong_hieu"` // Chuỗi trực tiếp
+	DanhMuc        string  `json:"danh_muc"`
+	ThuongHieu     string  `json:"thuong_hieu"`
 	DonVi          string  `json:"don_vi"`
 	MauSac         string  `json:"mau_sac"`
 	UrlHinhAnh     string  `json:"url_hinh_anh"`
 	ThongSo        string  `json:"thong_so"`
 	MoTaChiTiet    string  `json:"mo_ta_chi_tiet"`
-	BaoHanhThang   int     `json:"bao_hanh_thang"`
+	
+	// [SỬA] Đổi từ Int sang String để lưu "12 Tháng" hoặc "7 Ngày"
+	BaoHanh        string  `json:"bao_hanh"` 
+	
 	TinhTrang      string  `json:"tinh_trang"`
 	TrangThai      int     `json:"trang_thai"`
 	GiaBanLe       float64 `json:"gia_ban_le"`
@@ -90,16 +93,16 @@ func NapSanPham(targetSpreadsheetID string) {
 			MaSanPham:      maSP,
 			TenSanPham:     layString(r, CotSP_TenSanPham),
 			TenRutGon:      layString(r, CotSP_TenRutGon),
-			Slug:           layString(r, CotSP_Slug), // Đọc cột D
+			Slug:           layString(r, CotSP_Slug),
 			Sku:            layString(r, CotSP_Sku),
-			DanhMuc:        layString(r, CotSP_DanhMuc),    // Cột F
-			ThuongHieu:     layString(r, CotSP_ThuongHieu), // Cột G
+			DanhMuc:        layString(r, CotSP_DanhMuc),
+			ThuongHieu:     layString(r, CotSP_ThuongHieu),
 			DonVi:          layString(r, CotSP_DonVi),
 			MauSac:         layString(r, CotSP_MauSac),
 			UrlHinhAnh:     layString(r, CotSP_UrlHinhAnh),
 			ThongSo:        layString(r, CotSP_ThongSo),
 			MoTaChiTiet:    layString(r, CotSP_MoTaChiTiet),
-			BaoHanhThang:   layInt(r, CotSP_BaoHanhThang),
+			BaoHanh:        layString(r, CotSP_BaoHanhThang), 		
 			TinhTrang:      layString(r, CotSP_TinhTrang),
 			TrangThai:      layInt(r, CotSP_TrangThai),
 			GiaBanLe:       layFloat(r, CotSP_GiaBanLe),
