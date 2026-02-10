@@ -9,7 +9,7 @@
         .tagify { --tags-border-color: #d1d5db; --tags-focus-border-color: #2563eb; border-radius: 0.5rem; padding: 4px; }
         .modal-body { max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: thin; }
         .no-img {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: center;
             background-color: #f9fafb;
@@ -161,35 +161,39 @@
                                 <option value="Cũ">Cũ</option>
                             </select>
                         </div>
-                        
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hoặc tự nhập</label>
                             <input type="text" name="tinh_trang_custom" id="tinh_trang_custom" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: Trưng bày...">
                         </div>
-
+                        
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Hình Ảnh</label>
-                            <div class="flex gap-2">
-                                <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="flex-1 p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
-                                <img id="imgPreview" class="w-10 h-10 object-cover rounded border no-img">
-                            </div>
+                            <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số kỹ thuật</label>
-                            <textarea name="thong_so" id="thong_so" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
+                            <textarea name="thong_so" id="thong_so" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả chi tiết</label>
-                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết..."></textarea>
+                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết..."></textarea>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ghi chú nội bộ</label>
-                        <textarea name="ghi_chu" id="ghi_chu" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50" placeholder="Chỉ nhân viên thấy..."></textarea>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ghi chú nội bộ</label>
+                            <textarea name="ghi_chu" id="ghi_chu" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50" placeholder="Chỉ nhân viên thấy..."></textarea>
+                        </div>
+                        <div class="flex flex-col h-full">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Xem trước ảnh</label>
+                            <div class="border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center p-2 h-full min-h-[160px]">
+                                <img id="imgPreview" class="h-40 w-full object-contain rounded no-img">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-4 pt-2">
@@ -203,7 +207,7 @@
 
             <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
                 <button onclick="closeModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-200 rounded-xl font-bold transition">Hủy bỏ</button>
-                <button id="btnSave" onclick="saveSP()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg transition active:scale-95 flex items-center">
+                <button id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg transition active:scale-95 flex items-center">
                     Lưu Sản Phẩm
                 </button>
             </div>
@@ -252,7 +256,7 @@
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
-            document.getElementById('tinh_trang_custom').value = ""; // Reset ô tự nhập
+            document.getElementById('tinh_trang_custom').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
             previewImg(""); 
             tagifyDM.removeAllTags();
@@ -268,6 +272,7 @@
             document.getElementById('ten_rut_gon').value = sp.rutgon;
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
+            
             document.getElementById('ma_thuong_hieu').value = sp.th; 
             document.getElementById('don_vi').value = sp.donvi || "Cái";
             
@@ -285,14 +290,13 @@
             
             document.getElementById('mau_sac').value = sp.mausac;
             
-            // LOGIC TÌNH TRẠNG (MỚI/CŨ/CUSTOM)
             const validOptions = ["Mới", "Like New", "Cũ"];
             const tt = sp.tinhtrang || "Mới";
             if (validOptions.includes(tt)) {
                 document.getElementById('tinh_trang').value = tt;
                 document.getElementById('tinh_trang_custom').value = "";
             } else {
-                document.getElementById('tinh_trang').value = "Mới"; // Mặc định
+                document.getElementById('tinh_trang').value = "Mới";
                 document.getElementById('tinh_trang_custom').value = tt;
             }
 
@@ -310,19 +314,39 @@
             document.getElementById('modalSP').classList.remove('hidden');
         }
 
-        async function saveSP() {
+        // [MỚI] Hàm xác nhận trước khi lưu
+        async function confirmSave() {
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
+            // Hiển thị SweetAlert hỏi xác nhận
+            const result = await Swal.fire({
+                title: 'Xác nhận lưu?',
+                text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb', // Màu xanh
+                cancelButtonColor: '#6b7280',  // Màu xám
+                confirmButtonText: 'Đồng ý, lưu lại!',
+                cancelButtonText: 'Hủy bỏ'
+            });
+
+            // Nếu người dùng ấn "Đồng ý" thì mới chạy lệnh lưu
+            if (result.isConfirmed) {
+                saveSP();
+            }
+        }
+
+        async function saveSP() {
             const btn = document.getElementById('btnSave');
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
+            const form = document.getElementById('formSP');
             const fd = new FormData(form);
             if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
             
-            // ƯU TIÊN LẤY TÌNH TRẠNG TỰ NHẬP
             const customTT = document.getElementById('tinh_trang_custom').value.trim();
             if(customTT) fd.set('tinh_trang', customTT);
             else fd.set('tinh_trang', document.getElementById('tinh_trang').value);
@@ -332,6 +356,8 @@
                 const data = await res.json();
                 
                 if(data.status === 'ok') {
+                    // [TÙY CHỌN] Có thể bỏ thông báo này nếu muốn nhanh, 
+                    // nhưng giữ lại để người dùng biết đã lưu xong.
                     Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
                 } else {
                     Swal.fire('Lỗi', data.msg, 'error');
