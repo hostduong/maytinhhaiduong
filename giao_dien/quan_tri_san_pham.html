@@ -216,33 +216,21 @@
             }
         };
 
-        // --- KHỞI TẠO TAGIFY ---
-        // 1. Danh mục
+        // Whitelist thủ công
         var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
+        var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
+
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
             whitelist: listDM,
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
-        // 2. Thương hiệu
-        var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
-        var inputTH = document.querySelector('#ma_thuong_hieu');
-        var tagifyTH = new Tagify(inputTH, { ...tagifySelectConfig, whitelist: listTH });
+        const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
+        const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
+        const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
+        const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
-        // 3. Đơn vị
-        var inputDonVi = document.querySelector('#don_vi');
-        var tagifyDonVi = new Tagify(inputDonVi, { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
-
-        // 4. Tình trạng
-        var inputTinhTrang = document.querySelector('#tinh_trang');
-        var tagifyTinhTrang = new Tagify(inputTinhTrang, { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-
-        // 5. Màu sắc
-        var inputMauSac = document.querySelector('#mau_sac');
-        var tagifyMauSac = new Tagify(inputMauSac, { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
-
-        // --- MAP SẢN PHẨM ---
         const mapSP = {};
         {{ range .DanhSach }}
         mapSP["{{ .MaSanPham }}"] = {
@@ -256,10 +244,11 @@
             bao_hanh: "{{ .BaoHanh }}",
             mau_sac: "{{ .MauSac }}",
             tinh_trang: "{{ .TinhTrang }}",
-            thong_so: `{{ .ThongSo }}`,
-            mo_ta_chi_tiet: `{{ .MoTaChiTiet }}`,
+            // [FIX LỖI TRẮNG TRANG] Dùng ngoặc kép " thay vì dấu huyền `
+            thong_so: "{{ .ThongSo }}",
+            mo_ta_chi_tiet: "{{ .MoTaChiTiet }}",
             url_hinh_anh: "{{ .UrlHinhAnh }}",
-            ghi_chu: `{{ .GhiChu }}`,
+            ghi_chu: "{{ .GhiChu }}",
             trang_thai: {{ .TrangThai }},
             danh_muc: "{{ .DanhMuc }}"
         };
@@ -273,14 +262,12 @@
             if(!url) img.classList.add('no-img'); else img.classList.remove('no-img');
         }
 
-        // --- HÀM THÊM MỚI ---
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
             previewImg(""); 
             
-            // Xóa sạch các thẻ Tagify
             tagifyDM.removeAllTags();
             tagifyTH.removeAllTags();
             tagifyDonVi.removeAllTags();
@@ -291,10 +278,9 @@
         }
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
-        // --- HÀM SỬA (FIXED) ---
         function editSP(id) {
             const sp = mapSP[id];
-            if(!sp) return; // Nếu không tìm thấy thì thoát
+            if(!sp) return;
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('ten_san_pham').value = sp.ten_san_pham;
@@ -302,17 +288,15 @@
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             
-            // [FIXED] Gán trực tiếp value cho input tagify (An toàn hơn loadTags)
-            if(sp.thuong_hieu) { inputTH.value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
-            if(sp.don_vi) { inputDonVi.value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
-            if(sp.tinh_trang) { inputTinhTrang.value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
-            if(sp.mau_sac) { inputMauSac.value = sp.mau_sac; } else { tagifyMauSac.removeAllTags(); }
+            // [FIX LỖI NÚT SỬA] Dùng value trực tiếp thay vì loadTags
+            if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
+            if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
+            if(sp.tinh_trang) { document.querySelector('#tinh_trang').value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
+            if(sp.mau_sac) { document.querySelector('#mau_sac').value = sp.mau_sac; } else { tagifyMauSac.removeAllTags(); }
             
-            // Danh mục dùng addTags
             tagifyDM.removeAllTags();
             if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
 
-            // Tách bảo hành
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
                 if (parts.length >= 2) {
