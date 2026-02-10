@@ -161,8 +161,8 @@
     </div>
 
     <script>
-        // Tagify giờ sẽ lấy whitelist từ danh sách String đơn giản
-        // [QUAN TRỌNG] Đã sửa lỗi .TenDanhMuc thành . (String)
+        // [QUAN TRỌNG] Tagify giờ sẽ lấy whitelist từ danh sách String đơn giản
+        // Đã sửa {{ .TenDanhMuc }} thành {{ . }}
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
             whitelist: [{{ range .ListDanhMuc }} "{{ . }}", {{ end }}],
@@ -202,7 +202,10 @@
             document.getElementById('ten_rut_gon').value = sp.rutgon;
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
-            document.getElementById('ma_thuong_hieu').value = sp.th; // Input text thường
+            
+            // [QUAN TRỌNG] Thương hiệu giờ là text, không phải ID
+            document.getElementById('ma_thuong_hieu').value = sp.th; 
+            
             document.getElementById('don_vi').value = sp.donvi || "Cái";
             document.getElementById('bao_hanh_thang').value = sp.baohanh;
             document.getElementById('url_hinh_anh').value = sp.img;
