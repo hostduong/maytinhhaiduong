@@ -87,7 +87,7 @@
     </div>
 
     <div id="modalSP" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[95vh]">
             <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
                 <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Thêm Sản Phẩm</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
@@ -100,62 +100,36 @@
 
                     <div>
                         <label>Tên sản phẩm <span class="text-red-500">*</span></label>
-                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="Nhập tên đầy đủ...">
+                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold" required placeholder="Nhập tên đầy đủ của sản phẩm...">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div class="md:col-span-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
                             <label>SKU (Mã kho)</label>
-                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MAIN-H81-PEG">
+                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MB-H610-ASUS">
                         </div>
-                        <div class="md:col-span-4">
+                        <div>
                             <label>Tên rút gọn</label>
-                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: H81 Pegatron">
+                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: H610M-K">
                         </div>
-                        <div class="md:col-span-4">
+                        <div>
                             <label>Thương hiệu</label>
                             <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Chọn hãng...">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div class="md:col-span-8">
-                            <label>Danh mục (Tags)</label>
-                            <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Mainboard, Ram...">
-                        </div>
-                        <div class="md:col-span-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
                             <label>Màu sắc</label>
                             <input name="mau_sac" id="mau_sac" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Đen...">
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <div class="md:col-span-3">
-                            <label>Giá Nhập (Vốn)</label>
-                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600 font-medium" placeholder="0" onkeyup="formatCurrency(this)">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
-                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-blue-600 text-lg" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label>Giảm giá (%)</label>
-                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold text-orange-500" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label>Giá Bán Thực Tế (Web)</label>
-                            <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-xl bg-gray-100 cursor-not-allowed" placeholder="0">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div class="md:col-span-4">
+                        <div>
                             <label>Đơn vị tính</label>
                             <input name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Cái...">
                         </div>
-                        <div class="md:col-span-4">
+                        <div>
                             <label>Bảo hành</label>
-                            <div class="flex gap-2">
+                            <div class="flex gap-1">
                                 <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="w-1/2 p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold" placeholder="36">
                                 <select name="bao_hanh_unit" id="bao_hanh_unit" class="w-1/2 p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
                                     <option value="Tháng">Tháng</option>
@@ -164,7 +138,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="md:col-span-4">
+                        <div>
                             <label>Tình trạng</label>
                             <input name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Mới 100%...">
                         </div>
@@ -172,10 +146,16 @@
 
                     <div class="border p-3 rounded-lg border-dashed border-gray-300">
                         <label class="flex justify-between items-center mb-2">
-                            <span>Link Hình Ảnh (Nhiều ảnh)</span>
-                            <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full font-bold hover:bg-blue-200 transition">+ Thêm link ảnh</button>
+                            <span>Link Hình Ảnh (Có thể thêm nhiều ảnh)</span>
+                            <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full font-bold hover:bg-blue-200 transition">+ Thêm link</button>
                         </label>
-                        <div id="imgContainer" class="space-y-2"></div>
+                        <div id="imgContainer" class="space-y-2">
+                            </div>
+                    </div>
+
+                    <div>
+                        <label>Danh mục (Tags phân loại)</label>
+                        <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Mainboard, Ram, VGA...">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -186,6 +166,25 @@
                         <div>
                             <label>Mô tả chi tiết</label>
                             <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết (Hỗ trợ HTML)..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                        <div>
+                            <label>Giá Nhập (Vốn)</label>
+                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600" placeholder="0" onkeyup="formatCurrency(this)">
+                        </div>
+                        <div>
+                            <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
+                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-blue-600 text-lg" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
+                        </div>
+                        <div>
+                            <label>Giảm giá (%)</label>
+                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold text-orange-500" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
+                        </div>
+                        <div>
+                            <label>Giá Bán Thực Tế (Web)</label>
+                            <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-xl bg-gray-100 cursor-not-allowed" placeholder="0">
                         </div>
                     </div>
 
@@ -260,17 +259,10 @@
 
         // [HÀM TÍNH TOÁN GIÁ THỰC TẾ]
         function tinhGiaThuc() {
-            // Lấy giá niêm yết (bỏ dấu chấm)
             let rawGiaBan = document.getElementById('gia_ban_le').value.replace(/\./g, "");
             let giaBan = parseFloat(rawGiaBan) || 0;
-
-            // Lấy % giảm giá
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
-
-            // Tính toán: Giá thực = Giá bán * (1 - %/100)
             let giaThuc = giaBan * (1 - (giamGia / 100));
-
-            // Làm tròn và hiển thị
             document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
         }
 
@@ -290,7 +282,7 @@
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
-            document.getElementById('gia_ban_thuc').value = ""; // Reset giá thực
+            document.getElementById('gia_ban_thuc').value = ""; 
             
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
             tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
@@ -311,11 +303,10 @@
             document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
             document.getElementById('sku').value = sp.sku;
             
-            // Fill Giá
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             document.getElementById('giam_gia').value = sp.giam_gia;
-            tinhGiaThuc(); // Tự động tính giá thực khi mở modal sửa
+            tinhGiaThuc();
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
