@@ -149,7 +149,10 @@
                         </label>
                     </div>
                     
-                    <input type="hidden" name="mau_sac" id="mau_sac"><input type="hidden" name="tinh_trang" id="tinh_trang" value="Mới"><input type="hidden" name="thong_so" id="thong_so"><input type="hidden" name="mo_ta_chi_tiet" id="mo_ta_chi_tiet">
+                    <input type="hidden" name="mau_sac" id="mau_sac">
+                    <input type="hidden" name="tinh_trang" id="tinh_trang" value="Mới">
+                    <input type="hidden" name="thong_so" id="thong_so">
+                    <input type="hidden" name="mo_ta_chi_tiet" id="mo_ta_chi_tiet">
                 </form>
             </div>
 
@@ -161,8 +164,7 @@
     </div>
 
     <script>
-        // [QUAN TRỌNG] Tagify giờ sẽ lấy whitelist từ danh sách String đơn giản
-        // Đã sửa {{ .TenDanhMuc }} thành {{ . }}
+        // Tagify giờ sẽ lấy whitelist từ danh sách String đơn giản
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
             whitelist: [{{ range .ListDanhMuc }} "{{ . }}", {{ end }}],
@@ -174,9 +176,13 @@
             mapSP["{{ .MaSanPham }}"] = {
                 ten: "{{ .TenSanPham }}", rutgon: "{{ .TenRutGon }}", sku: "{{ .Sku }}",
                 gia: {{ printf "%.0f" .GiaBanLe }}, 
-                dm: "{{ .DanhMuc }}", th: "{{ .ThuongHieu }}",
+                dm: "{{ .DanhMuc }}", th: "{{ .ThuongHieu }}", 
                 img: "{{ .UrlHinhAnh }}", donvi: "{{ .DonVi }}", baohanh: {{ .BaoHanhThang }},
-                trangthai: {{ .TrangThai }}, ghichu: `{{ .GhiChu }}`
+                // [FIX LỖI] Thay dấu huyền ` bằng dấu ngoặc kép " để tránh lỗi Go Template Panic
+                thongso: "{{ .ThongSo }}",
+                mota: "{{ .MoTaChiTiet }}",
+                trangthai: {{ .TrangThai }}, 
+                ghichu: "{{ .GhiChu }}"
             };
         {{ end }}
 
@@ -203,7 +209,6 @@
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
             
-            // [QUAN TRỌNG] Thương hiệu giờ là text, không phải ID
             document.getElementById('ma_thuong_hieu').value = sp.th; 
             
             document.getElementById('don_vi').value = sp.donvi || "Cái";
