@@ -2,18 +2,15 @@ package chuc_nang
 
 import (
 	"net/http"
-	"app/core" // [MỚI] Dùng Core
+	"strings"
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// API_LayDanhSachSanPham : Trả về JSON list sản phẩm
-// Method: GET /api/san-pham
+// API_LayDanhSachSanPham
 func API_LayDanhSachSanPham(c *gin.Context) {
-	// Lấy từ Core (Đã lọc theo Shop hiện tại)
 	danhSach := core.LayDanhSachSanPham()
-
-	// Trả về JSON thành công
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong",
 		"so_luong":   len(danhSach),
@@ -21,39 +18,46 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 	})
 }
 
-// API_LayMenu : Trả về danh mục
-// Method: GET /api/cau-hinh
+// API_LayMenu (TỰ ĐỘNG TẠO TỪ SẢN PHẨM)
 func API_LayMenu(c *gin.Context) {
-	menu := core.LayDanhSachDanhMuc()
-	
-	// Banner/Cấu hình web chưa chuyển sang Core nên tạm trả về rỗng
-	// để không phụ thuộc vào code cũ.
+	// Logic mới: Quét toàn bộ sản phẩm để lấy danh sách Category duy nhất
+	dsSP := core.LayDanhSachSanPham()
+	uniqueDM := make(map[string]bool)
+
+	for _, sp := range dsSP {
+		if sp != nil && sp.DanhMuc != "" {
+			parts := strings.Split(sp.DanhMuc, "|")
+			for _, p := range parts {
+				p = strings.TrimSpace(p)
+				if p != "" { uniqueDM[p] = true }
+			}
+		}
+	}
+
+	// Chuyển map thành list struct để Frontend dễ dùng (giả lập cấu trúc cũ)
+	var menu []map[string]string
+	for dm := range uniqueDM {
+		menu = append(menu, map[string]string{
+			"ten_danh_muc": dm,
+			"slug":         strings.ReplaceAll(strings.ToLower(dm), " ", "-"),
+		})
+	}
+
 	banner := map[string]interface{}{} 
 
 	c.JSON(http.StatusOK, gin.H{
-		"danh_muc": menu,
+		"danh_muc": menu, // Trả về list danh mục tự động
 		"cau_hinh": banner,
 	})
 }
 
-// API_ChiTietSanPham : Lấy 1 SP cụ thể
-// Method: GET /api/san-pham/:id
+// API_ChiTietSanPham
 func API_ChiTietSanPham(c *gin.Context) {
 	id := c.Param("id")
-	
-	// Lấy từ Core
 	sp, tonTai := core.LayChiTietSanPham(id)
-
 	if !tonTai {
-		c.JSON(http.StatusNotFound, gin.H{
-			"trang_thai": "loi",
-			"thong_bao":  "Không tìm thấy sản phẩm",
-		})
+		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"trang_thai": "thanh_cong",
-		"du_lieu":    sp,
-	})
+	c.JSON(http.StatusOK, gin.H{"trang_thai": "thanh_cong", "du_lieu": sp})
 }
