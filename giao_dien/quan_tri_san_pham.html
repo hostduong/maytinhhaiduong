@@ -8,17 +8,15 @@
     <style>
         .tagify { --tags-border-color: #d1d5db; --tags-focus-border-color: #2563eb; border-radius: 0.5rem; padding: 4px; }
         .modal-body { max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: thin; }
-        .no-img {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: #f9fafb;
-        }
         .tagify__input { margin: 0; }
         .tagify--select .tagify__input::before { top: 50%; transform: translateY(-50%); }
         
-        /* Tinh chỉnh label cho gọn */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 0.25rem; display: block; }
+        
+        /* Style cho danh sách ảnh */
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .btn-remove-img { color: #ef4444; cursor: pointer; padding: 4px; }
+        .btn-remove-img:hover { background: #fee2e2; border-radius: 4px; }
     </style>
 
     <div class="container mx-auto px-4 py-8">
@@ -38,7 +36,7 @@
                             <th class="px-6 py-3">Ảnh</th>
                             <th class="px-6 py-3">Tên Sản Phẩm</th>
                             <th class="px-6 py-3">Danh Mục</th>
-                            <th class="px-6 py-3 text-right">Giá Bán</th>
+                            <th class="px-6 py-3 text-right">Giá Niêm Yết</th>
                             <th class="px-6 py-3 text-center">TT</th>
                             <th class="px-6 py-3 text-center">Thao tác</th>
                         </tr>
@@ -48,9 +46,10 @@
                         <tr class="bg-white border-b hover:bg-gray-50 transition">
                             <td class="px-6 py-4 font-bold text-gray-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
-                                <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{{ end }}" 
+                                {{ $firstImg := index (split .UrlHinhAnh "|") 0 }}
+                                <img src="{{ if $firstImg }}{{ $firstImg }}{{ else }}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{{ end }}" 
                                      onerror="this.src='https://via.placeholder.com/50?text=No+Img'"
-                                     class="w-10 h-10 object-cover rounded border bg-gray-50 {{ if not .UrlHinhAnh }}no-img{{ end }}">
+                                     class="w-10 h-10 object-cover rounded border bg-gray-50">
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900 min-w-[200px] break-words">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
@@ -91,6 +90,7 @@
             <div class="p-6 modal-body">
                 <form id="formSP" class="space-y-5">
                     <input type="hidden" name="ma_san_pham" id="ma_san_pham">
+                    <input type="hidden" name="url_hinh_anh" id="url_hinh_anh"> 
 
                     <div>
                         <label>Tên sản phẩm <span class="text-red-500">*</span></label>
@@ -99,8 +99,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
-                            <label>SKU (Mã kho)</label>
-                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mã nội bộ">
+                            <label>SKU (Mã duy nhất)</label>
+                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MB-H610-ASUS">
                         </div>
                         <div class="md:col-span-4">
                             <label>Tên rút gọn</label>
@@ -125,7 +125,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
-                            <label>Giá bán (VNĐ) <span class="text-red-500">*</span></label>
+                            <label>Giá Niêm Yết (VNĐ)</label>
                             <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-lg" onkeyup="formatCurrency(this)">
                         </div>
                         <div class="md:col-span-4">
@@ -151,8 +151,12 @@
                             <input name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Mới 100%...">
                         </div>
                         <div class="md:col-span-8">
-                            <label>Link Hình Ảnh</label>
-                            <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
+                            <label class="flex justify-between items-center">
+                                <span>Link Hình Ảnh (Nhiều ảnh)</span>
+                                <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">+ Thêm link</button>
+                            </label>
+                            <div id="imgContainer" class="space-y-2">
+                                </div>
                         </div>
                     </div>
 
@@ -167,17 +171,9 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                        <div>
-                            <label>Ghi chú nội bộ</label>
-                            <textarea name="ghi_chu" id="ghi_chu" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50" placeholder="Chỉ nhân viên thấy..."></textarea>
-                        </div>
-                        <div class="flex flex-col h-full">
-                            <label>Xem trước ảnh</label>
-                            <div class="border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center p-2 h-full min-h-[160px]">
-                                <img id="imgPreview" class="h-40 w-full object-contain rounded no-img">
-                            </div>
-                        </div>
+                    <div>
+                        <label>Ghi chú nội bộ</label>
+                        <textarea name="ghi_chu" id="ghi_chu" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50" placeholder="Chỉ nhân viên thấy..."></textarea>
                     </div>
 
                     <div class="flex items-center gap-2 pt-2 border-t mt-4">
@@ -201,29 +197,18 @@
     <script>
         const tagifySelectConfig = {
             mode: 'select',
-            dropdown: {
-                maxItems: 20,
-                classname: "tags-look",
-                enabled: 0,
-                closeOnSelect: true,
-                highlightFirst: true
-            }
+            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
-        // --- KHỞI TẠO TAGIFY (Thủ công) ---
+        // --- WHITELIST & TAGIFY ---
         var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
         var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
 
-        var inputDM = document.querySelector('input[name=ma_danh_muc]');
-        var tagifyDM = new Tagify(inputDM, {
-            whitelist: listDM,
-            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
-        });
-
-        const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
-        const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
-        const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-        const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
+        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false } });
+        var tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
+        var tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
+        var tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
+        var tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
         const mapSP = {};
         {{ range .DanhSach }}
@@ -249,28 +234,39 @@
 
         function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
-        function previewImg(url) { 
-            const img = document.getElementById('imgPreview');
-            img.src = url || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-            if(!url) img.classList.add('no-img'); else img.classList.remove('no-img');
+
+        // --- LOGIC ẢNH ĐỘNG (THÊM/XÓA) ---
+        function addImgInput(value) {
+            const container = document.getElementById('imgContainer');
+            const div = document.createElement('div');
+            div.className = 'img-input-group';
+            div.innerHTML = `
+                <input type="text" class="img-link-input flex-1 p-2.5 border border-gray-300 rounded-lg outline-none" 
+                       placeholder="https://..." value="${value}">
+                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">✕</span>
+            `;
+            container.appendChild(div);
         }
 
+        // --- MỞ MODAL THÊM ---
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
-            previewImg(""); 
             
-            tagifyDM.removeAllTags();
-            tagifyTH.removeAllTags();
-            tagifyDonVi.removeAllTags();
-            tagifyTinhTrang.removeAllTags();
-            tagifyMauSac.removeAllTags();
+            // Reset Tagify
+            tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
+            tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
+
+            // Reset Ảnh: Thêm 1 ô trống mặc định
+            document.getElementById('imgContainer').innerHTML = '';
+            addImgInput('');
 
             document.getElementById('modalSP').classList.remove('hidden');
         }
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
+        // --- MỞ MODAL SỬA ---
         function editSP(id) {
             const sp = mapSP[id];
             if(!sp) return;
@@ -303,10 +299,18 @@
             
             document.getElementById('thong_so').value = sp.thong_so;
             document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
-            document.getElementById('url_hinh_anh').value = sp.url_hinh_anh;
             document.getElementById('ghi_chu').value = sp.ghi_chu;
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
-            previewImg(sp.url_hinh_anh);
+
+            // [XỬ LÝ ẢNH] Tách chuỗi | thành nhiều ô input
+            const container = document.getElementById('imgContainer');
+            container.innerHTML = '';
+            if (sp.url_hinh_anh) {
+                const links = sp.url_hinh_anh.split('|');
+                links.forEach(link => addImgInput(link));
+            } else {
+                addImgInput(''); // Nếu chưa có ảnh thì hiện 1 ô trống
+            }
 
             document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
             document.getElementById('modalSP').classList.remove('hidden');
@@ -315,6 +319,14 @@
         async function confirmSave() {
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            // [GOM ẢNH] Nối các link ảnh lại với nhau bằng dấu |
+            const inputs = document.querySelectorAll('.img-link-input');
+            const links = [];
+            inputs.forEach(inp => {
+                if(inp.value.trim()) links.push(inp.value.trim());
+            });
+            document.getElementById('url_hinh_anh').value = links.join('|');
 
             const result = await Swal.fire({
                 title: 'Xác nhận lưu?',
