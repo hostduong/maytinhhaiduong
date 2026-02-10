@@ -3,12 +3,11 @@ package core
 import (
 	"fmt"
 	"strings"
-
 	"app/cau_hinh"
 )
 
 // =============================================================
-// CẤU HÌNH CỘT (CẬP NHẬT MỚI NHẤT P-Q-R-S)
+// CẤU HÌNH CỘT (CẬP NHẬT CHUẨN NAME)
 // =============================================================
 const (
 	DongBatDau_SanPham = 11
@@ -25,19 +24,22 @@ const (
 	CotSP_UrlHinhAnh     = 9  
 	CotSP_ThongSo        = 10 
 	CotSP_MoTaChiTiet    = 11 
-	CotSP_BaoHanhThang   = 12 
+	
+	// [ĐÃ SỬA TÊN] Cho đúng ngữ nghĩa (Lưu text "12 Tháng", "7 Ngày")
+	CotSP_BaoHanh        = 12 
+	
 	CotSP_TinhTrang      = 13 
 	CotSP_TrangThai      = 14 
 	
-	CotSP_GiaNhap        = 15 // P
-	CotSP_GiaBanLe       = 16 // Q
-	CotSP_GiamGia        = 17 // R
-	CotSP_GiaBanThuc     = 18 // S
+	CotSP_GiaNhap        = 15 
+	CotSP_GiaBanLe       = 16 
+	CotSP_GiamGia        = 17 
+	CotSP_GiaBanThuc     = 18 
 	
-	CotSP_GhiChu         = 19 // T
-	CotSP_NguoiTao       = 20 // U
-	CotSP_NgayTao        = 21 // V
-	CotSP_NgayCapNhat    = 22 // W
+	CotSP_GhiChu         = 19 
+	CotSP_NguoiTao       = 20 
+	CotSP_NgayTao        = 21 
+	CotSP_NgayCapNhat    = 22 
 )
 
 type SanPham struct {
@@ -107,7 +109,10 @@ func NapSanPham(targetSpreadsheetID string) {
 			UrlHinhAnh:     layString(r, CotSP_UrlHinhAnh),
 			ThongSo:        layString(r, CotSP_ThongSo),
 			MoTaChiTiet:    layString(r, CotSP_MoTaChiTiet),
-			BaoHanh:        layString(r, CotSP_BaoHanhThang), 		
+			
+			// [CẬP NHẬT TÊN BIẾN]
+			BaoHanh:        layString(r, CotSP_BaoHanh), 		
+			
 			TinhTrang:      layString(r, CotSP_TinhTrang),
 			TrangThai:      layInt(r, CotSP_TrangThai),
 			
@@ -154,20 +159,10 @@ func ThemSanPhamVaoRam(sp *SanPham) {
 	_Map_SanPham[key] = sp
 }
 
-// [HÀM SINH MÃ MỚI: DỰA VÀO DANH MỤC]
-// Input: maDanhMuc (VD: "MAIN")
-// Output: "MAIN0001", "MAIN0002"...
+// [HÀM SINH MÃ MỚI]
 func TaoMaSPMoi(maDanhMuc string) string {
-	// Không cần Lock ở đây vì hàm LaySTTtiepTheo đã tự Lock rồi
-	
 	maDanhMuc = strings.ToUpper(strings.TrimSpace(maDanhMuc))
-	if maDanhMuc == "" {
-		maDanhMuc = "SP" // Fallback nếu không có danh mục
-	}
-
-	// Lấy số thứ tự tiếp theo từ core/danh_muc.go
+	if maDanhMuc == "" { maDanhMuc = "SP" }
 	stt := LaySTTtiepTheo(maDanhMuc)
-
-	// Format thành chuỗi 4 số (0001, 0015...)
 	return fmt.Sprintf("%s%04d", maDanhMuc, stt)
 }
