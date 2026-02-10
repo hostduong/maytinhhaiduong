@@ -52,7 +52,11 @@
                             <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
                                 {{ if .DanhMuc }}
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{{ .DanhMuc }}</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        {{ range split .DanhMuc "|" }}
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{{ . }}</span>
+                                        {{ end }}
+                                    </div>
                                 {{ end }}
                             </td>
                             <td class="px-6 py-4 text-right font-bold text-red-600">{{ printf "%.0f" .GiaBanLe }} ₫</td>
@@ -128,10 +132,22 @@
                                 {{ range .ListThuongHieu }}<option value="{{ . }}">{{ end }}
                             </datalist>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bảo hành (Tháng)</label>
-                            <input type="number" name="bao_hanh_thang" id="bao_hanh_thang" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" value="12">
+                        
+                        <div class="flex gap-2">
+                            <div class="w-1/2">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Bảo hành</label>
+                                <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="36">
+                            </div>
+                            <div class="w-1/2">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Đơn vị</label>
+                                <select name="bao_hanh_unit" id="bao_hanh_unit" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
+                                    <option value="Tháng">Tháng</option>
+                                    <option value="Năm">Năm</option>
+                                    <option value="Ngày">Ngày</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Màu sắc</label>
                             <input type="text" name="mau_sac" id="mau_sac" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Đen, Trắng...">
@@ -159,11 +175,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thông số kỹ thuật</label>
-                            <textarea name="thong_so" id="thong_so" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
+                            <textarea name="thong_so" id="thong_so" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mô tả chi tiết</label>
-                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="4" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết..."></textarea>
+                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết..."></textarea>
                         </div>
                     </div>
 
@@ -203,9 +219,10 @@
                 ten: "{{ .TenSanPham }}", rutgon: "{{ .TenRutGon }}", sku: "{{ .Sku }}",
                 gia: {{ printf "%.0f" .GiaBanLe }}, 
                 dm: "{{ .DanhMuc }}", th: "{{ .ThuongHieu }}", 
-                img: "{{ .UrlHinhAnh }}", donvi: "{{ .DonVi }}", baohanh: {{ .BaoHanhThang }},
+                img: "{{ .UrlHinhAnh }}", donvi: "{{ .DonVi }}", 
+                // Bảo hành dạng chuỗi "12 Tháng"
+                baohanh: "{{ .BaoHanh }}", 
                 mausac: "{{ .MauSac }}", tinhtrang: "{{ .TinhTrang }}",
-                // [FIX QUAN TRỌNG] Thay dấu huyền ` thành dấu ngoặc kép " để không bị sập
                 thongso: "{{ .ThongSo }}", mota: "{{ .MoTaChiTiet }}",
                 trangthai: {{ .TrangThai }}, ghichu: "{{ .GhiChu }}"
             };
@@ -250,7 +267,19 @@
             
             document.getElementById('ma_thuong_hieu').value = sp.th; 
             document.getElementById('don_vi').value = sp.donvi || "Cái";
-            document.getElementById('bao_hanh_thang').value = sp.baohanh;
+            
+            // [XỬ LÝ] Tách chuỗi bảo hành "12 Tháng" -> "12" và "Tháng"
+            if (sp.baohanh) {
+                const parts = sp.baohanh.split(" ");
+                if (parts.length >= 2) {
+                    document.getElementById('bao_hanh_num').value = parts[0];
+                    document.getElementById('bao_hanh_unit').value = parts[1];
+                } else {
+                    document.getElementById('bao_hanh_num').value = sp.baohanh;
+                }
+            } else {
+                document.getElementById('bao_hanh_num').value = "";
+            }
             
             document.getElementById('mau_sac').value = sp.mausac;
             document.getElementById('tinh_trang').value = sp.tinhtrang || "Mới";
