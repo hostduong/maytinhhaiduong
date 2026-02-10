@@ -162,6 +162,7 @@
 
     <script>
         // Tagify giờ sẽ lấy whitelist từ danh sách String đơn giản
+        // [QUAN TRỌNG] Đã sửa lỗi .TenDanhMuc thành . (String)
         var inputDM = document.querySelector('input[name=ma_danh_muc]');
         var tagifyDM = new Tagify(inputDM, {
             whitelist: [{{ range .ListDanhMuc }} "{{ . }}", {{ end }}],
