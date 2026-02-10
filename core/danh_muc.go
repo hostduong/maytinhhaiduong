@@ -1,33 +1,33 @@
 package core
 
 import (
-	"fmt" // [THÊM]
+	"fmt"
 	"app/cau_hinh"
 )
 
-// ... (Giữ nguyên Struct và NapDanhMuc) ...
-
 // =============================================================
-// 1. CẤU HÌNH CỘT (DANH_MUC)
+// 1. CẤU HÌNH CỘT
 // =============================================================
 const (
 	DongBatDau_DanhMuc = 11
 
-	CotDM_MaDanhMuc  = 0
-	CotDM_TenDanhMuc = 1
-	CotDM_HinhAnh    = 2
-	CotDM_MoTa       = 3
-	CotDM_TrangThai  = 4
+	// A=0, B=1, C=2, D=3, E=4
+	CotDM_MaDanhMuc      = 0 // A
+	CotDM_TenDanhMuc     = 1 // B
+	CotDM_ThuTuHienThi   = 2 // C
+	CotDM_Slug           = 3 // D
+	CotDM_MaDanhMucCha   = 4 // E
 )
 
 type DanhMuc struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
-	MaDanhMuc  string `json:"ma_danh_muc"`
-	TenDanhMuc string `json:"ten_danh_muc"`
-	HinhAnh    string `json:"hinh_anh"`
-	MoTa       string `json:"mo_ta"`
-	TrangThai  int    `json:"trang_thai"`
+	
+	MaDanhMuc    string `json:"ma_danh_muc"`
+	TenDanhMuc   string `json:"ten_danh_muc"`
+	Slug         string `json:"slug"` 
+	MaDanhMucCha string `json:"ma_danh_muc_cha"`
+	TrangThai    int    `json:"trang_thai"` 
 }
 
 var (
@@ -44,22 +44,33 @@ func NapDanhMuc(targetSpreadsheetID string) {
 	_DS_DanhMuc = []*DanhMuc{}
 
 	for i, r := range raw {
+		// 1. Bỏ qua các dòng tiêu đề
 		if i < DongBatDau_DanhMuc-1 { continue }
+		
+		// 2. Lấy Mã (Cột A)
 		maDM := layString(r, CotDM_MaDanhMuc)
 		if maDM == "" { continue }
 
+		// 3. Kiểm tra trùng lặp
 		key := TaoCompositeKey(targetSpreadsheetID, maDM)
 		if _, daTonTai := _Map_DanhMuc[key]; daTonTai { continue }
 
+		// 4. Map dữ liệu chuẩn xác theo cấu hình mới
 		dm := &DanhMuc{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
-			MaDanhMuc:  maDM,
-			TenDanhMuc: layString(r, CotDM_TenDanhMuc),
-			HinhAnh:    layString(r, CotDM_HinhAnh),
-			MoTa:       layString(r, CotDM_MoTa),
-			TrangThai:  layInt(r, CotDM_TrangThai),
+			
+			MaDanhMuc:    maDM,
+			TenDanhMuc:   layString(r, CotDM_TenDanhMuc),   // Cột B
+			
+			// Slug và Danh mục cha
+			Slug:         layString(r, CotDM_Slug),         // Cột D
+			MaDanhMucCha: layString(r, CotDM_MaDanhMucCha), // Cột E
+			
+			// Mặc định cho = 1 (Hiện) vì sheet không có cột trạng thái
+			TrangThai:    1, 
 		}
+		
 		_DS_DanhMuc = append(_DS_DanhMuc, dm)
 		_Map_DanhMuc[key] = dm
 	}
@@ -84,6 +95,7 @@ func LayChiTietDanhMuc(maDM string) (*DanhMuc, bool) {
 	return dm, ok
 }
 
+// Hàm hỗ trợ tạo mã mới (giữ nguyên để tương thích)
 func TaoMaDanhMucMoi() string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
@@ -95,6 +107,7 @@ func TaoMaDanhMucMoi() string {
 	}
 }
 
+// Hàm hỗ trợ thêm vào RAM (giữ nguyên để tương thích)
 func ThemDanhMucVaoRam(dm *DanhMuc) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
