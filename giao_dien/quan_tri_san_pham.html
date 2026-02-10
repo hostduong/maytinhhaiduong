@@ -15,7 +15,7 @@
         
         /* Style cho danh sách ảnh */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .btn-remove-img { color: #ef4444; cursor: pointer; padding: 4px; }
+        .btn-remove-img { color: #ef4444; cursor: pointer; padding: 4px; font-weight: bold; }
         .btn-remove-img:hover { background: #fee2e2; border-radius: 4px; }
     </style>
 
@@ -36,7 +36,7 @@
                             <th class="px-6 py-3">Ảnh</th>
                             <th class="px-6 py-3">Tên Sản Phẩm</th>
                             <th class="px-6 py-3">Danh Mục</th>
-                            <th class="px-6 py-3 text-right">Giá Niêm Yết</th>
+                            <th class="px-6 py-3 text-right">Giá Bán</th>
                             <th class="px-6 py-3 text-center">TT</th>
                             <th class="px-6 py-3 text-center">Thao tác</th>
                         </tr>
@@ -61,7 +61,12 @@
                                     </div>
                                 {{ end }}
                             </td>
-                            <td class="px-6 py-4 text-right font-bold text-red-600 whitespace-nowrap">{{ format_money .GiaBanLe }} ₫</td>
+                            <td class="px-6 py-4 text-right whitespace-nowrap">
+                                <div class="font-bold text-red-600">{{ format_money .GiaBanLe }} ₫</div>
+                                {{ if gt .GiamGia 0.0 }}
+                                    <div class="text-xs text-gray-400 line-through italic">Giảm {{ .GiamGia }}%</div>
+                                {{ end }}
+                            </td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}
                                 <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Bán</span>
@@ -99,7 +104,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
-                            <label>SKU (Mã duy nhất)</label>
+                            <label>SKU (Mã kho)</label>
                             <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MB-H610-ASUS">
                         </div>
                         <div class="md:col-span-4">
@@ -123,11 +128,22 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <div class="md:col-span-4">
-                            <label>Giá Niêm Yết (VNĐ)</label>
-                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-lg" onkeyup="formatCurrency(this)">
+                            <label>Giá Nhập (Vốn)</label>
+                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600 font-medium" placeholder="Giá nhập..." onkeyup="formatCurrency(this)">
                         </div>
+                        <div class="md:col-span-4">
+                            <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
+                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-lg" placeholder="Giá bán..." onkeyup="formatCurrency(this)">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Giảm giá (%)</label>
+                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-green-600 font-bold" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
                             <label>Đơn vị tính</label>
                             <input name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Cái...">
@@ -143,21 +159,19 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div class="md:col-span-4">
                             <label>Tình trạng</label>
                             <input name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Mới 100%...">
                         </div>
-                        <div class="md:col-span-8">
-                            <label class="flex justify-between items-center">
-                                <span>Link Hình Ảnh (Nhiều ảnh)</span>
-                                <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">+ Thêm link</button>
-                            </label>
-                            <div id="imgContainer" class="space-y-2">
-                                </div>
-                        </div>
+                    </div>
+
+                    <div class="border p-3 rounded-lg border-dashed border-gray-300">
+                        <label class="flex justify-between items-center mb-2">
+                            <span>Link Hình Ảnh (Nhiều ảnh)</span>
+                            <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full font-bold hover:bg-blue-200 transition">+ Thêm link ảnh</button>
+                        </label>
+                        <div id="imgContainer" class="space-y-2">
+                            </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,16 +214,21 @@
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
-        // --- WHITELIST & TAGIFY ---
+        // --- KHỞI TẠO TAGIFY (Thủ công) ---
         var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
         var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
 
-        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false } });
-        var tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
-        var tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
-        var tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-        var tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
+        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
+            whitelist: listDM,
+            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
+        });
 
+        const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
+        const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
+        const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
+        const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
+
+        // --- MAP SẢN PHẨM (Cập nhật trường giá mới) ---
         const mapSP = {};
         {{ range .DanhSach }}
         mapSP["{{ .MaSanPham }}"] = {
@@ -217,7 +236,12 @@
             ten_san_pham: "{{ .TenSanPham }}",
             ten_rut_gon: "{{ .TenRutGon }}",
             sku: "{{ .Sku }}",
+            
+            // Map giá trị tài chính
+            gia_nhap: {{ printf "%.0f" .GiaNhap }},
             gia_ban_le: {{ printf "%.0f" .GiaBanLe }},
+            giam_gia: {{ printf "%.0f" .GiamGia }},
+            
             thuong_hieu: "{{ .ThuongHieu }}",
             don_vi: "{{ .DonVi }}",
             bao_hanh: "{{ .BaoHanh }}",
@@ -241,7 +265,7 @@
             const div = document.createElement('div');
             div.className = 'img-input-group';
             div.innerHTML = `
-                <input type="text" class="img-link-input flex-1 p-2.5 border border-gray-300 rounded-lg outline-none" 
+                <input type="text" class="img-link-input flex-1 p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono" 
                        placeholder="https://..." value="${value}">
                 <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">✕</span>
             `;
@@ -275,8 +299,12 @@
             document.getElementById('ten_san_pham').value = sp.ten_san_pham;
             document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
             document.getElementById('sku').value = sp.sku;
-            document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             
+            // Fill dữ liệu giá
+            document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
+            document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
+            document.getElementById('giam_gia').value = sp.giam_gia;
+
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
             if(sp.tinh_trang) { document.querySelector('#tinh_trang').value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
@@ -302,14 +330,14 @@
             document.getElementById('ghi_chu').value = sp.ghi_chu;
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
 
-            // [XỬ LÝ ẢNH] Tách chuỗi | thành nhiều ô input
+            // [XỬ LÝ ẢNH]
             const container = document.getElementById('imgContainer');
             container.innerHTML = '';
             if (sp.url_hinh_anh) {
                 const links = sp.url_hinh_anh.split('|');
                 links.forEach(link => addImgInput(link));
             } else {
-                addImgInput(''); // Nếu chưa có ảnh thì hiện 1 ô trống
+                addImgInput('');
             }
 
             document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
@@ -320,7 +348,7 @@
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
-            // [GOM ẢNH] Nối các link ảnh lại với nhau bằng dấu |
+            // [GOM ẢNH] Nối chuỗi
             const inputs = document.querySelectorAll('.img-link-input');
             const links = [];
             inputs.forEach(inp => {
