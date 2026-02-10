@@ -3,6 +3,7 @@ package chuc_nang
 import (
 	"encoding/json"
 	"net/http"
+	"regexp" // [MỚI] Dùng regex để xử lý slug
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TrangQuanLySanPham : Hiển thị
+// ... (Giữ nguyên hàm TrangQuanLySanPham) ...
 func TrangQuanLySanPham(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -69,7 +70,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	})
 }
 
-// API_LuuSanPham : Xử lý Lưu (Đã FIX lỗi Deadlock)
+// API_LuuSanPham : Xử lý Lưu
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
@@ -92,7 +93,6 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
-	// Lấy dữ liệu
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
@@ -102,18 +102,23 @@ func API_LuuSanPham(c *gin.Context) {
 	sku        := strings.TrimSpace(c.PostForm("sku"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := c.PostForm("don_vi")
-	
-	// [MỚI] Các trường bổ sung
 	mauSac     := c.PostForm("mau_sac")
 	tinhTrang  := c.PostForm("tinh_trang")
 	moTa       := c.PostForm("mo_ta_chi_tiet")
 	hinhAnh    := strings.TrimSpace(c.PostForm("url_hinh_anh"))
 	thongSo    := c.PostForm("thong_so")
-	baoHanh, _ := strconv.Atoi(c.PostForm("bao_hanh_thang"))
 	ghiChu     := c.PostForm("ghi_chu")
 	
-	// [TỰ ĐỘNG] Tạo Slug
-	slug       := taoSlug(tenSP)
+	// [SỬA] Ghép số lượng và đơn vị bảo hành. VD: "12 Tháng"
+	bhNum := c.PostForm("bao_hanh_num")
+	bhUnit := c.PostForm("bao_hanh_unit")
+	baoHanh := ""
+	if bhNum != "" {
+		baoHanh = bhNum + " " + bhUnit
+	}
+
+	// [SỬA] Slug chuẩn hóa xịn xò
+	slug := taoSlugChuan(tenSP)
 
 	trangThai := 0
 	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
@@ -137,46 +142,43 @@ func API_LuuSanPham(c *gin.Context) {
 	} else {
 		foundSP, ok := core.LayChiTietSanPham(maSP)
 		if ok { sp = foundSP } else { 
-			// Fallback (hiếm gặp)
 			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP} 
 		}
 	}
 
-	// 2. Cập nhật RAM (QUAN TRỌNG: Chỉ Lock khi sửa đổi dữ liệu chung)
-	if !isNew {
-		core.KhoaHeThong.Lock() // Lock để sửa an toàn
-	}
+	// 2. Cập nhật RAM
+	if !isNew { core.KhoaHeThong.Lock() }
 
-	// Gán dữ liệu
 	sp.TenSanPham = tenSP
 	sp.TenRutGon  = tenRutGon
-	sp.Slug       = slug // Gán Slug tự động
+	sp.Slug       = slug
 	sp.Sku        = sku
 	sp.DanhMuc    = danhMuc
 	sp.ThuongHieu = thuongHieu
 	sp.DonVi      = donVi
-	sp.MauSac     = mauSac    // Gán Mới
-	sp.TinhTrang  = tinhTrang // Gán Mới
-	sp.MoTaChiTiet= moTa      // Gán Mới
+	sp.MauSac     = mauSac
+	sp.TinhTrang  = tinhTrang
+	sp.MoTaChiTiet= moTa
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
-	sp.BaoHanhThang = baoHanh
+	
+	// [SỬA] Lưu bảo hành dạng String
+	sp.BaoHanh    = baoHanh
+	
 	sp.TrangThai  = trangThai
 	sp.GiaBanLe   = giaBan
 	sp.GhiChu     = ghiChu
 	sp.NgayCapNhat= nowStr
 
 	if !isNew {
-		core.KhoaHeThong.Unlock() // Unlock ngay sau khi sửa
+		core.KhoaHeThong.Unlock()
 	} else {
-		// 3. Nếu là Mới: Thêm vào RAM (Hàm này tự xử lý Lock bên trong -> Tránh Deadlock)
-		// Tính dòng an toàn
 		currentList := core.LayDanhSachSanPham()
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(currentList)
 		core.ThemSanPhamVaoRam(sp)
 	}
 
-	// 4. Ghi xuống Sheet (Hàng chờ)
+	// 3. Ghi Sheet
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -185,17 +187,20 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug) // Ghi cột D
+		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
 		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac) // Ghi cột I
+		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet) // Ghi cột L
-		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanhThang)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang) // Ghi cột N
+		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
+		
+		// [SỬA] Ghi cột bảo hành (String)
+		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanh)
+		
+		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
@@ -222,9 +227,33 @@ func xuLyTags(raw string) string {
 	return strings.Join(values, "|")
 }
 
-func taoSlug(text string) string {
-	text = strings.ToLower(text)
-	text = strings.ReplaceAll(text, " ", "-")
-	text = strings.ReplaceAll(text, "/", "-")
-	return text
+// [MỚI] Hàm tạo Slug chuẩn (Bỏ dấu, bỏ ký tự lạ)
+func taoSlugChuan(s string) string {
+	s = strings.ToLower(s)
+	
+	// 1. Map ký tự có dấu sang không dấu
+	s = strings.ReplaceAll(s, "đ", "d")
+	// (Có thể dùng thư viện transform, nhưng để gọn ta dùng replace tay các ký tự phổ biến)
+	patterns := map[string]string{
+		"[áàảãạăắằẳẵặâấầẩẫậ]": "a",
+		"[éèẻẽẹêếềểễệ]":       "e",
+		"[iíìỉĩị]":            "i",
+		"[óòỏõọôốồổỗộơớờởỡợ]": "o",
+		"[úùủũụưứừửữự]":       "u",
+		"[ýỳỷỹỵ]":             "y",
+	}
+	for p, r := range patterns {
+		re := regexp.MustCompile(p)
+		s = re.ReplaceAllString(s, r)
+	}
+
+	// 2. Thay thế ký tự đặc biệt bằng gạch ngang
+	// Chỉ giữ lại a-z, 0-9
+	reInvalid := regexp.MustCompile(`[^a-z0-9]+`)
+	s = reInvalid.ReplaceAllString(s, "-")
+
+	// 3. Xử lý gạch ngang thừa
+	s = strings.Trim(s, "-")
+	
+	return s
 }
