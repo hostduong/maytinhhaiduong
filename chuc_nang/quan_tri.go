@@ -36,6 +36,44 @@ func TrangTongQuan(c *gin.Context) {
 	})
 }
 
+package chuc_nang
+
+import (
+	"net/http"
+	"time"
+
+	"app/core"
+
+	"github.com/gin-gonic/gin"
+)
+
+// API Reload dữ liệu
+func API_NapLaiDuLieu(c *gin.Context) {
+	vaiTro := c.GetString("USER_ROLE")
+	if vaiTro != "admin_root" && vaiTro != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"trang_thai": "loi", "thong_diep": "Không có quyền!"})
+		return
+	}
+
+	// [CẬP NHẬT] Nạp thêm Danh Mục và Thương Hiệu
+	go func() {
+		core.HeThongDangBan = true
+		
+		core.NapPhanQuyen("") // Nạp lại quyền (nếu cần)
+		core.NapDanhMuc("")   // [MỚI]
+		core.NapThuongHieu("")// [MỚI]
+		core.NapSanPham("")
+		core.NapKhachHang("")
+		
+		core.HeThongDangBan = false
+	}()
+
+	c.JSON(http.StatusOK, gin.H{
+		"trang_thai": "thanh_cong", 
+		"thong_diep": "Đang tiến hành đồng bộ toàn bộ dữ liệu (Danh mục, Thương hiệu, Sản phẩm, Khách hàng)...",
+	})
+}
+
 func tinhToanThongKe() DuLieuDashboard {
 	var kq DuLieuDashboard
 
