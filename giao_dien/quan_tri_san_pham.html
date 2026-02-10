@@ -43,11 +43,9 @@
                         <tr class="bg-white border-b hover:bg-gray-50 transition">
                             <td class="px-6 py-4 font-bold text-gray-700">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
-                                {{ if .UrlHinhAnh }}
-                                    <img src="{{ .UrlHinhAnh }}" class="w-10 h-10 object-cover rounded border bg-white" onerror="this.classList.add('no-img'); this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';"> 
-                                {{ else }}
-                                    <div class="w-10 h-10 rounded border no-img"></div>
-                                {{ end }}
+                                <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{{ end }}" 
+                                     onerror="this.src='https://via.placeholder.com/50?text=No+Img'"
+                                     class="w-10 h-10 object-cover rounded border bg-gray-50 {{ if not .UrlHinhAnh }}no-img{{ end }}">
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title="{{ .TenSanPham }}">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
@@ -156,14 +154,20 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tình trạng</label>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tình trạng (Chọn)</label>
                             <select name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
                                 <option value="Mới">Mới 100%</option>
                                 <option value="Like New">Like New</option>
                                 <option value="Cũ">Cũ</option>
                             </select>
                         </div>
-                        <div class="md:col-span-2">
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hoặc tự nhập</label>
+                            <input type="text" name="tinh_trang_custom" id="tinh_trang_custom" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: Trưng bày...">
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Link Hình Ảnh</label>
                             <div class="flex gap-2">
                                 <input type="text" name="url_hinh_anh" id="url_hinh_anh" onchange="previewImg(this.value)" class="flex-1 p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="https://...">
@@ -220,9 +224,8 @@
                 gia: {{ printf "%.0f" .GiaBanLe }}, 
                 dm: "{{ .DanhMuc }}", th: "{{ .ThuongHieu }}", 
                 img: "{{ .UrlHinhAnh }}", donvi: "{{ .DonVi }}", 
-                // Bảo hành dạng chuỗi "12 Tháng"
-                baohanh: "{{ .BaoHanh }}", 
-                mausac: "{{ .MauSac }}", tinhtrang: "{{ .TinhTrang }}",
+                baohanh: "{{ .BaoHanh }}", mausac: "{{ .MauSac }}", 
+                tinhtrang: "{{ .TinhTrang }}",
                 thongso: "{{ .ThongSo }}", mota: "{{ .MoTaChiTiet }}",
                 trangthai: {{ .TrangThai }}, ghichu: "{{ .GhiChu }}"
             };
@@ -249,6 +252,7 @@
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
+            document.getElementById('tinh_trang_custom').value = ""; // Reset ô tự nhập
             document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
             previewImg(""); 
             tagifyDM.removeAllTags();
@@ -264,11 +268,9 @@
             document.getElementById('ten_rut_gon').value = sp.rutgon;
             document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia.toString());
-            
             document.getElementById('ma_thuong_hieu').value = sp.th; 
             document.getElementById('don_vi').value = sp.donvi || "Cái";
             
-            // [XỬ LÝ] Tách chuỗi bảo hành "12 Tháng" -> "12" và "Tháng"
             if (sp.baohanh) {
                 const parts = sp.baohanh.split(" ");
                 if (parts.length >= 2) {
@@ -282,10 +284,20 @@
             }
             
             document.getElementById('mau_sac').value = sp.mausac;
-            document.getElementById('tinh_trang').value = sp.tinhtrang || "Mới";
+            
+            // LOGIC TÌNH TRẠNG (MỚI/CŨ/CUSTOM)
+            const validOptions = ["Mới", "Like New", "Cũ"];
+            const tt = sp.tinhtrang || "Mới";
+            if (validOptions.includes(tt)) {
+                document.getElementById('tinh_trang').value = tt;
+                document.getElementById('tinh_trang_custom').value = "";
+            } else {
+                document.getElementById('tinh_trang').value = "Mới"; // Mặc định
+                document.getElementById('tinh_trang_custom').value = tt;
+            }
+
             document.getElementById('thong_so').value = sp.thongso;
             document.getElementById('mo_ta_chi_tiet').value = sp.mota;
-
             document.getElementById('url_hinh_anh').value = sp.img;
             document.getElementById('ghi_chu').value = sp.ghichu;
             document.getElementById('trang_thai').checked = (sp.trangthai === 1);
@@ -300,40 +312,34 @@
 
         async function saveSP() {
             const form = document.getElementById('formSP');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const btn = document.getElementById('btnSave');
             const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
             const fd = new FormData(form);
             if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
+            
+            // ƯU TIÊN LẤY TÌNH TRẠNG TỰ NHẬP
+            const customTT = document.getElementById('tinh_trang_custom').value.trim();
+            if(customTT) fd.set('tinh_trang', customTT);
+            else fd.set('tinh_trang', document.getElementById('tinh_trang').value);
 
             try {
                 const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 
                 if(data.status === 'ok') {
-                    Swal.fire({
-                        icon: 'success', 
-                        title: 'Thành công', 
-                        text: data.msg, 
-                        showConfirmButton: false, 
-                        timer: 1500
-                    }).then(() => location.reload());
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
                 } else {
                     Swal.fire('Lỗi', data.msg, 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
+                    btn.disabled = false; btn.innerHTML = originalText;
                 }
             } catch(e) { 
                 Swal.fire('Lỗi', 'Không kết nối được server', 'error');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.disabled = false; btn.innerHTML = originalText;
             }
         }
     </script>
