@@ -69,7 +69,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	})
 }
 
-// API_LuuSanPham : Xử lý Lưu
+// API_LuuSanPham : Xử lý Lưu (Đã FIX lỗi Deadlock)
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
@@ -92,6 +92,7 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
+	// Lấy dữ liệu
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
@@ -101,6 +102,8 @@ func API_LuuSanPham(c *gin.Context) {
 	sku        := strings.TrimSpace(c.PostForm("sku"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := c.PostForm("don_vi")
+	
+	// [MỚI] Các trường bổ sung
 	mauSac     := c.PostForm("mau_sac")
 	tinhTrang  := c.PostForm("tinh_trang")
 	moTa       := c.PostForm("mo_ta_chi_tiet")
@@ -108,6 +111,8 @@ func API_LuuSanPham(c *gin.Context) {
 	thongSo    := c.PostForm("thong_so")
 	baoHanh, _ := strconv.Atoi(c.PostForm("bao_hanh_thang"))
 	ghiChu     := c.PostForm("ghi_chu")
+	
+	// [TỰ ĐỘNG] Tạo Slug
 	slug       := taoSlug(tenSP)
 
 	trangThai := 0
@@ -119,8 +124,7 @@ func API_LuuSanPham(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 
-	core.KhoaHeThong.Lock()
-	
+	// 1. Chuẩn bị đối tượng (Chưa Lock)
 	if maSP == "" {
 		isNew = true
 		maSP = core.TaoMaSPMoi(thuongHieu) 
@@ -132,24 +136,28 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	} else {
 		foundSP, ok := core.LayChiTietSanPham(maSP)
-		if ok {
-			sp = foundSP
-		} else {
-			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP, NgayTao: nowStr}
+		if ok { sp = foundSP } else { 
+			// Fallback (hiếm gặp)
+			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP} 
 		}
 	}
 
-	// [QUAN TRỌNG] Cập nhật RAM (Vì sp là pointer, gán vào đây là RAM đổi luôn)
+	// 2. Cập nhật RAM (QUAN TRỌNG: Chỉ Lock khi sửa đổi dữ liệu chung)
+	if !isNew {
+		core.KhoaHeThong.Lock() // Lock để sửa an toàn
+	}
+
+	// Gán dữ liệu
 	sp.TenSanPham = tenSP
 	sp.TenRutGon  = tenRutGon
-	sp.Slug       = slug
+	sp.Slug       = slug // Gán Slug tự động
 	sp.Sku        = sku
 	sp.DanhMuc    = danhMuc
 	sp.ThuongHieu = thuongHieu
 	sp.DonVi      = donVi
-	sp.MauSac     = mauSac
-	sp.TinhTrang  = tinhTrang
-	sp.MoTaChiTiet= moTa
+	sp.MauSac     = mauSac    // Gán Mới
+	sp.TinhTrang  = tinhTrang // Gán Mới
+	sp.MoTaChiTiet= moTa      // Gán Mới
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
 	sp.BaoHanhThang = baoHanh
@@ -158,12 +166,17 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.GhiChu     = ghiChu
 	sp.NgayCapNhat= nowStr
 
-	if isNew {
-		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
+	if !isNew {
+		core.KhoaHeThong.Unlock() // Unlock ngay sau khi sửa
+	} else {
+		// 3. Nếu là Mới: Thêm vào RAM (Hàm này tự xử lý Lock bên trong -> Tránh Deadlock)
+		// Tính dòng an toàn
+		currentList := core.LayDanhSachSanPham()
+		sp.DongTrongSheet = core.DongBatDau_SanPham + len(currentList)
 		core.ThemSanPhamVaoRam(sp)
 	}
-	core.KhoaHeThong.Unlock()
 
+	// 4. Ghi xuống Sheet (Hàng chờ)
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -172,17 +185,17 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
+		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug) // Ghi cột D
 		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac) // Ghi cột I
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
+		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet) // Ghi cột L
 		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanhThang)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
+		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang) // Ghi cột N
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
@@ -191,7 +204,7 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
 // Helpers
