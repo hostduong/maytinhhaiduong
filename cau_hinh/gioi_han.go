@@ -12,7 +12,7 @@ const (
 	ThoiGianAnHan = 5 * time.Minute 
 
 	// RATE LIMIT (GIỚI HẠN TỐC ĐỘ)
-	GioiHanNguoiDung   = 10   // request / giây
+	GioiHanNguoiDung   = 100   // request / giây
 )
 
 // [ĐÃ ĐỒNG BỘ CHÍNH XÁC]
