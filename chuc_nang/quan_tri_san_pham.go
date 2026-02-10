@@ -1,274 +1,412 @@
-package chuc_nang
+{{ define "quan_tri_san_pham" }}
+    {{ template "header" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
-import (
-	"encoding/json"
-	"net/http"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
+    <style>
+        .tagify { --tags-border-color: #d1d5db; --tags-focus-border-color: #2563eb; border-radius: 0.5rem; padding: 4px; }
+        .modal-body { max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: thin; }
+        .tagify__input { margin: 0; }
+        .tagify--select .tagify__input::before { top: 50%; transform: translateY(-50%); }
+        
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 0.25rem; display: block; }
+        
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .btn-remove-img { color: #ef4444; cursor: pointer; padding: 4px; font-weight: bold; }
+        .btn-remove-img:hover { background: #fee2e2; border-radius: 4px; }
+    </style>
 
-	"app/cau_hinh"
-	"app/core"
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">📦 Quản Lý Sản Phẩm</h1>
+            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition active:scale-95">
+                ➕ Thêm Sản Phẩm
+            </button>
+        </div>
 
-	"github.com/gin-gonic/gin"
-)
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 whitespace-nowrap">Mã SP</th>
+                            <th class="px-6 py-3">Ảnh</th>
+                            <th class="px-6 py-3">Tên Sản Phẩm</th>
+                            <th class="px-6 py-3">Danh Mục</th>
+                            <th class="px-6 py-3 text-right">Giá Bán</th>
+                            <th class="px-6 py-3 text-center">TT</th>
+                            <th class="px-6 py-3 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .DanhSach }}
+                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-bold text-gray-700 whitespace-nowrap">{{ .MaSanPham }}</td>
+                            <td class="px-6 py-4">
+                                {{ $firstImg := index (split .UrlHinhAnh "|") 0 }}
+                                <img src="{{ if $firstImg }}{{ $firstImg }}{{ else }}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{{ end }}" 
+                                     onerror="this.src='https://via.placeholder.com/50?text=No+Img'"
+                                     class="w-10 h-10 object-cover rounded border bg-gray-50">
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-900 min-w-[200px] break-words">{{ .TenSanPham }}</td>
+                            <td class="px-6 py-4">
+                                {{ if .DanhMuc }}
+                                    <div class="flex flex-wrap gap-1 w-40">
+                                        {{ range split .DanhMuc "|" }}
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{{ . }}</span>
+                                        {{ end }}
+                                    </div>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-right whitespace-nowrap">
+                                {{ if gt .GiamGia 0.0 }}
+                                    <div class="font-bold text-red-600">{{ format_money .GiaBanThuc }} ₫</div>
+                                    <div class="text-xs text-gray-400 line-through">{{ format_money .GiaBanLe }} ₫</div>
+                                {{ else }}
+                                    <div class="font-bold text-red-600">{{ format_money .GiaBanLe }} ₫</div>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                {{ if eq .TrangThai 1 }}
+                                <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Bán</span>
+                                {{ else }}
+                                <span class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Tắt</span>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editSP('{{ .MaSanPham }}')" class="text-blue-600 hover:text-blue-900 font-medium hover:underline">Sửa</button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-// ... (Giữ nguyên hàm TrangQuanLySanPham) ...
-func TrangQuanLySanPham(c *gin.Context) {
-	defer func() {
-		if err := recover(); err != nil {
-			c.String(500, "LỖI HỆ THỐNG: %v", err)
-		}
-	}()
+    <div id="modalSP" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh]">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Thêm Sản Phẩm</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 modal-body">
+                <form id="formSP" class="space-y-5">
+                    <input type="hidden" name="ma_san_pham" id="ma_san_pham">
+                    <input type="hidden" name="url_hinh_anh" id="url_hinh_anh"> 
 
-	userID := c.GetString("USER_ID")
-	kh, found := core.LayKhachHang(userID)
-	if !found || kh == nil {
-		c.Redirect(http.StatusFound, "/login")
-		return
-	}
+                    <div>
+                        <label>Tên sản phẩm <span class="text-red-500">*</span></label>
+                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="Nhập tên đầy đủ...">
+                    </div>
 
-	if !core.KiemTraQuyen(kh.VaiTroQuyenHan, "product.view") {
-		c.Writer.WriteHeader(http.StatusForbidden)
-		c.Writer.Write([]byte(`<h3>⛔ Truy cập bị từ chối</h3><a href="/">Về trang chủ</a>`))
-		return
-	}
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-4">
+                            <label>SKU (Mã kho)</label>
+                            <input type="text" name="sku" id="sku" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: MAIN-H81-PEG">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Tên rút gọn</label>
+                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="VD: H81 Pegatron">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Thương hiệu</label>
+                            <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Chọn hãng...">
+                        </div>
+                    </div>
 
-	rawList := core.LayDanhSachSanPham()
-	var cleanList []*core.SanPham
-	
-	uniqueDM := make(map[string]bool)
-	uniqueTH := make(map[string]bool)
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-8">
+                            <label>Danh mục (Tags)</label>
+                            <input name="ma_danh_muc" id="ma_danh_muc" class="w-full p-1 border border-gray-300 rounded-lg" placeholder="Mainboard, Ram...">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Màu sắc</label>
+                            <input name="mau_sac" id="mau_sac" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Đen...">
+                        </div>
+                    </div>
 
-	for _, sp := range rawList {
-		if sp != nil && sp.MaSanPham != "" {
-			cleanList = append(cleanList, sp)
-			if sp.DanhMuc != "" {
-				parts := strings.Split(sp.DanhMuc, "|")
-				for _, p := range parts {
-					if p = strings.TrimSpace(p); p != "" { uniqueDM[p] = true }
-				}
-			}
-			th := strings.TrimSpace(sp.ThuongHieu)
-			if th != "" { uniqueTH[th] = true }
-		}
-	}
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <div class="md:col-span-3">
+                            <label>Giá Nhập (Vốn)</label>
+                            <input type="text" name="gia_nhap" id="gia_nhap" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-gray-600 font-medium" placeholder="0" onkeyup="formatCurrency(this)">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
+                            <input type="text" name="gia_ban_le" id="gia_ban_le" required class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-blue-600 text-lg" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label>Giảm giá (%)</label>
+                            <input type="number" name="giam_gia" id="giam_gia" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold text-orange-500" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label>Giá Bán Thực Tế (Web)</label>
+                            <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-bold text-red-600 text-xl bg-gray-100 cursor-not-allowed" placeholder="0">
+                        </div>
+                    </div>
 
-	var listDM, listTH []string
-	for k := range uniqueDM { listDM = append(listDM, k) }
-	for k := range uniqueTH { listTH = append(listTH, k) }
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-4">
+                            <label>Đơn vị tính</label>
+                            <input name="don_vi" id="don_vi" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Cái...">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Bảo hành</label>
+                            <div class="flex gap-2">
+                                <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="w-1/2 p-2.5 border border-gray-300 rounded-lg outline-none text-center font-bold" placeholder="36">
+                                <select name="bao_hanh_unit" id="bao_hanh_unit" class="w-1/2 p-2.5 border border-gray-300 rounded-lg outline-none bg-white">
+                                    <option value="Tháng">Tháng</option>
+                                    <option value="Năm">Năm</option>
+                                    <option value="Ngày">Ngày</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="md:col-span-4">
+                            <label>Tình trạng</label>
+                            <input name="tinh_trang" id="tinh_trang" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Mới 100%...">
+                        </div>
+                    </div>
 
-	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
-		"TieuDe":         "Quản lý sản phẩm",
-		"NhanVien":       kh,
-		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang,
-		"QuyenHan":       kh.VaiTroQuyenHan,
-		"DanhSach":       cleanList,
-		"ListDanhMuc":    listDM,
-		"ListThuongHieu": listTH,
-	})
-}
+                    <div class="border p-3 rounded-lg border-dashed border-gray-300">
+                        <label class="flex justify-between items-center mb-2">
+                            <span>Link Hình Ảnh (Nhiều ảnh)</span>
+                            <button type="button" onclick="addImgInput('')" class="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-full font-bold hover:bg-blue-200 transition">+ Thêm link ảnh</button>
+                        </label>
+                        <div id="imgContainer" class="space-y-2"></div>
+                    </div>
 
-// API_LuuSanPham : Xử lý Lưu
-func API_LuuSanPham(c *gin.Context) {
-	vaiTro := c.GetString("USER_ROLE")
-	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
-	
-	if maSP == "" {
-		if !core.KiemTraQuyen(vaiTro, "product.create") {
-			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm!"})
-			return
-		}
-	} else {
-		if !core.KiemTraQuyen(vaiTro, "product.edit") {
-			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa!"})
-			return
-		}
-	}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label>Thông số kỹ thuật</label>
+                            <textarea name="thong_so" id="thong_so" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none font-mono text-sm bg-gray-50" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
+                        </div>
+                        <div>
+                            <label>Mô tả chi tiết</label>
+                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="6" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none" placeholder="Mô tả bài viết (Hỗ trợ HTML)..."></textarea>
+                        </div>
+                    </div>
 
-	tenSP := strings.TrimSpace(c.PostForm("ten_san_pham"))
-	if tenSP == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Tên sản phẩm không được trống!"})
-		return
-	}
+                    <div>
+                        <label>Ghi chú nội bộ</label>
+                        <textarea name="ghi_chu" id="ghi_chu" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg outline-none bg-yellow-50" placeholder="Chỉ nhân viên thấy..."></textarea>
+                    </div>
 
-	// 1. LẤY DỮ LIỆU TỪ FORM
-	
-	// Giá trị tài chính
-	giaNhap, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_nhap"), ".", ""), ",", ""), 64)
-	giaBanLe, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", ""), ",", ""), 64)
-	giamGia, _ := strconv.ParseFloat(c.PostForm("giam_gia"), 64)
-	
-	// Tính giá bán thực
-	giaBanThuc := giaBanLe
-	if giamGia > 0 {
-		giaBanThuc = giaBanLe * (1 - giamGia/100)
-	}
+                    <div class="flex items-center gap-2 pt-2 border-t mt-4">
+                        <label class="flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded" checked>
+                            <span class="ml-2 text-sm font-bold text-gray-700">Đang kinh doanh</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
 
-	// Các thông tin khác
-	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
-	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
-	donVi      := xuLyTags(c.PostForm("don_vi"))
-	mauSac     := xuLyTags(c.PostForm("mau_sac"))
-	tinhTrang  := xuLyTags(c.PostForm("tinh_trang"))
-	
-	tenRutGon  := strings.TrimSpace(c.PostForm("ten_rut_gon"))
-	sku        := strings.TrimSpace(c.PostForm("sku"))
-	moTa       := c.PostForm("mo_ta_chi_tiet")
-	hinhAnh    := strings.TrimSpace(c.PostForm("url_hinh_anh"))
-	thongSo    := c.PostForm("thong_so")
-	ghiChu     := c.PostForm("ghi_chu")
-	
-	// Xử lý bảo hành (ghép số + đơn vị)
-	bhNum := c.PostForm("bao_hanh_num")
-	bhUnit := c.PostForm("bao_hanh_unit")
-	baoHanh := ""
-	if bhNum != "" {
-		baoHanh = bhNum + " " + bhUnit
-	}
+            <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-200 rounded-xl font-bold transition">Hủy bỏ</button>
+                <button id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg transition active:scale-95 flex items-center">
+                    Lưu Sản Phẩm
+                </button>
+            </div>
+        </div>
+    </div>
 
-	slug := taoSlugChuan(tenSP)
+    <script>
+        const tagifySelectConfig = {
+            mode: 'select',
+            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
+        };
 
-	trangThai := 0
-	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
+        var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
+        var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
 
-	// 2. KHỞI TẠO ĐỐI TƯỢNG SẢN PHẨM
-	var sp *core.SanPham
-	isNew := false
-	nowStr := time.Now().Format("2006-01-02 15:04:05")
-	userID := c.GetString("USER_ID")
-	sheetID := cau_hinh.BienCauHinh.IdFileSheet
+        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
+            whitelist: listDM,
+            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
+        });
 
-	if maSP == "" {
-		isNew = true
-		// [LOGIC SINH MÃ THEO DANH MỤC]
-		firstDM := ""
-		if danhMuc != "" { firstDM = strings.Split(danhMuc, "|")[0] }
-		maCodeDM := core.TimMaDanhMucTheoTen(firstDM)
-		
-		maSP = core.TaoMaSPMoi(maCodeDM) 
-		
-		sp = &core.SanPham{
-			SpreadsheetID: sheetID,
-			MaSanPham:     maSP,
-			NgayTao:       nowStr,
-			NguoiTao:      userID,
-		}
-	} else {
-		foundSP, ok := core.LayChiTietSanPham(maSP)
-		if ok { sp = foundSP } else { 
-			sp = &core.SanPham{SpreadsheetID: sheetID, MaSanPham: maSP} 
-		}
-	}
+        const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
+        const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
+        const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
+        const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
-	if !isNew { core.KhoaHeThong.Lock() }
+        const mapSP = {};
+        {{ range .DanhSach }}
+        mapSP["{{ .MaSanPham }}"] = {
+            ma_san_pham: "{{ .MaSanPham }}",
+            ten_san_pham: "{{ .TenSanPham }}",
+            ten_rut_gon: "{{ .TenRutGon }}",
+            sku: "{{ .Sku }}",
+            gia_nhap: {{ printf "%.0f" .GiaNhap }},
+            gia_ban_le: {{ printf "%.0f" .GiaBanLe }},
+            giam_gia: {{ printf "%.0f" .GiamGia }},
+            thuong_hieu: "{{ .ThuongHieu }}",
+            don_vi: "{{ .DonVi }}",
+            bao_hanh: "{{ .BaoHanh }}",
+            mau_sac: "{{ .MauSac }}",
+            tinh_trang: "{{ .TinhTrang }}",
+            thong_so: "{{ .ThongSo }}",
+            mo_ta_chi_tiet: "{{ .MoTaChiTiet }}",
+            url_hinh_anh: "{{ .UrlHinhAnh }}",
+            ghi_chu: "{{ .GhiChu }}",
+            trang_thai: {{ .TrangThai }},
+            danh_muc: "{{ .DanhMuc }}"
+        };
+        {{ end }}
 
-	// 3. CẬP NHẬT DỮ LIỆU VÀO RAM
-	sp.TenSanPham = tenSP
-	sp.TenRutGon  = tenRutGon
-	sp.Slug       = slug
-	sp.Sku        = sku
-	sp.DanhMuc    = danhMuc
-	sp.ThuongHieu = thuongHieu
-	sp.DonVi      = donVi
-	sp.MauSac     = mauSac
-	sp.TinhTrang  = tinhTrang
-	sp.MoTaChiTiet= moTa
-	sp.UrlHinhAnh = hinhAnh
-	sp.ThongSo    = thongSo
-	sp.BaoHanh    = baoHanh
-	sp.TrangThai  = trangThai
-	
-	// [UPDATE GIÁ]
-	sp.GiaNhap    = giaNhap
-	sp.GiaBanLe   = giaBanLe
-	sp.GiamGia    = giamGia
-	sp.GiaBanThuc = giaBanThuc
-	
-	sp.GhiChu     = ghiChu
-	sp.NgayCapNhat= nowStr
+        function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        function formatCurrency(input) { input.value = formatNumber(input.value); }
 
-	if !isNew {
-		core.KhoaHeThong.Unlock()
-	} else {
-		currentList := core.LayDanhSachSanPham()
-		sp.DongTrongSheet = core.DongBatDau_SanPham + len(currentList)
-		core.ThemSanPhamVaoRam(sp)
-	}
+        // [HÀM TÍNH TOÁN GIÁ THỰC TẾ]
+        function tinhGiaThuc() {
+            // Lấy giá niêm yết (bỏ dấu chấm)
+            let rawGiaBan = document.getElementById('gia_ban_le').value.replace(/\./g, "");
+            let giaBan = parseFloat(rawGiaBan) || 0;
 
-	// 4. GHI XUỐNG SHEET (QUEUE)
-	targetRow := sp.DongTrongSheet
-	if targetRow > 0 {
-		ghi := core.ThemVaoHangCho
-		sheet := "SAN_PHAM"
+            // Lấy % giảm giá
+            let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
-		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
-		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
-		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
-		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
-		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
-		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		
-		// [SỬA TÊN BIẾN Ở ĐÂY]
-		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanh, sp.BaoHanh)
-		
-		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
-		
-		// Ghi giá
-		ghi(sheetID, sheet, targetRow, core.CotSP_GiaNhap, sp.GiaNhap)
-		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
-		ghi(sheetID, sheet, targetRow, core.CotSP_GiamGia, sp.GiamGia)
-		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanThuc, sp.GiaBanThuc)
-		
-		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
-		ghi(sheetID, sheet, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
-		ghi(sheetID, sheet, targetRow, core.CotSP_NgayTao, sp.NgayTao)
-		ghi(sheetID, sheet, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
-	}
+            // Tính toán: Giá thực = Giá bán * (1 - %/100)
+            let giaThuc = giaBan * (1 - (giamGia / 100));
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
-}
+            // Làm tròn và hiển thị
+            document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
+        }
 
-// ... (Giữ nguyên phần helper xuLyTags ...)
-type TagifyItem struct { Value string `json:"value"` }
+        function addImgInput(value) {
+            const container = document.getElementById('imgContainer');
+            const div = document.createElement('div');
+            div.className = 'img-input-group';
+            div.innerHTML = `
+                <input type="text" class="img-link-input flex-1 p-2.5 border border-gray-300 rounded-lg outline-none text-sm font-mono" 
+                       placeholder="https://..." value="${value}">
+                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">✕</span>
+            `;
+            container.appendChild(div);
+        }
 
-func xuLyTags(raw string) string {
-	if raw == "" { return "" }
-	if !strings.Contains(raw, "[") { return raw }
-	var items []TagifyItem
-	if err := json.Unmarshal([]byte(raw), &items); err != nil { return raw }
-	var values []string
-	for _, item := range items {
-		if v := strings.TrimSpace(item.Value); v != "" { values = append(values, v) }
-	}
-	return strings.Join(values, "|")
-}
+        function openModal() {
+            document.getElementById('formSP').reset();
+            document.getElementById('ma_san_pham').value = "";
+            document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
+            document.getElementById('gia_ban_thuc').value = ""; // Reset giá thực
+            
+            tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
+            tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
 
-func taoSlugChuan(s string) string {
-	s = strings.ToLower(s)
-	s = strings.ReplaceAll(s, "đ", "d")
-	patterns := map[string]string{
-		"[áàảãạăắằẳẵặâấầẩẫậ]": "a",
-		"[éèẻẽẹêếềểễệ]":       "e",
-		"[iíìỉĩị]":            "i",
-		"[óòỏõọôốồổỗộơớờởỡợ]": "o",
-		"[úùủũụưứừửữự]":       "u",
-		"[ýỳỷỹỵ]":             "y",
-	}
-	for p, r := range patterns {
-		re := regexp.MustCompile(p)
-		s = re.ReplaceAllString(s, r)
-	}
-	reInvalid := regexp.MustCompile(`[^a-z0-9]+`)
-	s = reInvalid.ReplaceAllString(s, "-")
-	return strings.Trim(s, "-")
-}
+            document.getElementById('imgContainer').innerHTML = '';
+            addImgInput('');
+
+            document.getElementById('modalSP').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
+
+        function editSP(id) {
+            const sp = mapSP[id];
+            if(!sp) return;
+
+            document.getElementById('ma_san_pham').value = sp.ma_san_pham;
+            document.getElementById('ten_san_pham').value = sp.ten_san_pham;
+            document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
+            document.getElementById('sku').value = sp.sku;
+            
+            // Fill Giá
+            document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
+            document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
+            document.getElementById('giam_gia').value = sp.giam_gia;
+            tinhGiaThuc(); // Tự động tính giá thực khi mở modal sửa
+
+            if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
+            if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
+            if(sp.tinh_trang) { document.querySelector('#tinh_trang').value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
+            if(sp.mau_sac) { document.querySelector('#mau_sac').value = sp.mau_sac; } else { tagifyMauSac.removeAllTags(); }
+            
+            tagifyDM.removeAllTags();
+            if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
+
+            if (sp.bao_hanh) {
+                const parts = sp.bao_hanh.split(" ");
+                if (parts.length >= 2) {
+                    document.getElementById('bao_hanh_num').value = parts[0];
+                    document.getElementById('bao_hanh_unit').value = parts[1];
+                } else {
+                    document.getElementById('bao_hanh_num').value = sp.bao_hanh;
+                }
+            } else {
+                document.getElementById('bao_hanh_num').value = "";
+            }
+            
+            document.getElementById('thong_so').value = sp.thong_so;
+            document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
+            document.getElementById('ghi_chu').value = sp.ghi_chu;
+            document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
+
+            const container = document.getElementById('imgContainer');
+            container.innerHTML = '';
+            if (sp.url_hinh_anh) {
+                const links = sp.url_hinh_anh.split('|');
+                links.forEach(link => addImgInput(link));
+            } else {
+                addImgInput('');
+            }
+
+            document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
+            document.getElementById('modalSP').classList.remove('hidden');
+        }
+
+        async function confirmSave() {
+            const form = document.getElementById('formSP');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const inputs = document.querySelectorAll('.img-link-input');
+            const links = [];
+            inputs.forEach(inp => {
+                if(inp.value.trim()) links.push(inp.value.trim());
+            });
+            document.getElementById('url_hinh_anh').value = links.join('|');
+
+            const result = await Swal.fire({
+                title: 'Xác nhận lưu?',
+                text: "Bạn có chắc chắn muốn lưu thông tin này?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (result.isConfirmed) {
+                saveSP();
+            }
+        }
+
+        async function saveSP() {
+            const btn = document.getElementById('btnSave');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+
+            const form = document.getElementById('formSP');
+            const fd = new FormData(form);
+            if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
+            
+            try {
+                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if(data.status === 'ok') {
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                    btn.disabled = false; btn.innerHTML = originalText;
+                }
+            } catch(e) { 
+                Swal.fire('Lỗi', 'Không kết nối được server', 'error');
+                btn.disabled = false; btn.innerHTML = originalText;
+            }
+        }
+    </script>
+    {{ template "footer" . }}
+{{ end }}
