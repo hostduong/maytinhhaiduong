@@ -74,7 +74,6 @@ func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
 	
-	// Check Quyền
 	if maSP == "" {
 		if !core.KiemTraQuyen(vaiTro, "product.create") {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm!"})
@@ -87,42 +86,33 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Lấy dữ liệu
 	tenSP := strings.TrimSpace(c.PostForm("ten_san_pham"))
 	if tenSP == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Tên sản phẩm không được trống!"})
 		return
 	}
 
-	// Xử lý giá
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
-	// Các trường khác
 	thuongHieu := strings.TrimSpace(c.PostForm("ma_thuong_hieu"))
 	tenRutGon  := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku        := strings.TrimSpace(c.PostForm("sku"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := c.PostForm("don_vi")
-	
-	// [MỚI] Lấy các trường bổ sung
 	mauSac     := c.PostForm("mau_sac")
 	tinhTrang  := c.PostForm("tinh_trang")
 	moTa       := c.PostForm("mo_ta_chi_tiet")
-	
 	hinhAnh    := strings.TrimSpace(c.PostForm("url_hinh_anh"))
 	thongSo    := c.PostForm("thong_so")
 	baoHanh, _ := strconv.Atoi(c.PostForm("bao_hanh_thang"))
 	ghiChu     := c.PostForm("ghi_chu")
-	
-	// [MỚI] Tự động tạo SLUG từ tên sản phẩm
-	slug := taoSlug(tenSP)
+	slug       := taoSlug(tenSP)
 
 	trangThai := 0
 	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 
-	// Logic Core (Tạo mới hoặc Update)
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
@@ -149,17 +139,17 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Gán dữ liệu vào Struct
+	// [QUAN TRỌNG] Cập nhật RAM (Vì sp là pointer, gán vào đây là RAM đổi luôn)
 	sp.TenSanPham = tenSP
 	sp.TenRutGon  = tenRutGon
-	sp.Slug       = slug // Gán Slug
+	sp.Slug       = slug
 	sp.Sku        = sku
 	sp.DanhMuc    = danhMuc
 	sp.ThuongHieu = thuongHieu
 	sp.DonVi      = donVi
-	sp.MauSac     = mauSac    // Mới
-	sp.TinhTrang  = tinhTrang // Mới
-	sp.MoTaChiTiet= moTa      // Mới
+	sp.MauSac     = mauSac
+	sp.TinhTrang  = tinhTrang
+	sp.MoTaChiTiet= moTa
 	sp.UrlHinhAnh = hinhAnh
 	sp.ThongSo    = thongSo
 	sp.BaoHanhThang = baoHanh
@@ -174,7 +164,6 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 	core.KhoaHeThong.Unlock()
 
-	// Ghi xuống Sheet
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -183,17 +172,17 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug) // Ghi cột D
+		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
 		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac) // Ghi cột I
+		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet) // Ghi cột L
+		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
 		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanhThang, sp.BaoHanhThang)
-		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang) // Ghi cột N
+		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
@@ -223,6 +212,6 @@ func xuLyTags(raw string) string {
 func taoSlug(text string) string {
 	text = strings.ToLower(text)
 	text = strings.ReplaceAll(text, " ", "-")
-	text = strings.ReplaceAll(text, "/", "-") // Xử lý thêm dấu /
+	text = strings.ReplaceAll(text, "/", "-")
 	return text
 }
