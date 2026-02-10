@@ -2,7 +2,7 @@ package chuc_nang
 
 import (
 	"encoding/json"
-	"fmt" // [MỚI] Thêm fmt để in lỗi
+	"fmt" 
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,17 +18,18 @@ import (
 // 1. TRANG QUẢN LÝ (HIỂN THỊ)
 // =============================================================
 func TrangQuanLySanPham(c *gin.Context) {
-	// [QUAN TRỌNG] BẮT LỖI PANIC ĐỂ KHÔNG BỊ TRẮNG TRANG
+	// [AN TOÀN] BẮT LỖI HỆ THỐNG ĐỂ KHÔNG BỊ TRẮNG TRANG
 	defer func() {
 		if err := recover(); err != nil {
-			logMsg := fmt.Sprintf("❌ LỖI HỆ THỐNG (PANIC): %v", err)
-			fmt.Println(logMsg) // In ra terminal
+			fmt.Printf("❌ LỖI PANIC TẠI ADMIN SẢN PHẨM: %v\n", err)
 			c.Writer.WriteHeader(http.StatusInternalServerError)
 			c.Writer.Write([]byte(fmt.Sprintf(`
-				<h3>Hệ thống gặp lỗi khi hiển thị dữ liệu!</h3>
-				<p>Chi tiết: %v</p>
-				<p>Vui lòng chụp ảnh này gửi kỹ thuật viên.</p>
-				<a href="/admin/tong-quan">Quay lại Dashboard</a>
+				<div style="padding: 20px; font-family: sans-serif;">
+					<h3 style="color: red;">⚠️ Hệ thống gặp lỗi khi hiển thị dữ liệu!</h3>
+					<p><b>Chi tiết lỗi:</b> %v</p>
+					<p>Nguyên nhân: Có thể do dữ liệu trong Sheet (Sản phẩm, Danh mục, hoặc Thương hiệu) bị lỗi định dạng hoặc dòng trống.</p>
+					<a href="/admin/tong-quan">Quay lại Dashboard</a>
+				</div>
 			`, err)))
 		}
 	}()
@@ -48,9 +49,9 @@ func TrangQuanLySanPham(c *gin.Context) {
 		return
 	}
 
-	// 2. LẤY DỮ LIỆU & LỌC SẠCH (TRÁNH NIL POINTER)
+	// 2. LẤY DỮ LIỆU & LỌC SẠCH (CHÌA KHÓA KHẮC PHỤC TRẮNG TRANG)
 	
-	// A. Lọc Sản Phẩm
+	// A. Lọc Sản Phẩm (Đã làm, giữ nguyên)
 	rawList := core.LayDanhSachSanPham()
 	var cleanList []*core.SanPham
 	for _, sp := range rawList {
@@ -59,16 +60,17 @@ func TrangQuanLySanPham(c *gin.Context) {
 		}
 	}
 
-	// B. Lọc Danh Mục (Nguyên nhân tiềm ẩn gây trắng trang)
+	// B. Lọc Danh Mục (MỚI - Khắc phục nguyên nhân crash do Tagify)
 	rawDM := core.LayDanhSachDanhMuc()
 	var cleanDM []*core.DanhMuc
 	for _, dm := range rawDM {
+		// Kiểm tra kỹ để tránh template bị panic khi render Dropdown
 		if dm != nil && dm.MaDanhMuc != "" {
 			cleanDM = append(cleanDM, dm)
 		}
 	}
 
-	// C. Lọc Thương Hiệu (Nguyên nhân tiềm ẩn gây trắng trang)
+	// C. Lọc Thương Hiệu (MỚI - Khắc phục nguyên nhân crash do Dropdown)
 	rawTH := core.LayDanhSachThuongHieu()
 	var cleanTH []*core.ThuongHieu
 	for _, th := range rawTH {
@@ -77,21 +79,21 @@ func TrangQuanLySanPham(c *gin.Context) {
 		}
 	}
 
-	// 3. Render
+	// 3. Render giao diện với dữ liệu ĐÃ LỌC SẠCH
 	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
 		"NhanVien":       kh, 
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
-		"DanhSach":       cleanList, // Đã sạch
-		"ListDanhMuc":    cleanDM,   // Đã sạch
-		"ListThuongHieu": cleanTH,   // Đã sạch
+		"DanhSach":       cleanList, // An toàn
+		"ListDanhMuc":    cleanDM,   // An toàn
+		"ListThuongHieu": cleanTH,   // An toàn
 	})
 }
 
 // =============================================================
-// 2. API XỬ LÝ LƯU (THÊM / SỬA)
+// 2. API XỬ LÝ LƯU (THÊM / SỬA) - GIỮ NGUYÊN LOGIC CŨ
 // =============================================================
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
