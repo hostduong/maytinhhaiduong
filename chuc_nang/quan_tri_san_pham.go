@@ -2,7 +2,7 @@ package chuc_nang
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"  <-- ĐÃ XÓA DÒNG NÀY ĐỂ FIX LỖI IMPORT THỪA
 	"net/http"
 	"strconv"
 	"strings"
@@ -20,6 +20,7 @@ import (
 func TrangQuanLySanPham(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
+			// fmt.Printf đã bị xóa, dùng c.String để báo lỗi
 			c.String(500, "LỖI HỆ THỐNG: %v", err)
 		}
 	}()
@@ -41,7 +42,6 @@ func TrangQuanLySanPham(c *gin.Context) {
 	rawList := core.LayDanhSachSanPham()
 	var cleanList []*core.SanPham
 	
-	// Dùng Map để lọc trùng (Set)
 	uniqueDM := make(map[string]bool)
 	uniqueTH := make(map[string]bool)
 
@@ -49,7 +49,6 @@ func TrangQuanLySanPham(c *gin.Context) {
 		if sp != nil && sp.MaSanPham != "" {
 			cleanList = append(cleanList, sp)
 			
-			// Thu thập Danh mục (Tách chuỗi ngăn cách bởi |)
 			if sp.DanhMuc != "" {
 				parts := strings.Split(sp.DanhMuc, "|")
 				for _, p := range parts {
@@ -57,14 +56,12 @@ func TrangQuanLySanPham(c *gin.Context) {
 					if p != "" { uniqueDM[p] = true }
 				}
 			}
-			// Thu thập Thương hiệu
 			if sp.ThuongHieu != "" {
 				uniqueTH[strings.TrimSpace(sp.ThuongHieu)] = true
 			}
 		}
 	}
 
-	// Chuyển Map thành Slice để template dùng
 	var listDM []string
 	for k := range uniqueDM { listDM = append(listDM, k) }
 	
@@ -79,26 +76,24 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		
 		"DanhSach":       cleanList,
-		"ListDanhMuc":    listDM, // List String ["Main", "CPU"...]
-		"ListThuongHieu": listTH, // List String ["Asus", "Intel"...]
+		"ListDanhMuc":    listDM,
+		"ListThuongHieu": listTH,
 	})
 }
 
 // =============================================================
-// 2. API LƯU SẢN PHẨM (UPDATE CỘT MỚI)
+// 2. API LƯU SẢN PHẨM
 // =============================================================
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 
 	maSP       := strings.TrimSpace(c.PostForm("ma_san_pham"))
-	// Thương hiệu giờ là text, không phải ID
 	thuongHieu := strings.TrimSpace(c.PostForm("ma_thuong_hieu")) 
 
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
-	// Check quyền
 	if maSP == "" {
 		if !core.KiemTraQuyen(vaiTro, "product.create") {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm!"})
@@ -109,17 +104,21 @@ func API_LuuSanPham(c *gin.Context) {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa!"})
 			return
 		}
+		
+		spCu, ok := core.LayChiTietSanPham(maSP)
+		if ok && spCu.GiaBanLe != giaBan {
+			if !core.KiemTraQuyen(vaiTro, "product.edit_price") {
+				c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị viên được sửa giá bán!"})
+				return
+			}
+		}
 	}
 
-	// Lấy dữ liệu form
 	tenSP       := strings.TrimSpace(c.PostForm("ten_san_pham"))
 	tenRutGon   := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku         := strings.TrimSpace(c.PostForm("sku"))
-	
-	// Tagify gửi lên dạng [{"value":"A"}, {"value":"B"}] -> Chuyển thành "A|B"
 	danhMucRaw  := c.PostForm("ma_danh_muc")
 	danhMuc     := xuLyTags(danhMucRaw) 
-
 	donVi       := c.PostForm("don_vi")
 	mauSac      := c.PostForm("mau_sac")
 	hinhAnh     := strings.TrimSpace(c.PostForm("url_hinh_anh"))
@@ -129,7 +128,6 @@ func API_LuuSanPham(c *gin.Context) {
 	tinhTrang   := c.PostForm("tinh_trang")
 	ghiChu      := c.PostForm("ghi_chu")
 	
-	// Tạo slug đơn giản (nếu rỗng thì lấy tên)
 	slug := taoSlug(tenSP)
 
 	trangThai := 0
@@ -140,7 +138,6 @@ func API_LuuSanPham(c *gin.Context) {
 		return
 	}
 
-	// Logic Core
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
@@ -167,13 +164,12 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Gán dữ liệu vào Struct
 	sp.TenSanPham = tenSP
 	sp.TenRutGon = tenRutGon
-	sp.Slug = slug // [MỚI]
+	sp.Slug = slug
 	sp.Sku = sku
-	sp.DanhMuc = danhMuc       // Lưu trực tiếp "Main|Ram"
-	sp.ThuongHieu = thuongHieu // Lưu trực tiếp "Asus"
+	sp.DanhMuc = danhMuc
+	sp.ThuongHieu = thuongHieu
 	sp.DonVi = donVi
 	sp.MauSac = mauSac
 	sp.UrlHinhAnh = hinhAnh
@@ -192,7 +188,6 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 	core.KhoaHeThong.Unlock()
 
-	// Ghi xuống Sheet (Mapping theo file san_pham.go mới)
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -201,7 +196,7 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug) // [MỚI]
+		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
 		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
@@ -223,7 +218,6 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu thành công!"})
 }
 
-// Hàm hỗ trợ
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
@@ -239,7 +233,6 @@ func xuLyTags(raw string) string {
 }
 
 func taoSlug(text string) string {
-	// Demo đơn giản: chuyển về chữ thường, thay khoảng trắng bằng gạch ngang
 	text = strings.ToLower(text)
 	text = strings.ReplaceAll(text, " ", "-")
 	return text
