@@ -36,18 +36,7 @@ func TrangTongQuan(c *gin.Context) {
 	})
 }
 
-package chuc_nang
-
-import (
-	"net/http"
-	"time"
-
-	"app/core"
-
-	"github.com/gin-gonic/gin"
-)
-
-// API Reload dữ liệu
+// API Reload dữ liệu (Đồng bộ)
 func API_NapLaiDuLieu(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -55,13 +44,13 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		return
 	}
 
-	// [CẬP NHẬT] Nạp thêm Danh Mục và Thương Hiệu
+	// Chạy Goroutine để không treo request
 	go func() {
 		core.HeThongDangBan = true
 		
-		core.NapPhanQuyen("") // Nạp lại quyền (nếu cần)
-		core.NapDanhMuc("")   // [MỚI]
-		core.NapThuongHieu("")// [MỚI]
+		core.NapPhanQuyen("") 
+		core.NapDanhMuc("")   
+		core.NapThuongHieu("")
 		core.NapSanPham("")
 		core.NapKhachHang("")
 		
@@ -74,45 +63,28 @@ func API_NapLaiDuLieu(c *gin.Context) {
 	})
 }
 
+// Hàm tính toán thống kê (Dummy logic để hiển thị dashboard)
 func tinhToanThongKe() DuLieuDashboard {
 	var kq DuLieuDashboard
 
+	// Lock Read để lấy số lượng chính xác
 	core.KhoaHeThong.RLock()
 	defer core.KhoaHeThong.RUnlock()
 
 	kq.TongSanPham = len(core.LayDanhSachSanPham())
 	kq.TongKhachHang = len(core.LayDanhSachKhachHang())
+	
+	// Tạm thời để doanh thu bằng 0 (Sẽ update sau khi có module Đơn hàng)
 	kq.TongDoanhThu = 0
 	kq.DonHangHomNay = 0
 	
+	// Tạo biểu đồ 7 ngày gần nhất
 	for i := 6; i >= 0; i-- {
 		t := time.Now().AddDate(0, 0, -i)
 		label := t.Format("02/01")
 		kq.ChartNhan = append(kq.ChartNhan, label)
-		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0)
+		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0) // Placeholder
 	}
 
 	return kq
-}
-
-// API Reload dữ liệu
-func API_NapLaiDuLieu(c *gin.Context) {
-	vaiTro := c.GetString("USER_ROLE")
-	if vaiTro != "admin_root" && vaiTro != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"trang_thai": "loi", "thong_diep": "Không có quyền!"})
-		return
-	}
-
-	// [ĐÃ SỬA] Chỉ nạp lại Sản phẩm và Khách hàng (Bỏ Danh mục/Thương hiệu cũ)
-	go func() {
-		core.HeThongDangBan = true
-		core.NapSanPham("")
-		core.NapKhachHang("")
-		core.HeThongDangBan = false
-	}()
-
-	c.JSON(http.StatusOK, gin.H{
-		"trang_thai": "thanh_cong", 
-		"thong_diep": "Đang tiến hành đồng bộ dữ liệu...",
-	})
 }
