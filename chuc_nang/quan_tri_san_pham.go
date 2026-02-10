@@ -15,13 +15,11 @@ import (
 )
 
 // =============================================================
-// 1. TRANG QUẢN LÝ (CHẾ ĐỘ AN TOÀN - CHỈ LOAD SẢN PHẨM)
+// 1. TRANG QUẢN LÝ (PHIÊN BẢN TỐI ƯU)
 // =============================================================
 func TrangQuanLySanPham(c *gin.Context) {
-	// 1. BẮT LỖI CHẾT CHƯƠNG TRÌNH
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("❌ PANIC: %v\n", err)
 			c.String(500, "LỖI HỆ THỐNG: %v", err)
 		}
 	}()
@@ -33,25 +31,45 @@ func TrangQuanLySanPham(c *gin.Context) {
 		return
 	}
 
-	// 2. LẤY SẢN PHẨM (GIỐNG TRANG CHỦ)
+	if !core.KiemTraQuyen(kh.VaiTroQuyenHan, "product.view") {
+		c.Writer.WriteHeader(http.StatusForbidden)
+		c.Writer.Write([]byte(`<h3>⛔ Truy cập bị từ chối</h3><a href="/">Về trang chủ</a>`))
+		return
+	}
+
+	// 2. LẤY SẢN PHẨM & TỰ ĐỘNG TRÍCH XUẤT DANH MỤC/THƯƠNG HIỆU
 	rawList := core.LayDanhSachSanPham()
 	var cleanList []*core.SanPham
 	
-	// Lọc đơn giản nhất có thể
+	// Dùng Map để lọc trùng (Set)
+	uniqueDM := make(map[string]bool)
+	uniqueTH := make(map[string]bool)
+
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
 			cleanList = append(cleanList, sp)
+			
+			// Thu thập Danh mục (Tách chuỗi ngăn cách bởi |)
+			if sp.DanhMuc != "" {
+				parts := strings.Split(sp.DanhMuc, "|")
+				for _, p := range parts {
+					p = strings.TrimSpace(p)
+					if p != "" { uniqueDM[p] = true }
+				}
+			}
+			// Thu thập Thương hiệu
+			if sp.ThuongHieu != "" {
+				uniqueTH[strings.TrimSpace(sp.ThuongHieu)] = true
+			}
 		}
 	}
 
-	// 3. [QUAN TRỌNG] TẠM TẮT LOAD DANH MỤC & THƯƠNG HIỆU
-	// Để kiểm tra xem có phải lỗi do 2 ông này gây ra không.
-	// Truyền mảng rỗng vào để HTML không bị lỗi vòng lặp.
-	var emptyDM []*core.DanhMuc
-	var emptyTH []*core.ThuongHieu
-
-	// In ra Console để chắc chắn code mới đã chạy
-	fmt.Println(">>> ADMIN: Đang tải danh sách sản phẩm (Chế độ Safe Mode)")
+	// Chuyển Map thành Slice để template dùng
+	var listDM []string
+	for k := range uniqueDM { listDM = append(listDM, k) }
+	
+	var listTH []string
+	for k := range uniqueTH { listTH = append(listTH, k) }
 
 	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
@@ -60,50 +78,48 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		
-		"DanhSach":       cleanList, // Có dữ liệu
-		"ListDanhMuc":    emptyDM,   // Rỗng (Dropdown sẽ trống, nhưng web phải lên)
-		"ListThuongHieu": emptyTH,   // Rỗng
+		"DanhSach":       cleanList,
+		"ListDanhMuc":    listDM, // List String ["Main", "CPU"...]
+		"ListThuongHieu": listTH, // List String ["Asus", "Intel"...]
 	})
 }
 
-// ... (Phần API_LuuSanPham ở dưới giữ nguyên như cũ, không cần sửa) ...
+// =============================================================
+// 2. API LƯU SẢN PHẨM (UPDATE CỘT MỚI)
+// =============================================================
 func API_LuuSanPham(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 
 	maSP       := strings.TrimSpace(c.PostForm("ma_san_pham"))
-	thuongHieu := c.PostForm("ma_thuong_hieu")
+	// Thương hiệu giờ là text, không phải ID
+	thuongHieu := strings.TrimSpace(c.PostForm("ma_thuong_hieu")) 
 
 	giaBanStr := strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", "")
 	giaBanStr  = strings.ReplaceAll(giaBanStr, ",", "")
 	giaBan, _ := strconv.ParseFloat(giaBanStr, 64)
 
-	// --- CHECK QUYỀN ---
+	// Check quyền
 	if maSP == "" {
 		if !core.KiemTraQuyen(vaiTro, "product.create") {
-			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm sản phẩm mới!"})
+			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm!"})
 			return
 		}
 	} else {
 		if !core.KiemTraQuyen(vaiTro, "product.edit") {
-			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"})
+			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa!"})
 			return
-		}
-		
-		spCu, ok := core.LayChiTietSanPham(maSP)
-		if ok && spCu.GiaBanLe != giaBan {
-			if !core.KiemTraQuyen(vaiTro, "product.edit_price") {
-				c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị viên được sửa giá bán!"})
-				return
-			}
 		}
 	}
 
-	// --- LẤY DỮ LIỆU ---
+	// Lấy dữ liệu form
 	tenSP       := strings.TrimSpace(c.PostForm("ten_san_pham"))
 	tenRutGon   := strings.TrimSpace(c.PostForm("ten_rut_gon"))
 	sku         := strings.TrimSpace(c.PostForm("sku"))
+	
+	// Tagify gửi lên dạng [{"value":"A"}, {"value":"B"}] -> Chuyển thành "A|B"
 	danhMucRaw  := c.PostForm("ma_danh_muc")
 	danhMuc     := xuLyTags(danhMucRaw) 
+
 	donVi       := c.PostForm("don_vi")
 	mauSac      := c.PostForm("mau_sac")
 	hinhAnh     := strings.TrimSpace(c.PostForm("url_hinh_anh"))
@@ -113,15 +129,18 @@ func API_LuuSanPham(c *gin.Context) {
 	tinhTrang   := c.PostForm("tinh_trang")
 	ghiChu      := c.PostForm("ghi_chu")
 	
+	// Tạo slug đơn giản (nếu rỗng thì lấy tên)
+	slug := taoSlug(tenSP)
+
 	trangThai := 0
 	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 
 	if tenSP == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Tên sản phẩm không được để trống!"})
+		c.JSON(200, gin.H{"status": "error", "msg": "Tên sản phẩm không được trống!"})
 		return
 	}
 
-	// --- LOGIC CORE ---
+	// Logic Core
 	var sp *core.SanPham
 	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
@@ -132,9 +151,7 @@ func API_LuuSanPham(c *gin.Context) {
 	
 	if maSP == "" {
 		isNew = true
-		// Sinh mã mới (HD + Brand + YYMM...)
 		maSP = core.TaoMaSPMoi(thuongHieu) 
-		
 		sp = &core.SanPham{
 			SpreadsheetID: sheetID,
 			MaSanPham:     maSP,
@@ -150,13 +167,13 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Gán dữ liệu
+	// Gán dữ liệu vào Struct
 	sp.TenSanPham = tenSP
 	sp.TenRutGon = tenRutGon
+	sp.Slug = slug // [MỚI]
 	sp.Sku = sku
-	sp.GiaBanLe = giaBan
-	sp.MaDanhMuc = danhMuc
-	sp.MaThuongHieu = thuongHieu
+	sp.DanhMuc = danhMuc       // Lưu trực tiếp "Main|Ram"
+	sp.ThuongHieu = thuongHieu // Lưu trực tiếp "Asus"
 	sp.DonVi = donVi
 	sp.MauSac = mauSac
 	sp.UrlHinhAnh = hinhAnh
@@ -165,6 +182,7 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.BaoHanhThang = baoHanh
 	sp.TinhTrang = tinhTrang
 	sp.TrangThai = trangThai
+	sp.GiaBanLe = giaBan
 	sp.GhiChu = ghiChu
 	sp.NgayCapNhat = nowStr
 
@@ -172,10 +190,9 @@ func API_LuuSanPham(c *gin.Context) {
 		sp.DongTrongSheet = core.DongBatDau_SanPham + len(core.LayDanhSachSanPham()) 
 		core.ThemSanPhamVaoRam(sp)
 	}
-	
 	core.KhoaHeThong.Unlock()
 
-	// --- GHI XUỐNG SHEET ---
+	// Ghi xuống Sheet (Mapping theo file san_pham.go mới)
 	targetRow := sp.DongTrongSheet
 	if targetRow > 0 {
 		ghi := core.ThemVaoHangCho
@@ -184,9 +201,10 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
+		ghi(sheetID, sheet, targetRow, core.CotSP_Slug, sp.Slug) // [MỚI]
 		ghi(sheetID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MaDanhMuc, sp.MaDanhMuc)
-		ghi(sheetID, sheet, targetRow, core.CotSP_MaThuongHieu, sp.MaThuongHieu)
+		ghi(sheetID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
+		ghi(sheetID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
@@ -202,27 +220,27 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu thành công!"})
 }
 
-type TagifyItem struct {
-	Value string `json:"value"`
-}
+// Hàm hỗ trợ
+type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
 	if !strings.Contains(raw, "[") { return raw }
 	var items []TagifyItem
-	err := json.Unmarshal([]byte(raw), &items)
-	if err != nil { return raw }
+	if err := json.Unmarshal([]byte(raw), &items); err != nil { return raw }
 	var values []string
 	for _, item := range items {
-		val := strings.TrimSpace(item.Value)
-		if val != "" { values = append(values, val) }
+		if v := strings.TrimSpace(item.Value); v != "" { values = append(values, v) }
 	}
 	return strings.Join(values, "|")
 }
 
-func taoMaSPMoi() string {
-	return core.TaoMaSPMoi("") 
+func taoSlug(text string) string {
+	// Demo đơn giản: chuyển về chữ thường, thay khoảng trắng bằng gạch ngang
+	text = strings.ToLower(text)
+	text = strings.ReplaceAll(text, " ", "-")
+	return text
 }
