@@ -109,7 +109,7 @@ func main() {
 		admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien)
 		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien)
 
-		admin.GET("/danh-muc", chuc_nang.TrangQuanLyDanhMuc)
+		admin.GET("/cai-dat", chuc_nang.TrangQuanLyCaiDat)
 		admin.POST("/api/category/save", chuc_nang.API_LuuDanhMuc)
 		admin.POST("/api/brand/save", chuc_nang.API_LuuThuongHieu)
 	}
