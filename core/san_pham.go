@@ -163,6 +163,6 @@ func ThemSanPhamVaoRam(sp *SanPham) {
 func TaoMaSPMoi(maDanhMuc string) string {
 	maDanhMuc = strings.ToUpper(strings.TrimSpace(maDanhMuc))
 	if maDanhMuc == "" { maDanhMuc = "SP" }
-	stt := LaySTTtiepTheo(maDanhMuc)
+	slot := LaySlotTiepTheo(maDanhMuc)
 	return fmt.Sprintf("%s%04d", maDanhMuc, slot)
 }
