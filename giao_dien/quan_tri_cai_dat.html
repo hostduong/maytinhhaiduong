@@ -3,12 +3,27 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin-bottom: 0.4rem; display: block; }
-        input.input-premium, textarea.input-premium, select.input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s; font-weight: 500; }
+        /* Typography & Cấu trúc form */
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin-bottom: 0.5rem; display: block; }
+        
+        input.input-premium, textarea.input-premium, select.input-premium { 
+            width: 100%; box-sizing: border-box; background-color: #ffffff; border: 1px solid #cbd5e1; 
+            border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s; font-weight: 500; 
+        }
         input.input-premium, select.input-premium { height: 44px; padding: 0 1rem; }
         textarea.input-premium { padding: 0.75rem 1rem; }
-        input.input-premium:focus, textarea.input-premium:focus, select.input-premium:focus { background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
         
+        input.input-premium:focus, textarea.input-premium:focus, select.input-premium:focus { 
+            border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; 
+        }
+        
+        /* [QUAN TRỌNG] Hiệu ứng trực quan cho ô bị Khóa (Readonly) */
+        input.input-premium:disabled, input.input-premium[readonly], select.input-premium:disabled {
+            background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-style: dashed; border-color: #cbd5e1;
+            opacity: 0.8;
+        }
+
+        /* Nút Tab */
         .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
         .tab-btn.active { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
@@ -24,7 +39,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-t-xl border border-b-0 border-slate-200 flex overflow-hidden">
+        <div class="bg-white rounded-t-xl border border-b-0 border-slate-200 flex overflow-hidden shadow-sm">
             <button onclick="switchTab('tabDM')" id="btn-tabDM" class="tab-btn active flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide">📁 Danh Mục Sản Phẩm</button>
             <button onclick="switchTab('tabTH')" id="btn-tabTH" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">⭐ Thương Hiệu</button>
             <button onclick="switchTab('tabBLN')" id="btn-tabBLN" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">💰 Khung Định Giá</button>
@@ -38,8 +53,8 @@
                         <input type="text" id="searchDM" onkeyup="filterTable('searchDM', 'tbodyDM')" placeholder="Tìm mã hoặc tên..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <button type="button" onclick="openModalDM()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap">
-                        + Thêm Mới
+                    <button type="button" onclick="openModalDM()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap transition transform active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg> Thêm Mới
                     </button>
                 </div>
             </div>
@@ -61,14 +76,16 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
-                            <td class="px-6 py-4 text-slate-500 text-xs">{{ if .DanhMucMe }}{{ .DanhMucMe }}{{ else }}---{{ end }}</td>
+                            <td class="px-6 py-4 text-slate-500 text-xs">{{ if .DanhMucMe }}<span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded font-bold">{{ .DanhMucMe }}</span>{{ else }}<span class="italic text-slate-400">--- Gốc ---</span>{{ end }}</td>
                             <td class="px-6 py-4 text-center font-bold text-red-600">{{ .ThueVAT }}</td>
-                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400">Theo Giá</span>{{ end }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400 font-normal">Tự động</span>{{ end }}</td>
                             <td class="px-6 py-4 text-center">
-                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}', {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
+                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}', {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
+                               </button>
                             </td>
                         </tr>
                         {{ end }}
@@ -85,8 +102,8 @@
                         <input type="text" id="searchTH" onkeyup="filterTable('searchTH', 'tbodyTH')" placeholder="Tìm mã hoặc tên hãng..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <button type="button" onclick="openModalTH()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap">
-                        + Thêm Mới
+                    <button type="button" onclick="openModalTH()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap transition transform active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg> Thêm Mới
                     </button>
                 </div>
             </div>
@@ -105,15 +122,19 @@
                         {{ range .ListThuongHieu }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 text-center">
-                                <img src="{{ if .LogoUrl }}{{ .LogoUrl }}{{ else }}https://via.placeholder.com/40?text=No+Img{{ end }}" loading="lazy" onerror="this.src='https://via.placeholder.com/40?text=Error'" class="w-10 h-10 object-contain bg-white border border-slate-200 rounded p-1 mx-auto">
+                                <div class="w-10 h-10 mx-auto rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
+                                    <img src="{{ if .LogoUrl }}{{ .LogoUrl }}{{ else }}https://via.placeholder.com/40?text=No+Img{{ end }}" onerror="this.src='https://via.placeholder.com/40?text=Error'" class="max-w-full max-h-full object-contain">
+                                </div>
                             </td>
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaThuongHieu }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenThuongHieu }}</td>
                             <td class="px-6 py-4 text-center">
-                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .LogoUrl }}', '{{ .MoTa }}', {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
+                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .LogoUrl }}', '{{ .MoTa }}', {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
+                                </button>
                             </td>
                         </tr>
                         {{ end }}
@@ -124,8 +145,16 @@
 
         <div id="tabBLN" class="tab-content bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50 gap-3">
-                <h2 class="font-bold text-slate-700 hidden md:block">CẤU HÌNH BIÊN LỢI NHUẬN TỰ ĐỘNG</h2>
-                <button type="button" onclick="openModalBLN()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm">+ Thêm Khung Giá</button>
+                <h2 class="font-bold text-slate-700 hidden md:block">CẤU HÌNH BIÊN LỢI NHUẬN THEO GIÁ</h2>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" id="searchBLN" onkeyup="filterTable('searchBLN', 'tbodyBLN')" placeholder="Tìm khung giá..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <button type="button" onclick="openModalBLN()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap transition transform active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg> Thêm Khung
+                    </button>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-slate-600">
@@ -137,19 +166,18 @@
                             <th class="px-6 py-4 font-bold text-center">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody id="tbodyBLN" class="divide-y divide-slate-100">
                         {{ range .ListBLN }}
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 font-bold text-slate-800">
-                                Từ <span class="text-slate-600">{{ format_money .GiaTu }} đ</span> 
-                                đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span>
-                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">Từ <span class="text-slate-500 font-medium">{{ format_money .GiaTu }} đ</span> đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
                             <td class="px-6 py-4 font-bold text-emerald-600 text-lg">{{ .BienLoiNhuan }} %</td>
                             <td class="px-6 py-4 text-center">
-                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editBLN({{ .DongTrongSheet }}, {{ .KhungGiaNhap }}, {{ .BienLoiNhuan }}, {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
+                                <button type="button" onclick="editBLN({{ .DongTrongSheet }}, {{ .KhungGiaNhap }}, {{ .BienLoiNhuan }}, {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
+                                </button>
                             </td>
                         </tr>
                         {{ end }}
@@ -160,10 +188,10 @@
     </div>
 
     <div id="modalDM" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-white rounded-t-2xl">
-                <h3 class="text-xl font-bold text-slate-800" id="titleDM">Thêm Danh Mục</h3>
-                <button type="button" onclick="closeModal('modalDM')" class="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md transform transition-all overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-white">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="titleDM">Thêm Danh Mục</h3>
+                <button type="button" onclick="closeModal('modalDM')" class="text-slate-400 hover:text-red-500 font-bold text-xl transition">&times;</button>
             </div>
             <div class="p-6">
                 <form id="formDM" class="space-y-4" autocomplete="off">
@@ -171,60 +199,67 @@
                     <div>
                         <label>Danh mục Mẹ (Cấp trên)</label>
                         <select name="danh_muc_me" id="dm_me" class="input-premium cursor-pointer bg-white">
-                            <option value="">--- Trống (Gốc) ---</option>
+                            <option value="">--- Trống (Đây là gốc) ---</option>
                             {{ range .ListDanhMuc }}
-                                {{ if ne .MaDanhMuc "" }}
-                                    <option value="{{ .MaDanhMuc }}">{{ .MaDanhMuc }} - {{ .TenDanhMuc }}</option>
-                                {{ end }}
+                                {{ if ne .MaDanhMuc "" }}<option value="{{ .MaDanhMuc }}">{{ .MaDanhMuc }} - {{ .TenDanhMuc }}</option>{{ end }}
                             {{ end }}
                         </select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label>Mã Danh Mục *</label><input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" required></div>
-                        <div><label>Tên Danh Mục *</label><input type="text" name="ten_danh_muc" id="dm_ten" class="input-premium" required></div>
+                        <div>
+                            <label>Mã Danh Mục <span class="text-red-500">*</span></label>
+                            <input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" required title="Không thể sửa mã khi cập nhật">
+                        </div>
+                        <div>
+                            <label>Tên Danh Mục <span class="text-red-500">*</span></label>
+                            <input type="text" name="ten_danh_muc" id="dm_ten" class="input-premium" required>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-red-600">Thuế VAT (%)</label><input type="number" name="thue_vat" id="dm_thue" class="input-premium text-center font-bold text-red-600"></div>
-                        <div><label class="text-blue-600">Lợi Nhuận Cố Định</label><input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center font-bold text-blue-600" placeholder="0 = Khung giá"></div>
+                        <div><label class="text-blue-600">Lợi Nhuận Cố Định</label><input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center font-bold text-blue-600" placeholder="0 = Tự Động"></div>
                     </div>
-                    <div><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="dm_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
+                    <div class="mt-2 pt-4 border-t border-slate-100"><label class="flex items-center cursor-pointer mb-0"><input type="checkbox" name="trang_thai" id="dm_trangthai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mr-2" checked> <span class="font-bold text-slate-700">✅ Đang hoạt động</span></label></div>
                 </form>
             </div>
-            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" onclick="closeModal('modalDM')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg">Hủy</button>
-                <button type="button" onclick="saveDM()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md">Lưu</button>
+            <div class="px-6 py-4 border-t bg-slate-50 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('modalDM')" class="px-4 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy</button>
+                <button type="button" id="btnSaveDM" onclick="saveDM()" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition flex items-center">Lưu</button>
             </div>
         </div>
     </div>
 
     <div id="modalTH" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-white rounded-t-2xl">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md transform transition-all overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-white">
                 <h3 class="text-xl font-bold text-slate-800" id="titleTH">Thêm Thương Hiệu</h3>
-                <button type="button" onclick="closeModal('modalTH')" class="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
+                <button type="button" onclick="closeModal('modalTH')" class="text-slate-400 hover:text-red-500 font-bold text-xl transition">&times;</button>
             </div>
             <div class="p-6">
                 <form id="formTH" class="space-y-4" autocomplete="off">
                     <input type="hidden" name="is_new" id="is_new_th" value="true">
-                    <div><label>Mã Thương Hiệu *</label><input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase font-bold" required></div>
-                    <div><label>Tên Thương Hiệu *</label><input type="text" name="ten_thuong_hieu" id="th_ten" class="input-premium" required></div>
+                    <div>
+                        <label>Mã Thương Hiệu <span class="text-red-500">*</span></label>
+                        <input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase font-bold" required title="Không thể sửa mã khi cập nhật">
+                    </div>
+                    <div><label>Tên Thương Hiệu <span class="text-red-500">*</span></label><input type="text" name="ten_thuong_hieu" id="th_ten" class="input-premium" required></div>
                     <div><label>Link Logo (URL)</label><input type="text" name="logo_url" id="th_logo" class="input-premium font-mono text-xs"></div>
                     <div><label>Mô tả ngắn</label><textarea name="mo_ta" id="th_mota" rows="2" class="input-premium leading-relaxed"></textarea></div>
-                    <div><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="th_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
+                    <div class="mt-2 pt-4 border-t border-slate-100"><label class="flex items-center cursor-pointer mb-0"><input type="checkbox" name="trang_thai" id="th_trangthai" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 mr-2" checked> <span class="font-bold text-slate-700">✅ Đang hoạt động</span></label></div>
                 </form>
             </div>
-            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" onclick="closeModal('modalTH')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg">Hủy</button>
-                <button type="button" onclick="saveTH()" class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 shadow-md">Lưu</button>
+            <div class="px-6 py-4 border-t bg-slate-50 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('modalTH')" class="px-4 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy</button>
+                <button type="button" id="btnSaveTH" onclick="saveTH()" class="px-6 py-2.5 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 shadow-md transition flex items-center">Lưu</button>
             </div>
         </div>
     </div>
 
     <div id="modalBLN" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-white rounded-t-2xl">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md transform transition-all overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-white">
                 <h3 class="text-xl font-bold text-slate-800" id="titleBLN">Thêm Khung Giá</h3>
-                <button type="button" onclick="closeModal('modalBLN')" class="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
+                <button type="button" onclick="closeModal('modalBLN')" class="text-slate-400 hover:text-red-500 font-bold text-xl transition">&times;</button>
             </div>
             <div class="p-6">
                 <form id="formBLN" class="space-y-4" autocomplete="off">
@@ -239,18 +274,17 @@
                         <label>Biên Lợi Nhuận Tương Ứng (%) <span class="text-red-500">*</span></label>
                         <input type="number" name="bien_loi_nhuan" id="bln_loi" class="input-premium text-emerald-600 font-bold text-center text-lg" required placeholder="Ví dụ: 30">
                     </div>
-                    <div class="mt-4"><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="bln_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
+                    <div class="mt-2 pt-4 border-t border-slate-100"><label class="flex items-center cursor-pointer mb-0"><input type="checkbox" name="trang_thai" id="bln_trangthai" class="w-5 h-5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500 mr-2" checked> <span class="font-bold text-slate-700">✅ Đang hoạt động</span></label></div>
                 </form>
             </div>
-            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" onclick="closeModal('modalBLN')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg">Hủy</button>
-                <button type="button" onclick="saveBLN()" class="px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-md">Lưu Khung Giá</button>
+            <div class="px-6 py-4 border-t bg-slate-50 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('modalBLN')" class="px-4 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy</button>
+                <button type="button" id="btnSaveBLN" onclick="saveBLN()" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-md transition flex items-center">Lưu Khung Giá</button>
             </div>
         </div>
     </div>
 
     <script>
-        // LƯU TRẠNG THÁI TAB
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -259,28 +293,70 @@
         }
         (function restoreTab() { const savedTab = localStorage.getItem('activeTab_CaiDat'); if (savedTab && document.getElementById(savedTab)) { switchTab(savedTab); } })();
 
-        function filterTable(inputId, tbodyId) { const query = document.getElementById(inputId).value.toLowerCase(); document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; }); }
+        function filterTable(inputId, tbodyId) { 
+            const query = document.getElementById(inputId).value.toLowerCase(); 
+            document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; }); 
+        }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // --- DANH MỤC ---
-        function openModalDM() { document.getElementById('formDM').reset(); document.getElementById('is_new_dm').value = "true"; document.getElementById('dm_ma').readOnly = false; document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới"; document.getElementById('modalDM').classList.remove('hidden'); }
-        function editDM(ma, ten, me, thue, loi, tt) { document.getElementById('is_new_dm').value = "false"; document.getElementById('dm_ma').value = ma; document.getElementById('dm_ma').readOnly = true; document.getElementById('dm_ten').value = ten; document.getElementById('dm_me').value = me; document.getElementById('dm_thue').value = thue; document.getElementById('dm_loi').value = loi; document.getElementById('dm_trangthai').checked = (tt===1); document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma; document.getElementById('modalDM').classList.remove('hidden'); }
+        function openModalDM() { 
+            document.getElementById('formDM').reset(); 
+            document.getElementById('is_new_dm').value = "true"; 
+            document.getElementById('dm_ma').readOnly = false; 
+            document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới"; 
+            document.getElementById('modalDM').classList.remove('hidden'); 
+        }
+        function editDM(ma, ten, me, thue, loi, tt) { 
+            document.getElementById('is_new_dm').value = "false"; 
+            document.getElementById('dm_ma').value = ma; 
+            document.getElementById('dm_ma').readOnly = true; // Khóa input & Kích hoạt CSS xám
+            document.getElementById('dm_ten').value = ten; 
+            document.getElementById('dm_me').value = me; 
+            document.getElementById('dm_thue').value = thue; 
+            document.getElementById('dm_loi').value = loi; 
+            document.getElementById('dm_trangthai').checked = (tt===1); 
+            document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma; 
+            document.getElementById('modalDM').classList.remove('hidden'); 
+        }
         async function saveDM() {
             if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
-            try { const res = await fetch('/admin/api/category/save', { method: 'POST', body: new FormData(document.getElementById('formDM')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
+            
+            const btn = document.getElementById('btnSaveDM'); const originHTML = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+
+            try { const res = await fetch('/admin/api/category/save', { method: 'POST', body: new FormData(document.getElementById('formDM')) }); const data = await res.json(); if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Thành công', showConfirmButton: false, timer: 1000}).then(() => location.reload()); } else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originHTML; } } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); btn.disabled = false; btn.innerHTML = originHTML; }
         }
 
         // --- THƯƠNG HIỆU ---
-        function openModalTH() { document.getElementById('formTH').reset(); document.getElementById('is_new_th').value = "true"; document.getElementById('th_ma').readOnly = false; document.getElementById('titleTH').innerText = "Thêm Thương Hiệu Mới"; document.getElementById('modalTH').classList.remove('hidden'); }
-        function editTH(ma, ten, logo, mota, tt) { document.getElementById('is_new_th').value = "false"; document.getElementById('th_ma').value = ma; document.getElementById('th_ma').readOnly = true; document.getElementById('th_ten').value = ten; document.getElementById('th_logo').value = logo; document.getElementById('th_mota').value = mota; document.getElementById('th_trangthai').checked = (tt===1); document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma; document.getElementById('modalTH').classList.remove('hidden'); }
+        function openModalTH() { 
+            document.getElementById('formTH').reset(); 
+            document.getElementById('is_new_th').value = "true"; 
+            document.getElementById('th_ma').readOnly = false; 
+            document.getElementById('titleTH').innerText = "Thêm Thương Hiệu Mới"; 
+            document.getElementById('modalTH').classList.remove('hidden'); 
+        }
+        function editTH(ma, ten, logo, mota, tt) { 
+            document.getElementById('is_new_th').value = "false"; 
+            document.getElementById('th_ma').value = ma; 
+            document.getElementById('th_ma').readOnly = true; // Khóa input & Kích hoạt CSS xám
+            document.getElementById('th_ten').value = ten; 
+            document.getElementById('th_logo').value = logo; 
+            document.getElementById('th_mota').value = mota; 
+            document.getElementById('th_trangthai').checked = (tt===1); 
+            document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma; 
+            document.getElementById('modalTH').classList.remove('hidden'); 
+        }
         async function saveTH() {
             if(!document.getElementById('th_ma').value || !document.getElementById('th_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
-            try { const res = await fetch('/admin/api/brand/save', { method: 'POST', body: new FormData(document.getElementById('formTH')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
+            
+            const btn = document.getElementById('btnSaveTH'); const originHTML = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+
+            try { const res = await fetch('/admin/api/brand/save', { method: 'POST', body: new FormData(document.getElementById('formTH')) }); const data = await res.json(); if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Thành công', showConfirmButton: false, timer: 1000}).then(() => location.reload()); } else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originHTML; } } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); btn.disabled = false; btn.innerHTML = originHTML; }
         }
 
-        // --- KHUNG GIÁ (BIÊN LỢI NHUẬN) ---
+        // --- KHUNG GIÁ ---
         function openModalBLN() { 
             document.getElementById('formBLN').reset(); 
             document.getElementById('is_new_bln').value = "true"; 
@@ -298,8 +374,11 @@
         }
         async function saveBLN() {
             if(!document.getElementById('bln_khung').value || !document.getElementById('bln_loi').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
-            try { const res = await fetch('/admin/api/margin/save', { method: 'POST', body: new FormData(document.getElementById('formBLN')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
+            
+            const btn = document.getElementById('btnSaveBLN'); const originHTML = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+
+            try { const res = await fetch('/admin/api/margin/save', { method: 'POST', body: new FormData(document.getElementById('formBLN')) }); const data = await res.json(); if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Thành công', showConfirmButton: false, timer: 1000}).then(() => location.reload()); } else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originHTML; } } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); btn.disabled = false; btn.innerHTML = originHTML; }
         }
     </script>
     {{ template "footer" . }}
