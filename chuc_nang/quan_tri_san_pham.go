@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"app/bao_mat" // [FIX LỖI]: Bổ sung thư viện bảo mật
 	"app/cau_hinh"
 	"app/core"
 
