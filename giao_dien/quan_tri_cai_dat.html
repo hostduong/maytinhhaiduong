@@ -17,7 +17,7 @@
             border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; 
         }
         
-        /* [QUAN TRỌNG] Hiệu ứng trực quan cho ô bị Khóa (Readonly) */
+        /* Hiệu ứng trực quan cho ô bị Khóa (Readonly) */
         input.input-premium:disabled, input.input-premium[readonly], select.input-premium:disabled {
             background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-style: dashed; border-color: #cbd5e1;
             opacity: 0.8;
@@ -30,6 +30,43 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+
+    <div id="data_island" style="display:none;">
+        <div id="data_dm">
+            {{ range .ListDanhMuc }}
+                {{ if ne .MaDanhMuc "" }}
+                <div class="dm-item" 
+                     data-ma="{{ .MaDanhMuc }}" 
+                     data-ten="{{ urlquery .TenDanhMuc }}" 
+                     data-me="{{ urlquery .DanhMucMe }}" 
+                     data-vat="{{ .ThueVAT }}" 
+                     data-loi="{{ .LoiNhuan }}" 
+                     data-tt="{{ .TrangThai }}"></div>
+                {{ end }}
+            {{ end }}
+        </div>
+        <div id="data_th">
+            {{ range .ListThuongHieu }}
+                {{ if ne .MaThuongHieu "" }}
+                <div class="th-item" 
+                     data-ma="{{ .MaThuongHieu }}" 
+                     data-ten="{{ urlquery .TenThuongHieu }}" 
+                     data-logo="{{ urlquery .LogoUrl }}" 
+                     data-mota="{{ urlquery .MoTa }}" 
+                     data-tt="{{ .TrangThai }}"></div>
+                {{ end }}
+            {{ end }}
+        </div>
+        <div id="data_bln">
+            {{ range .ListBLN }}
+                <div class="bln-item" 
+                     data-dong="{{ .DongTrongSheet }}" 
+                     data-khung="{{ .KhungGiaNhap }}" 
+                     data-loi="{{ .BienLoiNhuan }}" 
+                     data-tt="{{ .TrangThai }}"></div>
+            {{ end }}
+        </div>
+    </div>
 
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-6">
@@ -73,6 +110,7 @@
                     </thead>
                     <tbody id="tbodyDM" class="divide-y divide-slate-100">
                         {{ range .ListDanhMuc }}
+                        {{ if ne .MaDanhMuc "" }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
@@ -83,11 +121,12 @@
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}', {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
                                </button>
                             </td>
                         </tr>
+                        {{ end }}
                         {{ end }}
                     </tbody>
                 </table>
@@ -120,6 +159,7 @@
                     </thead>
                     <tbody id="tbodyTH" class="divide-y divide-slate-100">
                         {{ range .ListThuongHieu }}
+                        {{ if ne .MaThuongHieu "" }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 text-center">
                                 <div class="w-10 h-10 mx-auto rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
@@ -132,11 +172,12 @@
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .LogoUrl }}', '{{ .MoTa }}', {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}')" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
                                 </button>
                             </td>
                         </tr>
+                        {{ end }}
                         {{ end }}
                     </tbody>
                 </table>
@@ -175,7 +216,7 @@
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editBLN({{ .DongTrongSheet }}, {{ .KhungGiaNhap }}, {{ .BienLoiNhuan }}, {{ .TrangThai }})" class="flex items-center justify-center gap-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                <button type="button" onclick="editBLN('{{ .DongTrongSheet }}')" class="flex items-center justify-center gap-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
                                 </button>
                             </td>
@@ -285,6 +326,58 @@
     </div>
 
     <script>
+        // --- GIẢI MÃ DỮ LIỆU TỪ DATA ISLAND (CHỐNG CRASH JS 100%) ---
+        function decodeGo(str) {
+            if (!str) return "";
+            return decodeURIComponent(str.replace(/\+/g, '%20'));
+        }
+
+        const mapDM = {};
+        document.querySelectorAll('#data_dm .dm-item').forEach(el => {
+            let ma = el.getAttribute('data-ma');
+            if(ma) {
+                mapDM[ma] = {
+                    ma: ma,
+                    ten: decodeGo(el.getAttribute('data-ten')),
+                    me: decodeGo(el.getAttribute('data-me')),
+                    thue: parseFloat(el.getAttribute('data-vat')) || 0,
+                    loi: parseFloat(el.getAttribute('data-loi')) || 0,
+                    tt: parseInt(el.getAttribute('data-tt')) || 0
+                };
+            }
+        });
+
+        const mapTH = {};
+        document.querySelectorAll('#data_th .th-item').forEach(el => {
+            let ma = el.getAttribute('data-ma');
+            if(ma) {
+                mapTH[ma] = {
+                    ma: ma,
+                    ten: decodeGo(el.getAttribute('data-ten')),
+                    logo: decodeGo(el.getAttribute('data-logo')),
+                    mota: decodeGo(el.getAttribute('data-mota')),
+                    tt: parseInt(el.getAttribute('data-tt')) || 0
+                };
+            }
+        });
+
+        const mapBLN = {};
+        document.querySelectorAll('#data_bln .bln-item').forEach(el => {
+            let dong = el.getAttribute('data-dong');
+            if(dong) {
+                mapBLN[dong] = {
+                    dong: dong,
+                    khung: parseFloat(el.getAttribute('data-khung')) || 0,
+                    loi: parseFloat(el.getAttribute('data-loi')) || 0,
+                    tt: parseInt(el.getAttribute('data-tt')) || 0
+                };
+            }
+        });
+
+        // Hủy Data Island cho sạch HTML
+        document.getElementById('data_island').remove();
+
+        // --- CÁC HÀM UI CƠ BẢN ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -307,21 +400,21 @@
             document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới"; 
             document.getElementById('modalDM').classList.remove('hidden'); 
         }
-        function editDM(ma, ten, me, thue, loi, tt) { 
+        function editDM(ma) { 
+            const item = mapDM[ma]; if(!item) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu', 'error'); return; }
             document.getElementById('is_new_dm').value = "false"; 
-            document.getElementById('dm_ma').value = ma; 
-            document.getElementById('dm_ma').readOnly = true; // Khóa input & Kích hoạt CSS xám
-            document.getElementById('dm_ten').value = ten; 
-            document.getElementById('dm_me').value = me; 
-            document.getElementById('dm_thue').value = thue; 
-            document.getElementById('dm_loi').value = loi; 
-            document.getElementById('dm_trangthai').checked = (tt===1); 
-            document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma; 
+            document.getElementById('dm_ma').value = item.ma; 
+            document.getElementById('dm_ma').readOnly = true; 
+            document.getElementById('dm_ten').value = item.ten; 
+            document.getElementById('dm_me').value = item.me; 
+            document.getElementById('dm_thue').value = item.thue; 
+            document.getElementById('dm_loi').value = item.loi; 
+            document.getElementById('dm_trangthai').checked = (item.tt === 1); 
+            document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + item.ma; 
             document.getElementById('modalDM').classList.remove('hidden'); 
         }
         async function saveDM() {
             if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            
             const btn = document.getElementById('btnSaveDM'); const originHTML = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
@@ -336,20 +429,20 @@
             document.getElementById('titleTH').innerText = "Thêm Thương Hiệu Mới"; 
             document.getElementById('modalTH').classList.remove('hidden'); 
         }
-        function editTH(ma, ten, logo, mota, tt) { 
+        function editTH(ma) { 
+            const item = mapTH[ma]; if(!item) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu', 'error'); return; }
             document.getElementById('is_new_th').value = "false"; 
-            document.getElementById('th_ma').value = ma; 
-            document.getElementById('th_ma').readOnly = true; // Khóa input & Kích hoạt CSS xám
-            document.getElementById('th_ten').value = ten; 
-            document.getElementById('th_logo').value = logo; 
-            document.getElementById('th_mota').value = mota; 
-            document.getElementById('th_trangthai').checked = (tt===1); 
-            document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma; 
+            document.getElementById('th_ma').value = item.ma; 
+            document.getElementById('th_ma').readOnly = true; 
+            document.getElementById('th_ten').value = item.ten; 
+            document.getElementById('th_logo').value = item.logo; 
+            document.getElementById('th_mota').value = item.mota; 
+            document.getElementById('th_trangthai').checked = (item.tt === 1); 
+            document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + item.ma; 
             document.getElementById('modalTH').classList.remove('hidden'); 
         }
         async function saveTH() {
             if(!document.getElementById('th_ma').value || !document.getElementById('th_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            
             const btn = document.getElementById('btnSaveTH'); const originHTML = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
@@ -363,18 +456,18 @@
             document.getElementById('titleBLN').innerText = "Thêm Khung Giá Mới"; 
             document.getElementById('modalBLN').classList.remove('hidden'); 
         }
-        function editBLN(dong, khung, loi, tt) { 
+        function editBLN(dong) { 
+            const item = mapBLN[dong]; if(!item) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu', 'error'); return; }
             document.getElementById('is_new_bln').value = "false"; 
-            document.getElementById('bln_dong').value = dong; 
-            document.getElementById('bln_khung').value = khung.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
-            document.getElementById('bln_loi').value = loi; 
-            document.getElementById('bln_trangthai').checked = (tt===1); 
+            document.getElementById('bln_dong').value = item.dong; 
+            document.getElementById('bln_khung').value = item.khung.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+            document.getElementById('bln_loi').value = item.loi; 
+            document.getElementById('bln_trangthai').checked = (item.tt === 1); 
             document.getElementById('titleBLN').innerText = "Sửa Khung Giá"; 
             document.getElementById('modalBLN').classList.remove('hidden'); 
         }
         async function saveBLN() {
             if(!document.getElementById('bln_khung').value || !document.getElementById('bln_loi').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
-            
             const btn = document.getElementById('btnSaveBLN'); const originHTML = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
