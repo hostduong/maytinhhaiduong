@@ -17,14 +17,24 @@ type BienLoiNhuan struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
 
-	KhungGiaNhap float64 `json:"khung_gia_nhap"`
-	BienLoiNhuan float64 `json:"bien_loi_nhuan"`
-	TrangThai    int     `json:"trang_thai"`
+	GiaTu          float64 `json:"gia_tu"` // [MỚI] Tự động suy luận để UI hiển thị "Từ... Đến..."
+	KhungGiaNhap   float64 `json:"khung_gia_nhap"`
+	BienLoiNhuan   float64 `json:"bien_loi_nhuan"`
+	TrangThai      int     `json:"trang_thai"`
 }
 
 var (
 	_DS_BienLoiNhuan []*BienLoiNhuan
 )
+
+// [MỚI] Hàm tiện ích quét lại khoảng giá sau khi thêm/sửa/xóa
+func capNhatKhoangGia() {
+	var prev float64 = 0
+	for _, b := range _DS_BienLoiNhuan {
+		b.GiaTu = prev
+		prev = b.KhungGiaNhap + 1 // Khung tiếp theo sẽ bắt đầu bằng Max khung trước + 1đ
+	}
+}
 
 func NapBienLoiNhuan(targetSpreadsheetID string) {
 	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
@@ -36,7 +46,7 @@ func NapBienLoiNhuan(targetSpreadsheetID string) {
 	for i, r := range raw {
 		if i < DongBatDau_BienLoiNhuan-1 { continue }
 		khungGia := layFloat(r, CotBLN_KhungGiaNhap)
-		if khungGia <= 0 { continue } // Bỏ qua dòng trống
+		if khungGia <= 0 { continue } 
 
 		bln := &BienLoiNhuan{
 			SpreadsheetID:  targetSpreadsheetID,
@@ -48,10 +58,11 @@ func NapBienLoiNhuan(targetSpreadsheetID string) {
 		_DS_BienLoiNhuan = append(_DS_BienLoiNhuan, bln)
 	}
 
-	// Sắp xếp tự động tăng dần theo Khung giá để lúc tính toán dễ dò tìm
 	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
 		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
 	})
+
+	capNhatKhoangGia() // [MỚI]
 }
 
 func LayDanhSachBienLoiNhuan() []*BienLoiNhuan {
@@ -69,4 +80,23 @@ func ThemBienLoiNhuanVaoRam(bln *BienLoiNhuan) {
 	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
 		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
 	})
+	
+	capNhatKhoangGia() // [MỚI]
+}
+
+func SuaBienLoiNhuanTrongRam(dong int, khungGia, loiNhuan float64, trangThai int) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	for _, item := range _DS_BienLoiNhuan {
+		if item.DongTrongSheet == dong {
+			item.KhungGiaNhap = khungGia
+			item.BienLoiNhuan = loiNhuan
+			item.TrangThai = trangThai
+			break
+		}
+	}
+	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
+		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
+	})
+	capNhatKhoangGia() // [MỚI]
 }
