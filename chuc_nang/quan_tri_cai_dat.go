@@ -11,13 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Hiển thị trang
-func TrangQuanLyDanhMuc(c *gin.Context) {
+// [ĐÃ SỬA TÊN HÀM]
+func TrangQuanLyCaiDat(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	kh, _ := core.LayKhachHang(userID)
 
-	c.HTML(http.StatusOK, "quan_tri_danh_muc", gin.H{
-		"TieuDe":         "Cấu hình Danh mục & Thương hiệu",
+	// [ĐÃ SỬA TÊN TEMPLATE]
+	c.HTML(http.StatusOK, "quan_tri_cai_dat", gin.H{
+		"TieuDe":         "Cài đặt hệ thống",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
@@ -26,6 +27,8 @@ func TrangQuanLyDanhMuc(c *gin.Context) {
 		"ListThuongHieu": core.LayDanhSachThuongHieu(),
 	})
 }
+
+// ... (Giữ nguyên các API_LuuDanhMuc và API_LuuThuongHieu bên dưới) ...
 
 // API_LuuDanhMuc: Thêm hoặc Sửa Danh Mục
 func API_LuuDanhMuc(c *gin.Context) {
