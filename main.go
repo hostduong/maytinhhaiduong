@@ -112,6 +112,7 @@ func main() {
 		admin.GET("/cai-dat", chuc_nang.TrangQuanLyCaiDat)
 		admin.POST("/api/category/save", chuc_nang.API_LuuDanhMuc)
 		admin.POST("/api/brand/save", chuc_nang.API_LuuThuongHieu)
+		admin.POST("/api/margin/save", chuc_nang.API_LuuBienLoiNhuan)
 	}
 
 	port := os.Getenv("PORT")
