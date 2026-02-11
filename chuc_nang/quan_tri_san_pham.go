@@ -68,7 +68,8 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       cleanList,
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(),    
-		"ListThuongHieu": core.LayDanhSachThuongHieu(), 
+		"ListThuongHieu": core.LayDanhSachThuongHieu(),
+		"ListBLN":        core.LayDanhSachBienLoiNhuan(),
 	})
 }
 
