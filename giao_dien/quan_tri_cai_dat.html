@@ -4,10 +4,10 @@
 
     <style>
         label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin-bottom: 0.4rem; display: block; }
-        input.input-premium, textarea.input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s; font-weight: 500; }
-        input.input-premium { height: 44px; padding: 0 1rem; }
+        input.input-premium, textarea.input-premium, select.input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s; font-weight: 500; }
+        input.input-premium, select.input-premium { height: 44px; padding: 0 1rem; }
         textarea.input-premium { padding: 0.75rem 1rem; }
-        input.input-premium:focus, textarea.input-premium:focus { background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
+        input.input-premium:focus, textarea.input-premium:focus, select.input-premium:focus { background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
         input.input-premium:not(:placeholder-shown), textarea.input-premium:not(:placeholder-shown) { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8; font-weight: 600; }
         
         .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
@@ -50,8 +50,9 @@
                         <tr>
                             <th class="px-6 py-4 font-bold">Mã (Prefix)</th>
                             <th class="px-6 py-4 font-bold">Tên Danh Mục</th>
+                            <th class="px-6 py-4 font-bold">Danh Mục Mẹ (Parent)</th>
                             <th class="px-6 py-4 font-bold text-center">Thuế VAT (%)</th>
-                            <th class="px-6 py-4 font-bold text-center">Biên Lợi Nhuận (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Lợi Nhuận (%)</th>
                             <th class="px-6 py-4 font-bold text-center">Thao tác</th>
                         </tr>
                     </thead>
@@ -61,11 +62,17 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
+                            <td class="px-6 py-4">
+                                {{ if .DanhMucMe }}
+                                    <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold border border-slate-200">{{ .DanhMucMe }}</span>
+                                {{ else }}
+                                    <span class="text-slate-400 italic text-xs">--- Gốc ---</span>
+                                {{ end }}
+                            </td>
                             <td class="px-6 py-4 text-center text-red-600 font-bold">{{ .ThueVAT }}</td>
                             <td class="px-6 py-4 text-center text-emerald-600 font-bold">{{ .LoiNhuan }}</td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
                                     Sửa
                                 </button>
                             </td>
@@ -114,7 +121,6 @@
                             <td class="px-6 py-4"><div class="text-sm line-clamp-2 max-w-md">{{ .MoTa }}</div></td>
                             <td class="px-6 py-4 text-center">
                                 <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .Logo }}', '{{ .MoTa }}')" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     Sửa
                                 </button>
                             </td>
@@ -136,6 +142,19 @@
             <div class="p-6">
                 <form id="formDM" class="space-y-4" autocomplete="off">
                     <input type="hidden" name="is_new" id="is_new_dm" value="true">
+                    
+                    <div>
+                        <label>Danh mục Mẹ (Cấp trên)</label>
+                        <select name="danh_muc_me" id="dm_me" class="input-premium cursor-pointer bg-white">
+                            <option value="">--- Trống (Đây là danh mục gốc) ---</option>
+                            {{ range .ListDanhMuc }}
+                                {{ if ne .MaDanhMuc "" }}
+                                    <option value="{{ .MaDanhMuc }}">{{ .MaDanhMuc }} - {{ .TenDanhMuc }}</option>
+                                {{ end }}
+                            {{ end }}
+                        </select>
+                    </div>
+
                     <div>
                         <label>Mã Danh Mục (Prefix) <span class="text-red-500">*</span></label>
                         <input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" autocomplete="off" required>
@@ -192,7 +211,7 @@
     </div>
 
     <script>
-        // --- 1. LƯU TRẠNG THÁI TAB ---
+        // LƯU TRẠNG THÁI TAB
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -205,26 +224,19 @@
                 localStorage.setItem('activeTab_CaiDat', tabId);
             }
         }
-
         (function restoreTab() {
             const savedTab = localStorage.getItem('activeTab_CaiDat');
             if (savedTab && document.getElementById(savedTab)) { switchTab(savedTab); }
         })();
 
-        // --- 2. HÀM LỌC TÌM KIẾM TRỰC TIẾP ---
+        // HÀM LỌC TÌM KIẾM
         function filterTable(inputId, tbodyId) {
             const query = document.getElementById(inputId).value.toLowerCase();
             const rows = document.querySelectorAll(`#${tbodyId} tr`);
-            
-            rows.forEach(row => {
-                // Lấy toàn bộ chữ trong dòng (Mã, tên, số...)
-                const rowText = row.innerText.toLowerCase();
-                // Nếu chuỗi chứa chữ nhập vào -> Hiện (display = ''), ngược lại Ẩn (display = 'none')
-                row.style.display = rowText.includes(query) ? '' : 'none';
-            });
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
         }
 
-        // --- 3. CÁC HÀM MODAL ---
+        // --- DANH MỤC ---
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         function openModalDM() {
@@ -234,11 +246,13 @@
             document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới";
             document.getElementById('modalDM').classList.remove('hidden');
         }
-        function editDM(ma, ten, thue, loi) {
+        // Đã cập nhật hàm Edit nhận thêm biến Mẹ
+        function editDM(ma, ten, me, thue, loi) {
             document.getElementById('is_new_dm').value = "false";
             document.getElementById('dm_ma').value = ma;
             document.getElementById('dm_ma').readOnly = true; 
             document.getElementById('dm_ten').value = ten;
+            document.getElementById('dm_me').value = me; // Nạp Danh mục mẹ
             document.getElementById('dm_thue').value = thue;
             document.getElementById('dm_loi').value = loi;
             document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma;
@@ -257,6 +271,7 @@
             } catch(e) { Swal.fire('Lỗi mạng', 'Không thể kết nối đến server', 'error'); }
         }
 
+        // --- THƯƠNG HIỆU ---
         function openModalTH() {
             document.getElementById('formTH').reset();
             document.getElementById('is_new_th').value = "true";
