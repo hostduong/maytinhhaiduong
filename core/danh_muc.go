@@ -116,3 +116,13 @@ func LaySTTtiepTheo(maDM string) int {
 	
 	return newSTT
 }
+
+// Thêm vào cuối file core/danh_muc.go
+func ThemDanhMucVaoRam(dm *DanhMuc) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	if dm.SpreadsheetID == "" { dm.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
+	_DS_DanhMuc = append(_DS_DanhMuc, dm)
+	key := TaoCompositeKey(dm.SpreadsheetID, dm.MaDanhMuc)
+	_Map_DanhMuc[key] = dm
+}
