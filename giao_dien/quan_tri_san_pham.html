@@ -29,9 +29,9 @@
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .tagify__tag { margin: 0.25rem; background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-weight: 600; border-radius: 0.375rem; }
         .tagify__input { line-height: 28px; margin: 0 0.5rem; }
-        .tagify--select::after { font-size: 1.2em; color: #64748b; } /* Icon dropdown mũi tên */
+        .tagify--select::after { font-size: 1.2em; color: #64748b; }
 
-        /* Inputs đặc biệt (Giá tiền) - Chỉ đổi màu text, không tô màu nền */
+        /* Inputs đặc biệt (Giá tiền) */
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
         #gia_ban_le { color: #e11d48; }
         #gia_ban_thuc { color: #059669; background-color: #f8fafc; }
@@ -75,10 +75,8 @@
                             <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
                                 {{ $firstImg := index (split .UrlHinhAnh "|") 0 }}
-                                <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5">
-                                    <img src="{{ if $firstImg }}{{ $firstImg }}{{ else }}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7{{ end }}" 
-                                         onerror="this.src='https://via.placeholder.com/50?text=No+Img'"
-                                         class="w-full h-full object-cover rounded-sm">
+                                <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
+                                    <img src="{{ if $firstImg }}{{ $firstImg }}{{ else }}https://via.placeholder.com/50?text=No+Img{{ end }}" onerror="this.src='https://via.placeholder.com/50?text=Error'" class="max-w-full max-h-full object-cover rounded-sm">
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-slate-900 min-w-[200px]">{{ .TenSanPham }}</td>
@@ -139,9 +137,15 @@
                     <div class="form-section">
                         <div class="section-title">📝 Thông tin cơ bản</div>
                         <div class="space-y-4">
-                            <div>
-                                <label>Tên sản phẩm <span class="text-red-500">*</span></label>
-                                <input type="text" name="ten_san_pham" id="ten_san_pham" class="input-premium text-lg font-bold" required placeholder="Ví dụ: Mainboard Asus H610M-K D4...">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                                <div class="md:col-span-1">
+                                    <label>Mã Sản Phẩm</label>
+                                    <input type="text" id="ma_san_pham_preview" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự động...">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label>Tên sản phẩm <span class="text-red-500">*</span></label>
+                                    <input type="text" name="ten_san_pham" id="ten_san_pham" class="input-premium text-lg font-bold" required placeholder="Ví dụ: Mainboard Asus H610M-K D4...">
+                                </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
@@ -179,7 +183,7 @@
                         <div class="mt-5 pt-5 border-t border-slate-100 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer select-none mb-0">
                                 <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
-                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Đang phép kinh doanh (Hiển thị trên Web)</span>
+                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
                             </label>
                         </div>
                     </div>
@@ -246,7 +250,7 @@
                         </div>
                         <div class="mt-4">
                             <label>Ghi chú nội bộ (Khách không thấy)</label>
-                            <input type="text" name="ghi_chu" id="ghi_chu" class="input-premium bg-yellow-50 text-yellow-800" placeholder="Ghi chú về nguồn hàng, bảo hành...">
+                            <input type="text" name="ghi_chu" id="ghi_chu" class="input-premium bg-yellow-50 text-yellow-800 border-yellow-200" placeholder="Ghi chú về nguồn hàng, bảo hành...">
                         </div>
                     </div>
                 </form>
@@ -256,16 +260,17 @@
                 <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy Bỏ</button>
                 <button type="button" id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Lưu Thông Tin
+                    Lưu Sản Phẩm
                 </button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = {
             mode: 'select',
-            enforceWhitelist: true, // [QUAN TRỌNG] Bắt buộc chọn từ danh sách, cấm gõ ngoài
+            enforceWhitelist: true, // Ép người dùng chọn từ danh sách
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
@@ -274,7 +279,7 @@
 
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
             whitelist: listDM,
-            enforceWhitelist: true, // [QUAN TRỌNG] Cấm gõ danh mục linh tinh
+            enforceWhitelist: true, // Cấm gõ tên mới
             dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
@@ -283,6 +288,50 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
+        // --- TỪ ĐIỂN DANH MỤC (PHỤC VỤ REAL-TIME MÃ SẢN PHẨM) ---
+        const dicDanhMuc = {};
+        {{ range .ListDanhMuc }}
+        if ("{{ .TenDanhMuc }}" !== "") {
+            dicDanhMuc["{{ .TenDanhMuc }}"] = {
+                prefix: "{{ .MaDanhMuc }}",
+                nextStt: parseInt("{{ .STT }}") || 0
+            };
+        }
+        {{ end }}
+
+        tagifyDM.on('add', function(e) {
+            if (document.getElementById('ma_san_pham').value === "") {
+                const tags = tagifyDM.value;
+                if (tags.length > 0) {
+                    const tenDM = tags[0].value;
+                    const info = dicDanhMuc[tenDM];
+                    if (info) {
+                        const nextStt = info.nextStt + 1; // Cộng 1 để lấy số tương lai
+                        const sttFormatted = String(nextStt).padStart(4, '0');
+                        document.getElementById('ma_san_pham_preview').value = info.prefix + sttFormatted;
+                    }
+                }
+            }
+        });
+
+        tagifyDM.on('remove', function(e) {
+            if (document.getElementById('ma_san_pham').value === "") {
+                const tags = tagifyDM.value;
+                if (tags.length === 0) {
+                    document.getElementById('ma_san_pham_preview').value = ""; 
+                } else {
+                    const tenDM = tags[0].value;
+                    const info = dicDanhMuc[tenDM];
+                    if (info) {
+                        const nextStt = info.nextStt + 1;
+                        const sttFormatted = String(nextStt).padStart(4, '0');
+                        document.getElementById('ma_san_pham_preview').value = info.prefix + sttFormatted;
+                    }
+                }
+            }
+        });
+
+        // --- MAP DỮ LIỆU SẢN PHẨM ---
         const mapSP = {};
         {{ range .DanhSach }}
         mapSP["{{ .MaSanPham }}"] = {
@@ -307,6 +356,7 @@
         };
         {{ end }}
 
+        // --- CÁC HÀM XỬ LÝ SỐ LIỆU ---
         function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
 
@@ -318,21 +368,26 @@
             document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
         }
 
+        // --- HÀM XỬ LÝ ẢNH MẢNG ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
             div.innerHTML = `
-                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 44px;" placeholder="https://..." value="${value}">
-                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">✕</span>
+                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Dán link ảnh tại đây (https://...)" value="${value}">
+                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </span>
             `;
             container.appendChild(div);
         }
 
+        // --- QUẢN LÝ MODAL ---
         function openModal() {
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
-            document.getElementById('modalTitle').innerText = "Thêm Sản Phẩm Mới";
+            document.getElementById('ma_san_pham_preview').value = ""; 
+            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Thêm Sản Phẩm Mới`;
             document.getElementById('gia_ban_thuc').value = ""; 
             
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
@@ -350,6 +405,7 @@
             if(!sp) return;
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham;
+            document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
             document.getElementById('ten_san_pham').value = sp.ten_san_pham;
             document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
             document.getElementById('sku').value = sp.sku;
@@ -377,6 +433,7 @@
                 }
             } else {
                 document.getElementById('bao_hanh_num').value = "";
+                document.getElementById('bao_hanh_unit').value = "Tháng";
             }
             
             document.getElementById('thong_so').value = sp.thong_so;
@@ -393,7 +450,7 @@
                 addImgInput('');
             }
 
-            document.getElementById('modalTitle').innerText = "Sửa Sản Phẩm: " + id;
+            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
         }
 
@@ -401,7 +458,8 @@
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
-            const inputs = document.querySelectorAll('.img-link-input');
+            // Lấy toàn bộ link ảnh nhét chung vào hidden input
+            const inputs = document.querySelectorAll('.img-link-input, .img-input-group input');
             const links = [];
             inputs.forEach(inp => {
                 if(inp.value.trim()) links.push(inp.value.trim());
@@ -410,7 +468,7 @@
 
             const result = await Swal.fire({
                 title: 'Xác nhận lưu?',
-                text: "Bạn có chắc chắn muốn lưu thông tin này?",
+                text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#2563eb',
@@ -428,7 +486,7 @@
             const btn = document.getElementById('btnSave');
             const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
 
             const form = document.getElementById('formSP');
             const fd = new FormData(form);
