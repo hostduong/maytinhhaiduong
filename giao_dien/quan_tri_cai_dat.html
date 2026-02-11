@@ -140,7 +140,10 @@
                     <tbody class="divide-y divide-slate-100">
                         {{ range .ListBLN }}
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 font-bold text-slate-800">Từ 0đ đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
+                            <td class="px-6 py-4 font-bold text-slate-800">
+                                Từ <span class="text-slate-600">{{ format_money .GiaTu }} đ</span> 
+                                đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span>
+                            </td>
                             <td class="px-6 py-4 font-bold text-emerald-600 text-lg">{{ .BienLoiNhuan }} %</td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
