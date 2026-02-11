@@ -169,12 +169,27 @@
     </div>
 
     <script>
+// Hàm chuyển Tab có tích hợp ghi nhớ trạng thái
         function switchTab(tabId) {
+            // 1. Gỡ active cũ
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 2. Thêm active mới
             document.getElementById('btn-' + tabId).classList.add('active');
             document.getElementById(tabId).classList.add('active');
+
+            // 3. LƯU TRẠNG THÁI VÀO BỘ NHỚ TRÌNH DUYỆT
+            localStorage.setItem('activeTab_CaiDat', tabId);
         }
+
+        // TỰ ĐỘNG PHỤC HỒI TAB KHI TẢI LẠI TRANG
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('activeTab_CaiDat');
+            if (savedTab) {
+                switchTab(savedTab); // Nếu có nhớ tab nào thì mở tab đó
+            }
+        });
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
