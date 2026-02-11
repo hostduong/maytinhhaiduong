@@ -1,0 +1,76 @@
+{{ define "quan_tri_danh_muc" }}
+    {{ template "header" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-slate-800 mb-8">🏷️ Quản Lý Phân Loại</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h2 class="font-bold text-slate-700">DANH MỤC SẢN PHẨM</h2>
+                    <button class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 font-bold">+ Thêm</button>
+                </div>
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="bg-white border-b">
+                        <tr>
+                            <th class="px-4 py-3">Mã (Prefix)</th>
+                            <th class="px-4 py-3">Tên Danh Mục</th>
+                            <th class="px-4 py-3">Thuế (%)</th>
+                            <th class="px-4 py-3 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .ListDanhMuc }}
+                        {{ if ne .MaDanhMuc "" }}
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-4 py-3 font-bold">{{ .MaDanhMuc }}</td>
+                            <td class="px-4 py-3 font-medium">{{ .TenDanhMuc }}</td>
+                            <td class="px-4 py-3 text-red-600 font-bold">{{ .ThueVAT }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <button onclick="deleteCat('{{ .MaDanhMuc }}')" class="text-red-500 hover:text-red-700">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h2 class="font-bold text-slate-700">THƯƠNG HIỆU</h2>
+                    <button class="text-xs bg-purple-600 text-white px-3 py-1.5 rounded hover:bg-purple-700 font-bold">+ Thêm</button>
+                </div>
+                <table class="w-full text-sm text-left text-slate-600">
+                    </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function deleteCat(maDM) {
+            const { value: pinCode } = await Swal.fire({
+                title: 'Yêu cầu bảo mật',
+                text: 'Nhập mã PIN để xóa danh mục ' + maDM,
+                input: 'password',
+                inputAttributes: { maxlength: 8 },
+                showCancelButton: true,
+            });
+
+            if (pinCode) {
+                const fd = new FormData();
+                fd.append('ma_danh_muc', maDM); fd.append('ma_pin', pinCode);
+                const res = await fetch('/admin/api/category/delete', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.status === 'ok') location.reload();
+                else Swal.fire('Lỗi', data.msg, 'error');
+            }
+        }
+    </script>
+    {{ template "footer" . }}
+{{ end }}
