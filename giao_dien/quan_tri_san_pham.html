@@ -20,10 +20,11 @@
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
-        /* --- 2. INPUT PREMIUM (ĐỒNG BỘ CHIỀU CAO TƯƠNG ĐỐI & MÀU SẮC) --- */
-        input.input-premium, select.input-premium, .tagify {
+/* Ép cứng chiều cao và Box Sizing cho toàn bộ Input */
+        input.input-premium, select.input-premium, textarea.input-premium, .tagify {
             width: 100%;
-            min-height: 44px; /* KHÓA CỨNG CHIỀU CAO ĐỂ ĐỀU NHAU TĂM TẮP */
+            height: 44px; /* Fix chiều cao dòng 2, 3 */
+            box-sizing: border-box;
             background-color: #f8fafc;
             border: 1px solid #cbd5e1; 
             border-radius: 0.5rem;     
@@ -33,26 +34,21 @@
             font-weight: 500;
         }
         
-        input.input-premium { padding: 0 1rem; }
+        textarea.input-premium { height: auto; padding: 0.75rem 1rem; }
         
-        textarea.input-premium {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1; 
-            border-radius: 0.5rem;     
-            font-size: 0.95rem;
-            color: #1e293b;            
-            transition: all 0.2s;
-            font-weight: 500;
+        .tagify {
+            display: flex;
+            align-items: center;
+            padding: 0 0.5rem;
+            overflow: hidden; /* Chống tràn đè viền */
         }
-
-        .input-premium:focus, .tagify.tagify--focus {
-            background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            outline: none;
+        
+        /* Chống đè viền khu vực Giá */
+        .price-group {
+            position: relative;
+            z-index: 10;
         }
+        .price-group input:focus { z-index: 20; position: relative; }
 
         /* [YÊU CẦU] TRẠNG THÁI ĐÃ NHẬP DỮ LIỆU: ĐỒNG BỘ VIỀN XANH + CHỮ XANH */
         input.input-premium:not(:placeholder-shown),
