@@ -164,5 +164,5 @@ func TaoMaSPMoi(maDanhMuc string) string {
 	maDanhMuc = strings.ToUpper(strings.TrimSpace(maDanhMuc))
 	if maDanhMuc == "" { maDanhMuc = "SP" }
 	stt := LaySTTtiepTheo(maDanhMuc)
-	return fmt.Sprintf("%s%04d", maDanhMuc, stt)
+	return fmt.Sprintf("%s%04d", maDanhMuc, slot)
 }
