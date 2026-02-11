@@ -256,8 +256,8 @@
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
-        var listDM = [{{ range .ListDanhMuc }}"{{ . }}",{{ end }}];
-        var listTH = [{{ range .ListThuongHieu }}"{{ . }}",{{ end }}];
+        var listDM = [{{ range .ListDanhMuc }}"{{ .TenDanhMuc }}",{{ end }}];
+        var listTH = [{{ range .ListThuongHieu }}"{{ .TenThuongHieu }}",{{ end }}];
 
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
             whitelist: listDM,
