@@ -169,27 +169,35 @@
     </div>
 
     <script>
-// Hàm chuyển Tab có tích hợp ghi nhớ trạng thái
+// 1. Hàm chuyển Tab có lưu trạng thái
         function switchTab(tabId) {
-            // 1. Gỡ active cũ
+            // Gỡ active cũ
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // 2. Thêm active mới
-            document.getElementById('btn-' + tabId).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-
-            // 3. LƯU TRẠNG THÁI VÀO BỘ NHỚ TRÌNH DUYỆT
-            localStorage.setItem('activeTab_CaiDat', tabId);
+            // Tìm phần tử và thêm active mới
+            const btn = document.getElementById('btn-' + tabId);
+            const tab = document.getElementById(tabId);
+            
+            if (btn && tab) {
+                btn.classList.add('active');
+                tab.classList.add('active');
+                
+                // LƯU TRẠNG THÁI VÀO BỘ NHỚ
+                localStorage.setItem('activeTab_CaiDat', tabId);
+            }
         }
 
-        // TỰ ĐỘNG PHỤC HỒI TAB KHI TẢI LẠI TRANG
-        document.addEventListener('DOMContentLoaded', () => {
+        // 2. TỰ ĐỘNG PHỤC HỒI TAB (CHẠY NGAY LẬP TỨC)
+        // Dùng hàm tự gọi (IIFE) để không bị lỡ nhịp tải trang
+        (function restoreTab() {
             const savedTab = localStorage.getItem('activeTab_CaiDat');
-            if (savedTab) {
-                switchTab(savedTab); // Nếu có nhớ tab nào thì mở tab đó
+            // Kiểm tra xem có tab lưu trong bộ nhớ và tab đó có tồn tại trên HTML không
+            if (savedTab && document.getElementById(savedTab)) {
+                switchTab(savedTab);
             }
-        });
+        })();
+
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
