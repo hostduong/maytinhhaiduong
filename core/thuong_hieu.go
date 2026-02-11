@@ -68,3 +68,12 @@ func LayDanhSachThuongHieu() []*ThuongHieu {
 	defer KhoaHeThong.RUnlock()
 	return _DS_ThuongHieu
 }
+// Thêm vào cuối file core/thuong_hieu.go
+func ThemThuongHieuVaoRam(th *ThuongHieu) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	if th.SpreadsheetID == "" { th.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
+	_DS_ThuongHieu = append(_DS_ThuongHieu, th)
+	key := TaoCompositeKey(th.SpreadsheetID, th.MaThuongHieu)
+	_Map_ThuongHieu[key] = th
+}
