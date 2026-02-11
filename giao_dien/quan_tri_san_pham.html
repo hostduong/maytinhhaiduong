@@ -36,6 +36,36 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
+    <div id="go_data_island" style="display: none;">
+        <div id="data_danhmuc">
+            {{ range .ListDanhMuc }}
+                {{ if ne .TenDanhMuc "" }}
+                <div class="dm-item" data-ten="{{ .TenDanhMuc }}" data-prefix="{{ .MaDanhMuc }}" data-nextstt="{{ .STT }}" data-vat="{{ .ThueVAT }}" data-loinhuan="{{ .LoiNhuan }}"></div>
+                {{ end }}
+            {{ end }}
+        </div>
+        <div id="data_thuonghieu">
+            {{ range .ListThuongHieu }}
+                {{ if ne .TenThuongHieu "" }}<div class="th-item" data-ten="{{ .TenThuongHieu }}"></div>{{ end }}
+            {{ end }}
+        </div>
+        <div id="data_sanpham">
+            {{ range .DanhSach }}
+            {{ if .MaSanPham }}
+            <div class="sp-item"
+                data-id="{{ .MaSanPham }}" data-ten="{{ .TenSanPham }}" data-rutgon="{{ .TenRutGon }}" data-sku="{{ .Sku }}"
+                data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-giabanle="{{ printf "%.0f" .GiaBanLe }}" data-giamgia="{{ printf "%.0f" .GiamGia }}"
+                data-thuonghieu="{{ .ThuongHieu }}" data-donvi="{{ .DonVi }}" data-baohanh="{{ .BaoHanh }}"
+                data-mausac="{{ .MauSac }}" data-tinhtrang="{{ .TinhTrang }}" data-urlhinhanh="{{ .UrlHinhAnh }}"
+                data-ghichu="{{ .GhiChu }}" data-trangthai="{{ .TrangThai }}" data-danhmuc="{{ .DanhMuc }}">
+                <textarea class="sp-thongso">{{ .ThongSo }}</textarea>
+                <textarea class="sp-mota">{{ .MoTaChiTiet }}</textarea>
+            </div>
+            {{ end }}
+            {{ end }}
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -210,7 +240,7 @@
                                 <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                             <div>
-                                <label>Giá Thu Về (Giá thực tế bán ra)</label>
+                                <label>Giá Thu Về (Giá bán thực tế)</label>
                                 <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
                             </div>
                         </div>
@@ -263,39 +293,57 @@
     </div>
 
     <script>
-        // --- 1. CẤU HÌNH TAGIFY ---
-        const tagifySelectConfig = {
-            mode: 'select',
-            enforceWhitelist: true, 
-            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
-        };
-
-        var listDM = [{{ range .ListDanhMuc }}"{{ .TenDanhMuc }}",{{ end }}];
-        var listTH = [{{ range .ListThuongHieu }}"{{ .TenThuongHieu }}",{{ end }}];
-
-        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
-            whitelist: listDM,
-            enforceWhitelist: true, 
-            dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false }
+        // --- 1. LẤY DỮ LIỆU TỪ DOM (CHỐNG CRASH 100%) ---
+        var listDM = [];
+        const dicDanhMuc = {};
+        document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => {
+            let ten = el.getAttribute('data-ten');
+            listDM.push(ten);
+            dicDanhMuc[ten] = {
+                prefix: el.getAttribute('data-prefix'),
+                nextStt: parseInt(el.getAttribute('data-nextstt')) || 0,
+                vat: parseFloat(el.getAttribute('data-vat')) || 0,
+                loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
+            };
         });
 
+        var listTH = [];
+        document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => {
+            listTH.push(el.getAttribute('data-ten'));
+        });
+
+        const mapSP = {};
+        document.querySelectorAll('#data_sanpham .sp-item').forEach(el => {
+            let id = el.getAttribute('data-id');
+            mapSP[id] = {
+                ma_san_pham: id,
+                ten_san_pham: el.getAttribute('data-ten'),
+                ten_rut_gon: el.getAttribute('data-rutgon'),
+                sku: el.getAttribute('data-sku'),
+                gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0,
+                gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0,
+                giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
+                thuong_hieu: el.getAttribute('data-thuonghieu'),
+                don_vi: el.getAttribute('data-donvi'),
+                bao_hanh: el.getAttribute('data-baohanh'),
+                mau_sac: el.getAttribute('data-mausac'),
+                tinh_trang: el.getAttribute('data-tinhtrang'),
+                url_hinh_anh: el.getAttribute('data-urlhinhanh'),
+                ghi_chu: el.getAttribute('data-ghichu'),
+                trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0,
+                danh_muc: el.getAttribute('data-danhmuc'),
+                thong_so: el.querySelector('.sp-thongso').value,
+                mo_ta_chi_tiet: el.querySelector('.sp-mota').value
+            };
+        });
+
+        // --- 2. CẤU HÌNH TAGIFY ---
+        const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
+        var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
         const tagifyDonVi = new Tagify(document.querySelector('#don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
         const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
-
-        // --- 2. TỪ ĐIỂN DANH MỤC (Lấy VAT, Lợi Nhuận, Mã) ---
-        const dicDanhMuc = {};
-        {{ range .ListDanhMuc }}
-        if ("{{ .TenDanhMuc }}" !== "") {
-            dicDanhMuc["{{ .TenDanhMuc }}"] = {
-                prefix: "{{ .MaDanhMuc }}",
-                nextStt: parseInt("{{ .STT }}") || 0,
-                vat: parseFloat("{{ .ThueVAT }}") || 0,
-                loiNhuan: parseFloat("{{ .LoiNhuan }}") || 0
-            };
-        }
-        {{ end }}
 
         let isEditingMode = false;
 
@@ -303,12 +351,10 @@
             if(isEditingMode) return; 
             const tags = tagifyDM.value;
             if (tags.length > 0) {
-                const tenDM = tags[0].value;
-                const info = dicDanhMuc[tenDM];
+                const info = dicDanhMuc[tags[0].value];
                 if (info) {
                     if (document.getElementById('ma_san_pham').value === "") {
-                        const nextStt = info.nextStt + 1;
-                        document.getElementById('ma_san_pham_preview').value = info.prefix + String(nextStt).padStart(4, '0');
+                        document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0');
                     }
                     document.getElementById('thue_vat').value = info.vat;
                     document.getElementById('loi_nhuan').value = info.loiNhuan;
@@ -319,53 +365,25 @@
 
         tagifyDM.on('remove', function(e) {
             if(isEditingMode) return;
-            const tags = tagifyDM.value;
-            if (tags.length === 0) {
+            if (tagifyDM.value.length === 0) {
                 if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
-                document.getElementById('thue_vat').value = "";
-                document.getElementById('loi_nhuan').value = "";
+                document.getElementById('thue_vat').value = ""; document.getElementById('loi_nhuan').value = "";
                 autoCalcForward();
             }
         });
 
-        // --- 3. ĐÃ FIX LỖI CRASH JS 100% ---
-        function decodeGo(str) {
-            if (!str) return "";
-            return decodeURIComponent(str.replace(/\+/g, '%20'));
-        }
-
-        const mapSP = {};
-        {{ range .DanhSach }}
-        {{ if .MaSanPham }}
-        mapSP["{{ .MaSanPham }}"] = {
-            ma_san_pham: "{{ .MaSanPham }}",
-            ten_san_pham: decodeGo("{{ urlquery .TenSanPham }}"),
-            ten_rut_gon: decodeGo("{{ urlquery .TenRutGon }}"),
-            sku: decodeGo("{{ urlquery .Sku }}"),
-            gia_nhap: {{ printf "%.0f" .GiaNhap }},
-            gia_ban_le: {{ printf "%.0f" .GiaBanLe }},
-            giam_gia: {{ printf "%.0f" .GiamGia }},
-            thuong_hieu: decodeGo("{{ urlquery .ThuongHieu }}"),
-            don_vi: decodeGo("{{ urlquery .DonVi }}"),
-            bao_hanh: decodeGo("{{ urlquery .BaoHanh }}"),
-            mau_sac: decodeGo("{{ urlquery .MauSac }}"),
-            tinh_trang: decodeGo("{{ urlquery .TinhTrang }}"),
-            thong_so: decodeGo("{{ urlquery .ThongSo }}"),
-            mo_ta_chi_tiet: decodeGo("{{ urlquery .MoTaChiTiet }}"),
-            url_hinh_anh: "{{ .UrlHinhAnh }}",
-            ghi_chu: decodeGo("{{ urlquery .GhiChu }}"),
-            trang_thai: {{ .TrangThai }},
-            danh_muc: decodeGo("{{ urlquery .DanhMuc }}")
-        };
-        {{ end }}
-        {{ end }}
-
-        // --- 4. HÀM TÍNH TOÁN GIÁ CHUẨN RETAIL ---
+        // --- 3. HÀM TÍNH TOÁN & LÀM TRÒN GIÁ CHUẨN RETAIL ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        // Tính thuận: Nhập Giá vốn, VAT, Lợi Nhuận, Giảm giá -> Bắn ra Giá Thực và Giá Niêm yết
+        // Hàm làm tròn xuống 10.000 (Ví dụ 795.882 -> 790.000)
+        function roundNicePrice(price) {
+            if (price <= 0) return 0;
+            return Math.floor(price / 10000) * 10000;
+        }
+
+        // Tính thuận
         function autoCalcForward() {
             if(isEditingMode) return;
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
@@ -374,179 +392,114 @@
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                // Giá mong muốn thu về
-                let giaBanThuc = giaNhap * (1 + (vat + loiNhuan) / 100);
-                document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaBanThuc).toString());
-
-                // Tính giá niêm yết để giảm giá đi vẫn bằng giá thực tế
-                let giaNiemYet = giaBanThuc;
-                if (giamGia > 0 && giamGia < 100) {
-                    giaNiemYet = giaBanThuc / (1 - (giamGia / 100));
-                }
-                document.getElementById('gia_ban_le').value = formatNumber(Math.round(giaNiemYet).toString());
+                // B1: Tính số tiền thực tế muốn đút túi
+                let targetThuVe = giaNhap * (1 + (vat + loiNhuan) / 100);
+                
+                // B2: Tính giá niêm yết (đội lên để trừ hao giảm giá)
+                let giaNiemYet = targetThuVe;
+                if (giamGia > 0 && giamGia < 100) giaNiemYet = targetThuVe / (1 - (giamGia / 100));
+                
+                // B3: Làm tròn đẹp Giá Niêm Yết
+                giaNiemYet = roundNicePrice(giaNiemYet);
+                document.getElementById('gia_ban_le').value = formatNumber(giaNiemYet.toString());
+                
+                // B4: Tính lại Giá Thu Về & Làm tròn
+                let giaBanThuc = roundNicePrice(giaNiemYet * (1 - (giamGia / 100)));
+                document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
             } else {
-                document.getElementById('gia_ban_thuc').value = "0";
-                document.getElementById('gia_ban_le').value = "0";
+                document.getElementById('gia_ban_thuc').value = "0"; document.getElementById('gia_ban_le').value = "0";
             }
         }
 
-        // Tính ngược: User cố tình sửa giá Niêm Yết -> Bắn lại Giá thực tế (Để báo cáo cho chuẩn)
+        // Tính ngược
         function autoCalcBackward() {
             let giaNiemYet = getNum(document.getElementById('gia_ban_le').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
-            
-            let giaBanThuc = giaNiemYet * (1 - (giamGia / 100));
-            document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaBanThuc).toString());
+            let giaBanThuc = roundNicePrice(giaNiemYet * (1 - (giamGia / 100)));
+            document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
         }
 
-        // --- 5. HÀM QUẢN LÝ ẢNH MẢNG ---
+        // --- 4. CÁC HÀM XỬ LÝ GIAO DIỆN KHÁC ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
-            div.innerHTML = `
-                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Dán link ảnh tại đây (https://...)" value="${value}">
-                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa ảnh này">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </span>
-            `;
+            div.innerHTML = `<input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Dán link ảnh tại đây (https://...)" value="${value}">
+                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></span>`;
             container.appendChild(div);
         }
 
-        // --- 6. QUẢN LÝ MODAL ---
         function openModal() {
-            isEditingMode = false;
-            document.getElementById('formSP').reset();
-            document.getElementById('ma_san_pham').value = "";
-            document.getElementById('ma_san_pham_preview').value = ""; 
+            isEditingMode = false; document.getElementById('formSP').reset();
+            document.getElementById('ma_san_pham').value = ""; document.getElementById('ma_san_pham_preview').value = ""; 
             document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Thêm Sản Phẩm Mới`;
             document.getElementById('gia_ban_thuc').value = ""; 
-            
-            tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags();
-            tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
-
-            document.getElementById('imgContainer').innerHTML = '';
-            addImgInput('');
-
+            tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
+            document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
             document.getElementById('modalSP').classList.remove('hidden');
         }
         
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
-            const sp = mapSP[id];
-            if(!sp) return;
-
+            const sp = mapSP[id]; if(!sp) return;
             isEditingMode = true;
 
-            document.getElementById('ma_san_pham').value = sp.ma_san_pham;
-            document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
-            document.getElementById('ten_san_pham').value = sp.ten_san_pham;
-            document.getElementById('ten_rut_gon').value = sp.ten_rut_gon;
-            document.getElementById('sku').value = sp.sku;
-            
+            document.getElementById('ma_san_pham').value = sp.ma_san_pham; document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
+            document.getElementById('ten_san_pham').value = sp.ten_san_pham; document.getElementById('ten_rut_gon').value = sp.ten_rut_gon; document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
-            document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
-            document.getElementById('giam_gia').value = sp.giam_gia;
+            document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
             if(sp.danh_muc) {
-                let firstDM = sp.danh_muc.split("|")[0];
-                let info = dicDanhMuc[firstDM];
-                if(info) {
-                    document.getElementById('thue_vat').value = info.vat;
-                    document.getElementById('loi_nhuan').value = info.loiNhuan;
-                }
+                let firstDM = sp.danh_muc.split("|")[0]; let info = dicDanhMuc[firstDM];
+                if(info) { document.getElementById('thue_vat').value = info.vat; document.getElementById('loi_nhuan').value = info.loiNhuan; }
             }
-            autoCalcBackward(); // Tính lại giá thực để show lên
+            autoCalcBackward(); 
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
             if(sp.tinh_trang) { document.querySelector('#tinh_trang').value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
             if(sp.mau_sac) { document.querySelector('#mau_sac').value = sp.mau_sac; } else { tagifyMauSac.removeAllTags(); }
             
-            tagifyDM.removeAllTags();
-            if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
+            tagifyDM.removeAllTags(); if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
 
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
-                if (parts.length >= 2) {
-                    document.getElementById('bao_hanh_num').value = parts[0];
-                    document.getElementById('bao_hanh_unit').value = parts[1];
-                } else {
-                    document.getElementById('bao_hanh_num').value = sp.bao_hanh;
-                }
-            } else {
-                document.getElementById('bao_hanh_num').value = "";
-                document.getElementById('bao_hanh_unit').value = "Tháng";
-            }
+                if (parts.length >= 2) { document.getElementById('bao_hanh_num').value = parts[0]; document.getElementById('bao_hanh_unit').value = parts[1]; } 
+                else { document.getElementById('bao_hanh_num').value = sp.bao_hanh; }
+            } else { document.getElementById('bao_hanh_num').value = ""; document.getElementById('bao_hanh_unit').value = "Tháng"; }
             
-            document.getElementById('thong_so').value = sp.thong_so;
-            document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
-            document.getElementById('ghi_chu').value = sp.ghi_chu;
-            document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
+            document.getElementById('thong_so').value = sp.thong_so; document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
+            document.getElementById('ghi_chu').value = sp.ghi_chu; document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
 
-            const container = document.getElementById('imgContainer');
-            container.innerHTML = '';
-            if (sp.url_hinh_anh) {
-                const links = sp.url_hinh_anh.split('|');
-                links.forEach(link => addImgInput(link));
-            } else {
-                addImgInput('');
-            }
+            document.getElementById('imgContainer').innerHTML = '';
+            if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
 
             document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
-            
             setTimeout(() => { isEditingMode = false; }, 500);
         }
 
         async function confirmSave() {
-            const form = document.getElementById('formSP');
-            if (!form.checkValidity()) { form.reportValidity(); return; }
-
-            const inputs = document.querySelectorAll('.img-link-input, .img-input-group input');
-            const links = [];
-            inputs.forEach(inp => { if(inp.value.trim()) links.push(inp.value.trim()); });
+            const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
+            const links = []; document.querySelectorAll('.img-link-input, .img-input-group input').forEach(inp => { if(inp.value.trim()) links.push(inp.value.trim()); });
             document.getElementById('url_hinh_anh').value = links.join('|');
 
-            const result = await Swal.fire({
-                title: 'Xác nhận lưu?',
-                text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Hủy'
-            });
-
+            const result = await Swal.fire({ title: 'Xác nhận lưu?', text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?", icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
         }
 
         async function saveSP() {
-            const btn = document.getElementById('btnSave');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
-
-            const form = document.getElementById('formSP');
-            const fd = new FormData(form);
+            const btn = document.getElementById('btnSave'); const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+            const fd = new FormData(document.getElementById('formSP'));
             if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
             
             try {
-                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd });
-                const data = await res.json();
-                
-                if(data.status === 'ok') {
-                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi', data.msg, 'error');
-                    btn.disabled = false; btn.innerHTML = originalText;
-                }
-            } catch(e) { 
-                Swal.fire('Lỗi', 'Không kết nối được server', 'error');
-                btn.disabled = false; btn.innerHTML = originalText;
-            }
+                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
+                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
+                else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originalText; }
+            } catch(e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); btn.disabled = false; btn.innerHTML = originalText; }
         }
     </script>
     {{ template "footer" . }}
