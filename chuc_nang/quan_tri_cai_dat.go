@@ -114,8 +114,9 @@ func API_LuuThuongHieu(c *gin.Context) {
 
 	maTH := strings.TrimSpace(c.PostForm("ma_thuong_hieu"))
 	tenTH := strings.TrimSpace(c.PostForm("ten_thuong_hieu"))
-	logo := strings.TrimSpace(c.PostForm("logo"))
+	logoUrl := strings.TrimSpace(c.PostForm("logo_url")) // [ĐÃ SỬA]
 	moTa := strings.TrimSpace(c.PostForm("mo_ta"))
+	trangThai := 0; if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 	isNew := c.PostForm("is_new") == "true"
 
 	if maTH == "" || tenTH == "" {
@@ -133,41 +134,37 @@ func API_LuuThuongHieu(c *gin.Context) {
 			DongTrongSheet: targetRow,
 			MaThuongHieu:   strings.ToUpper(maTH),
 			TenThuongHieu:  tenTH,
-			Logo:           logo,
+			LogoUrl:        logoUrl, // [ĐÃ SỬA]
 			MoTa:           moTa,
-			TrangThai:      1,
+			TrangThai:      trangThai,
 		}
 		core.ThemThuongHieuVaoRam(newTH) 
 	} else {
 		var found *core.ThuongHieu
 		for _, item := range core.LayDanhSachThuongHieu() {
-			if item.MaThuongHieu == maTH {
-				found = item
-				break
-			}
+			if item.MaThuongHieu == maTH { found = item; break }
 		}
 		if found == nil {
 			c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy thương hiệu để sửa!"})
 			return
 		}
-		
 		targetRow = found.DongTrongSheet
-        // Tự động giải phóng Lock an toàn bằng defer
 		func() {
 			core.KhoaHeThong.Lock()
 			defer core.KhoaHeThong.Unlock()
 			found.TenThuongHieu = tenTH
-			found.Logo = logo
+			found.LogoUrl = logoUrl // [ĐÃ SỬA]
 			found.MoTa = moTa
+			found.TrangThai = trangThai
 		}()
 	}
 
 	ghi := core.ThemVaoHangCho
 	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MaThuongHieu, strings.ToUpper(maTH))
 	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TenThuongHieu, tenTH)
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_Logo, logo)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_LogoUrl, logoUrl) // [ĐÃ SỬA]
 	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MoTa, moTa)
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TrangThai, 1)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TrangThai, trangThai)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Thương hiệu thành công!"})
 }
