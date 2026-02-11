@@ -8,7 +8,6 @@
         input.input-premium, select.input-premium { height: 44px; padding: 0 1rem; }
         textarea.input-premium { padding: 0.75rem 1rem; }
         input.input-premium:focus, textarea.input-premium:focus, select.input-premium:focus { background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
-        input.input-premium:not(:placeholder-shown), textarea.input-premium:not(:placeholder-shown) { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8; font-weight: 600; }
         
         .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
         .tab-btn.active { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
@@ -20,14 +19,15 @@
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">🏷️ Quản Lý Phân Loại</h1>
-                <p class="text-slate-500 text-sm mt-1">Cấu hình Danh mục sản phẩm & Thương hiệu</p>
+                <h1 class="text-2xl font-bold text-slate-800">⚙️ Cài Đặt Hệ Thống</h1>
+                <p class="text-slate-500 text-sm mt-1">Cấu hình Danh mục, Thương hiệu & Khung định giá tự động</p>
             </div>
         </div>
 
         <div class="bg-white rounded-t-xl border border-b-0 border-slate-200 flex overflow-hidden">
             <button onclick="switchTab('tabDM')" id="btn-tabDM" class="tab-btn active flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide">📁 Danh Mục Sản Phẩm</button>
             <button onclick="switchTab('tabTH')" id="btn-tabTH" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">⭐ Thương Hiệu</button>
+            <button onclick="switchTab('tabBLN')" id="btn-tabBLN" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">💰 Khung Định Giá</button>
         </div>
 
         <div id="tabDM" class="tab-content active bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -38,47 +38,39 @@
                         <input type="text" id="searchDM" onkeyup="filterTable('searchDM', 'tbodyDM')" placeholder="Tìm mã hoặc tên..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <button type="button" onclick="openModalDM()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition text-sm whitespace-nowrap">
+                    <button type="button" onclick="openModalDM()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap">
                         + Thêm Mới
                     </button>
                 </div>
             </div>
-            
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
                         <tr>
-                            <th class="px-6 py-4 font-bold">Mã (Prefix)</th>
+                            <th class="px-6 py-4 font-bold">Mã</th>
                             <th class="px-6 py-4 font-bold">Tên Danh Mục</th>
-                            <th class="px-6 py-4 font-bold">Danh Mục Mẹ (Parent)</th>
-                            <th class="px-6 py-4 font-bold text-center">Thuế VAT (%)</th>
+                            <th class="px-6 py-4 font-bold">Danh Mục Mẹ</th>
+                            <th class="px-6 py-4 font-bold text-center">VAT (%)</th>
                             <th class="px-6 py-4 font-bold text-center">Lợi Nhuận (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
                             <th class="px-6 py-4 font-bold text-center">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyDM" class="divide-y divide-slate-100">
                         {{ range .ListDanhMuc }}
-                        {{ if ne .MaDanhMuc "" }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
-                            <td class="px-6 py-4">
-                                {{ if .DanhMucMe }}
-                                    <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold border border-slate-200">{{ .DanhMucMe }}</span>
-                                {{ else }}
-                                    <span class="text-slate-400 italic text-xs">--- Gốc ---</span>
-                                {{ end }}
-                            </td>
-                            <td class="px-6 py-4 text-center text-red-600 font-bold">{{ .ThueVAT }}</td>
-                            <td class="px-6 py-4 text-center text-emerald-600 font-bold">{{ .LoiNhuan }}</td>
+                            <td class="px-6 py-4 text-slate-500 text-xs">{{ if .DanhMucMe }}{{ .DanhMucMe }}{{ else }}---{{ end }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-red-600">{{ .ThueVAT }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400">Theo Giá</span>{{ end }}</td>
                             <td class="px-6 py-4 text-center">
-                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                    Sửa
-                               </button>
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                               <button type="button" onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .DanhMucMe }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}', {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
                             </td>
                         </tr>
-                        {{ end }}
                         {{ end }}
                     </tbody>
                 </table>
@@ -93,7 +85,7 @@
                         <input type="text" id="searchTH" onkeyup="filterTable('searchTH', 'tbodyTH')" placeholder="Tìm mã hoặc tên hãng..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <button type="button" onclick="openModalTH()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition text-sm whitespace-nowrap">
+                    <button type="button" onclick="openModalTH()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm whitespace-nowrap">
                         + Thêm Mới
                     </button>
                 </div>
@@ -103,31 +95,60 @@
                     <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
                         <tr>
                             <th class="px-6 py-4 font-bold text-center">Logo</th>
-                            <th class="px-6 py-4 font-bold">Mã & Tên Hãng</th>
-                            <th class="px-6 py-4 font-bold">Mô Tả</th>
+                            <th class="px-6 py-4 font-bold">Mã Hãng</th>
+                            <th class="px-6 py-4 font-bold">Tên Hãng</th>
+                            <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
                             <th class="px-6 py-4 font-bold text-center">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyTH" class="divide-y divide-slate-100">
                         {{ range .ListThuongHieu }}
-                        {{ if ne .MaThuongHieu "" }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 text-center">
-                                <img src="{{ if .LogoUrl }}{{ .LogoUrl }}{{ else }}https://via.placeholder.com/40?text=No+Img{{ end }}" loading="lazy" onerror="this.src='https://via.placeholder.com/40?text=Error'" class="w-12 h-12 object-contain bg-white border border-slate-200 rounded p-1 mx-auto">
+                                <img src="{{ if .LogoUrl }}{{ .LogoUrl }}{{ else }}https://via.placeholder.com/40?text=No+Img{{ end }}" loading="lazy" onerror="this.src='https://via.placeholder.com/40?text=Error'" class="w-10 h-10 object-contain bg-white border border-slate-200 rounded p-1 mx-auto">
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-slate-800">{{ .MaThuongHieu }}</div>
-                                <div class="font-medium text-xs text-slate-500">{{ .TenThuongHieu }}</div>
-                            </td>
-                            <td class="px-6 py-4"><div class="text-sm line-clamp-2 max-w-md">{{ .MoTa }}</div></td>
+                            <td class="px-6 py-4 font-bold text-slate-800">{{ .MaThuongHieu }}</td>
+                            <td class="px-6 py-4 font-medium">{{ .TenThuongHieu }}</td>
                             <td class="px-6 py-4 text-center">
-                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .LogoUrl }}', '{{ .MoTa }}')" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                   Sửa
-                                </button>
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button type="button" onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .LogoUrl }}', '{{ .MoTa }}', {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
                             </td>
                         </tr>
                         {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tabBLN" class="tab-content bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50 gap-3">
+                <h2 class="font-bold text-slate-700 hidden md:block">CẤU HÌNH BIÊN LỢI NHUẬN TỰ ĐỘNG</h2>
+                <button type="button" onclick="openModalBLN()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 text-sm">+ Thêm Khung Giá</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4 font-bold">Khung Giá Nhập (VNĐ)</th>
+                            <th class="px-6 py-4 font-bold">Biên Lợi Nhuận Tương Ứng (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
+                            <th class="px-6 py-4 font-bold text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {{ range .ListBLN }}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 font-bold text-slate-800">Từ 0đ đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
+                            <td class="px-6 py-4 font-bold text-emerald-600 text-lg">{{ .BienLoiNhuan }} %</td>
+                            <td class="px-6 py-4 text-center">
+                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs">Bật</span>{{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded text-xs">Tắt</span>{{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button type="button" onclick="editBLN({{ .DongTrongSheet }}, {{ .KhungGiaNhap }}, {{ .BienLoiNhuan }}, {{ .TrangThai }})" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">Sửa</button>
+                            </td>
+                        </tr>
                         {{ end }}
                     </tbody>
                 </table>
@@ -144,11 +165,10 @@
             <div class="p-6">
                 <form id="formDM" class="space-y-4" autocomplete="off">
                     <input type="hidden" name="is_new" id="is_new_dm" value="true">
-                    
                     <div>
                         <label>Danh mục Mẹ (Cấp trên)</label>
                         <select name="danh_muc_me" id="dm_me" class="input-premium cursor-pointer bg-white">
-                            <option value="">--- Trống (Đây là danh mục gốc) ---</option>
+                            <option value="">--- Trống (Gốc) ---</option>
                             {{ range .ListDanhMuc }}
                                 {{ if ne .MaDanhMuc "" }}
                                     <option value="{{ .MaDanhMuc }}">{{ .MaDanhMuc }} - {{ .TenDanhMuc }}</option>
@@ -156,19 +176,15 @@
                             {{ end }}
                         </select>
                     </div>
-
-                    <div>
-                        <label>Mã Danh Mục (Prefix) <span class="text-red-500">*</span></label>
-                        <input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" autocomplete="off" required>
-                    </div>
-                    <div>
-                        <label>Tên Danh Mục <span class="text-red-500">*</span></label>
-                        <input type="text" name="ten_danh_muc" id="dm_ten" class="input-premium" autocomplete="off" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label>Mã Danh Mục *</label><input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" required></div>
+                        <div><label>Tên Danh Mục *</label><input type="text" name="ten_danh_muc" id="dm_ten" class="input-premium" required></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-red-600">Thuế VAT (%)</label><input type="number" name="thue_vat" id="dm_thue" class="input-premium text-center font-bold text-red-600" autocomplete="off"></div>
-                        <div><label class="text-emerald-600">Biên Lợi Nhuận</label><input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center font-bold text-emerald-600" autocomplete="off"></div>
+                        <div><label class="text-red-600">Thuế VAT (%)</label><input type="number" name="thue_vat" id="dm_thue" class="input-premium text-center font-bold text-red-600"></div>
+                        <div><label class="text-blue-600">Lợi Nhuận Cố Định</label><input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center font-bold text-blue-600" placeholder="0 = Khung giá"></div>
                     </div>
+                    <div><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="dm_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
                 </form>
             </div>
             <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
@@ -187,22 +203,11 @@
             <div class="p-6">
                 <form id="formTH" class="space-y-4" autocomplete="off">
                     <input type="hidden" name="is_new" id="is_new_th" value="true">
-                    <div>
-                        <label>Mã Thương Hiệu <span class="text-red-500">*</span></label>
-                        <input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase font-bold" autocomplete="off" required>
-                    </div>
-                    <div>
-                        <label>Tên Thương Hiệu <span class="text-red-500">*</span></label>
-                        <input type="text" name="ten_thuong_hieu" id="th_ten" class="input-premium" autocomplete="off" required>
-                    </div>
-                    <div>
-                        <label>Link Logo (URL)</label>
-                        <input type="text" name="logo" id="th_logo" class="input-premium font-mono text-xs" autocomplete="off">
-                    </div>
-                    <div>
-                        <label>Mô tả ngắn</label>
-                        <textarea name="mo_ta" id="th_mota" rows="3" class="input-premium leading-relaxed" autocomplete="off"></textarea>
-                    </div>
+                    <div><label>Mã Thương Hiệu *</label><input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase font-bold" required></div>
+                    <div><label>Tên Thương Hiệu *</label><input type="text" name="ten_thuong_hieu" id="th_ten" class="input-premium" required></div>
+                    <div><label>Link Logo (URL)</label><input type="text" name="logo_url" id="th_logo" class="input-premium font-mono text-xs"></div>
+                    <div><label>Mô tả ngắn</label><textarea name="mo_ta" id="th_mota" rows="2" class="input-premium leading-relaxed"></textarea></div>
+                    <div><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="th_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
                 </form>
             </div>
             <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
@@ -212,96 +217,86 @@
         </div>
     </div>
 
+    <div id="modalBLN" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-white rounded-t-2xl">
+                <h3 class="text-xl font-bold text-slate-800" id="titleBLN">Thêm Khung Giá</h3>
+                <button type="button" onclick="closeModal('modalBLN')" class="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
+            </div>
+            <div class="p-6">
+                <form id="formBLN" class="space-y-4" autocomplete="off">
+                    <input type="hidden" name="is_new" id="is_new_bln" value="true">
+                    <input type="hidden" name="dong_cu" id="bln_dong">
+                    
+                    <div>
+                        <label>Khung Giá Nhập Nhỏ Hơn Hoặc Bằng (VNĐ) <span class="text-red-500">*</span></label>
+                        <input type="text" name="khung_gia_nhap" id="bln_khung" class="input-premium text-red-600 font-bold text-right text-lg" onkeyup="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')" required placeholder="Ví dụ: 1.000.000">
+                    </div>
+                    <div>
+                        <label>Biên Lợi Nhuận Tương Ứng (%) <span class="text-red-500">*</span></label>
+                        <input type="number" name="bien_loi_nhuan" id="bln_loi" class="input-premium text-emerald-600 font-bold text-center text-lg" required placeholder="Ví dụ: 30">
+                    </div>
+                    <div class="mt-4"><label class="flex items-center cursor-pointer"><input type="checkbox" name="trang_thai" id="bln_trangthai" class="w-5 h-5 mr-2" checked> <span class="font-bold text-slate-700">Đang hoạt động</span></label></div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button type="button" onclick="closeModal('modalBLN')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg">Hủy</button>
+                <button type="button" onclick="saveBLN()" class="px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-md">Lưu Khung Giá</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // LƯU TRẠNG THÁI TAB
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            const btn = document.getElementById('btn-' + tabId);
-            const tab = document.getElementById(tabId);
-            
-            if (btn && tab) {
-                btn.classList.add('active'); tab.classList.add('active');
-                localStorage.setItem('activeTab_CaiDat', tabId);
-            }
+            const btn = document.getElementById('btn-' + tabId); const tab = document.getElementById(tabId);
+            if (btn && tab) { btn.classList.add('active'); tab.classList.add('active'); localStorage.setItem('activeTab_CaiDat', tabId); }
         }
-        (function restoreTab() {
-            const savedTab = localStorage.getItem('activeTab_CaiDat');
-            if (savedTab && document.getElementById(savedTab)) { switchTab(savedTab); }
-        })();
+        (function restoreTab() { const savedTab = localStorage.getItem('activeTab_CaiDat'); if (savedTab && document.getElementById(savedTab)) { switchTab(savedTab); } })();
 
-        // HÀM LỌC TÌM KIẾM
-        function filterTable(inputId, tbodyId) {
-            const query = document.getElementById(inputId).value.toLowerCase();
-            const rows = document.querySelectorAll(`#${tbodyId} tr`);
-            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
-        }
-
-        // --- DANH MỤC ---
+        function filterTable(inputId, tbodyId) { const query = document.getElementById(inputId).value.toLowerCase(); document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; }); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        function openModalDM() {
-            document.getElementById('formDM').reset();
-            document.getElementById('is_new_dm').value = "true";
-            document.getElementById('dm_ma').readOnly = false;
-            document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới";
-            document.getElementById('modalDM').classList.remove('hidden');
-        }
-        // Đã cập nhật hàm Edit nhận thêm biến Mẹ
-        function editDM(ma, ten, me, thue, loi) {
-            document.getElementById('is_new_dm').value = "false";
-            document.getElementById('dm_ma').value = ma;
-            document.getElementById('dm_ma').readOnly = true; 
-            document.getElementById('dm_ten').value = ten;
-            document.getElementById('dm_me').value = me; // Nạp Danh mục mẹ
-            document.getElementById('dm_thue').value = thue;
-            document.getElementById('dm_loi').value = loi;
-            document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma;
-            document.getElementById('modalDM').classList.remove('hidden');
-        }
+        // --- DANH MỤC ---
+        function openModalDM() { document.getElementById('formDM').reset(); document.getElementById('is_new_dm').value = "true"; document.getElementById('dm_ma').readOnly = false; document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới"; document.getElementById('modalDM').classList.remove('hidden'); }
+        function editDM(ma, ten, me, thue, loi, tt) { document.getElementById('is_new_dm').value = "false"; document.getElementById('dm_ma').value = ma; document.getElementById('dm_ma').readOnly = true; document.getElementById('dm_ten').value = ten; document.getElementById('dm_me').value = me; document.getElementById('dm_thue').value = thue; document.getElementById('dm_loi').value = loi; document.getElementById('dm_trangthai').checked = (tt===1); document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma; document.getElementById('modalDM').classList.remove('hidden'); }
         async function saveDM() {
-            if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) {
-                Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin bắt buộc (*)', 'warning'); return;
-            }
-            Swal.fire({ title: 'Đang lưu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            try {
-                const res = await fetch('/admin/api/category/save', { method: 'POST', body: new FormData(document.getElementById('formDM')) });
-                const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1000}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch(e) { Swal.fire('Lỗi mạng', 'Không thể kết nối đến server', 'error'); }
+            if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
+            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
+            try { const res = await fetch('/admin/api/category/save', { method: 'POST', body: new FormData(document.getElementById('formDM')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
         }
 
         // --- THƯƠNG HIỆU ---
-        function openModalTH() {
-            document.getElementById('formTH').reset();
-            document.getElementById('is_new_th').value = "true";
-            document.getElementById('th_ma').readOnly = false;
-            document.getElementById('titleTH').innerText = "Thêm Thương Hiệu Mới";
-            document.getElementById('modalTH').classList.remove('hidden');
-        }
-        function editTH(ma, ten, logo, mota) {
-            document.getElementById('is_new_th').value = "false";
-            document.getElementById('th_ma').value = ma;
-            document.getElementById('th_ma').readOnly = true;
-            document.getElementById('th_ten').value = ten;
-            document.getElementById('th_logo').value = logo;
-            document.getElementById('th_mota').value = mota;
-            document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma;
-            document.getElementById('modalTH').classList.remove('hidden');
-        }
+        function openModalTH() { document.getElementById('formTH').reset(); document.getElementById('is_new_th').value = "true"; document.getElementById('th_ma').readOnly = false; document.getElementById('titleTH').innerText = "Thêm Thương Hiệu Mới"; document.getElementById('modalTH').classList.remove('hidden'); }
+        function editTH(ma, ten, logo, mota, tt) { document.getElementById('is_new_th').value = "false"; document.getElementById('th_ma').value = ma; document.getElementById('th_ma').readOnly = true; document.getElementById('th_ten').value = ten; document.getElementById('th_logo').value = logo; document.getElementById('th_mota').value = mota; document.getElementById('th_trangthai').checked = (tt===1); document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma; document.getElementById('modalTH').classList.remove('hidden'); }
         async function saveTH() {
-            if(!document.getElementById('th_ma').value || !document.getElementById('th_ten').value) {
-                Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin bắt buộc (*)', 'warning'); return;
-            }
-            Swal.fire({ title: 'Đang lưu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            try {
-                const res = await fetch('/admin/api/brand/save', { method: 'POST', body: new FormData(document.getElementById('formTH')) });
-                const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1000}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch(e) { Swal.fire('Lỗi mạng', 'Không thể kết nối đến server', 'error'); }
+            if(!document.getElementById('th_ma').value || !document.getElementById('th_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
+            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
+            try { const res = await fetch('/admin/api/brand/save', { method: 'POST', body: new FormData(document.getElementById('formTH')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
+        }
+
+        // --- KHUNG GIÁ (BIÊN LỢI NHUẬN) ---
+        function openModalBLN() { 
+            document.getElementById('formBLN').reset(); 
+            document.getElementById('is_new_bln').value = "true"; 
+            document.getElementById('titleBLN').innerText = "Thêm Khung Giá Mới"; 
+            document.getElementById('modalBLN').classList.remove('hidden'); 
+        }
+        function editBLN(dong, khung, loi, tt) { 
+            document.getElementById('is_new_bln').value = "false"; 
+            document.getElementById('bln_dong').value = dong; 
+            document.getElementById('bln_khung').value = khung.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+            document.getElementById('bln_loi').value = loi; 
+            document.getElementById('bln_trangthai').checked = (tt===1); 
+            document.getElementById('titleBLN').innerText = "Sửa Khung Giá"; 
+            document.getElementById('modalBLN').classList.remove('hidden'); 
+        }
+        async function saveBLN() {
+            if(!document.getElementById('bln_khung').value || !document.getElementById('bln_loi').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin bắt buộc', 'warning'); return; }
+            Swal.fire({ title: 'Đang lưu...', didOpen: () => { Swal.showLoading() } });
+            try { const res = await fetch('/admin/api/margin/save', { method: 'POST', body: new FormData(document.getElementById('formBLN')) }); const data = await res.json(); if(data.status === 'ok') location.reload(); else Swal.fire('Lỗi', data.msg, 'error'); } catch(e) { Swal.fire('Lỗi', 'Lỗi mạng', 'error'); }
         }
     </script>
     {{ template "footer" . }}
