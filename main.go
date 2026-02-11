@@ -34,6 +34,7 @@ func main() {
 	core.NapPhanQuyen("")
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
+	core.NapBienLoiNhuan("")	
 	core.NapSanPham("")
 	core.NapKhachHang("")
 
