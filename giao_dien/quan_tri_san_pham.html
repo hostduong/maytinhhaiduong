@@ -513,6 +513,40 @@
                 btn.disabled = false; btn.innerHTML = originalText;
             }
         }
+
+async function deleteSP(maSP) {
+            const { value: pinCode } = await Swal.fire({
+                title: 'Yêu cầu bảo mật',
+                html: `Vui lòng nhập <b>Mã PIN</b> để xóa sản phẩm <b>${maSP}</b>. Hành động này không thể hoàn tác!`,
+                input: 'password',
+                inputAttributes: { maxlength: 8, autocapitalize: 'off', autocorrect: 'off' },
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Xác nhận xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (pinCode) {
+                const fd = new FormData();
+                fd.append('ma_san_pham', maSP);
+                fd.append('ma_pin', pinCode);
+
+                Swal.fire({title: 'Đang xử lý...', didOpen: () => {Swal.showLoading()}});
+
+                try {
+                    const res = await fetch('/admin/api/product/delete', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (data.status === 'ok') {
+                        Swal.fire({icon: 'success', title: 'Đã xóa!', showConfirmButton: false, timer: 1500}).then(() => location.reload());
+                    } else {
+                        Swal.fire('Lỗi', data.msg, 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('Lỗi mạng', 'Không kết nối được server', 'error');
+                }
+            }
+        }        
+        
     </script>
     {{ template "footer" . }}
 {{ end }}
