@@ -23,9 +23,16 @@
             opacity: 0.8;
         }
 
-        /* Nút Tab */
+        /* Nút Tab - ĐÃ NÂNG CẤP ĐA MÀU SẮC ĐỒNG BỘ */
         .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
-        .tab-btn.active { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
+        
+        /* Màu Tab 1: Danh Mục (Xanh Dương) */
+        .tab-btn.active-blue { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
+        /* Màu Tab 2: Thương Hiệu (Tím) */
+        .tab-btn.active-purple { border-color: #9333ea; color: #9333ea; background-color: #faf5ff; }
+        /* Màu Tab 3: Khung Giá (Xanh Ngọc) */
+        .tab-btn.active-emerald { border-color: #059669; color: #059669; background-color: #ecfdf5; }
+
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -77,9 +84,9 @@
         </div>
 
         <div class="bg-white rounded-t-xl border border-b-0 border-slate-200 flex overflow-hidden shadow-sm">
-            <button onclick="switchTab('tabDM')" id="btn-tabDM" class="tab-btn active flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide">📁 Danh Mục Sản Phẩm</button>
-            <button onclick="switchTab('tabTH')" id="btn-tabTH" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">⭐ Thương Hiệu</button>
-            <button onclick="switchTab('tabBLN')" id="btn-tabBLN" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">💰 Khung Định Giá</button>
+            <button onclick="switchTab('tabDM', 'active-blue')" id="btn-tabDM" class="tab-btn active-blue flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide">📁 Danh Mục Sản Phẩm</button>
+            <button onclick="switchTab('tabTH', 'active-purple')" id="btn-tabTH" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">⭐ Thương Hiệu</button>
+            <button onclick="switchTab('tabBLN', 'active-emerald')" id="btn-tabBLN" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 uppercase tracking-wide border-l border-slate-200">💰 Khung Định Giá</button>
         </div>
 
         <div id="tabDM" class="tab-content active bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -114,9 +121,9 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
-                            <td class="px-6 py-4 text-slate-500 text-xs">{{ if .DanhMucMe }}<span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded font-bold">{{ .DanhMucMe }}</span>{{ else }}<span class="italic text-slate-400">--- Gốc ---</span>{{ end }}</td>
+                            <td class="px-6 py-4 text-slate-400 text-xs italic">{{ if .DanhMucMe }}{{ .DanhMucMe }}{{ else }}--- Gốc ---{{ end }}</td>
                             <td class="px-6 py-4 text-center font-bold text-red-600">{{ .ThueVAT }}</td>
-                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400 font-normal">Tự động</span>{{ end }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400 font-normal">Theo Giá</span>{{ end }}</td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
@@ -204,8 +211,8 @@
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
                         <tr>
-                            <th class="px-6 py-4 font-bold">Khung Giá Nhập (VNĐ)</th>
-                            <th class="px-6 py-4 font-bold">Biên Lợi Nhuận Tương Ứng (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Khung Giá Nhập (VNĐ)</th>
+                            <th class="px-6 py-4 font-bold text-center">Biên Lợi Nhuận Tương Ứng (%)</th>
                             <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
                             <th class="px-6 py-4 font-bold text-center">Thao tác</th>
                         </tr>
@@ -213,8 +220,8 @@
                     <tbody id="tbodyBLN" class="divide-y divide-slate-100">
                         {{ range .ListBLN }}
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 font-bold text-slate-800">Từ <span class="text-slate-500 font-medium">{{ format_money .GiaTu }} đ</span> đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
-                            <td class="px-6 py-4 font-bold text-emerald-600 text-lg">{{ .BienLoiNhuan }} %</td>
+                            <td class="px-6 py-4 font-bold text-slate-800 text-center">Từ <span class="text-slate-500 font-medium">{{ format_money .GiaTu }} đ</span> đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
+                            <td class="px-6 py-4 font-bold text-emerald-600 text-lg text-center">{{ .BienLoiNhuan }} %</td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
@@ -377,15 +384,28 @@
             }
         });
 
-        // Hủy Data Island cho sạch HTML
         document.getElementById('data_island').remove();
 
         // --- CÁC HÀM UI CƠ BẢN ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        function switchTab(tabId, activeClass) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-blue', 'active-purple', 'active-emerald');
+            });
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            const btn = document.getElementById('btn-' + tabId); const tab = document.getElementById(tabId);
-            if (btn && tab) { btn.classList.add('active'); tab.classList.add('active'); localStorage.setItem('activeTab_CaiDat', tabId); }
+            
+            const btn = document.getElementById('btn-' + tabId); 
+            const tab = document.getElementById(tabId);
+            
+            if (btn && tab) { 
+                if (!activeClass) {
+                    if (tabId === 'tabDM') activeClass = 'active-blue';
+                    else if (tabId === 'tabTH') activeClass = 'active-purple';
+                    else if (tabId === 'tabBLN') activeClass = 'active-emerald';
+                }
+                btn.classList.add(activeClass); 
+                tab.classList.add('active'); 
+                localStorage.setItem('activeTab_CaiDat', tabId); 
+            }
         }
         (function restoreTab() { const savedTab = localStorage.getItem('activeTab_CaiDat'); if (savedTab && document.getElementById(savedTab)) { switchTab(savedTab); } })();
 
