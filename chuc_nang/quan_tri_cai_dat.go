@@ -36,12 +36,19 @@ func API_LuuDanhMuc(c *gin.Context) {
 
 	maDM := strings.TrimSpace(c.PostForm("ma_danh_muc"))
 	tenDM := strings.TrimSpace(c.PostForm("ten_danh_muc"))
+	dmMe := strings.TrimSpace(c.PostForm("danh_muc_me")) // [MỚI] Lấy từ form
 	thueVAT, _ := strconv.ParseFloat(c.PostForm("thue_vat"), 64)
 	loiNhuan, _ := strconv.ParseFloat(c.PostForm("loi_nhuan"), 64)
 	isNew := c.PostForm("is_new") == "true"
 
 	if maDM == "" || tenDM == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã và Tên danh mục không được để trống!"})
+		return
+	}
+
+	// Chặn lỗi: Danh mục mẹ không được là chính nó
+	if strings.ToUpper(maDM) == strings.ToUpper(dmMe) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Danh mục mẹ không được trùng với chính nó!"})
 		return
 	}
 
@@ -60,6 +67,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 			DongTrongSheet: targetRow,
 			MaDanhMuc:      strings.ToUpper(maDM),
 			TenDanhMuc:     tenDM,
+			DanhMucMe:      dmMe, // [MỚI]
 			ThueVAT:        thueVAT,
 			LoiNhuan:       loiNhuan,
 			STT:            0,
@@ -73,11 +81,11 @@ func API_LuuDanhMuc(c *gin.Context) {
 		}
 		
 		targetRow = found.DongTrongSheet
-        // Tự động giải phóng Lock an toàn bằng defer
 		func() {
 			core.KhoaHeThong.Lock()
 			defer core.KhoaHeThong.Unlock()
 			found.TenDanhMuc = tenDM
+			found.DanhMucMe = dmMe // [MỚI]
 			found.ThueVAT = thueVAT
 			found.LoiNhuan = loiNhuan
 		}()
@@ -86,6 +94,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 	ghi := core.ThemVaoHangCho
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_MaDanhMuc, strings.ToUpper(maDM))
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_TenDanhMuc, tenDM)
+	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_DanhMucMe, dmMe) // [MỚI] Ghi cột C
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
 	if isNew {
