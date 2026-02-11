@@ -23,7 +23,7 @@
             opacity: 0.8;
         }
 
-        /* Nút Tab - ĐÃ NÂNG CẤP ĐA MÀU SẮC ĐỒNG BỘ */
+        /* Nút Tab - ĐA MÀU SẮC ĐỒNG BỘ */
         .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
         
         /* Màu Tab 1: Danh Mục (Xanh Dương) */
@@ -109,10 +109,10 @@
                             <th class="px-6 py-4 font-bold">Mã</th>
                             <th class="px-6 py-4 font-bold">Tên Danh Mục</th>
                             <th class="px-6 py-4 font-bold">Danh Mục Mẹ</th>
-                            <th class="px-6 py-4 font-bold text-center">VAT (%)</th>
-                            <th class="px-6 py-4 font-bold text-center">Lợi Nhuận (%)</th>
-                            <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
-                            <th class="px-6 py-4 font-bold text-center">Thao tác</th>
+                            <th class="px-6 py-4 font-bold text-center text-red-600">VAT (%)</th>
+                            <th class="px-6 py-4 font-bold text-center text-red-600">Lợi Nhuận (%)</th>
+                            <th class="px-6 py-4 font-bold text-center text-emerald-600">Trạng thái</th>
+                            <th class="px-6 py-4 font-bold text-center text-blue-600">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyDM" class="divide-y divide-slate-100">
@@ -123,7 +123,7 @@
                             <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
                             <td class="px-6 py-4 text-slate-400 text-xs italic">{{ if .DanhMucMe }}{{ .DanhMucMe }}{{ else }}--- Gốc ---{{ end }}</td>
                             <td class="px-6 py-4 text-center font-bold text-red-600">{{ .ThueVAT }}</td>
-                            <td class="px-6 py-4 text-center font-bold text-blue-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400 font-normal">Theo Giá</span>{{ end }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-red-600">{{ if gt .LoiNhuan 0.0 }}{{ .LoiNhuan }}{{ else }}<span class="text-xs text-slate-400 font-normal">Theo Giá</span>{{ end }}</td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
@@ -212,18 +212,18 @@
                     <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
                         <tr>
                             <th class="px-6 py-4 font-bold text-center">Khung Giá Nhập (VNĐ)</th>
-                            <th class="px-6 py-4 font-bold text-center">Biên Lợi Nhuận Tương Ứng (%)</th>
-                            <th class="px-6 py-4 font-bold text-center">Trạng thái</th>
-                            <th class="px-6 py-4 font-bold text-center">Thao tác</th>
+                            <th class="px-6 py-4 font-bold text-center text-red-600">Biên Lợi Nhuận Tương Ứng (%)</th>
+                            <th class="px-6 py-4 font-bold text-center text-blue-600">Trạng thái</th>
+                            <th class="px-6 py-4 font-bold text-center text-emerald-600">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyBLN" class="divide-y divide-slate-100">
                         {{ range .ListBLN }}
                         <tr class="hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-bold text-slate-800 text-center">Từ <span class="text-slate-500 font-medium">{{ format_money .GiaTu }} đ</span> đến <span class="text-red-600">{{ format_money .KhungGiaNhap }} đ</span></td>
-                            <td class="px-6 py-4 font-bold text-emerald-600 text-lg text-center">{{ .BienLoiNhuan }} %</td>
+                            <td class="px-6 py-4 font-bold text-red-600 text-lg text-center">{{ .BienLoiNhuan }} %</td>
                             <td class="px-6 py-4 text-center">
-                                {{ if eq .TrangThai 1 }}<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded text-xs border border-emerald-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
+                                {{ if eq .TrangThai 1 }}<span class="text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded text-xs border border-blue-100">Bật</span>{{ else }}<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">Tắt</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <button type="button" onclick="editBLN('{{ .DongTrongSheet }}')" class="flex items-center justify-center gap-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
