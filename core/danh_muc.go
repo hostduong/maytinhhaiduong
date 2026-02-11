@@ -12,9 +12,10 @@ const (
 
 	CotDM_MaDanhMuc  = 0 // A: Mã (VD: MAIN, CPU, MON)
 	CotDM_TenDanhMuc = 1 // B: Tên hiển thị
-	CotDM_ThueVAT    = 2 // C: Thuế đầu ra (%)
-	CotDM_LoiNhuan   = 3 // D: Biên lợi nhuận mong muốn (%)
-	CotDM_STT        = 4 // E: Số thứ tự hiện tại (Để sinh SKU: MAIN0001)
+	CotDM_DanhMucMe  = 2 // C: [MỚI] Mã danh mục mẹ (Rỗng nếu là cấp 1)
+	CotDM_ThueVAT    = 3 // D: Thuế đầu ra (%)
+	CotDM_LoiNhuan   = 4 // E: Biên lợi nhuận mong muốn (%)
+	CotDM_STT        = 5 // F: Số thứ tự hiện tại (Để sinh SKU: MAIN0001)
 )
 
 type DanhMuc struct {
@@ -23,9 +24,10 @@ type DanhMuc struct {
 	
 	MaDanhMuc  string  `json:"ma_danh_muc"`
 	TenDanhMuc string  `json:"ten_danh_muc"`
+	DanhMucMe  string  `json:"danh_muc_me"` // [MỚI]
 	ThueVAT    float64 `json:"thue_vat"`
 	LoiNhuan   float64 `json:"loi_nhuan"`
-	STT        int     `json:"stt"` // Số đếm để sinh mã
+	STT        int     `json:"stt"` 
 }
 
 var (
@@ -53,6 +55,7 @@ func NapDanhMuc(targetSpreadsheetID string) {
 			DongTrongSheet: i + 1,
 			MaDanhMuc:  maDM,
 			TenDanhMuc: layString(r, CotDM_TenDanhMuc),
+			DanhMucMe:  layString(r, CotDM_DanhMucMe), // [MỚI]
 			ThueVAT:    layFloat(r, CotDM_ThueVAT),
 			LoiNhuan:   layFloat(r, CotDM_LoiNhuan),
 			STT:        layInt(r, CotDM_STT),
@@ -76,20 +79,9 @@ func LayChiTietDanhMuc(maDM string) (*DanhMuc, bool) {
 	return dm, ok
 }
 
-// [MỚI] Tìm Mã (MAIN) dựa trên Tên (Mainboard)
-// Vì giao diện gửi tên lên, nên ta phải tìm ngược lại mã
-// Chuyển về lowercase để so sánh cho chuẩn
 func TimMaDanhMucTheoTen(tenDM string) string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
-	// Cần import "strings" nếu muốn dùng strings.ToLower ở đây,
-	// nhưng để đơn giản và tránh lỗi import thừa, ta so sánh trực tiếp hoặc tự xử lý bên ngoài.
-	// Tuy nhiên, logic chuẩn là phải duyệt qua slice.
-	// Ở đây tôi viết lại hàm so sánh đơn giản không cần strings để tránh import thừa nếu lười import.
-	// Nhưng tốt nhất là import "strings" nếu cần chính xác. 
-	// Trong trường hợp này, để fix lỗi build nhanh, tôi sẽ dùng vòng lặp đơn giản.
-	
 	for _, dm := range _DS_DanhMuc {
 		if dm.TenDanhMuc == tenDM {
 			return dm.MaDanhMuc
@@ -98,7 +90,6 @@ func TimMaDanhMucTheoTen(tenDM string) string {
 	return "" 
 }
 
-// [MỚI] Hàm lấy số thứ tự tiếp theo và cập nhật RAM + Sheet
 func LaySTTtiepTheo(maDM string) int {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
@@ -107,17 +98,15 @@ func LaySTTtiepTheo(maDM string) int {
 	dm, ok := _Map_DanhMuc[key]
 	if !ok { return 1 }
 
-	// Tăng số
 	dm.STT++ 
 	newSTT := dm.STT
 
-	// Ghi ngay xuống Sheet để tránh trùng lặp nếu restart
+	// Ghi ngay xuống Sheet 
 	ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_STT, newSTT)
 	
 	return newSTT
 }
 
-// Thêm vào cuối file core/danh_muc.go
 func ThemDanhMucVaoRam(dm *DanhMuc) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
