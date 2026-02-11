@@ -8,14 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"app/bao_mat" // [FIX LỖI]: Bổ sung thư viện bảo mật
 	"app/cau_hinh"
 	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// ... (Giữ nguyên hàm TrangQuanLySanPham) ...
+// TrangQuanLySanPham : Hiển thị trang quản lý
 func TrangQuanLySanPham(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -42,6 +41,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	uniqueDM := make(map[string]bool)
 	uniqueTH := make(map[string]bool)
 
+	// Lọc danh sách bình thường (Không cần check -1 nữa)
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
 			cleanList = append(cleanList, sp)
@@ -67,8 +67,8 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       cleanList,
-		"ListDanhMuc":    listDM,
-		"ListThuongHieu": listTH,
+		"ListDanhMuc":    core.LayDanhSachDanhMuc(),    
+		"ListThuongHieu": core.LayDanhSachThuongHieu(), 
 	})
 }
 
@@ -96,19 +96,15 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 
 	// 1. LẤY DỮ LIỆU TỪ FORM
-	
-	// Giá trị tài chính
 	giaNhap, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_nhap"), ".", ""), ",", ""), 64)
 	giaBanLe, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", ""), ",", ""), 64)
 	giamGia, _ := strconv.ParseFloat(c.PostForm("giam_gia"), 64)
 	
-	// Tính giá bán thực
 	giaBanThuc := giaBanLe
 	if giamGia > 0 {
 		giaBanThuc = giaBanLe * (1 - giamGia/100)
 	}
 
-	// Các thông tin khác
 	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
 	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
 	donVi      := xuLyTags(c.PostForm("don_vi"))
@@ -122,7 +118,6 @@ func API_LuuSanPham(c *gin.Context) {
 	thongSo    := c.PostForm("thong_so")
 	ghiChu     := c.PostForm("ghi_chu")
 	
-	// Xử lý bảo hành (ghép số + đơn vị)
 	bhNum := c.PostForm("bao_hanh_num")
 	bhUnit := c.PostForm("bao_hanh_unit")
 	baoHanh := ""
@@ -144,7 +139,6 @@ func API_LuuSanPham(c *gin.Context) {
 
 	if maSP == "" {
 		isNew = true
-		// [LOGIC SINH MÃ THEO DANH MỤC]
 		firstDM := ""
 		if danhMuc != "" { firstDM = strings.Split(danhMuc, "|")[0] }
 		maCodeDM := core.TimMaDanhMucTheoTen(firstDM)
@@ -182,7 +176,6 @@ func API_LuuSanPham(c *gin.Context) {
 	sp.BaoHanh    = baoHanh
 	sp.TrangThai  = trangThai
 	
-	// [UPDATE GIÁ]
 	sp.GiaNhap    = giaNhap
 	sp.GiaBanLe   = giaBanLe
 	sp.GiamGia    = giamGia
@@ -217,19 +210,13 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(sheetID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
 		ghi(sheetID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
 		ghi(sheetID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		
-		// [SỬA TÊN BIẾN Ở ĐÂY]
 		ghi(sheetID, sheet, targetRow, core.CotSP_BaoHanh, sp.BaoHanh)
-		
 		ghi(sheetID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(sheetID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
-		
-		// Ghi giá
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaNhap, sp.GiaNhap)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiamGia, sp.GiamGia)
 		ghi(sheetID, sheet, targetRow, core.CotSP_GiaBanThuc, sp.GiaBanThuc)
-		
 		ghi(sheetID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
 		ghi(sheetID, sheet, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
 		ghi(sheetID, sheet, targetRow, core.CotSP_NgayTao, sp.NgayTao)
@@ -239,7 +226,7 @@ func API_LuuSanPham(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
 }
 
-// ... (Giữ nguyên phần helper xuLyTags ...)
+// ... helper ...
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
@@ -272,47 +259,4 @@ func taoSlugChuan(s string) string {
 	reInvalid := regexp.MustCompile(`[^a-z0-9]+`)
 	s = reInvalid.ReplaceAllString(s, "-")
 	return strings.Trim(s, "-")
-}
-
-// Thêm API_XoaSanPham vào file quan_tri_san_pham.go
-func API_XoaSanPham(c *gin.Context) {
-	vaiTro := c.GetString("USER_ROLE")
-	if vaiTro != "admin_root" && vaiTro != "admin" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền xóa sản phẩm!"})
-		return
-	}
-
-	maSP := c.PostForm("ma_san_pham")
-	maPin := c.PostForm("ma_pin")
-
-	// 1. Xác thực PIN
-	userID := c.GetString("USER_ID")
-	kh, _ := core.LayKhachHang(userID)
-	
-	// Import thư viện bao_mat vào file này nếu chưa có
-	if !bao_mat.KiemTraMatKhau(maPin, kh.MaPinHash) {
-		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
-		return
-	}
-
-	// 2. Lấy Sản phẩm
-	sp, ok := core.LayChiTietSanPham(maSP)
-	if !ok {
-		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy sản phẩm!"})
-		return
-	}
-
-	// 3. Xóa Mềm (Soft Delete: Đổi trạng thái thành -1)
-	// Tránh xóa dòng vật lý trên Sheet để không làm nhảy thứ tự dòng của các xử lý đang Queue
-	core.KhoaHeThong.Lock()
-	sp.TrangThai = -1 // -1 là Đã xóa
-	core.KhoaHeThong.Unlock()
-
-	// 4. Ghi xuống Sheet
-	sheetID := sp.SpreadsheetID
-	if sheetID == "" { sheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	
-	core.ThemVaoHangCho(sheetID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_TrangThai, -1)
-
-	c.JSON(200, gin.H{"status": "ok", "msg": "Xóa sản phẩm thành công!"})
 }
