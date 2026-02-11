@@ -31,7 +31,9 @@ func main() {
 	core.KhoiTaoWorkerGhiSheet()
 
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
-	core.NapPhanQuyen("") 
+	core.NapPhanQuyen("")
+	core.NapDanhMuc("")
+	core.NapThuongHieu("")
 	core.NapSanPham("")
 	core.NapKhachHang("")
 
