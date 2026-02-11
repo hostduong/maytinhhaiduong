@@ -51,6 +51,7 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		core.NapPhanQuyen("") 
 		core.NapDanhMuc("")   
 		core.NapThuongHieu("")
+		core.NapBienLoiNhuan("")
 		core.NapSanPham("")
 		core.NapKhachHang("")
 		
