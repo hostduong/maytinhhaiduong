@@ -229,18 +229,6 @@
             document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + ma;
             document.getElementById('modalDM').classList.remove('hidden');
         }
-        async function saveDM() {
-            if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) {
-                Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin bắt buộc (*)', 'warning'); return;
-            }
-            const fd = new FormData(document.getElementById('formDM'));
-            try {
-                const res = await fetch('/admin/api/category/save', { method: 'POST', body: fd });
-                const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch(e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); }
-        }
 
         // --- THƯƠNG HIỆU ---
         function openModalTH() {
@@ -260,17 +248,62 @@
             document.getElementById('titleTH').innerText = "Sửa Thương Hiệu: " + ma;
             document.getElementById('modalTH').classList.remove('hidden');
         }
+async function saveDM() {
+            if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) {
+                Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin bắt buộc (*)', 'warning'); return;
+            }
+            
+            // Hiện Popup Xoay Đang xử lý
+            Swal.fire({
+                title: 'Đang lưu dữ liệu...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
+            const fd = new FormData(document.getElementById('formDM'));
+            try {
+                const res = await fetch('/admin/api/category/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if(data.status === 'ok') {
+                    // Hiện box thông báo 1 giây rồi tự load lại
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1000})
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                }
+            } catch(e) { 
+                Swal.fire('Lỗi mạng', 'Không kết nối được đến server', 'error'); 
+            }
+        }
+
         async function saveTH() {
             if(!document.getElementById('th_ma').value || !document.getElementById('th_ten').value) {
                 Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin bắt buộc (*)', 'warning'); return;
             }
+
+            // Hiện Popup Xoay Đang xử lý
+            Swal.fire({
+                title: 'Đang lưu dữ liệu...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
             const fd = new FormData(document.getElementById('formTH'));
             try {
                 const res = await fetch('/admin/api/brand/save', { method: 'POST', body: fd });
                 const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch(e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); }
+                
+                if(data.status === 'ok') {
+                    // Hiện box thông báo 1 giây rồi tự load lại
+                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1000})
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                }
+            } catch(e) { 
+                Swal.fire('Lỗi mạng', 'Không kết nối được đến server', 'error'); 
+            }
         }
     </script>
     {{ template "footer" . }}
