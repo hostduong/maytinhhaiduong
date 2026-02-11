@@ -6,17 +6,14 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        /* Typography & Cấu trúc */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         .modal-body { max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 2rem; background-color: #f8fafc; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
-        /* Khối (Cards) phân vùng giao diện */
         .form-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02); }
         .section-title { font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
 
-        /* Inputs chuyên nghiệp */
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
             width: 100%; box-sizing: border-box; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s ease; font-weight: 500;
         }
@@ -24,19 +21,15 @@
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
         input.input-premium:focus, select.input-premium:focus, textarea.input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
         
-        /* Tagify chuẩn form */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .tagify__tag { margin: 0.25rem; background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-weight: 600; border-radius: 0.375rem; }
         .tagify__input { line-height: 28px; margin: 0 0.5rem; }
-        .tagify--select::after { font-size: 1.2em; color: #64748b; }
 
-        /* Inputs đặc biệt (Giá tiền) */
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
         #gia_ban_le { color: #e11d48; }
-        #gia_ban_thuc { color: #059669; background-color: #f8fafc; }
+        #gia_ban_thuc { color: #059669; }
 
-        /* Nút thêm ảnh */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; animation: fadeIn 0.2s; }
         .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; }
         .btn-remove-img:hover { background: #e11d48; color: white; }
@@ -160,39 +153,11 @@
                         </div>
                     </div>
 
-                    <div class="form-section border-l-4 border-l-blue-500">
-                        <div class="section-title">💰 Định giá & Trạng thái</div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                            <div>
-                                <label>Giá Vốn (Nhập)</label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" class="input-premium price-input text-slate-500" placeholder="0" onkeyup="formatCurrency(this)">
-                            </div>
-                            <div>
-                                <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
-                            </div>
-                            <div>
-                                <label>Giảm giá (%)</label>
-                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
-                            </div>
-                            <div>
-                                <label>Giá Thực Tế Web</label>
-                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input cursor-not-allowed" placeholder="0">
-                            </div>
-                        </div>
-                        <div class="mt-5 pt-5 border-t border-slate-100 flex items-center justify-between">
-                            <label class="flex items-center cursor-pointer select-none mb-0">
-                                <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
-                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
-                            </label>
-                        </div>
-                    </div>
-
                     <div class="form-section">
                         <div class="section-title">🏷️ Phân loại & Thuộc tính</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                             <div>
-                                <label>Danh Mục (Chọn nhiều) <span class="text-red-500">*</span></label>
+                                <label>Danh Mục (Phân loại chính) <span class="text-red-500">*</span></label>
                                 <input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục...">
                             </div>
                             <div>
@@ -201,18 +166,9 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                            <div>
-                                <label>Đơn vị tính</label>
-                                <input name="don_vi" id="don_vi" class="input-premium" placeholder="Cái, Bộ...">
-                            </div>
-                            <div>
-                                <label>Màu sắc</label>
-                                <input name="mau_sac" id="mau_sac" class="input-premium" placeholder="Đen, Trắng...">
-                            </div>
-                            <div>
-                                <label>Tình trạng</label>
-                                <input name="tinh_trang" id="tinh_trang" class="input-premium" placeholder="Mới 100%...">
-                            </div>
+                            <div><label>Đơn vị tính</label><input name="don_vi" id="don_vi" class="input-premium" placeholder="Cái, Bộ..."></div>
+                            <div><label>Màu sắc</label><input name="mau_sac" id="mau_sac" class="input-premium" placeholder="Đen, Trắng..."></div>
+                            <div><label>Tình trạng</label><input name="tinh_trang" id="tinh_trang" class="input-premium" placeholder="Mới 100%..."></div>
                             <div>
                                 <label>Thời gian bảo hành</label>
                                 <div class="flex gap-2 items-stretch">
@@ -224,6 +180,44 @@
                                     </select>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section border-l-4 border-l-blue-500">
+                        <div class="section-title">💰 Định giá Kinh Doanh</div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                            <div>
+                                <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
+                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-slate-50" placeholder="0" onkeyup="formatCurrency(this); autoCalcPrice()">
+                            </div>
+                            <div>
+                                <label>Thuế VAT (%)</label>
+                                <input type="number" id="thue_vat" class="input-premium text-center font-bold text-red-600" placeholder="0" onkeyup="autoCalcPrice()" onchange="autoCalcPrice()">
+                            </div>
+                            <div>
+                                <label>Biên Lợi Nhuận (%)</label>
+                                <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600" placeholder="0" onkeyup="autoCalcPrice()" onchange="autoCalcPrice()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <div>
+                                <label>Giá Niêm Yết (Bán lẻ)</label>
+                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
+                            </div>
+                            <div>
+                                <label>Giảm giá (%)</label>
+                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
+                            </div>
+                            <div>
+                                <label>Giá Thực Tế (Web)</label>
+                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 font-bold" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
+                            <label class="flex items-center cursor-pointer select-none mb-0">
+                                <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
+                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
+                            </label>
                         </div>
                     </div>
 
@@ -267,10 +261,10 @@
     </div>
 
     <script>
-        // --- CẤU HÌNH TAGIFY ---
+        // --- 1. CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = {
             mode: 'select',
-            enforceWhitelist: true, // Ép người dùng chọn từ danh sách
+            enforceWhitelist: true, 
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
@@ -279,7 +273,7 @@
 
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
             whitelist: listDM,
-            enforceWhitelist: true, // Cấm gõ tên mới
+            enforceWhitelist: true, 
             dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
@@ -288,52 +282,57 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
-        // --- TỪ ĐIỂN DANH MỤC (PHỤC VỤ REAL-TIME MÃ SẢN PHẨM) ---
+        // --- 2. TỪ ĐIỂN DANH MỤC (Lấy VAT, Lợi Nhuận, Mã) ---
         const dicDanhMuc = {};
         {{ range .ListDanhMuc }}
         if ("{{ .TenDanhMuc }}" !== "") {
             dicDanhMuc["{{ .TenDanhMuc }}"] = {
                 prefix: "{{ .MaDanhMuc }}",
-                nextStt: parseInt("{{ .STT }}") || 0
+                nextStt: parseInt("{{ .STT }}") || 0,
+                vat: parseFloat("{{ .ThueVAT }}") || 0,
+                loiNhuan: parseFloat("{{ .LoiNhuan }}") || 0
             };
         }
         {{ end }}
 
+        let isEditingMode = false; // Biến khóa không cho Tagify tự động ghi đè giá khi Sửa
+
         tagifyDM.on('add', function(e) {
-            if (document.getElementById('ma_san_pham').value === "") {
-                const tags = tagifyDM.value;
-                if (tags.length > 0) {
-                    const tenDM = tags[0].value;
-                    const info = dicDanhMuc[tenDM];
-                    if (info) {
-                        const nextStt = info.nextStt + 1; // Cộng 1 để lấy số tương lai
-                        const sttFormatted = String(nextStt).padStart(4, '0');
-                        document.getElementById('ma_san_pham_preview').value = info.prefix + sttFormatted;
+            if(isEditingMode) return; // Nếu đang mở popup Sửa thì không tính lại giá tự động
+            
+            const tags = tagifyDM.value;
+            if (tags.length > 0) {
+                const tenDM = tags[0].value;
+                const info = dicDanhMuc[tenDM];
+                if (info) {
+                    // Cập nhật Mã Preview nếu đang thêm mới
+                    if (document.getElementById('ma_san_pham').value === "") {
+                        const nextStt = info.nextStt + 1;
+                        document.getElementById('ma_san_pham_preview').value = info.prefix + String(nextStt).padStart(4, '0');
                     }
+                    // Tự động điền VAT và Lợi nhuận
+                    document.getElementById('thue_vat').value = info.vat;
+                    document.getElementById('loi_nhuan').value = info.loiNhuan;
+                    autoCalcPrice(); // Gọi hàm tính toán
                 }
             }
         });
 
         tagifyDM.on('remove', function(e) {
-            if (document.getElementById('ma_san_pham').value === "") {
-                const tags = tagifyDM.value;
-                if (tags.length === 0) {
-                    document.getElementById('ma_san_pham_preview').value = ""; 
-                } else {
-                    const tenDM = tags[0].value;
-                    const info = dicDanhMuc[tenDM];
-                    if (info) {
-                        const nextStt = info.nextStt + 1;
-                        const sttFormatted = String(nextStt).padStart(4, '0');
-                        document.getElementById('ma_san_pham_preview').value = info.prefix + sttFormatted;
-                    }
-                }
+            if(isEditingMode) return;
+            const tags = tagifyDM.value;
+            if (tags.length === 0) {
+                if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
+                document.getElementById('thue_vat').value = "";
+                document.getElementById('loi_nhuan').value = "";
+                autoCalcPrice();
             }
         });
 
-        // --- MAP DỮ LIỆU SẢN PHẨM ---
+        // --- 3. ĐÃ FIX LỖI CRASH JS (Dùng nháy kép "" thay vì backtick ``) ---
         const mapSP = {};
         {{ range .DanhSach }}
+        {{ if .MaSanPham }}
         mapSP["{{ .MaSanPham }}"] = {
             ma_san_pham: "{{ .MaSanPham }}",
             ten_san_pham: "{{ .TenSanPham }}",
@@ -355,20 +354,36 @@
             danh_muc: "{{ .DanhMuc }}"
         };
         {{ end }}
+        {{ end }}
 
-        // --- CÁC HÀM XỬ LÝ SỐ LIỆU ---
-        function formatNumber(n) { return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        // --- 4. HÀM XỬ LÝ SỐ & TÍNH TOÁN GIÁ ---
+        function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
+        function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
+
+        function autoCalcPrice() {
+            if(isEditingMode) return; // Nếu đang trong hàm Edit thì chặn lại
+            
+            let giaNhap = getNum(document.getElementById('gia_nhap').value);
+            let vat = parseFloat(document.getElementById('thue_vat').value) || 0;
+            let loiNhuan = parseFloat(document.getElementById('loi_nhuan').value) || 0;
+
+            if (giaNhap > 0) {
+                // Công thức: Giá Bán = Giá Nhập * (1 + (VAT + Lợi Nhuận) / 100)
+                let giaBanLe = giaNhap * (1 + (vat + loiNhuan) / 100);
+                document.getElementById('gia_ban_le').value = formatNumber(Math.round(giaBanLe).toString());
+                tinhGiaThuc();
+            }
+        }
 
         function tinhGiaThuc() {
-            let rawGiaBan = document.getElementById('gia_ban_le').value.replace(/\./g, "");
-            let giaBan = parseFloat(rawGiaBan) || 0;
+            let giaBan = getNum(document.getElementById('gia_ban_le').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
             let giaThuc = giaBan * (1 - (giamGia / 100));
             document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
         }
 
-        // --- HÀM XỬ LÝ ẢNH MẢNG ---
+        // --- 5. HÀM QUẢN LÝ ẢNH MẢNG ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
@@ -382,8 +397,9 @@
             container.appendChild(div);
         }
 
-        // --- QUẢN LÝ MODAL ---
+        // --- 6. QUẢN LÝ MODAL (ĐÓNG / MỞ) ---
         function openModal() {
+            isEditingMode = false;
             document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = "";
             document.getElementById('ma_san_pham_preview').value = ""; 
@@ -398,11 +414,14 @@
 
             document.getElementById('modalSP').classList.remove('hidden');
         }
+        
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
             const sp = mapSP[id];
             if(!sp) return;
+
+            isEditingMode = true; // Bật cờ chặn tự động ghi đè giá
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
@@ -413,6 +432,16 @@
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             document.getElementById('giam_gia').value = sp.giam_gia;
+            
+            // Lấy lại VAT và Lợi nhuận gốc để Hiển thị (Không lưu đè giá)
+            if(sp.danh_muc) {
+                let firstDM = sp.danh_muc.split("|")[0];
+                let info = dicDanhMuc[firstDM];
+                if(info) {
+                    document.getElementById('thue_vat').value = info.vat;
+                    document.getElementById('loi_nhuan').value = info.loiNhuan;
+                }
+            }
             tinhGiaThuc();
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
@@ -436,8 +465,11 @@
                 document.getElementById('bao_hanh_unit').value = "Tháng";
             }
             
-            document.getElementById('thong_so').value = sp.thong_so;
-            document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
+            // Xử lý chống escape html cho textarea
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = sp.thong_so; document.getElementById('thong_so').value = tempDiv.innerText;
+            tempDiv.innerHTML = sp.mo_ta_chi_tiet; document.getElementById('mo_ta_chi_tiet').value = tempDiv.innerText;
+            
             document.getElementById('ghi_chu').value = sp.ghi_chu;
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
 
@@ -452,18 +484,17 @@
 
             document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
+            
+            setTimeout(() => { isEditingMode = false; }, 500); // Tắt cờ an toàn
         }
 
         async function confirmSave() {
             const form = document.getElementById('formSP');
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
-            // Lấy toàn bộ link ảnh nhét chung vào hidden input
             const inputs = document.querySelectorAll('.img-link-input, .img-input-group input');
             const links = [];
-            inputs.forEach(inp => {
-                if(inp.value.trim()) links.push(inp.value.trim());
-            });
+            inputs.forEach(inp => { if(inp.value.trim()) links.push(inp.value.trim()); });
             document.getElementById('url_hinh_anh').value = links.join('|');
 
             const result = await Swal.fire({
@@ -477,9 +508,7 @@
                 cancelButtonText: 'Hủy'
             });
 
-            if (result.isConfirmed) {
-                saveSP();
-            }
+            if (result.isConfirmed) saveSP();
         }
 
         async function saveSP() {
