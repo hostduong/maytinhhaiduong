@@ -6,112 +6,38 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        /* --- 1. CHUẨN HÓA LABEL & SCROLLBAR --- */
-        label {
-            font-size: 0.75rem; 
-            font-weight: 600;   
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            color: #475569; /* Màu Slate xám chuẩn, không xanh đỏ */
-            margin-bottom: 0.4rem;
-            display: block;
-        }
+        label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin-bottom: 0.4rem; display: block; }
         .modal-body { max-height: calc(100vh - 160px); overflow-y: auto; scrollbar-width: thin; padding-right: 6px; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
-/* Ép cứng chiều cao và Box Sizing cho toàn bộ Input */
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
-            width: 100%;
-            height: 44px; /* Fix chiều cao dòng 2, 3 */
-            box-sizing: border-box;
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1; 
-            border-radius: 0.5rem;     
-            font-size: 0.95rem;
-            color: #1e293b;            
-            transition: all 0.2s ease-in-out;
-            font-weight: 500;
+            width: 100%; height: 44px; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s ease-in-out; font-weight: 500;
         }
-        
         textarea.input-premium { height: auto; padding: 0.75rem 1rem; }
+        .tagify { display: flex; align-items: center; padding: 0 0.5rem; overflow: hidden; }
         
-        .tagify {
-            display: flex;
-            align-items: center;
-            padding: 0 0.5rem;
-            overflow: hidden; /* Chống tràn đè viền */
-        }
-        
-        /* Chống đè viền khu vực Giá */
-        .price-group {
-            position: relative;
-            z-index: 10;
-        }
+        .price-group { position: relative; z-index: 10; }
         .price-group input:focus { z-index: 20; position: relative; }
 
-        /* [YÊU CẦU] TRẠNG THÁI ĐÃ NHẬP DỮ LIỆU: ĐỒNG BỘ VIỀN XANH + CHỮ XANH */
-        input.input-premium:not(:placeholder-shown),
-        textarea.input-premium:not(:placeholder-shown) {
-            border-color: #93c5fd;     
-            background-color: #eff6ff; 
-            color: #1d4ed8 !important; /* Chữ Xanh đậm */
-            font-weight: 600; /* In đậm lên */
-        }
-
-        /* Select luôn có dữ liệu nên mặc định màu xanh */
+        input.input-premium:not(:placeholder-shown), textarea.input-premium:not(:placeholder-shown) { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8 !important; font-weight: 600; }
         select.input-premium {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.2em 1.2em;
-            padding-right: 2.5rem;
-            -webkit-appearance: none;
-            appearance: none;
-            color: #1d4ed8;
-            font-weight: 600;
-            border-color: #93c5fd;
-            background-color: #eff6ff;
+            background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; color: #1d4ed8; font-weight: 600; border-color: #93c5fd; background-color: #eff6ff;
         }
 
-        /* Ngoại lệ cho nhóm Giá (Màu sắc theo tính chất tài chính) */
         #gia_ban_le:not(:placeholder-shown) { color: #e11d48 !important; border-color: #fecdd3 !important; background-color: #fff1f2 !important; }
         #giam_gia:not(:placeholder-shown) { color: #ea580c !important; border-color: #fed7aa !important; background-color: #fff7ed !important; }
         #gia_ban_thuc { color: #059669 !important; border-color: #a7f3d0 !important; background-color: #ecfdf5 !important; }
 
-        /* --- 3. TAGIFY CAO CẤP --- */
-        .tagify {
-            --tags-border-color: #cbd5e1;
-            --tags-focus-border-color: #3b82f6;
-            --tag-bg: #bfdbfe;           /* Nền Tag xanh đậm hơn (Blue-200) */
-            --tag-text-color: #1e3a8a;   /* Chữ Tag xanh navy (Blue-900) */
-            --tag-remove-btn-color: #1e3a8a;
-            --tag-pad: 0.35rem 0.6rem;
-            display: flex;
-            align-items: center;
-            padding: 0 0.5rem;
-        }
-        
-        .tagify.tagify--not-empty {
-            border-color: #93c5fd;
-            background-color: #eff6ff;
-        }
-        
+        .tagify { --tags-border-color: #cbd5e1; --tags-focus-border-color: #3b82f6; --tag-bg: #bfdbfe; --tag-text-color: #1e3a8a; --tag-remove-btn-color: #1e3a8a; --tag-pad: 0.35rem 0.6rem; }
+        .tagify.tagify--not-empty { border-color: #93c5fd; background-color: #eff6ff; }
         .tagify__tag { font-weight: 600; }
         .tagify__input { margin: 0; line-height: 40px; }
         .tagify__input::before { color: #94a3b8; font-weight: 500; }
-        
-        /* Chế độ 1 Tag (Select) */
-        .tagify--select .tagify__tag {
-            background: #bfdbfe;
-            border-radius: 0.375rem;
-            margin: 0;
-        }
-
-        /* Danh mục có thể mở rộng chiều cao nếu nhiều Tag */
+        .tagify--select .tagify__tag { background: #bfdbfe; border-radius: 0.375rem; margin: 0; }
         #ma_danh_muc + .tagify { height: auto; min-height: 44px; flex-wrap: wrap; padding: 0.25rem 0.5rem; }
 
-        /* --- 4. HÌNH ẢNH DYNAMIC --- */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; animation: fadeIn 0.3s; }
         .btn-remove-img { color: #ef4444; cursor: pointer; padding: 6px; border-radius: 4px; transition: 0.2s; background: #fee2e2; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;}
         .btn-remove-img:hover { background: #fca5a5; color: white;}
@@ -181,16 +107,12 @@
                                 <span class="inline-flex items-center bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-0.5 rounded-full">Tắt</span>
                                 {{ end }}
                             </td>
-<td class="px-6 py-4 text-center">
-    <div class="flex justify-center gap-2">
-        <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
-            Sửa
-        </button>
-        <button onclick="deleteSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 px-3 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
-            Xóa
-        </button>
-    </div>
-</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Sửa
+                                </button>
+                            </td>
                         </tr>
                         {{ end }}
                     </tbody>
@@ -513,40 +435,6 @@
                 btn.disabled = false; btn.innerHTML = originalText;
             }
         }
-
-async function deleteSP(maSP) {
-            const { value: pinCode } = await Swal.fire({
-                title: 'Yêu cầu bảo mật',
-                html: `Vui lòng nhập <b>Mã PIN</b> để xóa sản phẩm <b>${maSP}</b>. Hành động này không thể hoàn tác!`,
-                input: 'password',
-                inputAttributes: { maxlength: 8, autocapitalize: 'off', autocorrect: 'off' },
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Xác nhận xóa',
-                cancelButtonText: 'Hủy'
-            });
-
-            if (pinCode) {
-                const fd = new FormData();
-                fd.append('ma_san_pham', maSP);
-                fd.append('ma_pin', pinCode);
-
-                Swal.fire({title: 'Đang xử lý...', didOpen: () => {Swal.showLoading()}});
-
-                try {
-                    const res = await fetch('/admin/api/product/delete', { method: 'POST', body: fd });
-                    const data = await res.json();
-                    if (data.status === 'ok') {
-                        Swal.fire({icon: 'success', title: 'Đã xóa!', showConfirmButton: false, timer: 1500}).then(() => location.reload());
-                    } else {
-                        Swal.fire('Lỗi', data.msg, 'error');
-                    }
-                } catch (e) {
-                    Swal.fire('Lỗi mạng', 'Không kết nối được server', 'error');
-                }
-            }
-        }        
-        
     </script>
     {{ template "footer" . }}
 {{ end }}
