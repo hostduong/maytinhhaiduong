@@ -36,50 +36,20 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
-    <div id="go_data_island" style="display: none;">
-        <div id="data_danhmuc">
-            {{ range .ListDanhMuc }}
-                {{ if ne .TenDanhMuc "" }}
-                <div class="dm-item" 
-                    data-ten="{{ urlquery .TenDanhMuc }}" 
-                    data-prefix="{{ urlquery .MaDanhMuc }}" 
-                    data-nextstt="{{ .STT }}" 
-                    data-vat="{{ .ThueVAT }}" 
-                    data-loinhuan="{{ .LoiNhuan }}"></div>
-                {{ end }}
-            {{ end }}
+    <div id="data_island" style="display:none;">
+        {{ range .DanhSach }}
+        {{ if .MaSanPham }}
+        <div class="sp-data"
+             data-id="{{ .MaSanPham }}" data-ten="{{ .TenSanPham }}" data-rutgon="{{ .TenRutGon }}" data-sku="{{ .Sku }}"
+             data-gianhap="{{ .GiaNhap }}" data-giabanle="{{ .GiaBanLe }}" data-giamgia="{{ .GiamGia }}"
+             data-thuonghieu="{{ .ThuongHieu }}" data-donvi="{{ .DonVi }}" data-baohanh="{{ .BaoHanh }}"
+             data-mausac="{{ .MauSac }}" data-tinhtrang="{{ .TinhTrang }}" data-img="{{ .UrlHinhAnh }}"
+             data-ghichu="{{ .GhiChu }}" data-trangthai="{{ .TrangThai }}" data-danhmuc="{{ .DanhMuc }}">
+             <textarea class="t-thongso">{{ .ThongSo }}</textarea>
+             <textarea class="t-mota">{{ .MoTaChiTiet }}</textarea>
         </div>
-        <div id="data_thuonghieu">
-            {{ range .ListThuongHieu }}
-                {{ if ne .TenThuongHieu "" }}<div class="th-item" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}
-            {{ end }}
-        </div>
-        <div id="data_sanpham">
-            {{ range .DanhSach }}
-            {{ if .MaSanPham }}
-            <div class="sp-item"
-                data-id="{{ urlquery .MaSanPham }}" 
-                data-ten="{{ urlquery .TenSanPham }}" 
-                data-rutgon="{{ urlquery .TenRutGon }}" 
-                data-sku="{{ urlquery .Sku }}"
-                data-gianhap="{{ printf "%.0f" .GiaNhap }}" 
-                data-giabanle="{{ printf "%.0f" .GiaBanLe }}" 
-                data-giamgia="{{ printf "%.0f" .GiamGia }}"
-                data-thuonghieu="{{ urlquery .ThuongHieu }}" 
-                data-donvi="{{ urlquery .DonVi }}" 
-                data-baohanh="{{ urlquery .BaoHanh }}"
-                data-mausac="{{ urlquery .MauSac }}" 
-                data-tinhtrang="{{ urlquery .TinhTrang }}" 
-                data-urlhinhanh="{{ urlquery .UrlHinhAnh }}"
-                data-ghichu="{{ urlquery .GhiChu }}" 
-                data-trangthai="{{ .TrangThai }}" 
-                data-danhmuc="{{ urlquery .DanhMuc }}">
-                <textarea class="sp-thongso">{{ .ThongSo }}</textarea>
-                <textarea class="sp-mota">{{ .MoTaChiTiet }}</textarea>
-            </div>
-            {{ end }}
-            {{ end }}
-        </div>
+        {{ end }}
+        {{ end }}
     </div>
 
     <div class="container mx-auto px-4 py-8">
@@ -113,18 +83,15 @@
                         <tr class="bg-white hover:bg-slate-50 transition">
                             <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
-                                {{ $firstImg := index (split .UrlHinhAnh "|") 0 }}
                                 <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
-                                    <img src="{{ if $firstImg }}{{ $firstImg }}{{ else }}https://via.placeholder.com/50?text=No+Img{{ end }}" onerror="this.src='https://via.placeholder.com/50?text=Error'" class="max-w-full max-h-full object-cover rounded-sm">
+                                    <img data-raw-img="{{ .UrlHinhAnh }}" class="preview-img-table max-w-full max-h-full object-cover rounded-sm">
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-slate-900 min-w-[200px]">{{ .TenSanPham }}</td>
                             <td class="px-6 py-4">
                                 {{ if .DanhMuc }}
                                     <div class="flex flex-wrap gap-1 w-48">
-                                        {{ range split .DanhMuc "|" }}
-                                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded border border-slate-200">{{ . }}</span>
-                                        {{ end }}
+                                        <span class="dm-tags bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded border border-slate-200" data-tags="{{ .DanhMuc }}"></span>
                                     </div>
                                 {{ end }}
                             </td>
@@ -188,11 +155,11 @@
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label>Tên hiển thị rút gọn (Tùy chọn)</label>
-                                    <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn hoặc menu ngắn...">
+                                    <label>Tên hiển thị rút gọn</label>
+                                    <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn hoặc menu...">
                                 </div>
                                 <div>
-                                    <label>Mã SKU (Lưu kho nội bộ)</label>
+                                    <label>Mã SKU (Lưu kho)</label>
                                     <input type="text" name="sku" id="sku" class="input-premium font-mono" placeholder="Để trống nếu không có mã riêng...">
                                 </div>
                             </div>
@@ -203,11 +170,11 @@
                         <div class="section-title">🏷️ Phân loại & Thuộc tính</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                             <div>
-                                <label>Danh Mục (Phân loại chính) <span class="text-red-500">*</span></label>
+                                <label>Danh Mục <span class="text-red-500">*</span></label>
                                 <input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục...">
                             </div>
                             <div>
-                                <label>Thương hiệu (Hãng)</label>
+                                <label>Thương hiệu</label>
                                 <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu...">
                             </div>
                         </div>
@@ -231,28 +198,24 @@
 
                     <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
                         <div class="section-title">💰 Định giá Kinh Doanh</div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
                                 <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); autoCalcForward()">
-                            </div>
-                            <div>
-                                <label>Thuế VAT (%)</label>
-                                <input type="number" id="thue_vat" class="input-premium text-center font-bold text-red-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
                             </div>
                             <div>
                                 <label>Biên Lợi Nhuận (%)</label>
                                 <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
                             </div>
                             <div>
-                                <label>Lãi + Thuế (VNĐ)</label>
-                                <input type="text" id="tien_lai_thue" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100" placeholder="0">
+                                <label>Lãi VNĐ (Trước Thuế)</label>
+                                <input type="text" id="lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                             <div>
-                                <label>Giá Niêm Yết (Gạch ngang trên Web) <span class="text-[10px] font-normal text-slate-400 ml-1">(Có thể sửa)</span></label>
+                                <label>Giá Niêm Yết (Gạch ngang trên Web)</label>
                                 <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                             <div>
@@ -313,64 +276,45 @@
     </div>
 
     <script>
-        // --- 1. LẤY DỮ LIỆU TỪ DATA ISLAND (CHỐNG CRASH 100%) ---
-        function decodeGo(str) {
-            if (!str) return "";
-            return decodeURIComponent(str.replace(/\+/g, '%20'));
-        }
-
-        var listDM = [];
-        const dicDanhMuc = {};
-        document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => {
-            let ten = decodeGo(el.getAttribute('data-ten'));
-            if(ten) {
-                listDM.push(ten);
-                dicDanhMuc[ten] = {
-                    prefix: decodeGo(el.getAttribute('data-prefix')),
-                    nextStt: parseInt(el.getAttribute('data-nextstt')) || 0,
-                    vat: parseFloat(el.getAttribute('data-vat')) || 0,
-                    loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
-                };
-            }
+        // --- 1. XỬ LÝ LỖI ẢNH VÀ TAGS NGOÀI BẢNG (THAY THẾ HÀM SPLIT CỦA GO) ---
+        document.querySelectorAll('.preview-img-table').forEach(img => {
+            let raw = img.getAttribute('data-raw-img');
+            img.src = (raw && raw.includes('|')) ? raw.split('|')[0] : (raw || "https://via.placeholder.com/50?text=No+Img");
+        });
+        document.querySelectorAll('.dm-tags').forEach(span => {
+            let raw = span.getAttribute('data-tags');
+            if(raw) span.innerText = raw.split('|').join(', ');
         });
 
-        var listTH = [];
-        document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => {
-            let ten = decodeGo(el.getAttribute('data-ten'));
-            if(ten) listTH.push(ten);
-        });
-
+        // --- 2. LẤY DỮ LIỆU TỪ DATA ISLAND DOM ---
         const mapSP = {};
-        document.querySelectorAll('#data_sanpham .sp-item').forEach(el => {
-            let id = decodeGo(el.getAttribute('data-id'));
-            if(id) {
-                mapSP[id] = {
-                    ma_san_pham: id,
-                    ten_san_pham: decodeGo(el.getAttribute('data-ten')),
-                    ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')),
-                    sku: decodeGo(el.getAttribute('data-sku')),
-                    gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0,
-                    gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0,
-                    giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
-                    thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')),
-                    don_vi: decodeGo(el.getAttribute('data-donvi')),
-                    bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
-                    mau_sac: decodeGo(el.getAttribute('data-mausac')),
-                    tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')),
-                    url_hinh_anh: decodeGo(el.getAttribute('data-urlhinhanh')),
-                    ghi_chu: decodeGo(el.getAttribute('data-ghichu')),
-                    trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0,
-                    danh_muc: decodeGo(el.getAttribute('data-danhmuc')),
-                    thong_so: el.querySelector('.sp-thongso').value,
-                    mo_ta_chi_tiet: el.querySelector('.sp-mota').value
-                };
-            }
+        document.querySelectorAll('#data_sanpham .sp-data').forEach(el => {
+            let id = el.getAttribute('data-id');
+            mapSP[id] = {
+                ma_san_pham: id, ten_san_pham: el.getAttribute('data-ten'), ten_rut_gon: el.getAttribute('data-rutgon'), sku: el.getAttribute('data-sku'),
+                gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
+                thuong_hieu: el.getAttribute('data-thuonghieu'), don_vi: el.getAttribute('data-donvi'), bao_hanh: el.getAttribute('data-baohanh'),
+                mau_sac: el.getAttribute('data-mausac'), tinh_trang: el.getAttribute('data-tinhtrang'), url_hinh_anh: el.getAttribute('data-img'),
+                ghi_chu: el.getAttribute('data-ghichu'), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: el.getAttribute('data-danhmuc'),
+                thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value
+            };
         });
 
-        // Xóa Data Island sau khi lấy xong để làm nhẹ DOM
-        document.getElementById('go_data_island').remove();
+        var listDM = []; const dicDanhMuc = {};
+        {{ range .ListDanhMuc }}
+            if ("{{ .TenDanhMuc }}" !== "") {
+                listDM.push("{{ .TenDanhMuc }}");
+                dicDanhMuc["{{ .TenDanhMuc }}"] = { prefix: "{{ .MaDanhMuc }}", nextStt: {{ .STT }}, loiNhuan: {{ .LoiNhuan }} };
+            }
+        {{ end }}
+        
+        var listTH = [];
+        {{ range .ListThuongHieu }} if ("{{ .TenThuongHieu }}" !== "") listTH.push("{{ .TenThuongHieu }}"); {{ end }}
 
-        // --- 2. CẤU HÌNH TAGIFY ---
+        // Xóa Data Island để sạch HTML
+        document.getElementById('data_island').remove();
+
+        // --- 3. CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
@@ -382,14 +326,12 @@
 
         tagifyDM.on('add', function(e) {
             if(isEditingMode) return; 
-            const tags = tagifyDM.value;
-            if (tags.length > 0) {
-                const info = dicDanhMuc[tags[0].value];
+            if (tagifyDM.value.length > 0) {
+                const info = dicDanhMuc[tagifyDM.value[0].value];
                 if (info) {
                     if (document.getElementById('ma_san_pham').value === "") {
                         document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0');
                     }
-                    document.getElementById('thue_vat').value = info.vat;
                     document.getElementById('loi_nhuan').value = info.loiNhuan;
                     autoCalcForward();
                 }
@@ -400,68 +342,61 @@
             if(isEditingMode) return;
             if (tagifyDM.value.length === 0) {
                 if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
-                document.getElementById('thue_vat').value = ""; document.getElementById('loi_nhuan').value = "";
+                document.getElementById('loi_nhuan').value = "";
                 autoCalcForward();
             }
         });
 
-        // --- 3. HÀM TÍNH TOÁN & LÀM TRÒN GIÁ CHUẨN RETAIL ---
+        // --- 4. HÀM TÍNH TOÁN GIÁ CHUẨN RETAIL (KHÔNG VAT) ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        // Hàm làm tròn xuống bội số 10.000 (Ví dụ: 795.882 -> 790.000)
-        function roundNicePrice(price) {
+        function round10k(price) {
             if (price <= 0) return 0;
+            // Làm tròn XUỐNG bội số 10.000 (Ví dụ: 845.625 -> 840.000)
             return Math.floor(price / 10000) * 10000;
         }
 
-        // Tính thuận từ Vốn -> Lãi -> Niêm Yết -> Thực tế
         function autoCalcForward() {
             if(isEditingMode) return;
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
-            let vat = parseFloat(document.getElementById('thue_vat').value) || 0;
             let loiNhuan = parseFloat(document.getElementById('loi_nhuan').value) || 0;
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                // 1. Tính số tiền Lãi + Thuế
-                let tienLaiThue = giaNhap * ((vat + loiNhuan) / 100);
-                document.getElementById('tien_lai_thue').value = formatNumber(Math.round(tienLaiThue).toString());
+                // 1. Tính Lãi VNĐ
+                let laiVND = giaNhap * (loiNhuan / 100);
+                document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
 
-                // 2. Tính số tiền kỳ vọng thu về
-                let targetThuVe = giaNhap + tienLaiThue;
+                // 2. Tính Giá mục tiêu (Psell)
+                let pSell = giaNhap + laiVND;
 
-                // 3. Tính Giá Niêm Yết (Đội giá lên để bù vào % Khuyến mãi)
-                let giaNiemYetTho = targetThuVe;
-                if (giamGia > 0 && giamGia < 100) {
-                    giaNiemYetTho = targetThuVe / (1 - (giamGia / 100));
-                }
+                // 3. Đội Giá Niêm Yết (Plist) để bù đắp % giảm giá
+                let pList = pSell;
+                if (giamGia > 0 && giamGia < 100) pList = pSell / (1 - (giamGia / 100));
                 
-                // 4. Làm tròn Giá Niêm Yết (Làm tròn LÊN để an toàn không bị lỗ)
-                let giaNiemYet = Math.ceil(giaNiemYetTho / 10000) * 10000;
-                document.getElementById('gia_ban_le').value = formatNumber(giaNiemYet.toString());
+                // 4. Làm tròn Niêm Yết cho đẹp số và hiển thị
+                pList = round10k(pList);
+                document.getElementById('gia_ban_le').value = formatNumber(pList.toString());
 
-                // 5. Tính lại Giá Thực Tế Khách Trả & Làm tròn xuống cho đẹp số
-                let giaBanThuc = roundNicePrice(giaNiemYet * (1 - (giamGia / 100)));
+                // 5. Tính lại Giá Thực Tế (Phải làm tròn 10k lần nữa để khớp hiển thị)
+                let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
                 document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
             } else {
-                document.getElementById('tien_lai_thue').value = "0";
-                document.getElementById('gia_ban_le').value = "0";
-                document.getElementById('gia_ban_thuc').value = "0";
+                document.getElementById('lai_vnd').value = "0"; document.getElementById('gia_ban_le').value = "0"; document.getElementById('gia_ban_thuc').value = "0";
             }
         }
 
-        // Tính ngược khi user nhập tay Giá Niêm Yết
         function autoCalcBackward() {
-            let giaNiemYet = getNum(document.getElementById('gia_ban_le').value);
+            let pList = getNum(document.getElementById('gia_ban_le').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
             
-            let giaBanThuc = roundNicePrice(giaNiemYet * (1 - (giamGia / 100)));
+            let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
             document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
         }
 
-        // --- 4. CÁC HÀM XỬ LÝ GIAO DIỆN KHÁC ---
+        // --- 5. CÁC HÀM XỬ LÝ GIAO DIỆN KHÁC ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
@@ -475,7 +410,7 @@
             isEditingMode = false; document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = ""; document.getElementById('ma_san_pham_preview').value = ""; 
             document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Thêm Sản Phẩm Mới`;
-            document.getElementById('gia_ban_thuc').value = ""; document.getElementById('tien_lai_thue').value = ""; 
+            document.getElementById('gia_ban_thuc').value = ""; document.getElementById('lai_vnd').value = ""; 
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
             document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
             document.getElementById('modalSP').classList.remove('hidden');
@@ -495,8 +430,8 @@
             if(sp.danh_muc) {
                 let firstDM = sp.danh_muc.split("|")[0]; let info = dicDanhMuc[firstDM];
                 if(info) { 
-                    document.getElementById('thue_vat').value = info.vat; document.getElementById('loi_nhuan').value = info.loiNhuan; 
-                    if(sp.gia_nhap > 0) document.getElementById('tien_lai_thue').value = formatNumber(Math.round(sp.gia_nhap * ((info.vat + info.loiNhuan)/100)).toString());
+                    document.getElementById('loi_nhuan').value = info.loiNhuan; 
+                    if(sp.gia_nhap > 0) document.getElementById('lai_vnd').value = formatNumber(Math.round(sp.gia_nhap * (info.loiNhuan/100)).toString());
                 }
             }
             autoCalcBackward(); 
