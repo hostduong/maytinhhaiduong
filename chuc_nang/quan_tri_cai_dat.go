@@ -1,3 +1,31 @@
+package chuc_nang
+
+import (
+	"net/http"
+	"strconv"
+	"strings"
+
+	"app/cau_hinh"
+	"app/core"
+
+	"github.com/gin-gonic/gin"
+)
+
+func TrangQuanLyCaiDat(c *gin.Context) {
+	userID := c.GetString("USER_ID")
+	kh, _ := core.LayKhachHang(userID)
+
+	c.HTML(http.StatusOK, "quan_tri_cai_dat", gin.H{
+		"TieuDe":         "Cài đặt hệ thống",
+		"NhanVien":       kh,
+		"DaDangNhap":     true,
+		"TenNguoiDung":   kh.TenKhachHang,
+		"QuyenHan":       kh.VaiTroQuyenHan,
+		"ListDanhMuc":    core.LayDanhSachDanhMuc(),
+		"ListThuongHieu": core.LayDanhSachThuongHieu(),
+	})
+}
+
 // API_LuuDanhMuc
 func API_LuuDanhMuc(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
@@ -20,7 +48,6 @@ func API_LuuDanhMuc(c *gin.Context) {
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 	var targetRow int
 
-	// TÁCH BẠCH LUỒNG LƯU RAM ĐỂ TRÁNH TREO LOCK
 	if isNew {
 		if _, ok := core.LayChiTietDanhMuc(maDM); ok {
 			c.JSON(200, gin.H{"status": "error", "msg": "Mã danh mục này đã tồn tại!"})
@@ -37,7 +64,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 			LoiNhuan:       loiNhuan,
 			STT:            0,
 		}
-		core.ThemDanhMucVaoRam(newDM) // Đã an toàn 100%
+		core.ThemDanhMucVaoRam(newDM) 
 	} else {
 		found, ok := core.LayChiTietDanhMuc(maDM)
 		if !ok {
@@ -46,14 +73,16 @@ func API_LuuDanhMuc(c *gin.Context) {
 		}
 		
 		targetRow = found.DongTrongSheet
-		core.KhoaHeThong.Lock()
-		found.TenDanhMuc = tenDM
-		found.ThueVAT = thueVAT
-		found.LoiNhuan = loiNhuan
-		core.KhoaHeThong.Unlock()
+        // Tự động giải phóng Lock an toàn bằng defer
+		func() {
+			core.KhoaHeThong.Lock()
+			defer core.KhoaHeThong.Unlock()
+			found.TenDanhMuc = tenDM
+			found.ThueVAT = thueVAT
+			found.LoiNhuan = loiNhuan
+		}()
 	}
 
-	// Ghi Hàng chờ (Queue)
 	ghi := core.ThemVaoHangCho
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_MaDanhMuc, strings.ToUpper(maDM))
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_TenDanhMuc, tenDM)
@@ -99,7 +128,7 @@ func API_LuuThuongHieu(c *gin.Context) {
 			MoTa:           moTa,
 			TrangThai:      1,
 		}
-		core.ThemThuongHieuVaoRam(newTH) // An toàn
+		core.ThemThuongHieuVaoRam(newTH) 
 	} else {
 		var found *core.ThuongHieu
 		for _, item := range core.LayDanhSachThuongHieu() {
@@ -114,14 +143,16 @@ func API_LuuThuongHieu(c *gin.Context) {
 		}
 		
 		targetRow = found.DongTrongSheet
-		core.KhoaHeThong.Lock()
-		found.TenThuongHieu = tenTH
-		found.Logo = logo
-		found.MoTa = moTa
-		core.KhoaHeThong.Unlock()
+        // Tự động giải phóng Lock an toàn bằng defer
+		func() {
+			core.KhoaHeThong.Lock()
+			defer core.KhoaHeThong.Unlock()
+			found.TenThuongHieu = tenTH
+			found.Logo = logo
+			found.MoTa = moTa
+		}()
 	}
 
-	// Ghi Hàng chờ (Queue)
 	ghi := core.ThemVaoHangCho
 	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MaThuongHieu, strings.ToUpper(maTH))
 	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TenThuongHieu, tenTH)
