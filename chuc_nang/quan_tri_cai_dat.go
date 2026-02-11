@@ -70,7 +70,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 			DanhMucMe:      dmMe, // [MỚI]
 			ThueVAT:        thueVAT,
 			LoiNhuan:       loiNhuan,
-			STT:            0,
+			Slot:            0,
 		}
 		core.ThemDanhMucVaoRam(newDM) 
 	} else {
@@ -98,7 +98,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
 	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
 	if isNew {
-		ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_STT, 0)
+		ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_Slot, 0)
 	}
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Danh mục thành công!"})
