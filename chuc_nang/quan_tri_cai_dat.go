@@ -1,36 +1,4 @@
-package chuc_nang
-
-import (
-	"net/http"
-	"strconv"
-	"strings"
-
-	"app/cau_hinh"
-	"app/core"
-
-	"github.com/gin-gonic/gin"
-)
-
-// [ĐÃ SỬA TÊN HÀM]
-func TrangQuanLyCaiDat(c *gin.Context) {
-	userID := c.GetString("USER_ID")
-	kh, _ := core.LayKhachHang(userID)
-
-	// [ĐÃ SỬA TÊN TEMPLATE]
-	c.HTML(http.StatusOK, "quan_tri_cai_dat", gin.H{
-		"TieuDe":         "Cài đặt hệ thống",
-		"NhanVien":       kh,
-		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang,
-		"QuyenHan":       kh.VaiTroQuyenHan,
-		"ListDanhMuc":    core.LayDanhSachDanhMuc(),
-		"ListThuongHieu": core.LayDanhSachThuongHieu(),
-	})
-}
-
-// ... (Giữ nguyên các API_LuuDanhMuc và API_LuuThuongHieu bên dưới) ...
-
-// API_LuuDanhMuc: Thêm hoặc Sửa Danh Mục
+// API_LuuDanhMuc
 func API_LuuDanhMuc(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -49,50 +17,56 @@ func API_LuuDanhMuc(c *gin.Context) {
 		return
 	}
 
-	var dm *core.DanhMuc
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
+	var targetRow int
 
+	// TÁCH BẠCH LUỒNG LƯU RAM ĐỂ TRÁNH TREO LOCK
 	if isNew {
 		if _, ok := core.LayChiTietDanhMuc(maDM); ok {
 			c.JSON(200, gin.H{"status": "error", "msg": "Mã danh mục này đã tồn tại!"})
 			return
 		}
-		dm = &core.DanhMuc{
+		
+		targetRow = core.DongBatDau_DanhMuc + len(core.LayDanhSachDanhMuc())
+		newDM := &core.DanhMuc{
 			SpreadsheetID:  sheetID,
-			DongTrongSheet: core.DongBatDau_DanhMuc + len(core.LayDanhSachDanhMuc()),
-			MaDanhMuc:      strings.ToUpper(maDM), // Mã luôn in hoa (VD: MAIN)
+			DongTrongSheet: targetRow,
+			MaDanhMuc:      strings.ToUpper(maDM),
+			TenDanhMuc:     tenDM,
+			ThueVAT:        thueVAT,
+			LoiNhuan:       loiNhuan,
 			STT:            0,
 		}
+		core.ThemDanhMucVaoRam(newDM) // Đã an toàn 100%
 	} else {
 		found, ok := core.LayChiTietDanhMuc(maDM)
 		if !ok {
 			c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy danh mục để sửa!"})
 			return
 		}
-		dm = found
+		
+		targetRow = found.DongTrongSheet
+		core.KhoaHeThong.Lock()
+		found.TenDanhMuc = tenDM
+		found.ThueVAT = thueVAT
+		found.LoiNhuan = loiNhuan
+		core.KhoaHeThong.Unlock()
 	}
 
-	// Lưu vào RAM
-	core.KhoaHeThong.Lock()
-	dm.TenDanhMuc = tenDM
-	dm.ThueVAT = thueVAT
-	dm.LoiNhuan = loiNhuan
-	core.KhoaHeThong.Unlock()
-
-	// Ghi xuống Sheet
+	// Ghi Hàng chờ (Queue)
 	ghi := core.ThemVaoHangCho
-	ghi(sheetID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_MaDanhMuc, dm.MaDanhMuc)
-	ghi(sheetID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_TenDanhMuc, dm.TenDanhMuc)
-	ghi(sheetID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_ThueVAT, dm.ThueVAT)
-	ghi(sheetID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_LoiNhuan, dm.LoiNhuan)
+	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_MaDanhMuc, strings.ToUpper(maDM))
+	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_TenDanhMuc, tenDM)
+	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
+	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
 	if isNew {
-		ghi(sheetID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_STT, dm.STT)
+		ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_STT, 0)
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu Danh mục thành công! (Nên bấm Đồng Bộ để cập nhật RAM)"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Danh mục thành công!"})
 }
 
-// API_LuuThuongHieu: Thêm hoặc Sửa Thương Hiệu
+// API_LuuThuongHieu
 func API_LuuThuongHieu(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -107,48 +81,53 @@ func API_LuuThuongHieu(c *gin.Context) {
 	isNew := c.PostForm("is_new") == "true"
 
 	if maTH == "" || tenTH == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Mã và Tên thương hiệu không được để trống!"})
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã và Tên thương hiệu không được trống!"})
 		return
 	}
 
-	var th *core.ThuongHieu
 	sheetID := cau_hinh.BienCauHinh.IdFileSheet
+	var targetRow int
 
 	if isNew {
-		th = &core.ThuongHieu{
+		targetRow = core.DongBatDau_ThuongHieu + len(core.LayDanhSachThuongHieu())
+		newTH := &core.ThuongHieu{
 			SpreadsheetID:  sheetID,
-			DongTrongSheet: core.DongBatDau_ThuongHieu + len(core.LayDanhSachThuongHieu()),
+			DongTrongSheet: targetRow,
 			MaThuongHieu:   strings.ToUpper(maTH),
+			TenThuongHieu:  tenTH,
+			Logo:           logo,
+			MoTa:           moTa,
+			TrangThai:      1,
 		}
+		core.ThemThuongHieuVaoRam(newTH) // An toàn
 	} else {
-		// Tìm thương hiệu trong list
+		var found *core.ThuongHieu
 		for _, item := range core.LayDanhSachThuongHieu() {
 			if item.MaThuongHieu == maTH {
-				th = item
+				found = item
 				break
 			}
 		}
-		if th == nil {
+		if found == nil {
 			c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy thương hiệu để sửa!"})
 			return
 		}
+		
+		targetRow = found.DongTrongSheet
+		core.KhoaHeThong.Lock()
+		found.TenThuongHieu = tenTH
+		found.Logo = logo
+		found.MoTa = moTa
+		core.KhoaHeThong.Unlock()
 	}
 
-	// Lưu vào RAM
-	core.KhoaHeThong.Lock()
-	th.TenThuongHieu = tenTH
-	th.Logo = logo
-	th.MoTa = moTa
-	th.TrangThai = 1
-	core.KhoaHeThong.Unlock()
-
-	// Ghi xuống Sheet
+	// Ghi Hàng chờ (Queue)
 	ghi := core.ThemVaoHangCho
-	ghi(sheetID, "THUONG_HIEU", th.DongTrongSheet, core.CotTH_MaThuongHieu, th.MaThuongHieu)
-	ghi(sheetID, "THUONG_HIEU", th.DongTrongSheet, core.CotTH_TenThuongHieu, th.TenThuongHieu)
-	ghi(sheetID, "THUONG_HIEU", th.DongTrongSheet, core.CotTH_Logo, th.Logo)
-	ghi(sheetID, "THUONG_HIEU", th.DongTrongSheet, core.CotTH_MoTa, th.MoTa)
-	ghi(sheetID, "THUONG_HIEU", th.DongTrongSheet, core.CotTH_TrangThai, th.TrangThai)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MaThuongHieu, strings.ToUpper(maTH))
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TenThuongHieu, tenTH)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_Logo, logo)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MoTa, moTa)
+	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TrangThai, 1)
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu Thương hiệu thành công! (Nên bấm Đồng Bộ để cập nhật RAM)"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Thương hiệu thành công!"})
 }
