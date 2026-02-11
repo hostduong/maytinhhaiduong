@@ -106,7 +106,8 @@ func main() {
 		admin.POST("/api/product/delete", chuc_nang.API_XoaSanPham)
 		
 		admin.GET("/thanh-vien", chuc_nang.TrangQuanLyThanhVien)
-		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien) 
+		admin.POST("/api/member/save", chuc_nang.API_Admin_LuuThanhVien)
+		admin.GET("/danh-muc", chuc_nang.TrangQuanLyDanhMuc)
 	}
 
 	port := os.Getenv("PORT")
