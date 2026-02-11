@@ -183,36 +183,38 @@
                         </div>
                     </div>
 
-                    <div class="form-section border-l-4 border-l-blue-500">
+                    <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
                         <div class="section-title">💰 Định giá Kinh Doanh</div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-slate-50" placeholder="0" onkeyup="formatCurrency(this); autoCalcPrice()">
+                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); autoCalcForward()">
                             </div>
                             <div>
                                 <label>Thuế VAT (%)</label>
-                                <input type="number" id="thue_vat" class="input-premium text-center font-bold text-red-600" placeholder="0" onkeyup="autoCalcPrice()" onchange="autoCalcPrice()">
+                                <input type="number" id="thue_vat" class="input-premium text-center font-bold text-red-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
                             </div>
                             <div>
                                 <label>Biên Lợi Nhuận (%)</label>
-                                <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600" placeholder="0" onkeyup="autoCalcPrice()" onchange="autoCalcPrice()">
+                                <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
+                            </div>
+                            <div>
+                                <label>Giảm giá Khuyến mãi (%)</label>
+                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                             <div>
-                                <label>Giá Niêm Yết (Bán lẻ)</label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
+                                <label>Giá Niêm Yết (Gạch ngang trên Web) <span class="text-[10px] font-normal text-slate-400 ml-1">(Có thể sửa)</span></label>
+                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                             <div>
-                                <label>Giảm giá (%)</label>
-                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
-                            </div>
-                            <div>
-                                <label>Giá Thực Tế (Web)</label>
-                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 font-bold" placeholder="0">
+                                <label>Giá Thu Về (Giá thực tế bán ra)</label>
+                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
                             </div>
                         </div>
+
                         <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer select-none mb-0">
                                 <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
@@ -295,25 +297,22 @@
         }
         {{ end }}
 
-        let isEditingMode = false; // Biến khóa không cho Tagify tự động ghi đè giá khi Sửa
+        let isEditingMode = false;
 
         tagifyDM.on('add', function(e) {
-            if(isEditingMode) return; // Nếu đang mở popup Sửa thì không tính lại giá tự động
-            
+            if(isEditingMode) return; 
             const tags = tagifyDM.value;
             if (tags.length > 0) {
                 const tenDM = tags[0].value;
                 const info = dicDanhMuc[tenDM];
                 if (info) {
-                    // Cập nhật Mã Preview nếu đang thêm mới
                     if (document.getElementById('ma_san_pham').value === "") {
                         const nextStt = info.nextStt + 1;
                         document.getElementById('ma_san_pham_preview').value = info.prefix + String(nextStt).padStart(4, '0');
                     }
-                    // Tự động điền VAT và Lợi nhuận
                     document.getElementById('thue_vat').value = info.vat;
                     document.getElementById('loi_nhuan').value = info.loiNhuan;
-                    autoCalcPrice(); // Gọi hàm tính toán
+                    autoCalcForward();
                 }
             }
         });
@@ -325,62 +324,79 @@
                 if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
                 document.getElementById('thue_vat').value = "";
                 document.getElementById('loi_nhuan').value = "";
-                autoCalcPrice();
+                autoCalcForward();
             }
         });
 
-        // --- 3. ĐÃ FIX LỖI CRASH JS (Dùng nháy kép "" thay vì backtick ``) ---
+        // --- 3. ĐÃ FIX LỖI CRASH JS 100% ---
+        function decodeGo(str) {
+            if (!str) return "";
+            return decodeURIComponent(str.replace(/\+/g, '%20'));
+        }
+
         const mapSP = {};
         {{ range .DanhSach }}
         {{ if .MaSanPham }}
         mapSP["{{ .MaSanPham }}"] = {
             ma_san_pham: "{{ .MaSanPham }}",
-            ten_san_pham: "{{ .TenSanPham }}",
-            ten_rut_gon: "{{ .TenRutGon }}",
-            sku: "{{ .Sku }}",
+            ten_san_pham: decodeGo("{{ urlquery .TenSanPham }}"),
+            ten_rut_gon: decodeGo("{{ urlquery .TenRutGon }}"),
+            sku: decodeGo("{{ urlquery .Sku }}"),
             gia_nhap: {{ printf "%.0f" .GiaNhap }},
             gia_ban_le: {{ printf "%.0f" .GiaBanLe }},
             giam_gia: {{ printf "%.0f" .GiamGia }},
-            thuong_hieu: "{{ .ThuongHieu }}",
-            don_vi: "{{ .DonVi }}",
-            bao_hanh: "{{ .BaoHanh }}",
-            mau_sac: "{{ .MauSac }}",
-            tinh_trang: "{{ .TinhTrang }}",
-            thong_so: "{{ .ThongSo }}",
-            mo_ta_chi_tiet: "{{ .MoTaChiTiet }}",
+            thuong_hieu: decodeGo("{{ urlquery .ThuongHieu }}"),
+            don_vi: decodeGo("{{ urlquery .DonVi }}"),
+            bao_hanh: decodeGo("{{ urlquery .BaoHanh }}"),
+            mau_sac: decodeGo("{{ urlquery .MauSac }}"),
+            tinh_trang: decodeGo("{{ urlquery .TinhTrang }}"),
+            thong_so: decodeGo("{{ urlquery .ThongSo }}"),
+            mo_ta_chi_tiet: decodeGo("{{ urlquery .MoTaChiTiet }}"),
             url_hinh_anh: "{{ .UrlHinhAnh }}",
-            ghi_chu: "{{ .GhiChu }}",
+            ghi_chu: decodeGo("{{ urlquery .GhiChu }}"),
             trang_thai: {{ .TrangThai }},
-            danh_muc: "{{ .DanhMuc }}"
+            danh_muc: decodeGo("{{ urlquery .DanhMuc }}")
         };
         {{ end }}
         {{ end }}
 
-        // --- 4. HÀM XỬ LÝ SỐ & TÍNH TOÁN GIÁ ---
+        // --- 4. HÀM TÍNH TOÁN GIÁ CHUẨN RETAIL ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        function autoCalcPrice() {
-            if(isEditingMode) return; // Nếu đang trong hàm Edit thì chặn lại
-            
+        // Tính thuận: Nhập Giá vốn, VAT, Lợi Nhuận, Giảm giá -> Bắn ra Giá Thực và Giá Niêm yết
+        function autoCalcForward() {
+            if(isEditingMode) return;
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let vat = parseFloat(document.getElementById('thue_vat').value) || 0;
             let loiNhuan = parseFloat(document.getElementById('loi_nhuan').value) || 0;
+            let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                // Công thức: Giá Bán = Giá Nhập * (1 + (VAT + Lợi Nhuận) / 100)
-                let giaBanLe = giaNhap * (1 + (vat + loiNhuan) / 100);
-                document.getElementById('gia_ban_le').value = formatNumber(Math.round(giaBanLe).toString());
-                tinhGiaThuc();
+                // Giá mong muốn thu về
+                let giaBanThuc = giaNhap * (1 + (vat + loiNhuan) / 100);
+                document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaBanThuc).toString());
+
+                // Tính giá niêm yết để giảm giá đi vẫn bằng giá thực tế
+                let giaNiemYet = giaBanThuc;
+                if (giamGia > 0 && giamGia < 100) {
+                    giaNiemYet = giaBanThuc / (1 - (giamGia / 100));
+                }
+                document.getElementById('gia_ban_le').value = formatNumber(Math.round(giaNiemYet).toString());
+            } else {
+                document.getElementById('gia_ban_thuc').value = "0";
+                document.getElementById('gia_ban_le').value = "0";
             }
         }
 
-        function tinhGiaThuc() {
-            let giaBan = getNum(document.getElementById('gia_ban_le').value);
+        // Tính ngược: User cố tình sửa giá Niêm Yết -> Bắn lại Giá thực tế (Để báo cáo cho chuẩn)
+        function autoCalcBackward() {
+            let giaNiemYet = getNum(document.getElementById('gia_ban_le').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
-            let giaThuc = giaBan * (1 - (giamGia / 100));
-            document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaThuc).toString());
+            
+            let giaBanThuc = giaNiemYet * (1 - (giamGia / 100));
+            document.getElementById('gia_ban_thuc').value = formatNumber(Math.round(giaBanThuc).toString());
         }
 
         // --- 5. HÀM QUẢN LÝ ẢNH MẢNG ---
@@ -397,7 +413,7 @@
             container.appendChild(div);
         }
 
-        // --- 6. QUẢN LÝ MODAL (ĐÓNG / MỞ) ---
+        // --- 6. QUẢN LÝ MODAL ---
         function openModal() {
             isEditingMode = false;
             document.getElementById('formSP').reset();
@@ -421,7 +437,7 @@
             const sp = mapSP[id];
             if(!sp) return;
 
-            isEditingMode = true; // Bật cờ chặn tự động ghi đè giá
+            isEditingMode = true;
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
@@ -433,7 +449,6 @@
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString());
             document.getElementById('giam_gia').value = sp.giam_gia;
             
-            // Lấy lại VAT và Lợi nhuận gốc để Hiển thị (Không lưu đè giá)
             if(sp.danh_muc) {
                 let firstDM = sp.danh_muc.split("|")[0];
                 let info = dicDanhMuc[firstDM];
@@ -442,7 +457,7 @@
                     document.getElementById('loi_nhuan').value = info.loiNhuan;
                 }
             }
-            tinhGiaThuc();
+            autoCalcBackward(); // Tính lại giá thực để show lên
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
@@ -465,11 +480,8 @@
                 document.getElementById('bao_hanh_unit').value = "Tháng";
             }
             
-            // Xử lý chống escape html cho textarea
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = sp.thong_so; document.getElementById('thong_so').value = tempDiv.innerText;
-            tempDiv.innerHTML = sp.mo_ta_chi_tiet; document.getElementById('mo_ta_chi_tiet').value = tempDiv.innerText;
-            
+            document.getElementById('thong_so').value = sp.thong_so;
+            document.getElementById('mo_ta_chi_tiet').value = sp.mo_ta_chi_tiet;
             document.getElementById('ghi_chu').value = sp.ghi_chu;
             document.getElementById('trang_thai').checked = (sp.trang_thai === 1);
 
@@ -482,10 +494,10 @@
                 addImgInput('');
             }
 
-            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
+            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
             
-            setTimeout(() => { isEditingMode = false; }, 500); // Tắt cờ an toàn
+            setTimeout(() => { isEditingMode = false; }, 500);
         }
 
         async function confirmSave() {
