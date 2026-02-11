@@ -1,21 +1,14 @@
 package core
 
-import (
-	"app/cau_hinh"
-)
+import "app/cau_hinh"
 
-// =============================================================
-// 1. CẤU HÌNH CỘT (THUONG_HIEU)
-// =============================================================
 const (
 	DongBatDau_ThuongHieu = 11 
-	
-	// Tôi thêm cột Mã ở đầu để chuẩn Database
-	CotTH_MaThuongHieu  = 0 // A: Mã (ASUS, DELL, HP...)
-	CotTH_TenThuongHieu = 1 // B: Tên hiển thị (Asus Việt Nam...)
-	CotTH_Logo          = 2 // C: Link Logo
-	CotTH_MoTa          = 3 // D: Mô tả
-	CotTH_TrangThai     = 4 // E: 1=Hiện, 0=Ẩn
+	CotTH_MaThuongHieu  = 0 // A
+	CotTH_TenThuongHieu = 1 // B
+	CotTH_LogoUrl       = 2 // C
+	CotTH_MoTa          = 3 // D
+	CotTH_TrangThai     = 4 // E
 )
 
 type ThuongHieu struct {
@@ -24,7 +17,7 @@ type ThuongHieu struct {
 	
 	MaThuongHieu  string `json:"ma_thuong_hieu"`
 	TenThuongHieu string `json:"ten_thuong_hieu"`
-	Logo          string `json:"logo"`
+	LogoUrl       string `json:"logo_url"`
 	MoTa          string `json:"mo_ta"`
 	TrangThai     int    `json:"trang_thai"`
 }
@@ -48,13 +41,12 @@ func NapThuongHieu(targetSpreadsheetID string) {
 		if maTH == "" { continue }
 
 		key := TaoCompositeKey(targetSpreadsheetID, maTH)
-		
 		th := &ThuongHieu{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
 			MaThuongHieu:  maTH,
 			TenThuongHieu: layString(r, CotTH_TenThuongHieu),
-			Logo:          layString(r, CotTH_Logo),
+			LogoUrl:       layString(r, CotTH_LogoUrl),
 			MoTa:          layString(r, CotTH_MoTa),
 			TrangThai:     layInt(r, CotTH_TrangThai),
 		}
@@ -68,7 +60,7 @@ func LayDanhSachThuongHieu() []*ThuongHieu {
 	defer KhoaHeThong.RUnlock()
 	return _DS_ThuongHieu
 }
-// Thêm vào cuối file core/thuong_hieu.go
+
 func ThemThuongHieuVaoRam(th *ThuongHieu) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
