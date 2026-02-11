@@ -180,7 +180,7 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 	loiNhuan, err2 := strconv.ParseFloat(c.PostForm("bien_loi_nhuan"), 64)
 	trangThai := 0; if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 	isNew := c.PostForm("is_new") == "true"
-	dongCu, _ := strconv.Atoi(c.PostForm("dong_cu")) // Lấy dòng cũ để sửa
+	dongCu, _ := strconv.Atoi(c.PostForm("dong_cu")) 
 
 	if err1 != nil || err2 != nil || khungGia <= 0 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Khung giá và Biên lợi nhuận phải là số hợp lệ > 0!"})
@@ -202,16 +202,7 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 		core.ThemBienLoiNhuanVaoRam(newBLN) 
 	} else {
 		targetRow = dongCu
-		core.KhoaHeThong.Lock()
-		for _, item := range core.LayDanhSachBienLoiNhuan() {
-			if item.DongTrongSheet == dongCu {
-				item.KhungGiaNhap = khungGia
-				item.BienLoiNhuan = loiNhuan
-				item.TrangThai = trangThai
-				break
-			}
-		}
-		core.KhoaHeThong.Unlock()
+		core.SuaBienLoiNhuanTrongRam(dongCu, khungGia, loiNhuan, trangThai) // [ĐÃ SỬA] Update RAM an toàn
 	}
 
 	ghi := core.ThemVaoHangCho
