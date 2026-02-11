@@ -6,41 +6,40 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #475569; margin-bottom: 0.4rem; display: block; }
-        .modal-body { max-height: calc(100vh - 160px); overflow-y: auto; scrollbar-width: thin; padding-right: 6px; }
+        /* Typography & Cấu trúc */
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
+        .modal-body { max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 2rem; background-color: #f8fafc; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
+        /* Khối (Cards) phân vùng giao diện */
+        .form-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02); }
+        .section-title { font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Inputs chuyên nghiệp */
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
-            width: 100%; height: 44px; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s ease-in-out; font-weight: 500;
+            width: 100%; box-sizing: border-box; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.95rem; color: #1e293b; transition: all 0.2s ease; font-weight: 500;
         }
-        textarea.input-premium { height: auto; padding: 0.75rem 1rem; }
-        .tagify { display: flex; align-items: center; padding: 0 0.5rem; overflow: hidden; }
+        input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
+        textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
+        input.input-premium:focus, select.input-premium:focus, textarea.input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
         
-        .price-group { position: relative; z-index: 10; }
-        .price-group input:focus { z-index: 20; position: relative; }
+        /* Tagify chuẩn form */
+        .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
+        .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .tagify__tag { margin: 0.25rem; background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-weight: 600; border-radius: 0.375rem; }
+        .tagify__input { line-height: 28px; margin: 0 0.5rem; }
+        .tagify--select::after { font-size: 1.2em; color: #64748b; } /* Icon dropdown mũi tên */
 
-        input.input-premium:not(:placeholder-shown), textarea.input-premium:not(:placeholder-shown) { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8 !important; font-weight: 600; }
-        select.input-premium {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; color: #1d4ed8; font-weight: 600; border-color: #93c5fd; background-color: #eff6ff;
-        }
+        /* Inputs đặc biệt (Giá tiền) - Chỉ đổi màu text, không tô màu nền */
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
+        #gia_ban_le { color: #e11d48; }
+        #gia_ban_thuc { color: #059669; background-color: #f8fafc; }
 
-        #gia_ban_le:not(:placeholder-shown) { color: #e11d48 !important; border-color: #fecdd3 !important; background-color: #fff1f2 !important; }
-        #giam_gia:not(:placeholder-shown) { color: #ea580c !important; border-color: #fed7aa !important; background-color: #fff7ed !important; }
-        #gia_ban_thuc { color: #059669 !important; border-color: #a7f3d0 !important; background-color: #ecfdf5 !important; }
-
-        .tagify { --tags-border-color: #cbd5e1; --tags-focus-border-color: #3b82f6; --tag-bg: #bfdbfe; --tag-text-color: #1e3a8a; --tag-remove-btn-color: #1e3a8a; --tag-pad: 0.35rem 0.6rem; }
-        .tagify.tagify--not-empty { border-color: #93c5fd; background-color: #eff6ff; }
-        .tagify__tag { font-weight: 600; }
-        .tagify__input { margin: 0; line-height: 40px; }
-        .tagify__input::before { color: #94a3b8; font-weight: 500; }
-        .tagify--select .tagify__tag { background: #bfdbfe; border-radius: 0.375rem; margin: 0; }
-        #ma_danh_muc + .tagify { height: auto; min-height: 44px; flex-wrap: wrap; padding: 0.25rem 0.5rem; }
-
-        .img-input-group { display: flex; gap: 8px; margin-bottom: 8px; animation: fadeIn 0.3s; }
-        .btn-remove-img { color: #ef4444; cursor: pointer; padding: 6px; border-radius: 4px; transition: 0.2s; background: #fee2e2; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;}
-        .btn-remove-img:hover { background: #fca5a5; color: white;}
+        /* Nút thêm ảnh */
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; animation: fadeIn 0.2s; }
+        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; }
+        .btn-remove-img:hover { background: #e11d48; color: white; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
@@ -121,130 +120,143 @@
         </div>
     </div>
 
-    <div id="modalSP" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[95vh]">
+    <div id="modalSP" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[96vh]">
             
-            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
-                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Thêm Sản Phẩm</h3>
-                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-500 transition">✕</button>
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-xl">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="modalTitle">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    Thêm Sản Phẩm Mới
+                </h3>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition">✕</button>
             </div>
             
-            <div class="p-8 modal-body bg-white">
-                <form id="formSP" class="space-y-6">
+            <div class="modal-body">
+                <form id="formSP">
                     <input type="hidden" name="ma_san_pham" id="ma_san_pham">
                     <input type="hidden" name="url_hinh_anh" id="url_hinh_anh"> 
 
-                    <div>
-                        <label>Tên sản phẩm <span class="text-red-500">*</span></label>
-                        <input type="text" name="ten_san_pham" id="ten_san_pham" class="input-premium" style="font-size: 1.1rem; padding: 0.75rem 1rem; height: 50px;" required placeholder="Ví dụ: Mainboard Asus H610M-K...">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div>
-                            <label>SKU (Mã kho)</label>
-                            <input type="text" name="sku" id="sku" class="input-premium" placeholder="Mã nội bộ...">
-                        </div>
-                        <div>
-                            <label>Tên rút gọn</label>
-                            <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Tên hiển thị ngắn...">
-                        </div>
-                        <div>
-                            <label>Thương hiệu</label>
-                            <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="input-premium" placeholder="Chọn hãng...">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                        <div>
-                            <label>Màu sắc</label>
-                            <input name="mau_sac" id="mau_sac" class="input-premium" placeholder="Đen, Trắng...">
-                        </div>
-                        <div>
-                            <label>Đơn vị tính</label>
-                            <input name="don_vi" id="don_vi" class="input-premium" placeholder="Cái, Bộ...">
-                        </div>
-                        <div>
-                            <label>Bảo hành</label>
-                            <div class="flex gap-2 items-stretch h-[44px]">
-                                <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="input-premium text-center m-0" style="width: 45%" placeholder="36">
-                                <select name="bao_hanh_unit" id="bao_hanh_unit" class="input-premium cursor-pointer m-0" style="width: 55%">
-                                    <option value="Tháng">Tháng</option>
-                                    <option value="Năm">Năm</option>
-                                    <option value="Ngày">Ngày</option>
-                                </select>
+                    <div class="form-section">
+                        <div class="section-title">📝 Thông tin cơ bản</div>
+                        <div class="space-y-4">
+                            <div>
+                                <label>Tên sản phẩm <span class="text-red-500">*</span></label>
+                                <input type="text" name="ten_san_pham" id="ten_san_pham" class="input-premium text-lg font-bold" required placeholder="Ví dụ: Mainboard Asus H610M-K D4...">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label>Tên hiển thị rút gọn (Tùy chọn)</label>
+                                    <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn hoặc menu ngắn...">
+                                </div>
+                                <div>
+                                    <label>Mã SKU (Lưu kho nội bộ)</label>
+                                    <input type="text" name="sku" id="sku" class="input-premium font-mono" placeholder="Để trống nếu không có mã riêng...">
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <label>Tình trạng</label>
-                            <input name="tinh_trang" id="tinh_trang" class="input-premium" placeholder="Mới 100%...">
-                        </div>
                     </div>
 
-                    <div class="bg-slate-50 p-5 rounded-xl border border-dashed border-slate-300">
-                        <div class="flex justify-between items-center mb-3">
-                            <label style="margin-bottom:0">Link Hình Ảnh (Nhiều ảnh)</label>
-                            <button type="button" onclick="addImgInput('')" class="text-xs bg-white border border-slate-300 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-50 transition shadow-sm">
-                                + Thêm link ảnh
-                            </button>
-                        </div>
-                        <div id="imgContainer" class="space-y-3"></div>
-                    </div>
-
-                    <div>
-                        <label>Danh mục (Tags phân loại)</label>
-                        <input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Gõ từ khóa...">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label>Thông số kỹ thuật</label>
-                            <textarea name="thong_so" id="thong_so" rows="6" class="input-premium font-mono text-sm leading-relaxed" placeholder="- CPU: ...&#10;- RAM: ..."></textarea>
-                        </div>
-                        <div>
-                            <label>Mô tả chi tiết</label>
-                            <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="6" class="input-premium leading-relaxed" placeholder="Bài viết mô tả (Hỗ trợ HTML)..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <div class="form-section border-l-4 border-l-blue-500">
+                        <div class="section-title">💰 Định giá & Trạng thái</div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                             <div>
-                                <label>Giá Nhập (Vốn)</label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" class="input-premium text-slate-600" placeholder="0" onkeyup="formatCurrency(this)">
+                                <label>Giá Vốn (Nhập)</label>
+                                <input type="text" name="gia_nhap" id="gia_nhap" class="input-premium price-input text-slate-500" placeholder="0" onkeyup="formatCurrency(this)">
                             </div>
                             <div>
                                 <label>Giá Niêm Yết (Bán) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium text-lg" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
+                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); tinhGiaThuc()">
                             </div>
                             <div>
                                 <label>Giảm giá (%)</label>
-                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
+                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600" placeholder="0" onkeyup="tinhGiaThuc()" onchange="tinhGiaThuc()">
                             </div>
                             <div>
-                                <label>Giá Bán Thực Tế (Web)</label>
-                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium text-xl cursor-not-allowed" placeholder="0">
+                                <label>Giá Thực Tế Web</label>
+                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input cursor-not-allowed" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-5 border-t border-slate-100 flex items-center justify-between">
+                            <label class="flex items-center cursor-pointer select-none mb-0">
+                                <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
+                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Đang phép kinh doanh (Hiển thị trên Web)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">🏷️ Phân loại & Thuộc tính</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                            <div>
+                                <label>Danh Mục (Chọn nhiều) <span class="text-red-500">*</span></label>
+                                <input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục...">
+                            </div>
+                            <div>
+                                <label>Thương hiệu (Hãng)</label>
+                                <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu...">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                            <div>
+                                <label>Đơn vị tính</label>
+                                <input name="don_vi" id="don_vi" class="input-premium" placeholder="Cái, Bộ...">
+                            </div>
+                            <div>
+                                <label>Màu sắc</label>
+                                <input name="mau_sac" id="mau_sac" class="input-premium" placeholder="Đen, Trắng...">
+                            </div>
+                            <div>
+                                <label>Tình trạng</label>
+                                <input name="tinh_trang" id="tinh_trang" class="input-premium" placeholder="Mới 100%...">
+                            </div>
+                            <div>
+                                <label>Thời gian bảo hành</label>
+                                <div class="flex gap-2 items-stretch">
+                                    <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="input-premium text-center m-0" style="width: 45%" placeholder="36">
+                                    <select name="bao_hanh_unit" id="bao_hanh_unit" class="input-premium cursor-pointer m-0" style="width: 55%">
+                                        <option value="Tháng">Tháng</option>
+                                        <option value="Năm">Năm</option>
+                                        <option value="Ngày">Ngày</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label>Ghi chú nội bộ</label>
-                        <textarea name="ghi_chu" id="ghi_chu" rows="2" class="input-premium bg-yellow-50 border-yellow-200" placeholder="Chỉ nhân viên thấy..."></textarea>
-                    </div>
-
-                    <div class="flex items-center gap-3 pt-2">
-                        <label class="flex items-center cursor-pointer select-none">
-                            <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition cursor-pointer" checked>
-                            <span class="ml-3 text-sm font-bold text-slate-700">Đang kinh doanh</span>
-                        </label>
+                    <div class="form-section mb-0">
+                        <div class="section-title">🖼️ Hình ảnh & Bài viết mô tả</div>
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-2">
+                                <label style="margin-bottom:0">Danh sách Link ảnh (URL)</label>
+                                <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">
+                                    + Thêm ảnh
+                                </button>
+                            </div>
+                            <div id="imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label>Thông số kỹ thuật (Gạch đầu dòng)</label>
+                                <textarea name="thong_so" id="thong_so" rows="5" class="input-premium font-mono text-sm" placeholder="- Socket: LGA 1700&#10;- Chipset: H610..."></textarea>
+                            </div>
+                            <div>
+                                <label>Bài viết mô tả chi tiết</label>
+                                <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="5" class="input-premium" placeholder="Hỗ trợ nội dung HTML..."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label>Ghi chú nội bộ (Khách không thấy)</label>
+                            <input type="text" name="ghi_chu" id="ghi_chu" class="input-premium bg-yellow-50 text-yellow-800" placeholder="Ghi chú về nguồn hàng, bảo hành...">
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-6 py-2.5 text-slate-600 hover:bg-slate-200 rounded-lg font-bold transition">Hủy bỏ</button>
-                <button id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition transform active:scale-95">
-                    Lưu Sản Phẩm
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-end gap-3">
+                <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy Bỏ</button>
+                <button type="button" id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Lưu Thông Tin
                 </button>
             </div>
         </div>
@@ -253,6 +265,7 @@
     <script>
         const tagifySelectConfig = {
             mode: 'select',
+            enforceWhitelist: true, // [QUAN TRỌNG] Bắt buộc chọn từ danh sách, cấm gõ ngoài
             dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }
         };
 
@@ -261,7 +274,8 @@
 
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), {
             whitelist: listDM,
-            dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: false }
+            enforceWhitelist: true, // [QUAN TRỌNG] Cấm gõ danh mục linh tinh
+            dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false }
         });
 
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
