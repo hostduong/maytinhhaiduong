@@ -9,83 +9,121 @@
         textarea.input-premium { padding: 0.75rem 1rem; }
         input.input-premium:focus, textarea.input-premium:focus { background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
         input.input-premium:not(:placeholder-shown), textarea.input-premium:not(:placeholder-shown) { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8; font-weight: 600; }
+        
+        /* Hiệu ứng chuyển Tab */
+        .tab-btn { transition: all 0.3s ease; border-bottom-width: 2px; border-color: transparent; }
+        .tab-btn.active { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-slate-800 mb-8">🏷️ Quản Lý Cấu Hình Phân Loại</h1>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h2 class="font-bold text-slate-700">DANH MỤC SẢN PHẨM</h2>
-                    <button onclick="openModalDM()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 font-bold uppercase tracking-wide transition">+ Thêm Mới</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-600">
-                        <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
-                            <tr>
-                                <th class="px-4 py-3 font-bold">Mã (Prefix)</th>
-                                <th class="px-4 py-3 font-bold">Tên Danh Mục</th>
-                                <th class="px-4 py-3 font-bold text-center">Thuế (%)</th>
-                                <th class="px-4 py-3 font-bold text-center">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            {{ range .ListDanhMuc }}
-                            {{ if ne .MaDanhMuc "" }}
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-3 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
-                                <td class="px-4 py-3 font-medium">{{ .TenDanhMuc }}</td>
-                                <td class="px-4 py-3 text-center text-red-600 font-bold">{{ .ThueVAT }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <button onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded font-bold hover:bg-blue-100 transition text-xs uppercase">Sửa</button>
-                                </td>
-                            </tr>
-                            {{ end }}
-                            {{ end }}
-                        </tbody>
-                    </table>
-                </div>
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">🏷️ Quản Lý Phân Loại</h1>
+                <p class="text-slate-500 text-sm mt-1">Cấu hình Danh mục sản phẩm & Thương hiệu</p>
             </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h2 class="font-bold text-slate-700">THƯƠNG HIỆU (BRANDS)</h2>
-                    <button onclick="openModalTH()" class="text-xs bg-purple-600 text-white px-3 py-1.5 rounded hover:bg-purple-700 font-bold uppercase tracking-wide transition">+ Thêm Mới</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-600">
-                        <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
-                            <tr>
-                                <th class="px-4 py-3 font-bold">Logo</th>
-                                <th class="px-4 py-3 font-bold">Mã / Tên Hãng</th>
-                                <th class="px-4 py-3 font-bold text-center">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            {{ range .ListThuongHieu }}
-                            {{ if ne .MaThuongHieu "" }}
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-3">
-                                    <img src="{{ if .Logo }}{{ .Logo }}{{ else }}https://via.placeholder.com/40{{ end }}" class="w-10 h-10 object-contain bg-white border border-slate-200 rounded p-1">
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="font-bold text-slate-800">{{ .MaThuongHieu }}</div>
-                                    <div class="font-medium text-xs text-slate-500">{{ .TenThuongHieu }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <button onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .Logo }}', '{{ .MoTa }}')" class="bg-purple-50 text-purple-600 px-3 py-1 rounded font-bold hover:bg-purple-100 transition text-xs uppercase">Sửa</button>
-                                </td>
-                            </tr>
-                            {{ end }}
-                            {{ end }}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
+
+        <div class="bg-white rounded-t-xl border border-b-0 border-slate-200 flex overflow-hidden">
+            <button onclick="switchTab('tabDM')" id="btn-tabDM" class="tab-btn active flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 focus:outline-none uppercase tracking-wide">
+                📁 Danh Mục Sản Phẩm
+            </button>
+            <button onclick="switchTab('tabTH')" id="btn-tabTH" class="tab-btn flex-1 py-4 font-bold text-sm text-slate-500 hover:bg-slate-50 focus:outline-none uppercase tracking-wide border-l border-slate-200">
+                ⭐ Thương Hiệu (Brands)
+            </button>
+        </div>
+
+        <div id="tabDM" class="tab-content active bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="font-bold text-slate-700">DANH SÁCH CÁC DANH MỤC</h2>
+                <button onclick="openModalDM()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition transform active:scale-95 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Thêm Danh Mục
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4 font-bold">Mã (Prefix)</th>
+                            <th class="px-6 py-4 font-bold">Tên Danh Mục</th>
+                            <th class="px-6 py-4 font-bold text-center">Thuế VAT (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Biên Lợi Nhuận (%)</th>
+                            <th class="px-6 py-4 font-bold text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {{ range .ListDanhMuc }}
+                        {{ if ne .MaDanhMuc "" }}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 font-bold text-slate-800">{{ .MaDanhMuc }}</td>
+                            <td class="px-6 py-4 font-medium">{{ .TenDanhMuc }}</td>
+                            <td class="px-6 py-4 text-center text-red-600 font-bold">{{ .ThueVAT }}</td>
+                            <td class="px-6 py-4 text-center text-emerald-600 font-bold">{{ .LoiNhuan }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editDM('{{ .MaDanhMuc }}', '{{ .TenDanhMuc }}', '{{ .ThueVAT }}', '{{ .LoiNhuan }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Sửa
+                                </button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tabTH" class="tab-content bg-white rounded-b-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="font-bold text-slate-700">DANH SÁCH THƯƠNG HIỆU</h2>
+                <button onclick="openModalTH()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition transform active:scale-95 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Thêm Thương Hiệu
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="bg-white border-b border-slate-200 text-xs uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4 font-bold w-20 text-center">Logo</th>
+                            <th class="px-6 py-4 font-bold">Định Danh (Mã - Tên Hãng)</th>
+                            <th class="px-6 py-4 font-bold max-w-md">Mô Tả Chú Thích</th>
+                            <th class="px-6 py-4 font-bold text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {{ range .ListThuongHieu }}
+                        {{ if ne .MaThuongHieu "" }}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 text-center">
+                                <div class="w-12 h-12 rounded border border-slate-200 bg-white p-1 mx-auto flex items-center justify-center overflow-hidden">
+                                    <img src="{{ if .Logo }}{{ .Logo }}{{ else }}https://via.placeholder.com/40?text=No+Img{{ end }}" onerror="this.src='https://via.placeholder.com/40?text=Error'" class="max-w-full max-h-full object-contain">
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-800 text-base">{{ .MaThuongHieu }}</div>
+                                <div class="font-medium text-xs text-slate-500 mt-0.5">{{ .TenThuongHieu }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-slate-600 line-clamp-2 max-w-md">{{ if .MoTa }}{{ .MoTa }}{{ else }}<i class="text-slate-400">Không có mô tả</i>{{ end }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editTH('{{ .MaThuongHieu }}', '{{ .TenThuongHieu }}', '{{ .Logo }}', '{{ .MoTa }}')" class="flex items-center justify-center gap-1 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Sửa
+                                </button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <div id="modalDM" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -99,8 +137,8 @@
                     <input type="hidden" name="is_new" id="is_new_dm" value="true">
                     <div>
                         <label>Mã Danh Mục (Prefix SP) <span class="text-red-500">*</span></label>
-                        <input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase" placeholder="VD: MAIN, CPU, RAM" required>
-                        <p class="text-[10px] text-slate-400 mt-1">Hệ thống sẽ dùng mã này để sinh SKU (VD: MAIN0001)</p>
+                        <input type="text" name="ma_danh_muc" id="dm_ma" class="input-premium uppercase font-bold" placeholder="VD: MAIN, CPU, RAM" required>
+                        <p class="text-[10px] text-slate-400 mt-1 italic">Hệ thống sẽ dùng mã này để sinh SKU (VD: MAIN0001)</p>
                     </div>
                     <div>
                         <label>Tên Danh Mục hiển thị <span class="text-red-500">*</span></label>
@@ -108,12 +146,12 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label>Thuế VAT (%)</label>
-                            <input type="number" name="thue_vat" id="dm_thue" class="input-premium text-center" placeholder="10">
+                            <label class="text-red-600">Thuế VAT (%)</label>
+                            <input type="number" name="thue_vat" id="dm_thue" class="input-premium text-center font-bold text-red-600" placeholder="10">
                         </div>
                         <div>
-                            <label>Biên Lợi Nhuận (%)</label>
-                            <input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center" placeholder="15">
+                            <label class="text-emerald-600">Biên Lợi Nhuận (%)</label>
+                            <input type="number" name="loi_nhuan" id="dm_loi" class="input-premium text-center font-bold text-emerald-600" placeholder="15">
                         </div>
                     </div>
                 </form>
@@ -136,7 +174,7 @@
                     <input type="hidden" name="is_new" id="is_new_th" value="true">
                     <div>
                         <label>Mã Thương Hiệu <span class="text-red-500">*</span></label>
-                        <input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase" placeholder="VD: ASUS, DELL" required>
+                        <input type="text" name="ma_thuong_hieu" id="th_ma" class="input-premium uppercase font-bold" placeholder="VD: ASUS, DELL" required>
                     </div>
                     <div>
                         <label>Tên Thương Hiệu <span class="text-red-500">*</span></label>
@@ -144,11 +182,11 @@
                     </div>
                     <div>
                         <label>Link Logo (URL)</label>
-                        <input type="text" name="logo" id="th_logo" class="input-premium font-mono text-sm" placeholder="https://...">
+                        <input type="text" name="logo" id="th_logo" class="input-premium font-mono text-xs" placeholder="https://...">
                     </div>
                     <div>
                         <label>Mô tả ngắn</label>
-                        <textarea name="mo_ta" id="th_mota" rows="3" class="input-premium" placeholder="Nhập mô tả hãng..."></textarea>
+                        <textarea name="mo_ta" id="th_mota" rows="3" class="input-premium leading-relaxed" placeholder="Nhập mô tả về hãng sản xuất..."></textarea>
                     </div>
                 </form>
             </div>
@@ -160,6 +198,17 @@
     </div>
 
     <script>
+        // HÀM CHUYỂN TAB
+        function switchTab(tabId) {
+            // Xóa active khỏi tất cả các nút và nội dung
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Kích hoạt tab được chọn
+            document.getElementById('btn-' + tabId).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // --- DANH MỤC ---
@@ -173,7 +222,7 @@
         function editDM(ma, ten, thue, loi) {
             document.getElementById('is_new_dm').value = "false";
             document.getElementById('dm_ma').value = ma;
-            document.getElementById('dm_ma').readOnly = true; // Không cho sửa Mã khi update
+            document.getElementById('dm_ma').readOnly = true; 
             document.getElementById('dm_ten').value = ten;
             document.getElementById('dm_thue').value = thue;
             document.getElementById('dm_loi').value = loi;
