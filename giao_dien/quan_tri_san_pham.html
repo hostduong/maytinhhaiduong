@@ -37,19 +37,51 @@
     </style>
 
     <div id="data_island" style="display:none;">
-        {{ range .DanhSach }}
-        {{ if .MaSanPham }}
-        <div class="sp-data"
-             data-id="{{ .MaSanPham }}" data-ten="{{ .TenSanPham }}" data-rutgon="{{ .TenRutGon }}" data-sku="{{ .Sku }}"
-             data-gianhap="{{ .GiaNhap }}" data-giabanle="{{ .GiaBanLe }}" data-giamgia="{{ .GiamGia }}"
-             data-thuonghieu="{{ .ThuongHieu }}" data-donvi="{{ .DonVi }}" data-baohanh="{{ .BaoHanh }}"
-             data-mausac="{{ .MauSac }}" data-tinhtrang="{{ .TinhTrang }}" data-img="{{ .UrlHinhAnh }}"
-             data-ghichu="{{ .GhiChu }}" data-trangthai="{{ .TrangThai }}" data-danhmuc="{{ .DanhMuc }}">
-             <textarea class="t-thongso">{{ .ThongSo }}</textarea>
-             <textarea class="t-mota">{{ .MoTaChiTiet }}</textarea>
+        <div id="data_danhmuc">
+            {{ range .ListDanhMuc }}
+                {{ if ne .TenDanhMuc "" }}
+                <div class="dm-item" 
+                    data-ten="{{ urlquery .TenDanhMuc }}" 
+                    data-prefix="{{ .MaDanhMuc }}" 
+                    data-nextstt="{{ .STT }}" 
+                    data-vat="{{ .ThueVAT }}" 
+                    data-loinhuan="{{ .LoiNhuan }}"></div>
+                {{ end }}
+            {{ end }}
         </div>
-        {{ end }}
-        {{ end }}
+        
+        <div id="data_thuonghieu">
+            {{ range .ListThuongHieu }}
+                {{ if ne .TenThuongHieu "" }}<div class="th-item" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}
+            {{ end }}
+        </div>
+        
+        <div id="data_sanpham">
+            {{ range .DanhSach }}
+            {{ if .MaSanPham }}
+            <div class="sp-data"
+                data-id="{{ .MaSanPham }}" 
+                data-ten="{{ urlquery .TenSanPham }}" 
+                data-rutgon="{{ urlquery .TenRutGon }}" 
+                data-sku="{{ urlquery .Sku }}"
+                data-gianhap="{{ printf "%.0f" .GiaNhap }}" 
+                data-giabanle="{{ printf "%.0f" .GiaBanLe }}" 
+                data-giamgia="{{ printf "%.0f" .GiamGia }}"
+                data-thuonghieu="{{ urlquery .ThuongHieu }}" 
+                data-donvi="{{ urlquery .DonVi }}" 
+                data-baohanh="{{ urlquery .BaoHanh }}"
+                data-mausac="{{ urlquery .MauSac }}" 
+                data-tinhtrang="{{ urlquery .TinhTrang }}" 
+                data-img="{{ .UrlHinhAnh }}"
+                data-ghichu="{{ urlquery .GhiChu }}" 
+                data-trangthai="{{ .TrangThai }}" 
+                data-danhmuc="{{ urlquery .DanhMuc }}">
+                <textarea class="t-thongso">{{ .ThongSo }}</textarea>
+                <textarea class="t-mota">{{ .MoTaChiTiet }}</textarea>
+            </div>
+            {{ end }}
+            {{ end }}
+        </div>
     </div>
 
     <div class="container mx-auto px-4 py-8">
@@ -276,7 +308,7 @@
     </div>
 
     <script>
-        // --- 1. XỬ LÝ LỖI ẢNH VÀ TAGS NGOÀI BẢNG (THAY THẾ HÀM SPLIT CỦA GO) ---
+        // --- XỬ LÝ ẢNH TRONG BẢNG ---
         document.querySelectorAll('.preview-img-table').forEach(img => {
             let raw = img.getAttribute('data-raw-img');
             img.src = (raw && raw.includes('|')) ? raw.split('|')[0] : (raw || "https://via.placeholder.com/50?text=No+Img");
@@ -286,35 +318,62 @@
             if(raw) span.innerText = raw.split('|').join(', ');
         });
 
-        // --- 2. LẤY DỮ LIỆU TỪ DATA ISLAND DOM ---
+        // --- LẤY DỮ LIỆU TỪ DATA ISLAND DOM CHỐNG CRASH ---
+        function decodeGo(str) {
+            if (!str) return "";
+            return decodeURIComponent(str.replace(/\+/g, '%20'));
+        }
+
         const mapSP = {};
+        // TRUY XUẤT ĐÚNG VÀO DIV CHỨA DỮ LIỆU SẢN PHẨM ĐÃ FIX
         document.querySelectorAll('#data_sanpham .sp-data').forEach(el => {
             let id = el.getAttribute('data-id');
-            mapSP[id] = {
-                ma_san_pham: id, ten_san_pham: el.getAttribute('data-ten'), ten_rut_gon: el.getAttribute('data-rutgon'), sku: el.getAttribute('data-sku'),
-                gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
-                thuong_hieu: el.getAttribute('data-thuonghieu'), don_vi: el.getAttribute('data-donvi'), bao_hanh: el.getAttribute('data-baohanh'),
-                mau_sac: el.getAttribute('data-mausac'), tinh_trang: el.getAttribute('data-tinhtrang'), url_hinh_anh: el.getAttribute('data-img'),
-                ghi_chu: el.getAttribute('data-ghichu'), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: el.getAttribute('data-danhmuc'),
-                thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value
-            };
+            if(id) {
+                mapSP[id] = {
+                    ma_san_pham: id,
+                    ten_san_pham: decodeGo(el.getAttribute('data-ten')),
+                    ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')),
+                    sku: decodeGo(el.getAttribute('data-sku')),
+                    gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0,
+                    gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0,
+                    giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
+                    thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')),
+                    don_vi: decodeGo(el.getAttribute('data-donvi')),
+                    bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
+                    mau_sac: decodeGo(el.getAttribute('data-mausac')),
+                    tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')),
+                    url_hinh_anh: el.getAttribute('data-img'), 
+                    ghi_chu: decodeGo(el.getAttribute('data-ghichu')),
+                    trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0,
+                    danh_muc: decodeGo(el.getAttribute('data-danhmuc')),
+                    thong_so: el.querySelector('.t-thongso').value,
+                    mo_ta_chi_tiet: el.querySelector('.t-mota').value
+                };
+            }
         });
 
         var listDM = []; const dicDanhMuc = {};
-        {{ range .ListDanhMuc }}
-            if ("{{ .TenDanhMuc }}" !== "") {
-                listDM.push("{{ .TenDanhMuc }}");
-                dicDanhMuc["{{ .TenDanhMuc }}"] = { prefix: "{{ .MaDanhMuc }}", nextStt: {{ .STT }}, loiNhuan: {{ .LoiNhuan }} };
+        document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => {
+            let ten = decodeGo(el.getAttribute('data-ten'));
+            if(ten) {
+                listDM.push(ten);
+                dicDanhMuc[ten] = {
+                    prefix: el.getAttribute('data-prefix'),
+                    nextStt: parseInt(el.getAttribute('data-nextstt')) || 0,
+                    loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
+                };
             }
-        {{ end }}
-        
-        var listTH = [];
-        {{ range .ListThuongHieu }} if ("{{ .TenThuongHieu }}" !== "") listTH.push("{{ .TenThuongHieu }}"); {{ end }}
+        });
 
-        // Xóa Data Island để sạch HTML
+        var listTH = [];
+        document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => {
+            let ten = decodeGo(el.getAttribute('data-ten'));
+            if(ten) listTH.push(ten);
+        });
+
         document.getElementById('data_island').remove();
 
-        // --- 3. CẤU HÌNH TAGIFY ---
+        // --- CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
@@ -347,14 +406,13 @@
             }
         });
 
-        // --- 4. HÀM TÍNH TOÁN GIÁ CHUẨN RETAIL (KHÔNG VAT) ---
+        // --- TÍNH TOÁN VÀ LÀM TRÒN GIÁ ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
         function round10k(price) {
             if (price <= 0) return 0;
-            // Làm tròn XUỐNG bội số 10.000 (Ví dụ: 845.625 -> 840.000)
             return Math.floor(price / 10000) * 10000;
         }
 
@@ -365,22 +423,17 @@
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                // 1. Tính Lãi VNĐ
                 let laiVND = giaNhap * (loiNhuan / 100);
                 document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
 
-                // 2. Tính Giá mục tiêu (Psell)
                 let pSell = giaNhap + laiVND;
-
-                // 3. Đội Giá Niêm Yết (Plist) để bù đắp % giảm giá
                 let pList = pSell;
+                
                 if (giamGia > 0 && giamGia < 100) pList = pSell / (1 - (giamGia / 100));
                 
-                // 4. Làm tròn Niêm Yết cho đẹp số và hiển thị
                 pList = round10k(pList);
                 document.getElementById('gia_ban_le').value = formatNumber(pList.toString());
 
-                // 5. Tính lại Giá Thực Tế (Phải làm tròn 10k lần nữa để khớp hiển thị)
                 let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
                 document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
             } else {
@@ -391,12 +444,11 @@
         function autoCalcBackward() {
             let pList = getNum(document.getElementById('gia_ban_le').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
-            
             let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
             document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
         }
 
-        // --- 5. CÁC HÀM XỬ LÝ GIAO DIỆN KHÁC ---
+        // --- GIAO DIỆN ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
@@ -419,7 +471,12 @@
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
-            const sp = mapSP[id]; if(!sp) return;
+            const sp = mapSP[id]; 
+            if(!sp) {
+                console.error("Lỗi: Không tìm thấy dữ liệu sản phẩm", id);
+                return;
+            }
+            
             isEditingMode = true;
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham; document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
