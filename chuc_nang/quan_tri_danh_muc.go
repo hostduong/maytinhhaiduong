@@ -2,8 +2,6 @@ package chuc_nang
 
 import (
 	"net/http"
-	"strconv"
-	"strings"
 
 	"app/bao_mat"
 	"app/cau_hinh"
