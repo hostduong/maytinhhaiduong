@@ -272,3 +272,46 @@ func taoSlugChuan(s string) string {
 	s = reInvalid.ReplaceAllString(s, "-")
 	return strings.Trim(s, "-")
 }
+
+// Thêm API_XoaSanPham vào file quan_tri_san_pham.go
+func API_XoaSanPham(c *gin.Context) {
+	vaiTro := c.GetString("USER_ROLE")
+	if vaiTro != "admin_root" && vaiTro != "admin" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền xóa sản phẩm!"})
+		return
+	}
+
+	maSP := c.PostForm("ma_san_pham")
+	maPin := c.PostForm("ma_pin")
+
+	// 1. Xác thực PIN
+	userID := c.GetString("USER_ID")
+	kh, _ := core.LayKhachHang(userID)
+	
+	// Import thư viện bao_mat vào file này nếu chưa có
+	if !bao_mat.KiemTraMatKhau(maPin, kh.MaPinHash) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
+		return
+	}
+
+	// 2. Lấy Sản phẩm
+	sp, ok := core.LayChiTietSanPham(maSP)
+	if !ok {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy sản phẩm!"})
+		return
+	}
+
+	// 3. Xóa Mềm (Soft Delete: Đổi trạng thái thành -1)
+	// Tránh xóa dòng vật lý trên Sheet để không làm nhảy thứ tự dòng của các xử lý đang Queue
+	core.KhoaHeThong.Lock()
+	sp.TrangThai = -1 // -1 là Đã xóa
+	core.KhoaHeThong.Unlock()
+
+	// 4. Ghi xuống Sheet
+	sheetID := sp.SpreadsheetID
+	if sheetID == "" { sheetID = cau_hinh.BienCauHinh.IdFileSheet }
+	
+	core.ThemVaoHangCho(sheetID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_TrangThai, -1)
+
+	c.JSON(200, gin.H{"status": "ok", "msg": "Xóa sản phẩm thành công!"})
+}
