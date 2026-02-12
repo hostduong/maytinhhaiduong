@@ -7,41 +7,41 @@ import (
 
 const (
 	DongBatDau_BienLoiNhuan = 11
-
-	CotBLN_KhungGiaNhap = 0 // A: Giá nhập nhỏ hơn hoặc bằng
-	CotBLN_BienLoiNhuan = 1 // B: Lợi nhuận (%)
-	CotBLN_TrangThai    = 2 // C: 1=Hoạt động, 0=Tắt
+	CotBLN_KhungGiaNhap = 0
+	CotBLN_BienLoiNhuan = 1
+	CotBLN_TrangThai    = 2
 )
 
 type BienLoiNhuan struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
 
-	GiaTu          float64 `json:"gia_tu"` // [MỚI] Tự động suy luận để UI hiển thị "Từ... Đến..."
+	GiaTu          float64 `json:"gia_tu"`
 	KhungGiaNhap   float64 `json:"khung_gia_nhap"`
 	BienLoiNhuan   float64 `json:"bien_loi_nhuan"`
 	TrangThai      int     `json:"trang_thai"`
 }
 
+// BỘ NHỚ ĐA SHOP
 var (
-	_DS_BienLoiNhuan []*BienLoiNhuan
+	CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan)
 )
 
-// [MỚI] Hàm tiện ích quét lại khoảng giá sau khi thêm/sửa/xóa
-func capNhatKhoangGia() {
+// Helper nội bộ: Cập nhật khoảng giá cho 1 list cụ thể
+func capNhatKhoangGia(list []*BienLoiNhuan) {
 	var prev float64 = 0
-	for _, b := range _DS_BienLoiNhuan {
+	for _, b := range list {
 		b.GiaTu = prev
-		prev = b.KhungGiaNhap + 1 // Khung tiếp theo sẽ bắt đầu bằng Max khung trước + 1đ
+		prev = b.KhungGiaNhap + 1
 	}
 }
 
-func NapBienLoiNhuan(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(targetSpreadsheetID, "BIEN_LOI_NHUAN")
+func NapBienLoiNhuan(shopID string) {
+	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
+	raw, err := loadSheetData(shopID, "BIEN_LOI_NHUAN")
 	if err != nil { return }
 
-	_DS_BienLoiNhuan = []*BienLoiNhuan{}
+	list := []*BienLoiNhuan{}
 
 	for i, r := range raw {
 		if i < DongBatDau_BienLoiNhuan-1 { continue }
@@ -49,45 +49,58 @@ func NapBienLoiNhuan(targetSpreadsheetID string) {
 		if khungGia <= 0 { continue } 
 
 		bln := &BienLoiNhuan{
-			SpreadsheetID:  targetSpreadsheetID,
+			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			KhungGiaNhap:   khungGia,
 			BienLoiNhuan:   layFloat(r, CotBLN_BienLoiNhuan),
 			TrangThai:      layInt(r, CotBLN_TrangThai),
 		}
-		_DS_BienLoiNhuan = append(_DS_BienLoiNhuan, bln)
+		list = append(list, bln)
 	}
 
-	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
-		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
 	})
 
-	capNhatKhoangGia() // [MỚI]
+	capNhatKhoangGia(list)
+
+	KhoaHeThong.Lock()
+	CacheBienLoiNhuan[shopID] = list
+	KhoaHeThong.Unlock()
 }
 
-func LayDanhSachBienLoiNhuan() []*BienLoiNhuan {
+func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	return _DS_BienLoiNhuan
+	if list, ok := CacheBienLoiNhuan[shopID]; ok {
+		return list
+	}
+	return []*BienLoiNhuan{}
 }
 
 func ThemBienLoiNhuanVaoRam(bln *BienLoiNhuan) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	if bln.SpreadsheetID == "" { bln.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	_DS_BienLoiNhuan = append(_DS_BienLoiNhuan, bln)
 	
-	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
-		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
+	sID := bln.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+	
+	list := append(CacheBienLoiNhuan[sID], bln)
+	
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
 	})
 	
-	capNhatKhoangGia() // [MỚI]
+	capNhatKhoangGia(list)
+	CacheBienLoiNhuan[sID] = list
 }
 
-func SuaBienLoiNhuanTrongRam(dong int, khungGia, loiNhuan float64, trangThai int) {
+func SuaBienLoiNhuanTrongRam(shopID string, dong int, khungGia, loiNhuan float64, trangThai int) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	for _, item := range _DS_BienLoiNhuan {
+	
+	list := CacheBienLoiNhuan[shopID]
+	for _, item := range list {
 		if item.DongTrongSheet == dong {
 			item.KhungGiaNhap = khungGia
 			item.BienLoiNhuan = loiNhuan
@@ -95,8 +108,9 @@ func SuaBienLoiNhuanTrongRam(dong int, khungGia, loiNhuan float64, trangThai int
 			break
 		}
 	}
-	sort.Slice(_DS_BienLoiNhuan, func(i, j int) bool {
-		return _DS_BienLoiNhuan[i].KhungGiaNhap < _DS_BienLoiNhuan[j].KhungGiaNhap
+	
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
 	})
-	capNhatKhoangGia() // [MỚI]
+	capNhatKhoangGia(list)
 }
