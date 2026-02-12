@@ -5,17 +5,20 @@ import (
 	"strings"
 	"time"
 
-	"app/bao_mat"
-	"app/cau_hinh"
-	"app/core" 
+	"app/cau_hinh" // Chứa hàm kiểm tra (KiemTraHoTen...)
+	"app/core"     // Chứa Struct, Const, Hàm DB
 
 	"github.com/gin-gonic/gin"
 )
 
+// Trang Đăng Ký (View)
 func TrangDangKy(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
 	cookie, _ := c.Cookie("session_id")
+	
+	// Check nếu đã đăng nhập thì đá về trang chủ
 	if cookie != "" {
-		if _, ok := core.TimKhachHangTheoCookie(cookie); ok {
+		if _, ok := core.TimKhachHangTheoCookie(shopID, cookie); ok {
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
@@ -23,8 +26,11 @@ func TrangDangKy(c *gin.Context) {
 	c.HTML(http.StatusOK, "dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
 }
 
+// Xử Lý Đăng Ký (Logic)
 func XuLyDangKy(c *gin.Context) {
-	// Lấy dữ liệu và chuẩn hóa
+	shopID := c.GetString("SHOP_ID") // Lấy ShopID từ Middleware
+
+	// 1. LẤY DỮ LIỆU TỪ FORM
 	hoTen     := strings.TrimSpace(c.PostForm("ho_ten"))
 	user      := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email     := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
@@ -35,125 +41,164 @@ func XuLyDangKy(c *gin.Context) {
 	if dienThoai == "" { dienThoai = strings.TrimSpace(c.PostForm("dien_thoai")) }
 	
 	ngaySinh  := strings.TrimSpace(c.PostForm("ngay_sinh"))
-	gioiTinh  := strings.TrimSpace(c.PostForm("gioi_tinh"))
+	
+	// Convert giới tính
+	gioiTinhStr := c.PostForm("gioi_tinh")
+	gioiTinh := -1
+	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
-	// 1. VALIDATE SERVER-SIDE
-	if !bao_mat.KiemTraHoTen(hoTen) {
+	// 2. VALIDATE DỮ LIỆU (Dùng hàm từ /cau_hinh/kiem_tra.go)
+	if !cau_hinh.KiemTraHoTen(hoTen) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Họ tên không hợp lệ!"})
 		return
 	}
-	if !bao_mat.KiemTraTenDangNhap(user) {
+	if !cau_hinh.KiemTraTenDangNhap(user) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập không đúng quy tắc!"})
 		return
 	}
-	if !bao_mat.KiemTraEmail(email) {
+	if !cau_hinh.KiemTraEmail(email) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Email không hợp lệ!"})
 		return
 	}
-	if !bao_mat.KiemTraMaPin(maPin) {
+	if !cau_hinh.KiemTraMaPin(maPin) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mã PIN phải đúng 8 số!"})
 		return
 	}
-	if !bao_mat.KiemTraDinhDangMatKhau(pass) {
+	if !cau_hinh.KiemTraDinhDangMatKhau(pass) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mật khẩu chứa ký tự không cho phép!"})
 		return
 	}
 
-	// 2. Kiểm tra trùng lặp
-	if core.KiemTraTonTaiUserEmail(user, email) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập hoặc Email đã tồn tại!"})
+	// 3. KIỂM TRA TRÙNG LẶP (Trong phạm vi Shop)
+	if _, ok := core.TimKhachHangTheoUserOrEmail(shopID, user); ok {
+		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập đã tồn tại!"})
+		return
+	}
+	if _, ok := core.TimKhachHangTheoUserOrEmail(shopID, email); ok {
+		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Email đã được sử dụng!"})
 		return
 	}
 
-	// 3. [UPDATE] Logic tạo Người dùng mới (Chuẩn hóa ID, Chức vụ, Loại KH)
+	// 4. LOGIC TẠO NGƯỜI DÙNG (ADMIN ĐẦU TIÊN)
+	listHienTai := core.LayDanhSachKhachHang(shopID)
+	soLuong := len(listHienTai)
+	
 	var maKH, vaiTro, chucVu string
 	
-	// Loại khách hàng luôn là "web" (để biết nguồn khách đến từ website)
-	loaiKH := "web" 
-	
-	soLuongUser := len(core.LayDanhSachKhachHang())
-
-	if soLuongUser == 0 {
-		// --- NGƯỜI ĐẦU TIÊN (SUPER ADMIN) ---
-		maKH   = "0000000000000000001"
-		vaiTro = "admin_root" 
-		chucVu = "Quản trị viên"
+	if soLuong == 0 {
+		// --- NGƯỜI ĐẦU TIÊN CỦA SHOP -> LÀM CHỦ ---
+		maKH = "0000000000000000001" // Giữ nguyên mã Admin huyền thoại
+		vaiTro = "admin_root"
+		chucVu = "Quản trị cấp cao"
 	} else {
-		// --- NGƯỜI THỨ 2 TRỞ ĐI (KHÁCH HÀNG) ---
-		// Dùng hàm sinh mã 19 số ngẫu nhiên từ Core
-		maKH   = core.TaoMaKhachHangMoi()
-		vaiTro = "customer" 
+		// --- KHÁCH BÌNH THƯỜNG ---
+		maKH = core.TaoMaKhachHangMoi(shopID)
+		vaiTro = "customer"
 		chucVu = "Khách hàng"
 	}
 
-	// 4. Mã hóa
-	passHash, _ := bao_mat.HashMatKhau(pass)
-	pinHash, _ := bao_mat.HashMatKhau(maPin)
+	// 5. MÃ HÓA MẬT KHẨU
+	passHash, _ := cau_hinh.HashMatKhau(pass)
+	pinHash, _ := cau_hinh.HashMatKhau(maPin)
 	
-	cookie := bao_mat.TaoSessionIDAnToan()
-	expiredTime := time.Now().Add(cau_hinh.ThoiGianHetHanCookie).Unix()
+	// Tạo Session đầu tiên
+	sessionID := cau_hinh.TaoSessionIDAnToan()
+	userAgent := c.Request.UserAgent()
+	ttl := cau_hinh.ThoiGianHetHanCookie
+	expTime := time.Now().Add(ttl).Unix()
+	
+	nowStr := time.Now().Format("2006-01-02 15:04:05")
 
-	// 5. Tạo Struct Core
-	sID := cau_hinh.BienCauHinh.IdFileSheet
-	newRow := core.DongBatDau_KhachHang + soLuongUser
+	// 6. KHỞI TẠO CÁC STRUCT CON (JSON DATA)
+	
+	// Map Token (Cột F)
+	tokens := make(map[string]core.TokenInfo)
+	tokens[sessionID] = core.TokenInfo{
+		DeviceName: userAgent,
+		ExpiresAt:  expTime,
+	}
 
+	// Mạng xã hội (Cột P) - Mặc định rỗng
+	mxh := core.SocialInfo{} 
+	
+	// Ví tiền (Cột U) - Mặc định 0đ
+	vi := core.WalletInfo{ SoDuHienTai: 0 }
+	
+	// Cấu hình (Cột V)
+	conf := core.UserConfig{ Theme: "light", Language: "vi" }
+
+	// 7. TẠO STRUCT KHACH HANG HOÀN CHỈNH
 	newKH := &core.KhachHang{
-		SpreadsheetID:  sID,
-		DongTrongSheet: newRow,
+		SpreadsheetID:  shopID,
 		MaKhachHang:    maKH,
 		TenDangNhap:    user,
 		Email:          email,
-		DienThoai:      dienThoai,
 		MatKhauHash:    passHash,
 		MaPinHash:      pinHash,
+		RefreshTokens:  tokens, // Map token
+		
+		VaiTroQuyenHan: vaiTro,
+		ChucVu:         chucVu,
+		TrangThai:      1,
+		
+		NguonKhachHang: "web_register",
 		TenKhachHang:   hoTen,
+		DienThoai:      dienThoai,
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
-		LoaiKhachHang:  loaiKH, // web
-		ChucVu:         chucVu, // Quản trị viên hoặc Khách hàng
-		VaiTroQuyenHan: vaiTro, // admin_root hoặc customer
-		Cookie:         cookie,
-		CookieExpired:  expiredTime,
-		TrangThai:      1,
-		NgayTao:        time.Now().Format("2006-01-02 15:04:05"),
+		
+		MangXaHoi:      mxh,
+		ViTien:         vi,
+		CauHinh:        conf,
+		
+		NgayTao:        nowStr,
+		NgayCapNhat:    nowStr,
 	}
 
-	// 6. Lưu vào RAM & Sheet
-	core.ThemKhachHangVaoRam(newKH)
-	
-	ghi := core.ThemVaoHangCho
-	sheet := "KHACH_HANG"
-	
-	ghi(sID, sheet, newRow, core.CotKH_MaKhachHang, newKH.MaKhachHang)
-	ghi(sID, sheet, newRow, core.CotKH_TenDangNhap, newKH.TenDangNhap)
-	ghi(sID, sheet, newRow, core.CotKH_MatKhauHash, newKH.MatKhauHash)
-	ghi(sID, sheet, newRow, core.CotKH_MaPinHash, newKH.MaPinHash)
-	ghi(sID, sheet, newRow, core.CotKH_Email, newKH.Email)
-	ghi(sID, sheet, newRow, core.CotKH_DienThoai, newKH.DienThoai)
-	ghi(sID, sheet, newRow, core.CotKH_TenKhachHang, newKH.TenKhachHang)
-	ghi(sID, sheet, newRow, core.CotKH_NgaySinh, newKH.NgaySinh)
-	ghi(sID, sheet, newRow, core.CotKH_GioiTinh, newKH.GioiTinh)
-	
-	// [QUAN TRỌNG] Ghi đúng cột Loại KH và Chức vụ
-	ghi(sID, sheet, newRow, core.CotKH_LoaiKhachHang, newKH.LoaiKhachHang)
-	ghi(sID, sheet, newRow, core.CotKH_ChucVu, newKH.ChucVu)
-	ghi(sID, sheet, newRow, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
-	
-	ghi(sID, sheet, newRow, core.CotKH_TrangThai, newKH.TrangThai)
-	ghi(sID, sheet, newRow, core.CotKH_Cookie, newKH.Cookie)
-	ghi(sID, sheet, newRow, core.CotKH_CookieExpired, newKH.CookieExpired)
-	ghi(sID, sheet, newRow, core.CotKH_NgayTao, newKH.NgayTao)
-	
-	// 7. [FIX LỖI COOKIE MISMATCH]
-	// Phải tạo chữ ký và set cookie session_sign
-	userAgent := c.Request.UserAgent()
-	signature := bao_mat.TaoChuKyBaoMat(cookie, userAgent)
-	
-	maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
-	c.SetCookie("session_id", cookie, maxAge, "/", "", false, true)
-	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true) // <-- Dòng này sửa lỗi Mismatch
+	// 8. LƯU VÀO RAM (Cache)
+	// Tính dòng tiếp theo (Header + Số lượng hiện tại)
+	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
+	core.ThemKhachHangVaoRam(newKH) // Hàm này trong core/khach_hang.go
 
-	// Điều hướng
+	// 9. GHI XUỐNG SHEET (QUEUE)
+	// Dùng hàm Helper core.ThemVaoHangCho
+	ghi := core.ThemVaoHangCho
+	row := newKH.DongTrongSheet
+	sheet := "KHACH_HANG"
+
+	// --- NHÓM CỘT THƯỜNG ---
+	ghi(shopID, sheet, row, core.CotKH_MaKhachHang, newKH.MaKhachHang)
+	ghi(shopID, sheet, row, core.CotKH_TenDangNhap, newKH.TenDangNhap)
+	ghi(shopID, sheet, row, core.CotKH_Email, newKH.Email)
+	ghi(shopID, sheet, row, core.CotKH_MatKhauHash, newKH.MatKhauHash)
+	ghi(shopID, sheet, row, core.CotKH_MaPinHash, newKH.MaPinHash)
+	
+	ghi(shopID, sheet, row, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
+	ghi(shopID, sheet, row, core.CotKH_ChucVu, newKH.ChucVu)
+	ghi(shopID, sheet, row, core.CotKH_TrangThai, newKH.TrangThai)
+	
+	ghi(shopID, sheet, row, core.CotKH_NguonKhachHang, newKH.NguonKhachHang)
+	ghi(shopID, sheet, row, core.CotKH_TenKhachHang, newKH.TenKhachHang)
+	ghi(shopID, sheet, row, core.CotKH_DienThoai, newKH.DienThoai)
+	ghi(shopID, sheet, row, core.CotKH_NgaySinh, newKH.NgaySinh)
+	ghi(shopID, sheet, row, core.CotKH_GioiTinh, newKH.GioiTinh)
+	ghi(shopID, sheet, row, core.CotKH_NgayTao, newKH.NgayTao)
+
+	// --- NHÓM CỘT JSON (QUAN TRỌNG) ---
+	ghi(shopID, sheet, row, core.CotKH_RefreshTokenJson, core.ToJSON(newKH.RefreshTokens))
+	ghi(shopID, sheet, row, core.CotKH_MangXaHoiJson, core.ToJSON(newKH.MangXaHoi))
+	ghi(shopID, sheet, row, core.CotKH_ViTienJson, core.ToJSON(newKH.ViTien))
+	ghi(shopID, sheet, row, core.CotKH_CauHinhJson, core.ToJSON(newKH.CauHinh))
+	
+	// 10. SET COOKIE VÀ CHUYỂN HƯỚNG
+	// Tạo chữ ký bảo mật (Signature)
+	signature := cau_hinh.TaoChuKyBaoMat(sessionID, userAgent)
+	maxAge := int(ttl.Seconds())
+
+	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
+	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
+
+	// Nếu là Admin -> Vào trang quản trị luôn
 	if vaiTro == "admin_root" {
 		c.Redirect(http.StatusFound, "/admin/tong-quan")
 	} else {
