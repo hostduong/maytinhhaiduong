@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -8,84 +9,155 @@ import (
 )
 
 // =============================================================
-// 1. CẤU HÌNH CỘT
+// 1. CẤU HÌNH CỘT (MAPPING A -> Z)
 // =============================================================
 const (
-	// [CHUẨN HÓA TUYỆT ĐỐI]
-	DongBatDau_KhachHang = 11
+	DongBatDau_KhachHang = 2 // Dòng 1 là tiêu đề
 
-	CotKH_MaKhachHang      = 0
-	CotKH_TenDangNhap      = 1
-	CotKH_MatKhauHash      = 2
-	CotKH_Cookie           = 3
-	CotKH_CookieExpired    = 4
-	CotKH_MaPinHash        = 5
-	CotKH_LoaiKhachHang    = 6
-	CotKH_TenKhachHang     = 7
-	CotKH_DienThoai        = 8
-	CotKH_Email            = 9
-	CotKH_UrlFb            = 10
-	CotKH_Zalo             = 11
-	CotKH_UrlTele          = 12
-	CotKH_UrlTiktok        = 13
-	CotKH_DiaChi           = 14
-	CotKH_NgaySinh         = 15
-	CotKH_GioiTinh         = 16
-	CotKH_MaSoThue         = 17
-	CotKH_DangNo           = 18
-	CotKH_TongMua          = 19
-	CotKH_ChucVu           = 20
-	CotKH_VaiTroQuyenHan   = 21
-	CotKH_TrangThai        = 22
-	CotKH_GhiChu           = 23
-	CotKH_NguoiTao         = 24
-	CotKH_NgayTao          = 25
-	CotKH_NgayCapNhat      = 26
+	CotKH_MaKhachHang        = 0  // A
+	CotKH_TenDangNhap        = 1  // B
+	CotKH_Email              = 2  // C
+	CotKH_MatKhauHash        = 3  // D
+	CotKH_MaPinHash          = 4  // E
+	CotKH_RefreshTokenJson   = 5  // F [JSON]
+	CotKH_VaiTroQuyenHan     = 6  // G
+	CotKH_ChucVu             = 7  // H
+	CotKH_TrangThai          = 8  // I
+	
+	CotKH_DataSheetsJson     = 9  // J [JSON]
+	CotKH_GoiDichVuJson      = 10 // K [JSON]
+	
+	CotKH_NguonKhachHang     = 11 // L
+	CotKH_TenKhachHang       = 12 // M
+	CotKH_DienThoai          = 13 // N
+	CotKH_AnhDaiDien         = 14 // O
+	CotKH_MangXaHoiJson      = 15 // P [JSON]
+	CotKH_DiaChi             = 16 // Q
+	CotKH_NgaySinh           = 17 // R
+	CotKH_GioiTinh           = 18 // S
+	CotKH_MaSoThue           = 19 // T
+	
+	CotKH_ViTienJson         = 20 // U [JSON] (Gộp tiền & nợ & điểm)
+	CotKH_CauHinhJson        = 21 // V [JSON]
+	CotKH_InboxJson          = 22 // W [JSON] (Tin nhắn Admin)
+	
+	CotKH_GhiChu             = 23 // X
+	CotKH_NgayTao            = 24 // Y
+	CotKH_NgayCapNhat        = 25 // Z
 )
+
+// =============================================================
+// 2. STRUCT GOLANG (Object trong RAM)
+// =============================================================
 
 type KhachHang struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
 
-	MaKhachHang      string  `json:"ma_khach_hang"`
-	TenDangNhap      string  `json:"ten_dang_nhap"`
-	MatKhauHash      string  `json:"-"`
-	Cookie           string  `json:"-"`
-	CookieExpired    int64   `json:"cookie_expired"`
-	MaPinHash        string  `json:"-"`
-	LoaiKhachHang    string  `json:"loai_khach_hang"`
-	TenKhachHang     string  `json:"ten_khach_hang"`
-	DienThoai        string  `json:"dien_thoai"`
-	Email            string  `json:"email"`
-	UrlFb            string  `json:"url_fb"`
-	Zalo             string  `json:"zalo"`
-	UrlTele          string  `json:"url_tele"`
-	UrlTiktok        string  `json:"url_tiktok"`
-	DiaChi           string  `json:"dia_chi"`
-	NgaySinh         string  `json:"ngay_sinh"`
-	GioiTinh         string  `json:"gioi_tinh"`
-	MaSoThue         string  `json:"ma_so_thue"`
-	DangNo           float64 `json:"dang_no"`
-	TongMua          float64 `json:"tong_mua"`
-	ChucVu           string  `json:"chuc_vu"`
-	VaiTroQuyenHan   string  `json:"vai_tro_quyen_han"`
-	TrangThai        int     `json:"trang_thai"`
-	GhiChu           string  `json:"ghi_chu"`
-	NguoiTao         string  `json:"nguoi_tao"`
-	NgayTao          string  `json:"ngay_tao"`
-	NgayCapNhat      string  `json:"ngay_cap_nhat"`
+	// --- ĐỊNH DANH & BẢO MẬT ---
+	MaKhachHang      string `json:"ma_khach_hang"`
+	TenDangNhap      string `json:"ten_dang_nhap"`
+	Email            string `json:"email"`
+	MatKhauHash      string `json:"-"` 
+	MaPinHash        string `json:"-"` 
+	RefreshTokens    map[string]TokenInfo `json:"-"` // Cột F (Map để lưu nhiều thiết bị)
+
+	// --- PHÂN QUYỀN ---
+	VaiTroQuyenHan   string `json:"vai_tro_quyen_han"`
+	ChucVu           string `json:"chuc_vu"`
+	TrangThai        int    `json:"trang_thai"` 
+
+	// --- SAAS ---
+	DataSheets       DataSheetInfo `json:"data_sheets"` // Cột J
+	GoiDichVu        PlanInfo      `json:"goi_dich_vu"` // Cột K
+
+	// --- THÔNG TIN CÁ NHÂN ---
+	NguonKhachHang   string     `json:"nguon_khach_hang"`
+	TenKhachHang     string     `json:"ten_khach_hang"`
+	DienThoai        string     `json:"dien_thoai"`
+	AnhDaiDien       string     `json:"anh_dai_dien"`
+	MangXaHoi        SocialInfo `json:"mang_xa_hoi"` // Cột P
+	DiaChi           string     `json:"dia_chi"`
+	NgaySinh         string     `json:"ngay_sinh"`
+	GioiTinh         int        `json:"gioi_tinh"` 
+	MaSoThue         string     `json:"ma_so_thue"`
+
+	// --- TÀI CHÍNH & TƯƠNG TÁC (NEW) ---
+	ViTien           WalletInfo    `json:"vi_tien"`  // Cột U (Tổng hợp tiền)
+	CauHinh          UserConfig    `json:"cau_hinh"` // Cột V
+	Inbox            []MessageInfo `json:"inbox"`    // Cột W (List tin nhắn)
+
+	// --- META ---
+	GhiChu           string     `json:"ghi_chu"`
+	NgayTao          string     `json:"ngay_tao"`
+	NgayCapNhat      string     `json:"ngay_cap_nhat"`
 }
 
-var (
-	_DS_KhachHang  []*KhachHang
-	_Map_KhachHang map[string]*KhachHang
-)
+// =============================================================
+// 3. CÁC STRUCT CON (Để Parse JSON)
+// =============================================================
 
+// Cột F: Token
+type TokenInfo struct {
+	HashedToken string `json:"t"`   
+	ExpiresAt   int64  `json:"exp"` 
+	DeviceName  string `json:"dev"` 
+	CreatedAt   string `json:"at"`  
+}
+
+// Cột J: Data Sheet
+type DataSheetInfo struct {
+	SpreadsheetID string `json:"sheet_id"` 
+	DriveFolderID string `json:"drive_id"` 
+	CustomAuth    string `json:"auth_json,omitempty"` // Nếu shop dùng Auth riêng
+}
+
+// Cột K: Gói cước
+type PlanInfo struct {
+	PlanName   string `json:"name"`  
+	ExpiredAt  string `json:"exp"`    
+	MaxProduct int    `json:"limit"` 
+}
+
+// Cột P: Mạng xã hội
+type SocialInfo struct {
+	Zalo     string `json:"zalo"`
+	Facebook string `json:"fb"`
+	Telegram string `json:"tele"`
+	Tiktok   string `json:"tiktok"`
+}
+
+// Cột U: Ví tiền & Điểm (GOM NHÓM)
+type WalletInfo struct {
+	SoDuHienTai  float64 `json:"so_du"`    // Tiền mặt đang có
+	CongNo       float64 `json:"cong_no"`  // Đang nợ shop
+	TongTienMua  float64 `json:"tong_mua"` // Tổng tiền tích lũy
+	DiemThuong   int     `json:"diem"`     // Điểm Loyalty
+}
+
+// Cột V: Cấu hình
+type UserConfig struct {
+	Theme    string `json:"theme"`      
+	Language string `json:"lang"`       
+}
+
+// Cột W: Inbox/Thông báo (MỚI)
+type MessageInfo struct {
+	ID       string `json:"id"`
+	TieuDe   string `json:"title"`
+	NoiDung  string `json:"body"`
+	Link     string `json:"link,omitempty"` // Bấm vào nhảy đi đâu
+	DaXem    int    `json:"read"`           // 1: Rồi, 0: Chưa
+	ThoiGian string `json:"time"`
+}
+
+// ... (Giữ nguyên các biến _DS_KhachHang, _Map_KhachHang) ...
+
+// =============================================================
+// 4. LOGIC NẠP (CẬP NHẬT PARSE JSON)
+// =============================================================
 func NapKhachHang(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" {
-		targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
-	}
-
+	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := loadSheetData(targetSpreadsheetID, "KHACH_HANG")
 	if err != nil { return }
 
@@ -93,60 +165,65 @@ func NapKhachHang(targetSpreadsheetID string) {
 	_DS_KhachHang = []*KhachHang{}
 
 	for i, r := range raw {
-		// [SỬA ĐÚNG TÊN BIẾN]
 		if i < DongBatDau_KhachHang-1 { continue }
-		
 		maKH := layString(r, CotKH_MaKhachHang)
-		
-		// Logic lọc rác (Chỉ cần có Mã)
 		if maKH == "" { continue }
-		
-		key := TaoCompositeKey(targetSpreadsheetID, maKH)
 
-		// Chống trùng lặp
-		if _, daTonTai := _Map_KhachHang[key]; daTonTai {
-			continue
-		}
+		key := TaoCompositeKey(targetSpreadsheetID, maKH)
+		if _, daTonTai := _Map_KhachHang[key]; daTonTai { continue }
 
 		kh := &KhachHang{
 			SpreadsheetID:  targetSpreadsheetID,
 			DongTrongSheet: i + 1,
-			
 			MaKhachHang:    maKH,
 			TenDangNhap:    layString(r, CotKH_TenDangNhap),
+			Email:          layString(r, CotKH_Email),
 			MatKhauHash:    layString(r, CotKH_MatKhauHash),
-			Cookie:         layString(r, CotKH_Cookie),
-			CookieExpired:  int64(layFloat(r, CotKH_CookieExpired)),
 			MaPinHash:      layString(r, CotKH_MaPinHash),
-			LoaiKhachHang:  layString(r, CotKH_LoaiKhachHang),
+			VaiTroQuyenHan: layString(r, CotKH_VaiTroQuyenHan),
+			ChucVu:         layString(r, CotKH_ChucVu),
+			TrangThai:      layInt(r, CotKH_TrangThai),
+			NguonKhachHang: layString(r, CotKH_NguonKhachHang),
 			TenKhachHang:   layString(r, CotKH_TenKhachHang),
 			DienThoai:      layString(r, CotKH_DienThoai),
-			Email:          layString(r, CotKH_Email),
-			UrlFb:          layString(r, CotKH_UrlFb),
-			Zalo:           layString(r, CotKH_Zalo),
-			UrlTele:        layString(r, CotKH_UrlTele),
-			UrlTiktok:      layString(r, CotKH_UrlTiktok),
+			AnhDaiDien:     layString(r, CotKH_AnhDaiDien),
 			DiaChi:         layString(r, CotKH_DiaChi),
 			NgaySinh:       layString(r, CotKH_NgaySinh),
-			GioiTinh:       layString(r, CotKH_GioiTinh),
+			GioiTinh:       layInt(r, CotKH_GioiTinh),
 			MaSoThue:       layString(r, CotKH_MaSoThue),
-			DangNo:         layFloat(r, CotKH_DangNo),
-			TongMua:        layFloat(r, CotKH_TongMua),
-			ChucVu:         layString(r, CotKH_ChucVu),
-			VaiTroQuyenHan: layString(r, CotKH_VaiTroQuyenHan),
-			TrangThai:      layInt(r, CotKH_TrangThai),
 			GhiChu:         layString(r, CotKH_GhiChu),
-			NguoiTao:       layString(r, CotKH_NguoiTao),
 			NgayTao:        layString(r, CotKH_NgayTao),
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
+
+		// --- PARSE CÁC CỘT JSON ---
+		parseJSON(layString(r, CotKH_RefreshTokenJson), &kh.RefreshTokens)
+		parseJSON(layString(r, CotKH_DataSheetsJson), &kh.DataSheets)
+		parseJSON(layString(r, CotKH_GoiDichVuJson), &kh.GoiDichVu)
+		parseJSON(layString(r, CotKH_MangXaHoiJson), &kh.MangXaHoi)
+		parseJSON(layString(r, CotKH_ViTienJson), &kh.ViTien)
+		parseJSON(layString(r, CotKH_CauHinhJson), &kh.CauHinh)
+		parseJSON(layString(r, CotKH_InboxJson), &kh.Inbox)
 
 		_DS_KhachHang = append(_DS_KhachHang, kh)
 		_Map_KhachHang[key] = kh
 	}
 }
 
-// ... (Các hàm truy vấn giữ nguyên như cũ) ...
+// Helper nhỏ để parse
+func parseJSON(jsonStr string, target interface{}) {
+	if jsonStr != "" && jsonStr != "{}" && jsonStr != "[]" {
+		_ = json.Unmarshal([]byte(jsonStr), target)
+	}
+}
+
+// Helper: Convert Struct -> JSON String (Dùng khi ghi Sheet)
+func ToJSON(v interface{}) string {
+	b, err := json.Marshal(v)
+	if err != nil { return "" }
+	return string(b)
+}
+
 func LayDanhSachKhachHang() []*KhachHang {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
