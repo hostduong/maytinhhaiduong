@@ -2,46 +2,43 @@ package chuc_nang
 
 import (
 	"net/http"
+	"strings"
 	"sync"
 	"time"
-
-	"app/bao_mat"
 	"app/cau_hinh"
-	"app/core" // [MỚI] Sử dụng Core
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Middleware lấy ShopID
+// =============================================================
+// PHẦN 0: MIDDLEWARE SAAS (QUAN TRỌNG NHẤT)
+// =============================================================
+
+// XacDinhShop: Nhìn Domain -> Ra ShopID
 func XacDinhShop(c *gin.Context) {
+	// 1. Lấy Host (VD: shop1.com:8080)
 	host := c.Request.Host
-	// Tách port nếu có (localhost:8080 -> localhost)
+	
+	// 2. Bỏ Port nếu có (shop1.com)
 	if strings.Contains(host, ":") {
 		host = strings.Split(host, ":")[0]
 	}
 
+	// 3. Tra cứu trong Map cấu hình
 	shopID := cau_hinh.MapDomainShop[host]
+
+	// 4. Fallback (Nếu chạy Local hoặc chưa cấu hình -> Về Shop Gốc)
 	if shopID == "" {
-		shopID = cau_hinh.BienCauHinh.IdFileSheet // Fallback
+		shopID = cau_hinh.BienCauHinh.IdFileSheet
 	}
 
-	c.Set("SHOP_ID", shopID) // Lưu để dùng sau này
+	// 5. Lưu vào Context để các hàm sau dùng
+	c.Set("SHOP_ID", shopID)
+	
 	c.Next()
 }
 
-func KiemTraDangNhap(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID")
-	cookie, _ := c.Cookie("session_id")
-
-	// Gọi hàm Core mới có shopID
-	kh, ok := core.TimKhachHangTheoCookie(shopID, cookie)
-	
-	if !ok {
-		c.Redirect(http.StatusFound, "/login")
-		c.Abort()
-		return
-	}
-	
 // =============================================================
 // PHẦN 1: RATE LIMIT (GIỮ NGUYÊN LOGIC CŨ)
 // =============================================================
@@ -71,6 +68,9 @@ func xoaCookie(c *gin.Context) {
 
 // KiemTraDangNhap: Dùng cho API User & các trang cần đăng nhập
 func KiemTraDangNhap(c *gin.Context) {
+	// Lấy ShopID đã xác định ở bước trên
+	shopID := c.GetString("SHOP_ID")
+
 	// 1. CHỐT CHẶN BẢO TRÌ (Dùng biến từ Core)
 	if core.HeThongDangBan && c.Request.Method != "GET" {
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
@@ -114,7 +114,8 @@ func KiemTraDangNhap(c *gin.Context) {
 
 	// 4. KIỂM TRA CHỮ KÝ BẢO MẬT (SECURITY CHECK)
 	userAgent := c.Request.UserAgent()
-	signatureServer := bao_mat.TaoChuKyBaoMat(cookieID, userAgent)
+	// Hàm TaoChuKyBaoMat nằm ở cau_hinh/kiem_tra.go (nếu đã gộp) hoặc bao_mat/ma_hoa.go
+	signatureServer := cau_hinh.TaoChuKyBaoMat(cookieID, userAgent) 
 
 	if err2 != nil || cookieSign != signatureServer {
 		xoaCookie(c)
@@ -122,8 +123,8 @@ func KiemTraDangNhap(c *gin.Context) {
 		return
 	}
 
-	// 5. TÌM USER TRONG CORE (Thay thế nghiep_vu cũ)
-	khachHang, timThay := core.TimKhachHangTheoCookie(cookieID)
+	// 5. TÌM USER TRONG CORE (Quan trọng: Truyền ShopID vào)
+	khachHang, timThay := core.TimKhachHangTheoCookie(shopID, cookieID)
 
 	if !timThay {
 		xoaCookie(c)
@@ -133,7 +134,20 @@ func KiemTraDangNhap(c *gin.Context) {
 	}
 
 	// 6. LOGIC GIA HẠN THÔNG MINH (Auto-Renew)
-	thoiGianHetHan := khachHang.CookieExpired
+	// Logic này cần check lại với cấu trúc JSON Token mới
+	// Ở đây giả định bạn đang lấy thông tin từ TokenInfo trong Map
+	
+	// Tìm token info hiện tại
+	tokenInfo, ok := khachHang.RefreshTokens[cookieID]
+	if !ok {
+		// Trường hợp hiếm: Cookie đúng chữ ký nhưng không có trong Map (có thể do bị xóa)
+		xoaCookie(c)
+		c.Redirect(http.StatusFound, "/login")
+		c.Abort()
+		return
+	}
+
+	thoiGianHetHan := tokenInfo.ExpiresAt
 	now := time.Now().Unix()
 
 	// Nếu đã hết hạn -> Đá ra
@@ -149,23 +163,25 @@ func KiemTraDangNhap(c *gin.Context) {
 		
 		newExp := time.Now().Add(cau_hinh.ThoiGianHetHanCookie).Unix()
 		
-		// Cập nhật RAM Core an toàn
+		// Cập nhật RAM Core
 		core.KhoaHeThong.Lock()
-		khachHang.CookieExpired = newExp
+		// Update thời gian trong Map Token
+		tokenInfo.ExpiresAt = newExp
+		khachHang.RefreshTokens[cookieID] = tokenInfo
 		core.KhoaHeThong.Unlock()
 
-		// Đẩy vào hàng chờ (Sử dụng hàm Core mới)
+		// Đẩy vào hàng chờ ghi JSON xuống Sheet
 		sID := khachHang.SpreadsheetID
-		if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+		if sID == "" { sID = shopID }
 		
-		// Ghi đè cột Cookie Expired (Cột E / Index 4)
-		// Lưu ý: Core dùng const CotKH_... nên rất chuẩn
+		// Ghi đè toàn bộ cột JSON RefreshToken (Cột F)
+		jsonStr := core.ToJSON(khachHang.RefreshTokens)
 		core.ThemVaoHangCho(
 			sID,
 			"KHACH_HANG",
 			khachHang.DongTrongSheet,
-			core.CotKH_CookieExpired, 
-			newExp,
+			core.CotKH_RefreshTokenJson, 
+			jsonStr,
 		)
 
 		// Set lại Cookie mới cho trình duyệt
@@ -187,7 +203,6 @@ func KiemTraDangNhap(c *gin.Context) {
 // =============================================================
 
 func KiemTraQuyenHan(c *gin.Context) {
-	// Lưu ý: Hàm này chạy SAU KiemTraDangNhap nên đã có USER_ROLE trong context
 	role := c.GetString("USER_ROLE")
 
 	// 1. Nếu mất role (lỗi session) -> Về Login
@@ -197,11 +212,9 @@ func KiemTraQuyenHan(c *gin.Context) {
 		return
 	}
 
-	// 2. CHẶN KHÁCH HÀNG (SỬA LẠI ĐÚNG LOGIC)
-	// Nếu là khách -> Đá về trang chủ ngay lập tức.
-	// KHÔNG render template "quan_tri" nữa (nguyên nhân gây ra việc khách vẫn thấy khung admin).
+	// 2. CHẶN KHÁCH HÀNG
 	if role == "khach_hang" || role == "customer" {
-		c.Redirect(http.StatusFound, "/") // <--- ĐÁ VỀ TRANG CHỦ
+		c.Redirect(http.StatusFound, "/")
 		c.Abort()
 		return
 	}
