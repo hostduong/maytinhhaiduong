@@ -33,7 +33,8 @@ type DanhMuc struct {
 // BỘ NHỚ ĐA SHOP
 var (
 	CacheDanhMuc    = make(map[string][]*DanhMuc)
-	CacheMapDanhMuc = make(map[string]map[string]*DanhMuc) // Key: ShopID__MaDM
+	// Sửa lại thành map phẳng để dùng với TaoCompositeKey
+	CacheMapDanhMuc = make(map[string]*DanhMuc) 
 )
 
 func NapDanhMuc(shopID string) {
@@ -62,7 +63,7 @@ func NapDanhMuc(shopID string) {
 		
 		list = append(list, dm)
 		
-		// Map lookup
+		// Map lookup: Dùng key kết hợp ShopID__MaDM
 		key := TaoCompositeKey(shopID, maDM)
 		CacheMapDanhMuc[key] = dm
 	}
@@ -91,7 +92,6 @@ func LayChiTietDanhMuc(shopID, maDM string) (*DanhMuc, bool) {
 	return dm, ok
 }
 
-// Hàm này cần ShopID để biết tìm trong list nào
 func TimMaDanhMucTheoTen(shopID, tenDM string) string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
@@ -103,7 +103,6 @@ func TimMaDanhMucTheoTen(shopID, tenDM string) string {
 	return "" 
 }
 
-// QUAN TRỌNG: Slot phải tính riêng theo từng Shop
 func LaySlotTiepTheo(shopID, maDM string) int {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
@@ -111,13 +110,11 @@ func LaySlotTiepTheo(shopID, maDM string) int {
 	key := TaoCompositeKey(shopID, maDM)
 	dm, ok := CacheMapDanhMuc[key]
 	
-	// Nếu không tìm thấy danh mục -> Trả về 1 (Bắt đầu đếm)
 	if !ok { return 1 }
 
 	dm.Slot++ 
 	newSlot := dm.Slot
 	
-	// Ghi xuống Sheet của Shop đó
 	ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_Slot, newSlot)
 	return newSlot
 }
