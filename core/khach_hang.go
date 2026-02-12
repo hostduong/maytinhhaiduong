@@ -77,17 +77,31 @@ type KhachHang struct {
 	NgayCapNhat      string     `json:"ngay_cap_nhat"`
 }
 
-// STRUCT CON (JSON)
+// STRUCT CON (JSON) - Đã sửa lỗi cú pháp ở đây
 type TokenInfo struct {
 	DeviceName string `json:"dev"`
 	ExpiresAt  int64  `json:"exp"`
 }
-type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"` }
-type PlanInfo struct { PlanName string `json:"name"` }
-type SocialInfo struct { Zalo string `json:"zalo"; Facebook string `json:"fb"; Tiktok string `json:"tiktok" }
-type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
-type UserConfig struct { Theme string `json:"theme"` }
-type MessageInfo struct { TieuDe string `json:"title"` }
+type DataSheetInfo struct {
+	SpreadsheetID string `json:"sheet_id"`
+}
+type PlanInfo struct {
+	PlanName string `json:"name"`
+}
+type SocialInfo struct {
+	Zalo     string `json:"zalo"`
+	Facebook string `json:"fb"`
+	Tiktok   string `json:"tiktok"`
+}
+type WalletInfo struct {
+	SoDuHienTai float64 `json:"so_du"`
+}
+type UserConfig struct {
+	Theme string `json:"theme"`
+}
+type MessageInfo struct {
+	TieuDe string `json:"title"`
+}
 
 // BỘ NHỚ ĐA SHOP: Map[ShopID] -> List
 var (
@@ -98,14 +112,20 @@ var (
 // HÀM NẠP (NHẬN SHOP ID)
 func NapKhachHang(shopID string) {
 	raw, err := loadSheetData(shopID, "KHACH_HANG")
-	if err != nil { return }
+	if err != nil {
+		return
+	}
 
 	list := []*KhachHang{}
-	
+
 	for i, r := range raw {
-		if i < DongBatDau_KhachHang-1 { continue }
+		if i < DongBatDau_KhachHang-1 {
+			continue
+		}
 		maKH := layString(r, CotKH_MaKhachHang)
-		if maKH == "" { continue }
+		if maKH == "" {
+			continue
+		}
 
 		kh := &KhachHang{
 			SpreadsheetID:  shopID,
@@ -119,19 +139,37 @@ func NapKhachHang(shopID string) {
 			ChucVu:         layString(r, CotKH_ChucVu),
 			TrangThai:      layInt(r, CotKH_TrangThai),
 			TenKhachHang:   layString(r, CotKH_TenKhachHang),
-			// ... map tiếp các cột phẳng ...
+			NguonKhachHang: layString(r, CotKH_NguonKhachHang),
+			DienThoai:      layString(r, CotKH_DienThoai),
+			AnhDaiDien:     layString(r, CotKH_AnhDaiDien),
+			DiaChi:         layString(r, CotKH_DiaChi),
+			NgaySinh:       layString(r, CotKH_NgaySinh),
+			GioiTinh:       layInt(r, CotKH_GioiTinh),
+			MaSoThue:       layString(r, CotKH_MaSoThue),
+			GhiChu:         layString(r, CotKH_GhiChu),
+			NgayTao:        layString(r, CotKH_NgayTao),
+			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
 
 		// PARSE JSON
 		_ = json.Unmarshal([]byte(layString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
-		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TokenInfo) }
-		
+		if kh.RefreshTokens == nil {
+			kh.RefreshTokens = make(map[string]TokenInfo)
+		}
+
+		_ = json.Unmarshal([]byte(layString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
+		_ = json.Unmarshal([]byte(layString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_ViTienJson)), &kh.ViTien)
+		_ = json.Unmarshal([]byte(layString(r, CotKH_CauHinhJson)), &kh.CauHinh)
+		_ = json.Unmarshal([]byte(layString(r, CotKH_InboxJson)), &kh.Inbox)
 
 		list = append(list, kh)
-		
+
 		// Map lookup
+		if CacheMapKhachHang[shopID] == nil {
+			CacheMapKhachHang[shopID] = make(map[string]*KhachHang)
+		}
 		key := TaoCompositeKey(shopID, maKH)
 		CacheMapKhachHang[key] = kh
 	}
@@ -151,54 +189,77 @@ func LayDanhSachKhachHang(shopID string) []*KhachHang {
 func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
+
 	list := CacheKhachHang[shopID]
 	for _, kh := range list {
-		// Quét trong Map JSON
 		if info, ok := kh.RefreshTokens[cookie]; ok {
-			if time.Now().Unix() > info.ExpiresAt { return nil, false }
+			if time.Now().Unix() > info.ExpiresAt {
+				return nil, false
+			}
 			return kh, true
 		}
 	}
 	return nil, false
 }
 
-// Hàm này dùng cho Login
 func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
+
 	input = strings.ToLower(strings.TrimSpace(input))
 	list := CacheKhachHang[shopID]
-	
+
 	for _, kh := range list {
-		if strings.ToLower(kh.TenDangNhap) == input { return kh, true }
-		if kh.Email != "" && strings.ToLower(kh.Email) == input { return kh, true }
+		if strings.ToLower(kh.TenDangNhap) == input {
+			return kh, true
+		}
+		if kh.Email != "" && strings.ToLower(kh.Email) == input {
+			return kh, true
+		}
 	}
 	return nil, false
 }
 
-// Hàm tạo mã: Logic giữ nguyên
 func TaoMaKhachHangMoi(shopID string) string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	for {
 		id := LayChuoiSoNgauNhien(19)
 		key := TaoCompositeKey(shopID, id)
-		if _, exist := CacheMapKhachHang[key]; !exist { return id }
+		// Check trong Map của shop đó
+		exists := false
+		if shopMap, ok := CacheMapKhachHang[shopID]; ok {
+			if _, tonTai := shopMap[key]; tonTai {
+				exists = tonTai
+			}
+		}
+		if !exists {
+			return id
+		}
 	}
 }
 
-// Helper JSON
 func ToJSON(v interface{}) string {
 	b, _ := json.Marshal(v)
 	return string(b)
 }
+
 func LayKhachHang(shopID, maKH string) (*KhachHang, bool) {
-    KhoaHeThong.RLock()
-    defer KhoaHeThong.RUnlock()
-    key := TaoCompositeKey(shopID, maKH)
-    kh, ok := CacheMapKhachHang[key]
-    return kh, ok
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	key := TaoCompositeKey(shopID, maKH)
+	kh, ok := CacheMapKhachHang[key]
+	return kh, ok
 }
 
+func ThemKhachHangVaoRam(kh *KhachHang) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	sID := kh.SpreadsheetID
+	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
+	key := TaoCompositeKey(sID, kh.MaKhachHang)
+	if CacheMapKhachHang[sID] == nil {
+		CacheMapKhachHang[sID] = make(map[string]*KhachHang)
+	}
+	CacheMapKhachHang[key] = kh
+}
