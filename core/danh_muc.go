@@ -1,17 +1,20 @@
 package core
 
-import "app/cau_hinh"
+import (
+	"strings"
+	"app/cau_hinh"
+)
 
 const (
 	DongBatDau_DanhMuc = 11
 
-	CotDM_MaDanhMuc  = 0 // A: Mã (VD: MAIN, CPU, MON)
-	CotDM_TenDanhMuc = 1 // B: Tên hiển thị
-	CotDM_DanhMucMe  = 2 // C: Mã danh mục mẹ (Rỗng nếu là cấp 1)
-	CotDM_ThueVAT    = 3 // D: Thuế đầu ra (%)
-	CotDM_LoiNhuan   = 4 // E: Biên lợi nhuận mong muốn (%)
-	CotDM_Slot       = 5 // F: Slot hiện tại (Để sinh SKU: MAIN0001)
-	CotDM_TrangThai  = 6 // G
+	CotDM_MaDanhMuc  = 0
+	CotDM_TenDanhMuc = 1
+	CotDM_DanhMucMe  = 2
+	CotDM_ThueVAT    = 3
+	CotDM_LoiNhuan   = 4
+	CotDM_Slot       = 5
+	CotDM_TrangThai  = 6
 )
 
 type DanhMuc struct {
@@ -23,80 +26,98 @@ type DanhMuc struct {
 	DanhMucMe  string  `json:"danh_muc_me"`
 	ThueVAT    float64 `json:"thue_vat"`
 	LoiNhuan   float64 `json:"bien_loi_nhuan"`
-	Slot       int     `json:"slot"`       // [ĐÃ SỬA] Đổi từ STT thành Slot
+	Slot       int     `json:"slot"`
 	TrangThai  int     `json:"trang_thai"` 
 }
 
+// BỘ NHỚ ĐA SHOP
 var (
-	_DS_DanhMuc  []*DanhMuc
-	_Map_DanhMuc map[string]*DanhMuc
+	CacheDanhMuc    = make(map[string][]*DanhMuc)
+	CacheMapDanhMuc = make(map[string]map[string]*DanhMuc) // Key: ShopID__MaDM
 )
 
-func NapDanhMuc(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(targetSpreadsheetID, "DANH_MUC")
+func NapDanhMuc(shopID string) {
+	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
+	raw, err := loadSheetData(shopID, "DANH_MUC")
 	if err != nil { return }
 
-	_Map_DanhMuc = make(map[string]*DanhMuc)
-	_DS_DanhMuc = []*DanhMuc{}
+	list := []*DanhMuc{}
 
 	for i, r := range raw {
 		if i < DongBatDau_DanhMuc-1 { continue }
 		maDM := layString(r, CotDM_MaDanhMuc)
 		if maDM == "" { continue }
 
-		key := TaoCompositeKey(targetSpreadsheetID, maDM)
-		
 		dm := &DanhMuc{
-			SpreadsheetID:  targetSpreadsheetID,
+			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			MaDanhMuc:      maDM,
 			TenDanhMuc:     layString(r, CotDM_TenDanhMuc),
 			DanhMucMe:      layString(r, CotDM_DanhMucMe),
 			ThueVAT:        layFloat(r, CotDM_ThueVAT),
 			LoiNhuan:       layFloat(r, CotDM_LoiNhuan),
-			Slot:           layInt(r, CotDM_Slot), // [ĐÃ SỬA]
+			Slot:           layInt(r, CotDM_Slot),
 			TrangThai:      layInt(r, CotDM_TrangThai), 
 		}
-		_DS_DanhMuc = append(_DS_DanhMuc, dm)
-		_Map_DanhMuc[key] = dm
+		
+		list = append(list, dm)
+		
+		// Map lookup
+		key := TaoCompositeKey(shopID, maDM)
+		CacheMapDanhMuc[key] = dm
 	}
+
+	KhoaHeThong.Lock()
+	CacheDanhMuc[shopID] = list
+	KhoaHeThong.Unlock()
 }
 
-func LayDanhSachDanhMuc() []*DanhMuc {
+func LayDanhSachDanhMuc(shopID string) []*DanhMuc {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	return _DS_DanhMuc
+	
+	if list, ok := CacheDanhMuc[shopID]; ok {
+		return list
+	}
+	return []*DanhMuc{}
 }
 
-func LayChiTietDanhMuc(maDM string) (*DanhMuc, bool) {
+func LayChiTietDanhMuc(shopID, maDM string) (*DanhMuc, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	key := TaoCompositeKey(cau_hinh.BienCauHinh.IdFileSheet, maDM)
-	dm, ok := _Map_DanhMuc[key]
+	
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
 	return dm, ok
 }
 
-func TimMaDanhMucTheoTen(tenDM string) string {
+// Hàm này cần ShopID để biết tìm trong list nào
+func TimMaDanhMucTheoTen(shopID, tenDM string) string {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	for _, dm := range _DS_DanhMuc {
-		if dm.TenDanhMuc == tenDM { return dm.MaDanhMuc }
+	
+	list := CacheDanhMuc[shopID]
+	for _, dm := range list {
+		if strings.EqualFold(dm.TenDanhMuc, tenDM) { return dm.MaDanhMuc }
 	}
 	return "" 
 }
 
-// [ĐÃ SỬA] Đổi tên hàm cho chuẩn Slot
-func LaySlotTiepTheo(maDM string) int {
+// QUAN TRỌNG: Slot phải tính riêng theo từng Shop
+func LaySlotTiepTheo(shopID, maDM string) int {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
 
-	key := TaoCompositeKey(cau_hinh.BienCauHinh.IdFileSheet, maDM)
-	dm, ok := _Map_DanhMuc[key]
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
+	
+	// Nếu không tìm thấy danh mục -> Trả về 1 (Bắt đầu đếm)
 	if !ok { return 1 }
 
 	dm.Slot++ 
 	newSlot := dm.Slot
+	
+	// Ghi xuống Sheet của Shop đó
 	ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_Slot, newSlot)
 	return newSlot
 }
@@ -104,8 +125,12 @@ func LaySlotTiepTheo(maDM string) int {
 func ThemDanhMucVaoRam(dm *DanhMuc) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	if dm.SpreadsheetID == "" { dm.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	_DS_DanhMuc = append(_DS_DanhMuc, dm)
-	key := TaoCompositeKey(dm.SpreadsheetID, dm.MaDanhMuc)
-	_Map_DanhMuc[key] = dm
+	
+	sID := dm.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+	
+	CacheDanhMuc[sID] = append(CacheDanhMuc[sID], dm)
+	
+	key := TaoCompositeKey(sID, dm.MaDanhMuc)
+	CacheMapDanhMuc[key] = dm
 }
