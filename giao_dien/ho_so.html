@@ -30,14 +30,16 @@
                     {{ .NhanVien.ChucVu }}
                 </div>
                 <div class="flex justify-center gap-4 mt-4">
-                    {{ if .NhanVien.UrlFb }}
-                    <a href="{{ .NhanVien.UrlFb }}" target="_blank" class="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                    {{ if .NhanVien.MangXaHoi.Facebook }}
+                    <a href="{{ .NhanVien.MangXaHoi.Facebook }}" target="_blank" class="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
                     {{ end }}
-                    {{ if .NhanVien.UrlTiktok }}
-                    <a href="{{ .NhanVien.UrlTiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.12-8.84 0-20.29 0-31.48.04 4.5 1.44 9.04 4.14 12.74 3.08 4.21 6.27 6.4 9.53 5.37 2.84-.92 4.79-5.28 4.37-7.82.02-2.55 2.08-4.71 4.75-4.8 2.37.07 4.28 2.04 4.3 4.41.02 2.4-1.9 4.37-4.29 4.4-2.42.03-4.42-1.92-4.4-4.32-.01-2.4 1.93-4.33 4.33-4.31z"/></svg></a>
+                    
+                    {{ if .NhanVien.MangXaHoi.Tiktok }}
+                    <a href="{{ .NhanVien.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.12-8.84 0-20.29 0-31.48.04 4.5 1.44 9.04 4.14 12.74 3.08 4.21 6.27 6.4 9.53 5.37 2.84-.92 4.79-5.28 4.37-7.82.02-2.55 2.08-4.71 4.75-4.8 2.37.07 4.28 2.04 4.3 4.41.02 2.4-1.9 4.37-4.29 4.4-2.42.03-4.42-1.92-4.4-4.32-.01-2.4 1.93-4.33 4.33-4.31z"/></svg></a>
                     {{ end }}
-                    {{ if .NhanVien.Zalo }}
-                    <a href="https://zalo.me/{{ .NhanVien.Zalo }}" target="_blank" class="p-2 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-bold text-xs flex items-center justify-center w-9 h-9 border border-blue-200">Zalo</a>
+                    
+                    {{ if .NhanVien.MangXaHoi.Zalo }}
+                    <a href="https://zalo.me/{{ .NhanVien.MangXaHoi.Zalo }}" target="_blank" class="p-2 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-bold text-xs flex items-center justify-center w-9 h-9 border border-blue-200">Zalo</a>
                     {{ end }}
                 </div>
             </div>
@@ -63,7 +65,7 @@
                 <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin khác</h3>
                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập</label><div class="text-gray-900 font-semibold italic">{{ .NhanVien.TenDangNhap }}</div></div>
                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế</label><div class="text-gray-900 font-semibold">{{ if .NhanVien.MaSoThue }} {{ .NhanVien.MaSoThue }} {{ else }} -- {{ end }}</div></div>
-                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo</label><div class="text-blue-600 font-medium">{{ if .NhanVien.Zalo }} {{ .NhanVien.Zalo }} {{ else }} -- {{ end }}</div></div>
+                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo</label><div class="text-blue-600 font-medium">{{ if .NhanVien.MangXaHoi.Zalo }} {{ .NhanVien.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
             </div>
         </div>
     </div>
@@ -76,13 +78,17 @@
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Ngày sinh</label><input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white text-gray-700"></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white text-gray-700"><option value="Nam" {{ if eq .NhanVien.GioiTinh "Nam" }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh "Nữ" }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh "Khác" }}selected{{ end }}>Khác</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white text-gray-700"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newTax" class="error-text">Chỉ nhập số.</p></div>
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Địa chỉ</label><input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"></div>
+                    
                     <div class="md:col-span-2 border-t pt-4 mt-2"><h4 class="text-sm font-bold text-blue-600 mb-3">Mạng xã hội</h4></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .NhanVien.Zalo }}" placeholder="09xxxx..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"></div>
-                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.UrlFb }}" placeholder="https://facebook.com/..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
-                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.UrlTiktok }}" placeholder="https://tiktok.com/@..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                    
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" placeholder="09xxxx..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"></div>
+                    
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                    
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                 </div>
                 <div class="mt-8 flex justify-end gap-3 pt-5 border-t">
                     <button onclick="toggleModal('modalInfo')" class="text-gray-500 hover:bg-gray-100 px-6 py-2.5 rounded-xl font-semibold transition">Hủy</button>
