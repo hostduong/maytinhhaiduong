@@ -14,7 +14,6 @@ const (
 type ThuongHieu struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
-	
 	MaThuongHieu  string `json:"ma_thuong_hieu"`
 	TenThuongHieu string `json:"ten_thuong_hieu"`
 	LogoUrl       string `json:"logo_url"`
@@ -22,10 +21,9 @@ type ThuongHieu struct {
 	TrangThai     int    `json:"trang_thai"`
 }
 
-// BỘ NHỚ ĐA SHOP
 var (
 	CacheThuongHieu    = make(map[string][]*ThuongHieu)
-	CacheMapThuongHieu = make(map[string]map[string]*ThuongHieu)
+	CacheMapThuongHieu = make(map[string]*ThuongHieu) // Đã sửa thành Map phẳng
 )
 
 func NapThuongHieu(shopID string) {
@@ -34,7 +32,6 @@ func NapThuongHieu(shopID string) {
 	if err != nil { return }
 
 	list := []*ThuongHieu{}
-
 	for i, r := range raw {
 		if i < DongBatDau_ThuongHieu-1 { continue }
 		maTH := layString(r, CotTH_MaThuongHieu)
@@ -49,12 +46,10 @@ func NapThuongHieu(shopID string) {
 			MoTa:          layString(r, CotTH_MoTa),
 			TrangThai:     layInt(r, CotTH_TrangThai),
 		}
-		
 		list = append(list, th)
 		key := TaoCompositeKey(shopID, maTH)
 		CacheMapThuongHieu[key] = th
 	}
-
 	KhoaHeThong.Lock()
 	CacheThuongHieu[shopID] = list
 	KhoaHeThong.Unlock()
@@ -63,22 +58,14 @@ func NapThuongHieu(shopID string) {
 func LayDanhSachThuongHieu(shopID string) []*ThuongHieu {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	
-	if list, ok := CacheThuongHieu[shopID]; ok {
-		return list
-	}
-	return []*ThuongHieu{}
+	return CacheThuongHieu[shopID]
 }
 
 func ThemThuongHieuVaoRam(th *ThuongHieu) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	
 	sID := th.SpreadsheetID
-	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
-	
 	CacheThuongHieu[sID] = append(CacheThuongHieu[sID], th)
-	
 	key := TaoCompositeKey(sID, th.MaThuongHieu)
 	CacheMapThuongHieu[key] = th
 }
