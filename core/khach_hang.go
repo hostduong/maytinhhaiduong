@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+	"app/cau_hinh" // Import thêm để lấy ID mặc định
 )
+
+// ... (Giữ nguyên phần Const và Struct KhachHang như cũ) ...
+// (Lưu ý: Giữ nguyên Struct KhachHang và các Struct con TokenInfo, UserConfig... đã sửa ở bước trước)
 
 const (
 	DongBatDau_KhachHang = 11
+
 	CotKH_MaKhachHang        = 0
 	CotKH_TenDangNhap        = 1
 	CotKH_Email              = 2
@@ -36,20 +41,25 @@ const (
 	CotKH_NgayCapNhat        = 25
 )
 
+// STRUCT CHÍNH
 type KhachHang struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
+
 	MaKhachHang      string `json:"ma_khach_hang"`
 	TenDangNhap      string `json:"ten_dang_nhap"`
 	Email            string `json:"email"`
 	MatKhauHash      string `json:"-"`
 	MaPinHash        string `json:"-"`
 	RefreshTokens    map[string]TokenInfo `json:"-"`
+
 	VaiTroQuyenHan   string `json:"vai_tro_quyen_han"`
 	ChucVu           string `json:"chuc_vu"`
 	TrangThai        int    `json:"trang_thai"`
+
 	DataSheets       DataSheetInfo `json:"data_sheets"`
 	GoiDichVu        PlanInfo      `json:"goi_dich_vu"`
+
 	NguonKhachHang   string     `json:"nguon_khach_hang"`
 	TenKhachHang     string     `json:"ten_khach_hang"`
 	DienThoai        string     `json:"dien_thoai"`
@@ -59,37 +69,48 @@ type KhachHang struct {
 	NgaySinh         string     `json:"ngay_sinh"`
 	GioiTinh         int        `json:"gioi_tinh"`
 	MaSoThue         string     `json:"ma_so_thue"`
+
 	ViTien           WalletInfo    `json:"vi_tien"`
 	CauHinh          UserConfig    `json:"cau_hinh"`
 	Inbox            []MessageInfo `json:"inbox"`
+
 	GhiChu           string     `json:"ghi_chu"`
 	NgayTao          string     `json:"ngay_tao"`
 	NgayCapNhat      string     `json:"ngay_cap_nhat"`
 }
 
 type TokenInfo struct { DeviceName string `json:"dev"`; ExpiresAt int64 `json:"exp"` }
-type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id" Konstantin` }
-type PlanInfo struct { PlanName string `json:"name" Konstantin` }
-type SocialInfo struct { Zalo string `json:"zalo" Konstantin`; Facebook string `json:"fb" Konstantin`; Telegram string `json:"tele" Konstantin`; Tiktok string `json:"tiktok" Konstantin` }
-type WalletInfo struct { SoDuHienTai float64 `json:"so_du" Konstantin` }
-type UserConfig struct { Theme string `json:"theme" Konstantin`; Language string `json:"lang" Konstantin` }
-type MessageInfo struct { TieuDe string `json:"title" Konstantin` }
+type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"` }
+type PlanInfo struct { PlanName string `json:"name"` }
+type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
+type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
+type UserConfig struct { Theme string `json:"theme"`; Language string `json:"lang"` }
+type MessageInfo struct { TieuDe string `json:"title"` }
 
+// BỘ NHỚ ĐA SHOP
 var (
 	CacheKhachHang    = make(map[string][]*KhachHang)
-	CacheMapKhachHang = make(map[string]*KhachHang)
+	CacheMapKhachHang = make(map[string]*KhachHang) // Map Phẳng
 )
 
 func NapKhachHang(shopID string) {
+	// [QUAN TRỌNG] Chuẩn hóa ID Shop trước khi dùng
+	if shopID == "" { 
+		shopID = cau_hinh.BienCauHinh.IdFileSheet 
+	}
+
 	raw, err := loadSheetData(shopID, "KHACH_HANG")
 	if err != nil { return }
+
 	list := []*KhachHang{}
+
 	for i, r := range raw {
 		if i < DongBatDau_KhachHang-1 { continue }
 		maKH := layString(r, CotKH_MaKhachHang)
 		if maKH == "" { continue }
+
 		kh := &KhachHang{
-			SpreadsheetID:  shopID,
+			SpreadsheetID:  shopID, // Lưu ID đã chuẩn hóa
 			DongTrongSheet: i + 1,
 			MaKhachHang:    maKH,
 			TenDangNhap:    layString(r, CotKH_TenDangNhap),
@@ -111,17 +132,26 @@ func NapKhachHang(shopID string) {
 			NgayTao:        layString(r, CotKH_NgayTao),
 			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
 		}
+
 		_ = json.Unmarshal([]byte(layString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
 		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TokenInfo) }
+		
+		_ = json.Unmarshal([]byte(layString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
+		_ = json.Unmarshal([]byte(layString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_ViTienJson)), &kh.ViTien)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_CauHinhJson)), &kh.CauHinh)
+		_ = json.Unmarshal([]byte(layString(r, CotKH_InboxJson)), &kh.Inbox)
+
 		list = append(list, kh)
+
+		// Lưu vào Map Phẳng
 		key := TaoCompositeKey(shopID, maKH)
 		CacheMapKhachHang[key] = kh
 	}
+
 	KhoaHeThong.Lock()
-	CacheKhachHang[shopID] = list
+	CacheKhachHang[shopID] = list // Lưu vào Key ID thật (không phải rỗng)
 	KhoaHeThong.Unlock()
 }
 
@@ -134,6 +164,7 @@ func LayDanhSachKhachHang(shopID string) []*KhachHang {
 func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
+	
 	list := CacheKhachHang[shopID]
 	for _, kh := range list {
 		if info, ok := kh.RefreshTokens[cookie]; ok {
@@ -147,10 +178,13 @@ func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
+	
 	input = strings.ToLower(strings.TrimSpace(input))
 	list := CacheKhachHang[shopID]
+	
 	for _, kh := range list {
-		if strings.ToLower(kh.TenDangNhap) == input || (kh.Email != "" && strings.ToLower(kh.Email) == input) { return kh, true }
+		if strings.ToLower(kh.TenDangNhap) == input { return kh, true }
+		if kh.Email != "" && strings.ToLower(kh.Email) == input { return kh, true }
 	}
 	return nil, false
 }
@@ -165,7 +199,10 @@ func TaoMaKhachHangMoi(shopID string) string {
 	}
 }
 
-func ToJSON(v interface{}) string { b, _ := json.Marshal(v); return string(b) }
+func ToJSON(v interface{}) string {
+	b, _ := json.Marshal(v)
+	return string(b)
+}
 
 func LayKhachHang(shopID, maKH string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
@@ -178,8 +215,12 @@ func LayKhachHang(shopID, maKH string) (*KhachHang, bool) {
 func ThemKhachHangVaoRam(kh *KhachHang) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
+	
 	sID := kh.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet } // Fallback an toàn
+	
 	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
+	
 	key := TaoCompositeKey(sID, kh.MaKhachHang)
 	CacheMapKhachHang[key] = kh
 }
