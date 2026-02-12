@@ -213,7 +213,7 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Khung giá thành công!"})
 }
 
-// [MỚI] API Đồng bộ lại Slot (Bộ đếm) cho Danh mục dựa trên dữ liệu Sản phẩm thực tế
+// API Đồng bộ lại Slot (Bộ đếm) cho Danh mục dựa trên dữ liệu Sản phẩm thực tế
 func API_DongBoSlotDanhMuc(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -221,16 +221,16 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		return
 	}
 
-	core.KhoaHeThong.Lock()
-	defer core.KhoaHeThong.Unlock()
-
-	// 1. Quét toàn bộ sản phẩm để tìm số Max của từng Prefix
+	// 1. Quét RAM để tìm số Max của từng Prefix
 	mapMaxSlot := make(map[string]int) // Key: Prefix (VD: MAIN), Value: Max Number (VD: 45)
 	
+	core.KhoaHeThong.RLock() // Khóa đọc để lấy dữ liệu an toàn
 	listSP := core.LayDanhSachSanPham()
+	core.KhoaHeThong.RUnlock()
+
 	for _, sp := range listSP {
 		maSP := strings.TrimSpace(sp.MaSanPham)
-		// Logic tách số: Chạy từ cuối chuỗi về đầu, lấy hết các ký tự số
+		// Logic tách số: Chạy từ cuối chuỗi về đầu
 		ketThucSo := len(maSP)
 		batDauSo := ketThucSo
 		
@@ -239,15 +239,13 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 			if char >= '0' && char <= '9' {
 				batDauSo = i
 			} else {
-				break // Gặp chữ cái thì dừng
+				break
 			}
 		}
 
-		// Nếu tìm thấy đoạn số ở cuối
 		if batDauSo < ketThucSo {
-			prefix := strings.ToUpper(maSP[0:batDauSo]) // Phần chữ (VD: MAIN)
-			soStr := maSP[batDauSo:ketThucSo]           // Phần số (VD: 0045)
-			
+			prefix := strings.ToUpper(maSP[0:batDauSo]) // MAIN
+			soStr := maSP[batDauSo:ketThucSo]           // 0045
 			so, err := strconv.Atoi(soStr)
 			if err == nil {
 				if so > mapMaxSlot[prefix] {
@@ -258,23 +256,25 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 	}
 
 	// 2. Cập nhật lại Slot cho Danh Mục
+	core.KhoaHeThong.Lock() // Khóa ghi để cập nhật
 	countUpdate := 0
+	
 	for _, dm := range core.LayDanhSachDanhMuc() {
 		maxThucTe, coDuLieu := mapMaxSlot[dm.MaDanhMuc]
 		
-		// Chỉ cập nhật nếu số thực tế lớn hơn Slot hiện tại
-		// Hoặc nếu Slot hiện tại bị mất (về 0) mà thực tế lại có hàng
+		// Logic: Luôn lấy số lớn nhất thực tế tìm được
 		if coDuLieu && maxThucTe > dm.Slot {
 			dm.Slot = maxThucTe
-			// Ghi đè lại vào Sheet
+			// Ghi cột Slot (Là cột F, index = 5 trong mảng 0-based)
 			core.ThemVaoHangCho(cau_hinh.BienCauHinh.IdFileSheet, "DANH_MUC", dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
 			countUpdate++
 		}
 	}
+	core.KhoaHeThong.Unlock()
 
-	msg := "Hệ thống đã đồng bộ xong. Không có lệch lạc nào."
+	msg := "Hệ thống đã đồng bộ xong. Các bộ đếm đều chuẩn."
 	if countUpdate > 0 {
-		msg = "Đã phát hiện và đồng bộ lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục."
+		msg = "Đã cập nhật lại bộ đếm Slot cho " + strconv.Itoa(countUpdate) + " danh mục."
 	}
 
 	c.JSON(200, gin.H{"status": "ok", "msg": msg})
