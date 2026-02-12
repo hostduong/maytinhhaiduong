@@ -114,6 +114,7 @@ func main() {
 		admin.POST("/api/category/save", chuc_nang.API_LuuDanhMuc)
 		admin.POST("/api/brand/save", chuc_nang.API_LuuThuongHieu)
 		admin.POST("/api/margin/save", chuc_nang.API_LuuBienLoiNhuan)
+		admin.POST("/api/category/sync-slots", chuc_nang.API_DongBoSlotDanhMuc)
 	}
 
 	port := os.Getenv("PORT")
