@@ -23,9 +23,7 @@
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .tagify__tag { margin: 0.25rem; background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-weight: 600; border-radius: 0.375rem; }
-        .tagify__input { line-height: 28px; margin: 0 0.5rem; }
-
+        
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
         #gia_ban_le { color: #e11d48; }
         #gia_ban_thuc { color: #059669; }
@@ -237,37 +235,43 @@
                     <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
                         <div class="section-title flex justify-between">
                             <span>💰 Định giá Kinh Doanh</span>
-                            <span class="text-xs font-normal text-slate-500 normal-case flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Áp dụng Khung Lợi Nhuận Tự Động</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
                                 <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); autoCalcForward()">
                             </div>
-                            <div>
-                                <label>Biên Lợi Nhuận Tự Động (%)</label>
-                                <input type="number" id="loi_nhuan" readonly class="input-premium text-center font-bold text-blue-600 bg-slate-100 cursor-not-allowed border-dashed" placeholder="0" title="Tự động bốc từ Danh Mục hoặc Khung Giá">
+                            
+                            <div class="md:col-span-2">
+                                <label>Quy tắc tính lãi</label>
+                                <select id="cach_tinh_lai" class="input-premium bg-white cursor-pointer font-medium text-slate-700" onchange="autoCalcForward()">
+                                    <option value="auto_cat">🔷 Theo Danh Mục (Ưu tiên)</option>
+                                    <option value="auto_price">🔶 Theo Khung Giá Nhập</option>
+                                    <option value="manual">✍️ Tự nhập tay</option>
+                                </select>
                             </div>
+
                             <div>
-                                <label>Lãi VNĐ (Trước Thuế)</label>
-                                <input type="text" id="lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
+                                <label>Biên Lợi Nhuận (%)</label>
+                                <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600" placeholder="0" onkeyup="autoCalcForward()" readonly>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                             <div>
-                                <label>Giá Niêm Yết (Gạch ngang trên Web)</label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                <label>Lãi dự kiến (VNĐ)</label>
+                                <input type="text" id="lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
                             </div>
                             <div>
                                 <label>Giảm giá Khuyến mãi (%)</label>
                                 <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
                             </div>
                             <div>
-                                <label>Giá Thu Về (Giá thực tế bán ra)</label>
-                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
+                                <label>Giá Bán Ra (Niêm yết)</label>
+                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                         </div>
+                        <input type="hidden" name="gia_ban_thuc" id="gia_ban_thuc">
 
                         <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer select-none mb-0">
@@ -334,6 +338,7 @@
         }
 
         const mapSP = {};
+        // Nạp dữ liệu sản phẩm
         document.querySelectorAll('#data_sanpham .sp-data').forEach(el => {
             let id = el.getAttribute('data-id');
             if(id) {
@@ -343,7 +348,9 @@
                     thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
                     mau_sac: decodeGo(el.getAttribute('data-mausac')), tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), url_hinh_anh: el.getAttribute('data-img'), 
                     ghi_chu: decodeGo(el.getAttribute('data-ghichu')), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: decodeGo(el.getAttribute('data-danhmuc')),
-                    thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value
+                    thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value,
+                    // Tính lại giá thực để so khớp logic
+                    gia_ban_thuc: parseFloat(el.getAttribute('data-giabanthuc')) || 0 
                 };
             }
         });
@@ -367,21 +374,21 @@
             if(ten) listTH.push(ten);
         });
 
-        // [MỚI] TẢI MẢNG KHUNG GIÁ (BIÊN LỢI NHUẬN) LÊN RAM JS
+        // Nạp khung giá
         var listBLN = [];
         document.querySelectorAll('#data_bln .bln-item').forEach(el => {
-            if (parseInt(el.getAttribute('data-trangthai')) === 1) { // Chỉ lấy khung đang bật
+            if (parseInt(el.getAttribute('data-trangthai')) === 1) { 
                 listBLN.push({
                     khung: parseFloat(el.getAttribute('data-khung')) || 0,
                     loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
                 });
             }
         });
-        // Sort lại cho chắc chắn từ bé đến lớn
         listBLN.sort((a, b) => a.khung - b.khung);
 
-        // Quét xong xóa Data Island cho nhẹ DOM
-        document.getElementById('data_island').remove();
+        // Xóa Data Island để nhẹ DOM
+        const island = document.getElementById('data_island');
+        if(island) island.remove();
 
         // --- CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
@@ -393,7 +400,6 @@
 
         let isEditingMode = false;
 
-        // Bắt sự kiện chọn Tag Danh Mục để sinh Mã Sản Phẩm và Chạy lại hàm Auto Giá
         tagifyDM.on('add', function(e) {
             if(isEditingMode) return; 
             if (tagifyDM.value.length > 0) {
@@ -402,7 +408,7 @@
                     if (document.getElementById('ma_san_pham').value === "") {
                         document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0');
                     }
-                    autoCalcForward(); // Gọi lại phép tính vì Danh mục có thể có Lợi nhuận cứng
+                    autoCalcForward(); 
                 }
             }
         });
@@ -422,63 +428,99 @@
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
 
         function autoCalcForward() {
-            if(isEditingMode) return;
+            // Lấy chế độ tính toán từ Dropdown
+            let mode = document.getElementById('cach_tinh_lai').value;
+            let inpLoiNhuan = document.getElementById('loi_nhuan');
+            
+            // Xử lý khóa/mở ô nhập lợi nhuận
+            if (mode === 'manual') {
+                inpLoiNhuan.readOnly = false;
+                inpLoiNhuan.classList.remove('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
+                inpLoiNhuan.classList.add('bg-white');
+            } else {
+                inpLoiNhuan.readOnly = true;
+                inpLoiNhuan.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
+                inpLoiNhuan.classList.remove('bg-white');
+            }
+
+            if(isEditingMode && mode === 'manual') return; // Nếu đang edit mà là manual thì ko tự tính lại đè lên
+
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                // 1. DÒ ƯU TIÊN 1: Lấy lợi nhuận cố định của Danh Mục (Nếu có)
-                let catMargin = 0;
-                const tags = tagifyDM.value;
-                if (tags && tags.length > 0) {
-                    const info = dicDanhMuc[tags[0].value];
-                    if (info && info.loiNhuan > 0) catMargin = info.loiNhuan; // Danh mục này có Set cứng % lãi
+                let loiNhuan = 0;
+
+                // LOGIC QUYẾT ĐỊNH % LỢI NHUẬN
+                if (mode === 'auto_cat') {
+                    // Ưu tiên Danh Mục
+                    const tags = tagifyDM.value;
+                    if (tags && tags.length > 0) {
+                        const info = dicDanhMuc[tags[0].value];
+                        if (info && info.loiNhuan > 0) loiNhuan = info.loiNhuan;
+                    }
+                    // Nếu Danh mục = 0 -> Tự động Fallback sang Khung giá
+                    if (loiNhuan === 0) mode = 'auto_price'; 
                 }
 
-                let loiNhuan = catMargin;
-
-                // 2. DÒ ƯU TIÊN 2: Nếu Danh Mục không Set (Lãi = 0) -> Nhảy vào dò bảng KHUNG GIÁ
-                if (loiNhuan === 0) {
+                if (mode === 'auto_price') {
+                    // Tìm trong List Khung Giá
                     for (let i = 0; i < listBLN.length; i++) {
                         if (giaNhap <= listBLN[i].khung) {
                             loiNhuan = listBLN[i].loiNhuan;
                             break;
                         }
                     }
-                    // Nếu giá nhập vượt trần mọi khung (Ví dụ > 3 Triệu) -> Lấy mốc % của Khung lớn nhất
                     if (loiNhuan === 0 && listBLN.length > 0) {
                         loiNhuan = listBLN[listBLN.length - 1].loiNhuan;
                     }
                 }
-                
-                // Hiển thị % lãi tự động bốc được cho nhân viên thấy
-                document.getElementById('loi_nhuan').value = loiNhuan;
 
-                // 3. Tính Lãi VNĐ
+                if (mode === 'manual') {
+                    loiNhuan = parseFloat(inpLoiNhuan.value) || 0;
+                } else {
+                    inpLoiNhuan.value = loiNhuan;
+                }
+
+                // TÍNH TIỀN
                 let laiVND = giaNhap * (loiNhuan / 100);
                 document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
 
-                // 4. Tính Giá Niêm Yết & Giá Thực 
                 let pSell = giaNhap + laiVND;
                 let pList = pSell;
                 if (giamGia > 0 && giamGia < 100) pList = pSell / (1 - (giamGia / 100));
                 
-                pList = round10k(pList); // Làm tròn gạch ngang
+                pList = round10k(pList);
                 document.getElementById('gia_ban_le').value = formatNumber(pList.toString());
 
-                let giaBanThuc = round10k(pList * (1 - (giamGia / 100))); // Làm tròn giá thu về
+                let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
                 document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
-            } else {
-                document.getElementById('loi_nhuan').value = "0"; document.getElementById('lai_vnd').value = "0"; 
-                document.getElementById('gia_ban_le').value = "0"; document.getElementById('gia_ban_thuc').value = "0";
-            }
+            } 
         }
 
         function autoCalcBackward() {
+            // Khi sửa giá bán lẻ, chế độ tự động chuyển sang Manual để giữ số liệu
+            document.getElementById('cach_tinh_lai').value = 'manual';
             let pList = getNum(document.getElementById('gia_ban_le').value);
+            let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
-            let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
-            document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
+            
+            // Tính ngược lợi nhuận
+            if (giaNhap > 0 && pList > 0) {
+                let giaBanThuc = pList * (1 - (giamGia / 100));
+                let laiVND = giaBanThuc - giaNhap;
+                let phanTramLai = (laiVND / giaNhap) * 100;
+                
+                document.getElementById('loi_nhuan').value = phanTramLai.toFixed(2);
+                document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
+                document.getElementById('gia_ban_thuc').value = formatNumber(round10k(giaBanThuc).toString());
+                
+                // Mở khóa ô nhập
+                let inp = document.getElementById('loi_nhuan');
+                inp.readOnly = false;
+                inp.classList.remove('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
+                inp.classList.add('bg-white');
+            }
         }
 
         // --- GIAO DIỆN ---
@@ -498,6 +540,10 @@
             document.getElementById('gia_ban_thuc').value = ""; document.getElementById('lai_vnd').value = ""; 
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
             document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
+            
+            // Mặc định chọn Auto Cat
+            document.getElementById('cach_tinh_lai').value = 'auto_cat';
+            
             document.getElementById('modalSP').classList.remove('hidden');
         }
         
@@ -505,7 +551,10 @@
 
         function editSP(id) {
             const sp = mapSP[id]; 
-            if(!sp) return;
+            if(!sp) {
+                console.error("Không tìm thấy SP ID:", id); // Log lỗi để debug
+                return;
+            }
             
             isEditingMode = true;
 
@@ -514,26 +563,57 @@
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
-            // Xây dựng lại giao diện Lợi nhuận để nhân viên không bỡ ngỡ khi Sửa
+            // LOGIC SUY LUẬN CHẾ ĐỘ TÍNH GIÁ CŨ
+            // Chúng ta tính thử xem % lợi nhuận hiện tại khớp với cái nào?
+            let currentMargin = 0;
+            if(sp.gia_nhap > 0) {
+                // Tính ngược margin thực tế từ Giá bán lẻ (chưa giảm giá)
+                let lai = sp.gia_ban_le - sp.gia_nhap;
+                if(sp.giam_gia > 0) {
+                     // Nếu có giảm giá, giá bán lẻ thường bị đẩy cao lên. 
+                     // Ta so sánh dựa trên giá bán thực nếu cần, hoặc đơn giản cứ để Manual
+                }
+                currentMargin = (lai / sp.gia_nhap) * 100;
+            }
+
+            // 1. Check Margin Danh Mục
             let catMargin = 0;
             if(sp.danh_muc) {
                 let firstDM = sp.danh_muc.split("|")[0]; let info = dicDanhMuc[firstDM];
                 if(info && info.loiNhuan > 0) catMargin = info.loiNhuan; 
             }
 
-            let currentLoiNhuan = catMargin;
-            if (currentLoiNhuan === 0) {
-                for (let i = 0; i < listBLN.length; i++) {
-                    if (sp.gia_nhap <= listBLN[i].khung) { currentLoiNhuan = listBLN[i].loiNhuan; break; }
-                }
-                if (currentLoiNhuan === 0 && listBLN.length > 0) currentLoiNhuan = listBLN[listBLN.length - 1].loiNhuan;
+            // 2. Check Margin Khung Giá
+            let priceMargin = 0;
+            for (let i = 0; i < listBLN.length; i++) {
+                if (sp.gia_nhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
             }
-            
-            document.getElementById('loi_nhuan').value = currentLoiNhuan; 
-            if(sp.gia_nhap > 0) document.getElementById('lai_vnd').value = formatNumber(Math.round(sp.gia_nhap * (currentLoiNhuan/100)).toString());
+            if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
 
-            // Đổ lại Giá thực tế (Bị ghi đè trong Db)
-            document.getElementById('gia_ban_thuc').value = formatNumber(sp.gia_ban_thuc.toString());
+            // 3. So khớp (Chấp nhận sai số nhỏ do làm tròn)
+            let selectMode = document.getElementById('cach_tinh_lai');
+            
+            if (Math.abs(currentMargin - catMargin) < 0.1 && catMargin > 0) {
+                selectMode.value = 'auto_cat';
+            } else if (Math.abs(currentMargin - priceMargin) < 0.1) {
+                selectMode.value = 'auto_price';
+            } else {
+                selectMode.value = 'manual';
+            }
+
+            // Gọi tính toán để fill các ô còn lại (nhưng cờ isEditingMode=true chặn việc đè giá bán lẻ)
+            // Tuy nhiên ta cần fill % lợi nhuận hiển thị
+            document.getElementById('loi_nhuan').value = currentMargin.toFixed(1);
+            if(sp.gia_nhap > 0) document.getElementById('lai_vnd').value = formatNumber(Math.round(sp.gia_ban_le - sp.gia_nhap).toString());
+            
+            // Xử lý khóa ô nhập nếu auto
+            if (selectMode.value !== 'manual') {
+                document.getElementById('loi_nhuan').readOnly = true;
+                document.getElementById('loi_nhuan').classList.add('bg-slate-100');
+            } else {
+                document.getElementById('loi_nhuan').readOnly = false;
+                document.getElementById('loi_nhuan').classList.remove('bg-slate-100');
+            }
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
@@ -556,6 +636,8 @@
 
             document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
+            
+            // Mở khóa tính toán sau khi load xong
             setTimeout(() => { isEditingMode = false; }, 500);
         }
 
