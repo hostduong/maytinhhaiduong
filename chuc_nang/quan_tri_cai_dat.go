@@ -11,9 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// =============================================================
+// 1. TRANG QUẢN LÝ CÀI ĐẶT
+// =============================================================
 func TrangQuanLyCaiDat(c *gin.Context) {
+	// [SAAS] Lấy thông tin Shop & User
+	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
-	kh, _ := core.LayKhachHang(userID)
+	
+	kh, _ := core.LayKhachHang(shopID, userID)
 
 	c.HTML(http.StatusOK, "quan_tri_cai_dat", gin.H{
 		"TieuDe":         "Cài đặt hệ thống",
@@ -21,20 +27,29 @@ func TrangQuanLyCaiDat(c *gin.Context) {
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
-		"ListDanhMuc":    core.LayDanhSachDanhMuc(),
-		"ListThuongHieu": core.LayDanhSachThuongHieu(),
-		"ListBLN":        core.LayDanhSachBienLoiNhuan(), // [MỚI] Truyền dữ liệu Khung giá ra View
+		
+		// [SAAS] Load dữ liệu theo Shop
+		"ListDanhMuc":    core.LayDanhSachDanhMuc(shopID),
+		"ListThuongHieu": core.LayDanhSachThuongHieu(shopID),
+		"ListBLN":        core.LayDanhSachBienLoiNhuan(shopID),
 	})
 }
 
-// API_LuuDanhMuc
+// =============================================================
+// 2. API DANH MỤC
+// =============================================================
 func API_LuuDanhMuc(c *gin.Context) {
+	// [SAAS] Context
+	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	
+	// Check Quyền
 	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
 
+	// Lấy dữ liệu
 	maDM := strings.TrimSpace(c.PostForm("ma_danh_muc"))
 	tenDM := strings.TrimSpace(c.PostForm("ten_danh_muc"))
 	dmMe := strings.TrimSpace(c.PostForm("danh_muc_me"))
@@ -43,6 +58,7 @@ func API_LuuDanhMuc(c *gin.Context) {
 	trangThai := 0; if c.PostForm("trang_thai") == "on" { trangThai = 1 }
 	isNew := c.PostForm("is_new") == "true"
 
+	// Validate
 	if maDM == "" || tenDM == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã và Tên danh mục không được để trống!"})
 		return
@@ -52,17 +68,20 @@ func API_LuuDanhMuc(c *gin.Context) {
 		return
 	}
 
-	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 	var targetRow int
 
 	if isNew {
-		if _, ok := core.LayChiTietDanhMuc(maDM); ok {
+		// [SAAS] Check trùng lặp trong Shop này
+		if _, ok := core.LayChiTietDanhMuc(shopID, maDM); ok {
 			c.JSON(200, gin.H{"status": "error", "msg": "Mã danh mục này đã tồn tại!"})
 			return
 		}
-		targetRow = core.DongBatDau_DanhMuc + len(core.LayDanhSachDanhMuc())
+		
+		// Tính dòng mới
+		targetRow = core.DongBatDau_DanhMuc + len(core.LayDanhSachDanhMuc(shopID))
+		
 		newDM := &core.DanhMuc{
-			SpreadsheetID:  sheetID,
+			SpreadsheetID:  shopID, // Gán ShopID
 			DongTrongSheet: targetRow,
 			MaDanhMuc:      strings.ToUpper(maDM),
 			TenDanhMuc:     tenDM,
@@ -74,12 +93,15 @@ func API_LuuDanhMuc(c *gin.Context) {
 		}
 		core.ThemDanhMucVaoRam(newDM) 
 	} else {
-		found, ok := core.LayChiTietDanhMuc(maDM)
+		// [SAAS] Tìm để sửa
+		found, ok := core.LayChiTietDanhMuc(shopID, maDM)
 		if !ok {
 			c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy danh mục để sửa!"})
 			return
 		}
 		targetRow = found.DongTrongSheet
+		
+		// Update RAM an toàn
 		func() {
 			core.KhoaHeThong.Lock()
 			defer core.KhoaHeThong.Unlock()
@@ -91,21 +113,28 @@ func API_LuuDanhMuc(c *gin.Context) {
 		}()
 	}
 
+	// [SAAS] Ghi Sheet
 	ghi := core.ThemVaoHangCho
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_MaDanhMuc, strings.ToUpper(maDM))
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_TenDanhMuc, tenDM)
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_DanhMucMe, dmMe)
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
-	ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_TrangThai, trangThai)
-	if isNew { ghi(sheetID, "DANH_MUC", targetRow, core.CotDM_Slot, 0) }
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_MaDanhMuc, strings.ToUpper(maDM))
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_TenDanhMuc, tenDM)
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_DanhMucMe, dmMe)
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
+	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_TrangThai, trangThai)
+	
+	if isNew { ghi(shopID, "DANH_MUC", targetRow, core.CotDM_Slot, 0) }
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Danh mục thành công!"})
 }
 
-// API_LuuThuongHieu
+// =============================================================
+// 3. API THƯƠNG HIỆU
+// =============================================================
 func API_LuuThuongHieu(c *gin.Context) {
+	// [SAAS] Context
+	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	
 	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
@@ -123,13 +152,14 @@ func API_LuuThuongHieu(c *gin.Context) {
 		return
 	}
 
-	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 	var targetRow int
 
 	if isNew {
-		targetRow = core.DongBatDau_ThuongHieu + len(core.LayDanhSachThuongHieu())
+		// Tính dòng mới
+		targetRow = core.DongBatDau_ThuongHieu + len(core.LayDanhSachThuongHieu(shopID))
+		
 		newTH := &core.ThuongHieu{
-			SpreadsheetID:  sheetID,
+			SpreadsheetID:  shopID,
 			DongTrongSheet: targetRow,
 			MaThuongHieu:   strings.ToUpper(maTH),
 			TenThuongHieu:  tenTH,
@@ -139,8 +169,9 @@ func API_LuuThuongHieu(c *gin.Context) {
 		}
 		core.ThemThuongHieuVaoRam(newTH) 
 	} else {
+		// [SAAS] Tìm trong list của shop
 		var found *core.ThuongHieu
-		for _, item := range core.LayDanhSachThuongHieu() {
+		for _, item := range core.LayDanhSachThuongHieu(shopID) {
 			if item.MaThuongHieu == maTH { found = item; break }
 		}
 		if found == nil {
@@ -158,19 +189,25 @@ func API_LuuThuongHieu(c *gin.Context) {
 		}()
 	}
 
+	// [SAAS] Ghi Sheet
 	ghi := core.ThemVaoHangCho
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MaThuongHieu, strings.ToUpper(maTH))
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TenThuongHieu, tenTH)
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_LogoUrl, logoUrl)
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_MoTa, moTa)
-	ghi(sheetID, "THUONG_HIEU", targetRow, core.CotTH_TrangThai, trangThai)
+	ghi(shopID, "THUONG_HIEU", targetRow, core.CotTH_MaThuongHieu, strings.ToUpper(maTH))
+	ghi(shopID, "THUONG_HIEU", targetRow, core.CotTH_TenThuongHieu, tenTH)
+	ghi(shopID, "THUONG_HIEU", targetRow, core.CotTH_LogoUrl, logoUrl)
+	ghi(shopID, "THUONG_HIEU", targetRow, core.CotTH_MoTa, moTa)
+	ghi(shopID, "THUONG_HIEU", targetRow, core.CotTH_TrangThai, trangThai)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Thương hiệu thành công!"})
 }
 
-// [MỚI] API_LuuBienLoiNhuan
+// =============================================================
+// 4. API BIÊN LỢI NHUẬN
+// =============================================================
 func API_LuuBienLoiNhuan(c *gin.Context) {
+	// [SAAS] Context
+	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	
 	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
@@ -187,13 +224,12 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 		return
 	}
 
-	sheetID := cau_hinh.BienCauHinh.IdFileSheet
 	var targetRow int
 
 	if isNew {
-		targetRow = core.DongBatDau_BienLoiNhuan + len(core.LayDanhSachBienLoiNhuan())
+		targetRow = core.DongBatDau_BienLoiNhuan + len(core.LayDanhSachBienLoiNhuan(shopID))
 		newBLN := &core.BienLoiNhuan{
-			SpreadsheetID:  sheetID,
+			SpreadsheetID:  shopID,
 			DongTrongSheet: targetRow,
 			KhungGiaNhap:   khungGia,
 			BienLoiNhuan:   loiNhuan,
@@ -202,27 +238,34 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 		core.ThemBienLoiNhuanVaoRam(newBLN) 
 	} else {
 		targetRow = dongCu
-		core.SuaBienLoiNhuanTrongRam(dongCu, khungGia, loiNhuan, trangThai) // [ĐÃ SỬA] Update RAM an toàn
+		// [SAAS] Truyền ShopID để tìm đúng list
+		core.SuaBienLoiNhuanTrongRam(shopID, dongCu, khungGia, loiNhuan, trangThai) 
 	}
 
+	// [SAAS] Ghi Sheet
 	ghi := core.ThemVaoHangCho
-	ghi(sheetID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_KhungGiaNhap, khungGia)
-	ghi(sheetID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_BienLoiNhuan, loiNhuan)
-	ghi(sheetID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_TrangThai, trangThai)
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_KhungGiaNhap, khungGia)
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_BienLoiNhuan, loiNhuan)
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_TrangThai, trangThai)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Khung giá thành công!"})
 }
 
-// [ĐÃ FIX DEADLOCK] API Đồng bộ Slot
+// =============================================================
+// 5. API ĐỒNG BỘ SLOT (TÍNH TOÁN THEO SHOP)
+// =============================================================
 func API_DongBoSlotDanhMuc(c *gin.Context) {
+	// [SAAS] Context
+	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	
 	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
 
-	// BƯỚC 1: TÍNH TOÁN (Không dùng Lock tổng để tránh treo hệ thống khi quét nhiều SP)
-	listSP := core.LayDanhSachSanPham() // Hàm này đã tự quản lý RLock bên trong, rất an toàn
+	// BƯỚC 1: QUÉT SẢN PHẨM CỦA SHOP
+	listSP := core.LayDanhSachSanPham(shopID) // [SAAS]
 	
 	mapMaxSlot := make(map[string]int) 
 	
@@ -231,7 +274,7 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		ketThucSo := len(maSP)
 		batDauSo := ketThucSo
 		
-		// Thuật toán tách số lùi từ cuối
+		// Thuật toán tách số lùi
 		for i := len(maSP) - 1; i >= 0; i-- {
 			char := maSP[i]
 			if char >= '0' && char <= '9' {
@@ -253,23 +296,23 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		}
 	}
 
-	// BƯỚC 2: CẬP NHẬT (Quan trọng: Lấy danh sách TRƯỚC KHI Lock để tránh Deadlock)
-	listDM := core.LayDanhSachDanhMuc() 
+	// BƯỚC 2: CẬP NHẬT SLOT CỦA SHOP
+	listDM := core.LayDanhSachDanhMuc(shopID) // [SAAS]
 
-	core.KhoaHeThong.Lock() // Bắt đầu Khóa Ghi
+	core.KhoaHeThong.Lock() // Khóa
 	countUpdate := 0
 	
 	for _, dm := range listDM {
 		maxThucTe, coDuLieu := mapMaxSlot[dm.MaDanhMuc]
 		
-		// Nếu tìm thấy số thực tế lớn hơn Slot đang lưu -> Update ngay
 		if coDuLieu && maxThucTe > dm.Slot {
 			dm.Slot = maxThucTe
-			core.ThemVaoHangCho(cau_hinh.BienCauHinh.IdFileSheet, "DANH_MUC", dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
+			// [SAAS] Ghi xuống Sheet của Shop
+			core.ThemVaoHangCho(shopID, "DANH_MUC", dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
 			countUpdate++
 		}
 	}
-	core.KhoaHeThong.Unlock() // Mở khóa ngay lập tức
+	core.KhoaHeThong.Unlock() // Mở khóa
 
 	msg := "Đã đồng bộ xong. Các bộ đếm đều chính xác."
 	if countUpdate > 0 {
