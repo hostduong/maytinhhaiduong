@@ -10,7 +10,11 @@ import (
 
 // API_LayDanhSachSanPham
 func API_LayDanhSachSanPham(c *gin.Context) {
-	danhSach := core.LayDanhSachSanPham()
+	shopID := c.GetString("SHOP_ID") // [SAAS] Quan trọng
+	
+	// Lấy danh sách của đúng Shop đó
+	danhSach := core.LayDanhSachSanPham(shopID)
+	
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong",
 		"so_luong":   len(danhSach),
@@ -18,10 +22,11 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 	})
 }
 
-// API_LayMenu (TỰ ĐỘNG TẠO TỪ SẢN PHẨM)
+// API_LayMenu (Tạo Menu động từ sản phẩm của Shop)
 func API_LayMenu(c *gin.Context) {
-	// Logic mới: Quét toàn bộ sản phẩm để lấy danh sách Category duy nhất
-	dsSP := core.LayDanhSachSanPham()
+	shopID := c.GetString("SHOP_ID") // [SAAS]
+	
+	dsSP := core.LayDanhSachSanPham(shopID)
 	uniqueDM := make(map[string]bool)
 
 	for _, sp := range dsSP {
@@ -34,7 +39,6 @@ func API_LayMenu(c *gin.Context) {
 		}
 	}
 
-	// Chuyển map thành list struct để Frontend dễ dùng (giả lập cấu trúc cũ)
 	var menu []map[string]string
 	for dm := range uniqueDM {
 		menu = append(menu, map[string]string{
@@ -43,18 +47,18 @@ func API_LayMenu(c *gin.Context) {
 		})
 	}
 
-	banner := map[string]interface{}{} 
-
 	c.JSON(http.StatusOK, gin.H{
-		"danh_muc": menu, // Trả về list danh mục tự động
-		"cau_hinh": banner,
+		"danh_muc": menu,
+		"cau_hinh": map[string]interface{}{}, 
 	})
 }
 
 // API_ChiTietSanPham
 func API_ChiTietSanPham(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // [SAAS]
 	id := c.Param("id")
-	sp, tonTai := core.LayChiTietSanPham(id)
+	
+	sp, tonTai := core.LayChiTietSanPham(shopID, id)
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
