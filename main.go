@@ -24,13 +24,15 @@ import (
 var f embed.FS
 
 func main() {
-	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG...")
+	log.Println(">>> [SYSTEM] KHỞI ĐỘNG HỆ THỐNG SAAS...")
 
 	cau_hinh.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang()
 	core.KhoiTaoWorkerGhiSheet()
 
-	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data...")
+	// [BOOT] Nạp dữ liệu cho Shop Mặc định (Shop Gốc)
+	// Nếu bạn muốn nạp sẵn cho các Shop khác, hãy loop qua cau_hinh.MapDomainShop
+	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data (Default Shop)...")
 	core.NapPhanQuyen("")
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
@@ -40,28 +42,30 @@ func main() {
 
 	router := gin.Default()
 
-	// --- [QUAN TRỌNG] Đăng ký các hàm hỗ trợ cho HTML (FuncMap) ---
+	// --- [QUAN TRỌNG] KÍCH HOẠT SAAS MIDDLEWARE ---
+	// Middleware này sẽ nhìn Domain để xác định ShopID và gắn vào Context
+	router.Use(chuc_nang.XacDinhShop)
+	// ----------------------------------------------
+
+	// Đăng ký FuncMap cho HTML
 	funcMap := template.FuncMap{
 		"split": strings.Split,
-		
-		// 1. Hàm format tiền: 1000000 -> 1.000.000
 		"format_money": func(n float64) string {
 			p := message.NewPrinter(language.Vietnamese)
 			return p.Sprintf("%.0f", n)
 		},
-
-		// 2. Hàm chuyển struct sang JSON (Để JS dùng an toàn)
 		"json": func(v interface{}) template.JS {
 			a, _ := json.Marshal(v)
 			return template.JS(a)
 		},
 	}
-	// -------------------------------------------------------------
 
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// --- ĐỊNH NGHĨA ROUTER (Giữ nguyên như cũ) ---
+	// --- ĐỊNH NGHĨA ROUTER ---
+	
+	// Public
 	router.GET("/", chuc_nang.TrangChu)
 	router.GET("/san-pham/:id", chuc_nang.ChiTietSanPham)
 	
@@ -71,10 +75,10 @@ func main() {
 	router.GET("/register", chuc_nang.TrangDangKy)
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
-	
-	// User Profile
-	router.GET("/tai-khoan", chuc_nang.TrangHoSo)
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau)
+	
+	// User Profile (Cần Login)
+	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo) // Thêm middleware check login cho chắc
 
 	// API Public
 	api := router.Group("/api")
@@ -97,7 +101,7 @@ func main() {
 		userApi.POST("/send-otp-pin", chuc_nang.API_GuiOTPPin)
 	}
 
-	// Admin
+	// Admin Area
 	admin := router.Group("/admin")
 	admin.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan) 
 	{
@@ -117,13 +121,13 @@ func main() {
 		admin.POST("/api/category/sync-slots", chuc_nang.API_DongBoSlotDanhMuc)
 	}
 
-	port := os.Getenv("PORT")
+	port := cau_hinh.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
 
 	srv := &http.Server{ Addr: "0.0.0.0:" + port, Handler: router }
 
 	go func() {
-		log.Printf("✅ Server chạy tại http://0.0.0.0:%s", port)
+		log.Printf("✅ Server đang chạy tại http://0.0.0.0:%s", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ LỖI SERVER: %v", err)
 		}
