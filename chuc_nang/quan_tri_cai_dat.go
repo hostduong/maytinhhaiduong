@@ -4,10 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"app/cau_hinh"
 	"app/core"
-
 	"github.com/gin-gonic/gin"
 )
 
