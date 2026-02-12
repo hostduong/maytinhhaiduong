@@ -20,11 +20,16 @@ type DuLieuDashboard struct {
 }
 
 func TrangTongQuan(c *gin.Context) {
+	// [SAAS] Lấy Context
+	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	vaiTro := c.GetString("USER_ROLE")
 	
-	kh, _ := core.LayKhachHang(userID)
-	stats := tinhToanThongKe()
+	// Lấy thông tin user (truyền shopID)
+	kh, _ := core.LayKhachHang(shopID, userID)
+	
+	// Tính thống kê cho Shop này
+	stats := tinhToanThongKe(shopID)
 
 	c.HTML(http.StatusOK, "quan_tri", gin.H{
 		"TieuDe":       "Tổng quan hệ thống",
@@ -36,55 +41,55 @@ func TrangTongQuan(c *gin.Context) {
 	})
 }
 
-// API Reload dữ liệu (Đồng bộ)
+// API Reload dữ liệu (Đồng bộ cho Shop hiện tại)
 func API_NapLaiDuLieu(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	
 	if vaiTro != "admin_root" && vaiTro != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"trang_thai": "loi", "thong_diep": "Không có quyền!"})
 		return
 	}
 
-	// Chạy Goroutine để không treo request
 	go func() {
 		core.HeThongDangBan = true
 		
-		core.NapPhanQuyen("") 
-		core.NapDanhMuc("")   
-		core.NapThuongHieu("")
-		core.NapBienLoiNhuan("")
-		core.NapSanPham("")
-		core.NapKhachHang("")
+		// Nạp lại toàn bộ dữ liệu của Shop này
+		core.NapPhanQuyen(shopID) 
+		core.NapDanhMuc(shopID)   
+		core.NapThuongHieu(shopID)
+		core.NapBienLoiNhuan(shopID)
+		core.NapSanPham(shopID)
+		core.NapKhachHang(shopID)
 		
 		core.HeThongDangBan = false
 	}()
 
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong", 
-		"thong_diep": "Đang tiến hành đồng bộ toàn bộ dữ liệu (Danh mục, Thương hiệu, Sản phẩm, Khách hàng)...",
+		"thong_diep": "Đang tiến hành đồng bộ dữ liệu từ Sheet...",
 	})
 }
 
-// Hàm tính toán thống kê (Dummy logic để hiển thị dashboard)
-func tinhToanThongKe() DuLieuDashboard {
+// Hàm tính toán thống kê (Theo Shop)
+func tinhToanThongKe(shopID string) DuLieuDashboard {
 	var kq DuLieuDashboard
 
-	// Lock Read để lấy số lượng chính xác
 	core.KhoaHeThong.RLock()
 	defer core.KhoaHeThong.RUnlock()
 
-	kq.TongSanPham = len(core.LayDanhSachSanPham())
-	kq.TongKhachHang = len(core.LayDanhSachKhachHang())
+	// Lấy danh sách của Shop ID
+	kq.TongSanPham = len(core.LayDanhSachSanPham(shopID))
+	kq.TongKhachHang = len(core.LayDanhSachKhachHang(shopID))
 	
-	// Tạm thời để doanh thu bằng 0 (Sẽ update sau khi có module Đơn hàng)
 	kq.TongDoanhThu = 0
 	kq.DonHangHomNay = 0
 	
-	// Tạo biểu đồ 7 ngày gần nhất
 	for i := 6; i >= 0; i-- {
 		t := time.Now().AddDate(0, 0, -i)
 		label := t.Format("02/01")
 		kq.ChartNhan = append(kq.ChartNhan, label)
-		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0) // Placeholder
+		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0) 
 	}
 
 	return kq
