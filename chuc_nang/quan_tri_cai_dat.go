@@ -212,3 +212,70 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Khung giá thành công!"})
 }
+
+// [MỚI] API Đồng bộ lại Slot (Bộ đếm) cho Danh mục dựa trên dữ liệu Sản phẩm thực tế
+func API_DongBoSlotDanhMuc(c *gin.Context) {
+	vaiTro := c.GetString("USER_ROLE")
+	if vaiTro != "admin_root" && vaiTro != "admin" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
+		return
+	}
+
+	core.KhoaHeThong.Lock()
+	defer core.KhoaHeThong.Unlock()
+
+	// 1. Quét toàn bộ sản phẩm để tìm số Max của từng Prefix
+	mapMaxSlot := make(map[string]int) // Key: Prefix (VD: MAIN), Value: Max Number (VD: 45)
+	
+	listSP := core.LayDanhSachSanPham()
+	for _, sp := range listSP {
+		maSP := strings.TrimSpace(sp.MaSanPham)
+		// Logic tách số: Chạy từ cuối chuỗi về đầu, lấy hết các ký tự số
+		ketThucSo := len(maSP)
+		batDauSo := ketThucSo
+		
+		for i := len(maSP) - 1; i >= 0; i-- {
+			char := maSP[i]
+			if char >= '0' && char <= '9' {
+				batDauSo = i
+			} else {
+				break // Gặp chữ cái thì dừng
+			}
+		}
+
+		// Nếu tìm thấy đoạn số ở cuối
+		if batDauSo < ketThucSo {
+			prefix := strings.ToUpper(maSP[0:batDauSo]) // Phần chữ (VD: MAIN)
+			soStr := maSP[batDauSo:ketThucSo]           // Phần số (VD: 0045)
+			
+			so, err := strconv.Atoi(soStr)
+			if err == nil {
+				if so > mapMaxSlot[prefix] {
+					mapMaxSlot[prefix] = so
+				}
+			}
+		}
+	}
+
+	// 2. Cập nhật lại Slot cho Danh Mục
+	countUpdate := 0
+	for _, dm := range core.LayDanhSachDanhMuc() {
+		maxThucTe, coDuLieu := mapMaxSlot[dm.MaDanhMuc]
+		
+		// Chỉ cập nhật nếu số thực tế lớn hơn Slot hiện tại
+		// Hoặc nếu Slot hiện tại bị mất (về 0) mà thực tế lại có hàng
+		if coDuLieu && maxThucTe > dm.Slot {
+			dm.Slot = maxThucTe
+			// Ghi đè lại vào Sheet
+			core.ThemVaoHangCho(cau_hinh.BienCauHinh.IdFileSheet, "DANH_MUC", dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
+			countUpdate++
+		}
+	}
+
+	msg := "Hệ thống đã đồng bộ xong. Không có lệch lạc nào."
+	if countUpdate > 0 {
+		msg = "Đã phát hiện và đồng bộ lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục."
+	}
+
+	c.JSON(200, gin.H{"status": "ok", "msg": msg})
+}
