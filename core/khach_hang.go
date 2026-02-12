@@ -9,7 +9,7 @@ import (
 
 // CẤU HÌNH CỘT (A -> Z theo yêu cầu Mới)
 const (
-	DongBatDau_KhachHang = 2
+	DongBatDau_KhachHang = 11
 
 	CotKH_MaKhachHang        = 0  // A
 	CotKH_TenDangNhap        = 1  // B
@@ -106,26 +106,21 @@ type MessageInfo struct {
 // BỘ NHỚ ĐA SHOP: Map[ShopID] -> List
 var (
 	CacheKhachHang    = make(map[string][]*KhachHang)
-	CacheMapKhachHang = make(map[string]map[string]*KhachHang) // Key: ShopID__MaKH
+	// Sửa lại thành map phẳng để đồng bộ với TaoCompositeKey
+	CacheMapKhachHang = make(map[string]*KhachHang) 
 )
 
 // HÀM NẠP (NHẬN SHOP ID)
 func NapKhachHang(shopID string) {
 	raw, err := loadSheetData(shopID, "KHACH_HANG")
-	if err != nil {
-		return
-	}
+	if err != nil { return }
 
 	list := []*KhachHang{}
-
+	
 	for i, r := range raw {
-		if i < DongBatDau_KhachHang-1 {
-			continue
-		}
+		if i < DongBatDau_KhachHang-1 { continue }
 		maKH := layString(r, CotKH_MaKhachHang)
-		if maKH == "" {
-			continue
-		}
+		if maKH == "" { continue }
 
 		kh := &KhachHang{
 			SpreadsheetID:  shopID,
@@ -138,8 +133,8 @@ func NapKhachHang(shopID string) {
 			VaiTroQuyenHan: layString(r, CotKH_VaiTroQuyenHan),
 			ChucVu:         layString(r, CotKH_ChucVu),
 			TrangThai:      layInt(r, CotKH_TrangThai),
-			TenKhachHang:   layString(r, CotKH_TenKhachHang),
 			NguonKhachHang: layString(r, CotKH_NguonKhachHang),
+			TenKhachHang:   layString(r, CotKH_TenKhachHang),
 			DienThoai:      layString(r, CotKH_DienThoai),
 			AnhDaiDien:     layString(r, CotKH_AnhDaiDien),
 			DiaChi:         layString(r, CotKH_DiaChi),
@@ -153,10 +148,8 @@ func NapKhachHang(shopID string) {
 
 		// PARSE JSON
 		_ = json.Unmarshal([]byte(layString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
-		if kh.RefreshTokens == nil {
-			kh.RefreshTokens = make(map[string]TokenInfo)
-		}
-
+		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TokenInfo) }
+		
 		_ = json.Unmarshal([]byte(layString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
@@ -165,11 +158,8 @@ func NapKhachHang(shopID string) {
 		_ = json.Unmarshal([]byte(layString(r, CotKH_InboxJson)), &kh.Inbox)
 
 		list = append(list, kh)
-
+		
 		// Map lookup
-		if CacheMapKhachHang[shopID] == nil {
-			CacheMapKhachHang[shopID] = make(map[string]*KhachHang)
-		}
 		key := TaoCompositeKey(shopID, maKH)
 		CacheMapKhachHang[key] = kh
 	}
@@ -189,13 +179,11 @@ func LayDanhSachKhachHang(shopID string) []*KhachHang {
 func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
+	
 	list := CacheKhachHang[shopID]
 	for _, kh := range list {
 		if info, ok := kh.RefreshTokens[cookie]; ok {
-			if time.Now().Unix() > info.ExpiresAt {
-				return nil, false
-			}
+			if time.Now().Unix() > info.ExpiresAt { return nil, false }
 			return kh, true
 		}
 	}
@@ -205,17 +193,13 @@ func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-
+	
 	input = strings.ToLower(strings.TrimSpace(input))
 	list := CacheKhachHang[shopID]
-
+	
 	for _, kh := range list {
-		if strings.ToLower(kh.TenDangNhap) == input {
-			return kh, true
-		}
-		if kh.Email != "" && strings.ToLower(kh.Email) == input {
-			return kh, true
-		}
+		if strings.ToLower(kh.TenDangNhap) == input { return kh, true }
+		if kh.Email != "" && strings.ToLower(kh.Email) == input { return kh, true }
 	}
 	return nil, false
 }
@@ -226,16 +210,7 @@ func TaoMaKhachHangMoi(shopID string) string {
 	for {
 		id := LayChuoiSoNgauNhien(19)
 		key := TaoCompositeKey(shopID, id)
-		// Check trong Map của shop đó
-		exists := false
-		if shopMap, ok := CacheMapKhachHang[shopID]; ok {
-			if _, tonTai := shopMap[key]; tonTai {
-				exists = tonTai
-			}
-		}
-		if !exists {
-			return id
-		}
+		if _, exist := CacheMapKhachHang[key]; !exist { return id }
 	}
 }
 
@@ -258,8 +233,5 @@ func ThemKhachHangVaoRam(kh *KhachHang) {
 	sID := kh.SpreadsheetID
 	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
 	key := TaoCompositeKey(sID, kh.MaKhachHang)
-	if CacheMapKhachHang[sID] == nil {
-		CacheMapKhachHang[sID] = make(map[string]*KhachHang)
-	}
 	CacheMapKhachHang[key] = kh
 }
