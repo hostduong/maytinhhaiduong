@@ -194,3 +194,11 @@ func ToJSON(v interface{}) string {
 	b, _ := json.Marshal(v)
 	return string(b)
 }
+func LayKhachHang(shopID, maKH string) (*KhachHang, bool) {
+    KhoaHeThong.RLock()
+    defer KhoaHeThong.RUnlock()
+    key := TaoCompositeKey(shopID, maKH)
+    kh, ok := CacheMapKhachHang[key]
+    return kh, ok
+}
+
