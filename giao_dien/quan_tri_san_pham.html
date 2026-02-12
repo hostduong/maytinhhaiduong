@@ -25,13 +25,9 @@
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
-        #gia_ban_le { color: #e11d48; }
-        #gia_ban_thuc { color: #059669; }
-
-        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; animation: fadeIn 0.2s; }
-        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; }
-        .btn-remove-img:hover { background: #e11d48; color: white; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hiệu ứng màu chữ trong Dropdown */
+        option span.red-text { color: red; font-weight: bold; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -47,22 +43,10 @@
                 {{ end }}
             {{ end }}
         </div>
-        
-        <div id="data_thuonghieu">
-            {{ range .ListThuongHieu }}
-                {{ if ne .TenThuongHieu "" }}<div class="th-item" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}
-            {{ end }}
-        </div>
-
-        <div id="data_bln">
-            {{ range .ListBLN }}
-                <div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>
-            {{ end }}
-        </div>
-        
+        <div id="data_thuonghieu">{{ range .ListThuongHieu }}{{ if ne .TenThuongHieu "" }}<div class="th-item" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}{{ end }}</div>
+        <div id="data_bln">{{ range .ListBLN }}<div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>{{ end }}</div>
         <div id="data_sanpham">
-            {{ range .DanhSach }}
-            {{ if .MaSanPham }}
+            {{ range .DanhSach }}{{ if .MaSanPham }}
             <div class="sp-data"
                 data-id="{{ .MaSanPham }}" 
                 data-ten="{{ urlquery .TenSanPham }}" 
@@ -83,8 +67,7 @@
                 <textarea class="t-thongso">{{ .ThongSo }}</textarea>
                 <textarea class="t-mota">{{ .MoTaChiTiet }}</textarea>
             </div>
-            {{ end }}
-            {{ end }}
+            {{ end }}{{ end }}
         </div>
     </div>
 
@@ -148,8 +131,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                    Sửa
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
                                 </button>
                             </td>
                         </tr>
@@ -162,12 +144,8 @@
 
     <div id="modalSP" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[96vh]">
-            
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-xl">
-                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="modalTitle">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                    Thêm Sản Phẩm Mới
-                </h3>
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                 <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition">✕</button>
             </div>
             
@@ -190,14 +168,8 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label>Tên hiển thị rút gọn</label>
-                                    <input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn hoặc menu...">
-                                </div>
-                                <div>
-                                    <label>Mã SKU (Lưu kho)</label>
-                                    <input type="text" name="sku" id="sku" class="input-premium font-mono" placeholder="Để trống nếu không có mã riêng...">
-                                </div>
+                                <div><label>Tên hiển thị rút gọn</label><input type="text" name="ten_rut_gon" id="ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn hoặc menu..."></div>
+                                <div><label>Mã SKU (Lưu kho)</label><input type="text" name="sku" id="sku" class="input-premium font-mono" placeholder="Để trống nếu không có mã riêng..."></div>
                             </div>
                         </div>
                     </div>
@@ -205,14 +177,8 @@
                     <div class="form-section">
                         <div class="section-title">🏷️ Phân loại & Thuộc tính</div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
-                            <div>
-                                <label>Danh Mục <span class="text-red-500">*</span></label>
-                                <input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục...">
-                            </div>
-                            <div>
-                                <label>Thương hiệu</label>
-                                <input name="ma_thuong_hieu" id="ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu...">
-                            </div>
+                            <div><label>Danh Mục <span class="text-red-500">*</span></label><input name="ma_danh_muc" id="ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục..."></div>
+                            <div><label>Thương hiệu</label><input name="ma_thuong_hieu" id="ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                             <div><label>Đơn vị tính</label><input name="don_vi" id="don_vi" class="input-premium" placeholder="Cái, Bộ..."></div>
@@ -222,11 +188,7 @@
                                 <label>Thời gian bảo hành</label>
                                 <div class="flex gap-2 items-stretch">
                                     <input type="number" name="bao_hanh_num" id="bao_hanh_num" class="input-premium text-center m-0" style="width: 45%" placeholder="36">
-                                    <select name="bao_hanh_unit" id="bao_hanh_unit" class="input-premium cursor-pointer m-0" style="width: 55%">
-                                        <option value="Tháng">Tháng</option>
-                                        <option value="Năm">Năm</option>
-                                        <option value="Ngày">Ngày</option>
-                                    </select>
+                                    <select name="bao_hanh_unit" id="bao_hanh_unit" class="input-premium cursor-pointer m-0" style="width: 55%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option><option value="Ngày">Ngày</option></select>
                                 </div>
                             </div>
                         </div>
@@ -236,42 +198,40 @@
                         <div class="section-title flex justify-between">
                             <span>💰 Định giá Kinh Doanh</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); autoCalcForward()">
+                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions()">
                             </div>
                             
-                            <div class="md:col-span-2">
-                                <label>Quy tắc tính lãi</label>
-                                <select id="cach_tinh_lai" class="input-premium bg-white cursor-pointer font-medium text-slate-700" onchange="autoCalcForward()">
-                                    <option value="auto_cat">🔷 Theo Danh Mục (Ưu tiên)</option>
-                                    <option value="auto_price">🔶 Theo Khung Giá Nhập</option>
-                                    <option value="manual">✍️ Tự nhập tay</option>
+                            <div class="md:col-span-1">
+                                <label>Quy tắc tính lãi & Biên độ %</label>
+                                <select id="smart_profit_select" class="input-premium bg-white cursor-pointer font-bold text-slate-700" onchange="applySmartProfit()">
+                                    <option value="0">--- Vui lòng nhập giá vốn ---</option>
                                 </select>
+                                <input type="hidden" id="loi_nhuan" value="0">
                             </div>
 
                             <div>
-                                <label>Biên Lợi Nhuận (%)</label>
-                                <input type="number" id="loi_nhuan" class="input-premium text-center font-bold text-blue-600" placeholder="0" onkeyup="autoCalcForward()" readonly>
+                                <label>Lãi VNĐ (Trước Thuế)</label>
+                                <input type="text" id="lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                             <div>
-                                <label>Lãi dự kiến (VNĐ)</label>
-                                <input type="text" id="lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
+                                <label>Giá Niêm Yết (Gạch ngang trên Web)</label>
+                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                             <div>
                                 <label>Giảm giá Khuyến mãi (%)</label>
-                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="autoCalcForward()" onchange="autoCalcForward()">
+                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="renderSmartProfitOptions(); applySmartProfit()">
                             </div>
                             <div>
-                                <label>Giá Bán Ra (Niêm yết)</label>
-                                <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                <label class="text-emerald-700">Giá Bán Ra Thực Tế (Sau KM)</label>
+                                <input type="text" name="gia_ban_thuc" id="gia_ban_thuc" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-xl" placeholder="0">
                             </div>
                         </div>
-                        <input type="hidden" name="gia_ban_thuc" id="gia_ban_thuc">
 
                         <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer select-none mb-0">
@@ -286,26 +246,15 @@
                         <div class="mb-5">
                             <div class="flex justify-between items-center mb-2">
                                 <label style="margin-bottom:0">Danh sách Link ảnh (URL)</label>
-                                <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">
-                                    + Thêm ảnh
-                                </button>
+                                <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
                             </div>
                             <div id="imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label>Thông số kỹ thuật (Gạch đầu dòng)</label>
-                                <textarea name="thong_so" id="thong_so" rows="5" class="input-premium font-mono text-sm" placeholder="- Socket: LGA 1700&#10;- Chipset: H610..."></textarea>
-                            </div>
-                            <div>
-                                <label>Bài viết mô tả chi tiết</label>
-                                <textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="5" class="input-premium" placeholder="Hỗ trợ nội dung HTML..."></textarea>
-                            </div>
+                            <div><label>Thông số kỹ thuật</label><textarea name="thong_so" id="thong_so" rows="5" class="input-premium font-mono text-sm"></textarea></div>
+                            <div><label>Bài viết mô tả</label><textarea name="mo_ta_chi_tiet" id="mo_ta_chi_tiet" rows="5" class="input-premium"></textarea></div>
                         </div>
-                        <div class="mt-4">
-                            <label>Ghi chú nội bộ (Khách không thấy)</label>
-                            <input type="text" name="ghi_chu" id="ghi_chu" class="input-premium bg-yellow-50 text-yellow-800 border-yellow-200" placeholder="Ghi chú về nguồn hàng, bảo hành...">
-                        </div>
+                        <div class="mt-4"><label>Ghi chú nội bộ</label><input type="text" name="ghi_chu" id="ghi_chu" class="input-premium bg-yellow-50 text-yellow-800 border-yellow-200"></div>
                     </div>
                 </form>
             </div>
@@ -313,84 +262,21 @@
             <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy Bỏ</button>
                 <button type="button" id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Lưu Sản Phẩm
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lưu Sản Phẩm
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- XỬ LÝ ẢNH TRONG BẢNG ---
-        document.querySelectorAll('.preview-img-table').forEach(img => {
-            let raw = img.getAttribute('data-raw-img');
-            img.src = (raw && raw.includes('|')) ? raw.split('|')[0] : (raw || "https://via.placeholder.com/50?text=No+Img");
-        });
-        document.querySelectorAll('.dm-tags').forEach(span => {
-            let raw = span.getAttribute('data-tags');
-            if(raw) span.innerText = raw.split('|').join(', ');
-        });
+        function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
+        // LOAD DATA
+        const mapSP = {}; document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { let id = el.getAttribute('data-id'); if(id) { mapSP[id] = { ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-ten')), ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')), sku: decodeGo(el.getAttribute('data-sku')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0, thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), bao_hanh: decodeGo(el.getAttribute('data-baohanh')), mau_sac: decodeGo(el.getAttribute('data-mausac')), tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), url_hinh_anh: el.getAttribute('data-img'), ghi_chu: decodeGo(el.getAttribute('data-ghichu')), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: decodeGo(el.getAttribute('data-danhmuc')), thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value }; } });
+        var listDM = []; const dicDanhMuc = {}; document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => { let ten = decodeGo(el.getAttribute('data-ten')); if(ten) { listDM.push(ten); dicDanhMuc[ten] = { prefix: el.getAttribute('data-prefix'), nextStt: parseInt(el.getAttribute('data-nextstt')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }; } });
+        var listTH = []; document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => { let ten = decodeGo(el.getAttribute('data-ten')); if(ten) listTH.push(ten); });
+        var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
+        document.getElementById('data_island').remove();
 
-        // --- LẤY DỮ LIỆU TỪ DATA ISLAND DOM ---
-        function decodeGo(str) {
-            if (!str) return "";
-            return decodeURIComponent(str.replace(/\+/g, '%20'));
-        }
-
-        const mapSP = {};
-        // Nạp dữ liệu sản phẩm
-        document.querySelectorAll('#data_sanpham .sp-data').forEach(el => {
-            let id = el.getAttribute('data-id');
-            if(id) {
-                mapSP[id] = {
-                    ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-ten')), ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')), sku: decodeGo(el.getAttribute('data-sku')),
-                    gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0,
-                    thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
-                    mau_sac: decodeGo(el.getAttribute('data-mausac')), tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), url_hinh_anh: el.getAttribute('data-img'), 
-                    ghi_chu: decodeGo(el.getAttribute('data-ghichu')), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: decodeGo(el.getAttribute('data-danhmuc')),
-                    thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value,
-                    // Tính lại giá thực để so khớp logic
-                    gia_ban_thuc: parseFloat(el.getAttribute('data-giabanthuc')) || 0 
-                };
-            }
-        });
-
-        var listDM = []; const dicDanhMuc = {};
-        document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => {
-            let ten = decodeGo(el.getAttribute('data-ten'));
-            if(ten) {
-                listDM.push(ten);
-                dicDanhMuc[ten] = {
-                    prefix: el.getAttribute('data-prefix'),
-                    nextStt: parseInt(el.getAttribute('data-nextstt')) || 0,
-                    loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
-                };
-            }
-        });
-
-        var listTH = [];
-        document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => {
-            let ten = decodeGo(el.getAttribute('data-ten'));
-            if(ten) listTH.push(ten);
-        });
-
-        // Nạp khung giá
-        var listBLN = [];
-        document.querySelectorAll('#data_bln .bln-item').forEach(el => {
-            if (parseInt(el.getAttribute('data-trangthai')) === 1) { 
-                listBLN.push({
-                    khung: parseFloat(el.getAttribute('data-khung')) || 0,
-                    loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0
-                });
-            }
-        });
-        listBLN.sort((a, b) => a.khung - b.khung);
-
-        // Xóa Data Island để nhẹ DOM
-        const island = document.getElementById('data_island');
-        if(island) island.remove();
-
-        // --- CẤU HÌNH TAGIFY ---
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('input[name=ma_danh_muc]'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
@@ -399,90 +285,116 @@
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
         let isEditingMode = false;
+        
+        // LOGIC TAGIFY
+        tagifyDM.on('add', function(e) { if(isEditingMode) return; if (tagifyDM.value.length > 0) { const info = dicDanhMuc[tagifyDM.value[0].value]; if (info) { if (document.getElementById('ma_san_pham').value === "") { document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0'); } renderSmartProfitOptions(); applySmartProfit(); } } });
+        tagifyDM.on('remove', function(e) { if(isEditingMode) return; if (tagifyDM.value.length === 0) { if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; renderSmartProfitOptions(); } });
 
-        tagifyDM.on('add', function(e) {
-            if(isEditingMode) return; 
-            if (tagifyDM.value.length > 0) {
-                const info = dicDanhMuc[tagifyDM.value[0].value];
-                if (info) {
-                    if (document.getElementById('ma_san_pham').value === "") {
-                        document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0');
-                    }
-                    autoCalcForward(); 
-                }
-            }
-        });
-
-        tagifyDM.on('remove', function(e) {
-            if(isEditingMode) return;
-            if (tagifyDM.value.length === 0) {
-                if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
-                autoCalcForward();
-            }
-        });
-
-        // --- TÍNH TOÁN VÀ LÀM TRÒN GIÁ (THUẬT TOÁN KÉP) ---
+        // --- HÀM TIỆN ÍCH ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
 
-        function autoCalcForward() {
-            // Lấy chế độ tính toán từ Dropdown
-            let mode = document.getElementById('cach_tinh_lai').value;
-            let inpLoiNhuan = document.getElementById('loi_nhuan');
-            
-            // Xử lý khóa/mở ô nhập lợi nhuận
-            if (mode === 'manual') {
-                inpLoiNhuan.readOnly = false;
-                inpLoiNhuan.classList.remove('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
-                inpLoiNhuan.classList.add('bg-white');
-            } else {
-                inpLoiNhuan.readOnly = true;
-                inpLoiNhuan.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
-                inpLoiNhuan.classList.remove('bg-white');
+        // --- LOGIC SMART DROPDOWN & TÍNH TOÁN ---
+        function renderSmartProfitOptions() {
+            if(isEditingMode && document.getElementById('smart_profit_select').value === 'manual') return; // Đang sửa tay thì không reload
+
+            let giaNhap = getNum(document.getElementById('gia_nhap').value);
+            const select = document.getElementById('smart_profit_select');
+            select.innerHTML = ""; // Xóa cũ
+
+            if (giaNhap <= 0) {
+                select.innerHTML = '<option value="0">--- Nhập giá vốn trước ---</option>';
+                return;
             }
 
-            if(isEditingMode && mode === 'manual') return; // Nếu đang edit mà là manual thì ko tự tính lại đè lên
+            // 1. Option theo Danh Mục
+            let catMargin = 0;
+            let catName = "";
+            const tags = tagifyDM.value;
+            if (tags && tags.length > 0) {
+                const info = dicDanhMuc[tags[0].value];
+                if (info && info.loiNhuan > 0) {
+                    catMargin = info.loiNhuan;
+                    catName = tags[0].value;
+                    let optCat = document.createElement('option');
+                    optCat.value = catMargin;
+                    optCat.innerHTML = `🔷 Theo DM ${catName} (Lãi ${catMargin}%)`;
+                    // Highlight đỏ nếu được chọn
+                    if(catMargin > 0) optCat.setAttribute('data-color', 'red'); 
+                    select.appendChild(optCat);
+                }
+            }
 
+            // 2. Option theo Khung Giá
+            let priceMargin = 0;
+            for (let i = 0; i < listBLN.length; i++) {
+                if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
+            }
+            if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
+            
+            if (priceMargin > 0) {
+                let optPrice = document.createElement('option');
+                optPrice.value = priceMargin;
+                optPrice.innerHTML = `🔶 Theo Khung Giá (Lãi ${priceMargin}%)`;
+                select.appendChild(optPrice);
+            }
+
+            // 3. Option Tự nhập
+            let optManual = document.createElement('option');
+            optManual.value = 'manual';
+            optManual.innerHTML = '✍️ Tự nhập số khác...';
+            select.appendChild(optManual);
+
+            // Mặc định chọn cái đầu tiên (Ưu tiên Danh mục -> Khung giá)
+            if (catMargin > 0) select.value = catMargin;
+            else if (priceMargin > 0) select.value = priceMargin;
+        }
+
+        function applySmartProfit() {
+            let select = document.getElementById('smart_profit_select');
+            let val = select.value;
+            let finalMargin = 0;
+
+            if (val === 'manual') {
+                // Nếu chọn Manual -> Hỏi popup
+                Swal.fire({
+                    title: 'Nhập % Lợi nhuận mong muốn',
+                    input: 'number',
+                    inputValue: document.getElementById('loi_nhuan').value,
+                    showCancelButton: true,
+                    confirmButtonText: 'Áp dụng',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        finalMargin = parseFloat(result.value) || 0;
+                        // Cập nhật lại text option manual cho dễ nhìn
+                        select.options[select.selectedIndex].text = `✍️ Tự nhập (Đang dùng: ${finalMargin}%)`;
+                        document.getElementById('loi_nhuan').value = finalMargin;
+                        calcPrices(finalMargin);
+                    } else {
+                        // Nếu hủy thì quay về auto
+                        renderSmartProfitOptions();
+                        applySmartProfit();
+                    }
+                });
+            } else {
+                finalMargin = parseFloat(val) || 0;
+                document.getElementById('loi_nhuan').value = finalMargin;
+                
+                // Tô màu đỏ cho select nếu có lãi
+                if(finalMargin > 0) select.style.color = "#dc2626"; // Red-600
+                else select.style.color = "#334155"; // Slate-700
+
+                calcPrices(finalMargin);
+            }
+        }
+
+        function calcPrices(loiNhuan) {
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
 
             if (giaNhap > 0) {
-                let loiNhuan = 0;
-
-                // LOGIC QUYẾT ĐỊNH % LỢI NHUẬN
-                if (mode === 'auto_cat') {
-                    // Ưu tiên Danh Mục
-                    const tags = tagifyDM.value;
-                    if (tags && tags.length > 0) {
-                        const info = dicDanhMuc[tags[0].value];
-                        if (info && info.loiNhuan > 0) loiNhuan = info.loiNhuan;
-                    }
-                    // Nếu Danh mục = 0 -> Tự động Fallback sang Khung giá
-                    if (loiNhuan === 0) mode = 'auto_price'; 
-                }
-
-                if (mode === 'auto_price') {
-                    // Tìm trong List Khung Giá
-                    for (let i = 0; i < listBLN.length; i++) {
-                        if (giaNhap <= listBLN[i].khung) {
-                            loiNhuan = listBLN[i].loiNhuan;
-                            break;
-                        }
-                    }
-                    if (loiNhuan === 0 && listBLN.length > 0) {
-                        loiNhuan = listBLN[listBLN.length - 1].loiNhuan;
-                    }
-                }
-
-                if (mode === 'manual') {
-                    loiNhuan = parseFloat(inpLoiNhuan.value) || 0;
-                } else {
-                    inpLoiNhuan.value = loiNhuan;
-                }
-
-                // TÍNH TIỀN
                 let laiVND = giaNhap * (loiNhuan / 100);
                 document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
 
@@ -495,31 +407,43 @@
 
                 let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
                 document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
-            } 
+            }
         }
 
         function autoCalcBackward() {
-            // Khi sửa giá bán lẻ, chế độ tự động chuyển sang Manual để giữ số liệu
-            document.getElementById('cach_tinh_lai').value = 'manual';
+            // Khi sửa giá bán lẻ -> Chuyển dropdown sang Manual
             let pList = getNum(document.getElementById('gia_ban_le').value);
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
             
-            // Tính ngược lợi nhuận
             if (giaNhap > 0 && pList > 0) {
                 let giaBanThuc = pList * (1 - (giamGia / 100));
                 let laiVND = giaBanThuc - giaNhap;
                 let phanTramLai = (laiVND / giaNhap) * 100;
                 
+                // Cập nhật UI Manual
+                let select = document.getElementById('smart_profit_select');
+                // Tạo option manual nếu chưa có hoặc update nó
+                let found = false;
+                for(let i=0; i<select.options.length; i++) {
+                    if(select.options[i].value === 'manual') {
+                        select.options[i].text = `✍️ Tự chỉnh (Đang dùng: ${phanTramLai.toFixed(1)}%)`;
+                        select.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    let opt = document.createElement('option');
+                    opt.value = 'manual';
+                    opt.text = `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`;
+                    select.appendChild(opt);
+                    select.value = 'manual';
+                }
+
                 document.getElementById('loi_nhuan').value = phanTramLai.toFixed(2);
                 document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
                 document.getElementById('gia_ban_thuc').value = formatNumber(round10k(giaBanThuc).toString());
-                
-                // Mở khóa ô nhập
-                let inp = document.getElementById('loi_nhuan');
-                inp.readOnly = false;
-                inp.classList.remove('bg-slate-100', 'cursor-not-allowed', 'border-dashed');
-                inp.classList.add('bg-white');
             }
         }
 
@@ -528,34 +452,29 @@
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
-            div.innerHTML = `<input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Dán link ảnh tại đây (https://...)" value="${value}">
-                <span onclick="this.parentElement.remove()" class="btn-remove-img" title="Xóa"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></span>`;
+            div.innerHTML = `<input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh..." value="${value}"> <span onclick="this.parentElement.remove()" class="btn-remove-img">✕</span>`;
             container.appendChild(div);
         }
 
         function openModal() {
             isEditingMode = false; document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = ""; document.getElementById('ma_san_pham_preview').value = ""; 
-            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Thêm Sản Phẩm Mới`;
-            document.getElementById('gia_ban_thuc').value = ""; document.getElementById('lai_vnd').value = ""; 
+            document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
             document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
             
-            // Mặc định chọn Auto Cat
-            document.getElementById('cach_tinh_lai').value = 'auto_cat';
-            
+            // Reset Smart Select
+            document.getElementById('smart_profit_select').innerHTML = '<option value="0">--- Nhập giá vốn ---</option>';
+            document.getElementById('gia_ban_thuc').value = "";
+            document.getElementById('lai_vnd').value = "";
+
             document.getElementById('modalSP').classList.remove('hidden');
         }
         
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
-            const sp = mapSP[id]; 
-            if(!sp) {
-                console.error("Không tìm thấy SP ID:", id); // Log lỗi để debug
-                return;
-            }
-            
+            const sp = mapSP[id]; if(!sp) return;
             isEditingMode = true;
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham; document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
@@ -563,57 +482,43 @@
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
-            // LOGIC SUY LUẬN CHẾ ĐỘ TÍNH GIÁ CŨ
-            // Chúng ta tính thử xem % lợi nhuận hiện tại khớp với cái nào?
+            // --- LOGIC PHỤC HỒI TRẠNG THÁI DROPDOWN KHI SỬA ---
+            // 1. Render trước các option Auto dựa trên giá nhập hiện tại
+            renderSmartProfitOptions();
+
+            // 2. Tính xem % lãi hiện tại của sản phẩm là bao nhiêu
             let currentMargin = 0;
             if(sp.gia_nhap > 0) {
-                // Tính ngược margin thực tế từ Giá bán lẻ (chưa giảm giá)
-                let lai = sp.gia_ban_le - sp.gia_nhap;
-                if(sp.giam_gia > 0) {
-                     // Nếu có giảm giá, giá bán lẻ thường bị đẩy cao lên. 
-                     // Ta so sánh dựa trên giá bán thực nếu cần, hoặc đơn giản cứ để Manual
-                }
+                // Lấy giá bán thực để tính lãi chuẩn
+                let giaBanThuc = sp.gia_ban_le * (1 - sp.giam_gia/100);
+                let lai = giaBanThuc - sp.gia_nhap;
                 currentMargin = (lai / sp.gia_nhap) * 100;
             }
 
-            // 1. Check Margin Danh Mục
-            let catMargin = 0;
-            if(sp.danh_muc) {
-                let firstDM = sp.danh_muc.split("|")[0]; let info = dicDanhMuc[firstDM];
-                if(info && info.loiNhuan > 0) catMargin = info.loiNhuan; 
+            // 3. So khớp để chọn đúng option trong dropdown
+            let select = document.getElementById('smart_profit_select');
+            let matched = false;
+            // Duyệt qua các option (trừ manual) xem có cái nào khớp % ko
+            for(let i=0; i<select.options.length; i++) {
+                let optVal = parseFloat(select.options[i].value);
+                if (select.options[i].value !== 'manual' && Math.abs(currentMargin - optVal) < 0.1) {
+                    select.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
             }
-
-            // 2. Check Margin Khung Giá
-            let priceMargin = 0;
-            for (let i = 0; i < listBLN.length; i++) {
-                if (sp.gia_nhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
+            // Nếu ko khớp cái nào -> Chuyển sang Manual
+            if(!matched && sp.gia_nhap > 0) {
+                for(let i=0; i<select.options.length; i++) {
+                    if(select.options[i].value === 'manual') {
+                        select.options[i].text = `✍️ Tự chỉnh (Đang dùng: ${currentMargin.toFixed(1)}%)`;
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
             }
-            if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
-
-            // 3. So khớp (Chấp nhận sai số nhỏ do làm tròn)
-            let selectMode = document.getElementById('cach_tinh_lai');
-            
-            if (Math.abs(currentMargin - catMargin) < 0.1 && catMargin > 0) {
-                selectMode.value = 'auto_cat';
-            } else if (Math.abs(currentMargin - priceMargin) < 0.1) {
-                selectMode.value = 'auto_price';
-            } else {
-                selectMode.value = 'manual';
-            }
-
-            // Gọi tính toán để fill các ô còn lại (nhưng cờ isEditingMode=true chặn việc đè giá bán lẻ)
-            // Tuy nhiên ta cần fill % lợi nhuận hiển thị
-            document.getElementById('loi_nhuan').value = currentMargin.toFixed(1);
-            if(sp.gia_nhap > 0) document.getElementById('lai_vnd').value = formatNumber(Math.round(sp.gia_ban_le - sp.gia_nhap).toString());
-            
-            // Xử lý khóa ô nhập nếu auto
-            if (selectMode.value !== 'manual') {
-                document.getElementById('loi_nhuan').readOnly = true;
-                document.getElementById('loi_nhuan').classList.add('bg-slate-100');
-            } else {
-                document.getElementById('loi_nhuan').readOnly = false;
-                document.getElementById('loi_nhuan').classList.remove('bg-slate-100');
-            }
+            // Kích hoạt tô màu đỏ
+            applySmartProfit();
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
@@ -634,10 +539,8 @@
             document.getElementById('imgContainer').innerHTML = '';
             if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
 
-            document.getElementById('modalTitle').innerHTML = `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
+            document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
-            
-            // Mở khóa tính toán sau khi load xong
             setTimeout(() => { isEditingMode = false; }, 500);
         }
 
@@ -645,14 +548,13 @@
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             const links = []; document.querySelectorAll('.img-link-input, .img-input-group input').forEach(inp => { if(inp.value.trim()) links.push(inp.value.trim()); });
             document.getElementById('url_hinh_anh').value = links.join('|');
-
             const result = await Swal.fire({ title: 'Xác nhận lưu?', text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?", icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
         }
 
         async function saveSP() {
             const btn = document.getElementById('btnSave'); const originalText = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...`;
+            btn.disabled = true; btn.innerHTML = `Đang lưu...`;
             const fd = new FormData(document.getElementById('formSP'));
             if(!document.getElementById('trang_thai').checked) fd.set('trang_thai', 'off'); else fd.set('trang_thai', 'on');
             
