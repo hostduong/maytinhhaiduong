@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/json"
 	"strings"
-	"sync"
 	"time"
 )
 
