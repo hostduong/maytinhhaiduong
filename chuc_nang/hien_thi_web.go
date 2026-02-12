@@ -2,79 +2,66 @@ package chuc_nang
 
 import (
 	"net/http"
-	"app/core" // Sử dụng Core mới
+	"strings"
+	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Helper: Lấy thông tin User từ Cookie
-func layThongTinNguoiDung(c *gin.Context) (bool, string, string) {
-	cookie, _ := c.Cookie("session_id")
-	if cookie != "" {
-		// Tìm trong RAM Core
-		if kh, ok := core.TimKhachHangTheoCookie(cookie); ok {
-			return true, kh.TenKhachHang, kh.VaiTroQuyenHan
+// API_LayDanhSachSanPham
+func API_LayDanhSachSanPham(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // [SAAS] Quan trọng
+	
+	// Lấy danh sách của đúng Shop đó
+	danhSach := core.LayDanhSachSanPham(shopID)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"trang_thai": "thanh_cong",
+		"so_luong":   len(danhSach),
+		"du_lieu":    danhSach,
+	})
+}
+
+// API_LayMenu (Tạo Menu động từ sản phẩm của Shop)
+func API_LayMenu(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // [SAAS]
+	
+	dsSP := core.LayDanhSachSanPham(shopID)
+	uniqueDM := make(map[string]bool)
+
+	for _, sp := range dsSP {
+		if sp != nil && sp.DanhMuc != "" {
+			parts := strings.Split(sp.DanhMuc, "|")
+			for _, p := range parts {
+				p = strings.TrimSpace(p)
+				if p != "" { uniqueDM[p] = true }
+			}
 		}
 	}
-	return false, "", ""
-}
 
-// 1. Trang Chủ
-func TrangChu(c *gin.Context) {
-	// Lấy danh sách sản phẩm từ Core
-	danhSachSP := core.LayDanhSachSanPham()
-	
-	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
+	var menu []map[string]string
+	for dm := range uniqueDM {
+		menu = append(menu, map[string]string{
+			"ten_danh_muc": dm,
+			"slug":         strings.ReplaceAll(strings.ToLower(dm), " ", "-"),
+		})
+	}
 
-	c.HTML(http.StatusOK, "khung_giao_dien", gin.H{
-		"TieuDe":          "Trang Chủ",
-		"DanhSachSanPham": danhSachSP,
-		"DaDangNhap":      daLogin,
-		"TenNguoiDung":    tenUser,
-		"QuyenHan":        quyen,
+	c.JSON(http.StatusOK, gin.H{
+		"danh_muc": menu,
+		"cau_hinh": map[string]interface{}{}, 
 	})
 }
 
-// 2. Chi Tiết Sản Phẩm
-func ChiTietSanPham(c *gin.Context) {
+// API_ChiTietSanPham
+func API_ChiTietSanPham(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // [SAAS]
 	id := c.Param("id")
-	sp, tonTai := core.LayChiTietSanPham(id)
-
-	if !tonTai {
-		c.String(http.StatusNotFound, "Không tìm thấy sản phẩm này!")
-		return
-	}
-
-	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
-
-	c.HTML(http.StatusOK, "khung_giao_dien", gin.H{
-		"TieuDe":       sp.TenSanPham,
-		"SanPham":      sp,
-		"DaDangNhap":   daLogin,
-		"TenNguoiDung": tenUser,
-		"QuyenHan":     quyen,
-	})
-}
-
-// 3. [MỚI] Trang Hồ Sơ Cá Nhân
-func TrangHoSo(c *gin.Context) {
-	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	// Chưa đăng nhập thì đá về Login
-	if !daLogin {
-		c.Redirect(http.StatusFound, "/login")
+	sp, tonTai := core.LayChiTietSanPham(shopID, id)
+	if !tonTai {
+		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
 	}
-
-	// Lấy chi tiết khách hàng để điền vào Form
-	cookie, _ := c.Cookie("session_id")
-	kh, _ := core.TimKhachHangTheoCookie(cookie)
-
-	c.HTML(http.StatusOK, "ho_so", gin.H{
-		"TieuDe":       "Hồ sơ cá nhân",
-		"DaDangNhap":   daLogin,
-		"TenNguoiDung": tenUser,
-		"QuyenHan":     quyen,
-		"NhanVien":     kh, // Truyền biến 'NhanVien' khớp với template ho_so.html
-	})
+	c.JSON(http.StatusOK, gin.H{"trang_thai": "thanh_cong", "du_lieu": sp})
 }
