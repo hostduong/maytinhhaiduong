@@ -1,12 +1,13 @@
 package core
 
 import (
+	"fmt"
 	"strings"
 	"app/cau_hinh"
 )
 
 // =============================================================
-// CẤU HÌNH CỘT (CẬP NHẬT CHUẨN NAME)
+// CẤU HÌNH CỘT (GIỮ NGUYÊN)
 // =============================================================
 const (
 	DongBatDau_SanPham = 11
@@ -23,24 +24,20 @@ const (
 	CotSP_UrlHinhAnh     = 9  
 	CotSP_ThongSo        = 10 
 	CotSP_MoTaChiTiet    = 11 
-	
-	// [ĐÃ SỬA TÊN] Cho đúng ngữ nghĩa (Lưu text "12 Tháng", "7 Ngày")
 	CotSP_BaoHanh        = 12 
-	
 	CotSP_TinhTrang      = 13 
 	CotSP_TrangThai      = 14 
-	
 	CotSP_GiaNhap        = 15 
 	CotSP_GiaBanLe       = 16 
 	CotSP_GiamGia        = 17 
 	CotSP_GiaBanThuc     = 18 
-	
 	CotSP_GhiChu         = 19 
 	CotSP_NguoiTao       = 20 
 	CotSP_NgayTao        = 21 
 	CotSP_NgayCapNhat    = 22 
 )
 
+// STRUCT SẢN PHẨM (GIỮ NGUYÊN)
 type SanPham struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -72,25 +69,33 @@ type SanPham struct {
 	NgayCapNhat    string  `json:"ngay_cap_nhat"`
 }
 
-// STORE ĐA SHOP
+// BỘ NHỚ ĐA SHOP (THAY THẾ BIẾN CŨ)
+// Key của map ngoài cùng là ShopID (SpreadsheetID)
 var (
 	CacheSanPham    = make(map[string][]*SanPham)
-	CacheMapSanPham = make(map[string]map[string]*SanPham)
+	CacheMapSanPham = make(map[string]map[string]*SanPham) // Key: ShopID__MaSP
 )
 
+// HÀM NẠP (THÊM THAM SỐ shopID)
 func NapSanPham(shopID string) {
+	// Nếu shopID rỗng (trường hợp init), lấy mặc định
+	if shopID == "" { 
+		shopID = cau_hinh.BienCauHinh.IdFileSheet 
+	}
+
 	raw, err := loadSheetData(shopID, "SAN_PHAM")
 	if err != nil { return }
 
+	// Tạo list tạm cho Shop này
 	list := []*SanPham{}
-	
+
 	for i, r := range raw {
 		if i < DongBatDau_SanPham-1 { continue }
 		maSP := layString(r, CotSP_MaSanPham)
 		if maSP == "" { continue }
 
 		sp := &SanPham{
-			SpreadsheetID: shopID,
+			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			MaSanPham:      maSP,
 			TenSanPham:     layString(r, CotSP_TenSanPham),
@@ -104,18 +109,13 @@ func NapSanPham(shopID string) {
 			UrlHinhAnh:     layString(r, CotSP_UrlHinhAnh),
 			ThongSo:        layString(r, CotSP_ThongSo),
 			MoTaChiTiet:    layString(r, CotSP_MoTaChiTiet),
-			
-			// [CẬP NHẬT TÊN BIẾN]
-			BaoHanh:        layString(r, CotSP_BaoHanh), 		
-			
+			BaoHanh:        layString(r, CotSP_BaoHanh),
 			TinhTrang:      layString(r, CotSP_TinhTrang),
 			TrangThai:      layInt(r, CotSP_TrangThai),
-			
 			GiaNhap:        layFloat(r, CotSP_GiaNhap),
 			GiaBanLe:       layFloat(r, CotSP_GiaBanLe),
 			GiamGia:        layFloat(r, CotSP_GiamGia),
 			GiaBanThuc:     layFloat(r, CotSP_GiaBanThuc),
-			
 			GhiChu:         layString(r, CotSP_GhiChu),
 			NguoiTao:       layString(r, CotSP_NguoiTao),
 			NgayTao:        layString(r, CotSP_NgayTao),
@@ -123,47 +123,62 @@ func NapSanPham(shopID string) {
 		}
 		
 		list = append(list, sp)
+		
+		// Lưu vào Map tra cứu nhanh
 		key := TaoCompositeKey(shopID, maSP)
 		CacheMapSanPham[key] = sp
 	}
 
+	// Cập nhật vào Cache Tổng
 	KhoaHeThong.Lock()
 	CacheSanPham[shopID] = list
 	KhoaHeThong.Unlock()
 }
 
-func LayDanhSachSanPham() []*SanPham {
+// HÀM LẤY DANH SÁCH (THEO SHOP ID)
+func LayDanhSachSanPham(shopID string) []*SanPham {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	currentSheetID := cau_hinh.BienCauHinh.IdFileSheet
-	var kq []*SanPham
-	for _, sp := range _DS_SanPham {
-		if sp.SpreadsheetID == currentSheetID { kq = append(kq, sp) }
+	
+	// Trả về đúng list của Shop đó
+	if list, ok := CacheSanPham[shopID]; ok {
+		return list
 	}
-	return kq
+	return []*SanPham{}
 }
 
-func LayChiTietSanPham(maSP string) (*SanPham, bool) {
+// HÀM LẤY CHI TIẾT (DÙNG COMPOSITE KEY)
+func LayChiTietSanPham(shopID, maSP string) (*SanPham, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	key := TaoCompositeKey(cau_hinh.BienCauHinh.IdFileSheet, maSP)
-	sp, ok := _Map_SanPham[key]
+	
+	key := TaoCompositeKey(shopID, maSP)
+	sp, ok := CacheMapSanPham[key]
 	return sp, ok
 }
 
+// HÀM THÊM MỚI (UPDATE CACHE CỦA SHOP)
 func ThemSanPhamVaoRam(sp *SanPham) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
-	if sp.SpreadsheetID == "" { sp.SpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	_DS_SanPham = append(_DS_SanPham, sp)
-	key := TaoCompositeKey(sp.SpreadsheetID, sp.MaSanPham)
-	_Map_SanPham[key] = sp
+	
+	sID := sp.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+	
+	// Append vào list của Shop đó
+	CacheSanPham[sID] = append(CacheSanPham[sID], sp)
+	
+	// Update Map
+	key := TaoCompositeKey(sID, sp.MaSanPham)
+	CacheMapSanPham[key] = sp
 }
 
-// [HÀM SINH MÃ MỚI]
-func TaoMaSPMoi(maDanhMuc string) string {
+// HÀM SINH MÃ MỚI (CẦN SHOP ID ĐỂ ĐẾM SLOT ĐÚNG SHOP)
+func TaoMaSPMoi(shopID, maDanhMuc string) string {
 	maDanhMuc = strings.ToUpper(strings.TrimSpace(maDanhMuc))
 	if maDanhMuc == "" { maDanhMuc = "SP" }
-	slot := LaySlotTiepTheo(maDanhMuc)
+	
+	// Gọi hàm LaySlotTiepTheo cần truyền shopID vào
+	slot := LaySlotTiepTheo(shopID, maDanhMuc) 
 	return fmt.Sprintf("%s%04d", maDanhMuc, slot)
 }
