@@ -213,7 +213,7 @@ func API_LuuBienLoiNhuan(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Khung giá thành công!"})
 }
 
-// [ĐÃ SỬA LỖI DEADLOCK] Tách biệt pha Đọc và Ghi
+// [ĐÃ FIX DEADLOCK] API Đồng bộ Slot
 func API_DongBoSlotDanhMuc(c *gin.Context) {
 	vaiTro := c.GetString("USER_ROLE")
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -221,20 +221,17 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		return
 	}
 
-	// BƯỚC 1: ĐỌC DỮ LIỆU (Không dùng Lock toàn cục ở đây để tránh Deadlock)
-	// Các hàm này tự quản lý RLock bên trong nó rồi, nên rất an toàn
-	listSP := core.LayDanhSachSanPham()
+	// BƯỚC 1: TÍNH TOÁN (Không dùng Lock tổng để tránh treo hệ thống khi quét nhiều SP)
+	listSP := core.LayDanhSachSanPham() // Hàm này đã tự quản lý RLock bên trong, rất an toàn
 	
-	// Map lưu Slot lớn nhất tìm được: Key = Prefix (VD: MAIN), Value = Max Number (VD: 45)
 	mapMaxSlot := make(map[string]int) 
 	
-	// Xử lý tính toán (CPU bound - cực nhanh)
 	for _, sp := range listSP {
 		maSP := strings.TrimSpace(sp.MaSanPham)
-		// Logic tách số: Chạy từ cuối chuỗi về đầu
 		ketThucSo := len(maSP)
 		batDauSo := ketThucSo
 		
+		// Thuật toán tách số lùi từ cuối
 		for i := len(maSP) - 1; i >= 0; i-- {
 			char := maSP[i]
 			if char >= '0' && char <= '9' {
@@ -245,8 +242,8 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		}
 
 		if batDauSo < ketThucSo {
-			prefix := strings.ToUpper(maSP[0:batDauSo]) // VD: MAIN
-			soStr := maSP[batDauSo:ketThucSo]           // VD: 0045
+			prefix := strings.ToUpper(maSP[0:batDauSo])
+			soStr := maSP[batDauSo:ketThucSo]
 			so, err := strconv.Atoi(soStr)
 			if err == nil {
 				if so > mapMaxSlot[prefix] {
@@ -256,27 +253,27 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 		}
 	}
 
-	// BƯỚC 2: GHI DỮ LIỆU (Bây giờ mới cần Lock để cập nhật RAM an toàn)
-	core.KhoaHeThong.Lock() 
-	countUpdate := 0
-	listDM := core.LayDanhSachDanhMuc() // Lấy danh sách (Pointer) để sửa trực tiếp
+	// BƯỚC 2: CẬP NHẬT (Quan trọng: Lấy danh sách TRƯỚC KHI Lock để tránh Deadlock)
+	listDM := core.LayDanhSachDanhMuc() 
 
+	core.KhoaHeThong.Lock() // Bắt đầu Khóa Ghi
+	countUpdate := 0
+	
 	for _, dm := range listDM {
 		maxThucTe, coDuLieu := mapMaxSlot[dm.MaDanhMuc]
 		
-		// Logic: Nếu thực tế lớn hơn Slot hiện tại -> Cập nhật lên
+		// Nếu tìm thấy số thực tế lớn hơn Slot đang lưu -> Update ngay
 		if coDuLieu && maxThucTe > dm.Slot {
 			dm.Slot = maxThucTe
-			// Đẩy lệnh ghi xuống Sheet (Worker lo, không sợ chậm)
 			core.ThemVaoHangCho(cau_hinh.BienCauHinh.IdFileSheet, "DANH_MUC", dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
 			countUpdate++
 		}
 	}
-	core.KhoaHeThong.Unlock() // Mở khóa ngay sau khi ghi xong
+	core.KhoaHeThong.Unlock() // Mở khóa ngay lập tức
 
 	msg := "Đã đồng bộ xong. Các bộ đếm đều chính xác."
 	if countUpdate > 0 {
-		msg = "Đã cập nhật lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục dựa trên dữ liệu sản phẩm thực tế."
+		msg = "Đã cập nhật lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục."
 	}
 
 	c.JSON(200, gin.H{"status": "ok", "msg": msg})
