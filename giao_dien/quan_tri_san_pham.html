@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
+        /* ... (GIỮ NGUYÊN CSS CŨ CỦA BẠN) ... */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         .modal-body { max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 2rem; background-color: #f8fafc; }
         .modal-body::-webkit-scrollbar { width: 6px; }
@@ -25,9 +26,14 @@
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
-        
-        /* Hiệu ứng màu chữ trong Dropdown */
         option span.red-text { color: red; font-weight: bold; }
+
+        /* CSS cho phần ảnh */
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
+        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
+        .btn-remove-img:hover { background: #e11d48; color: white; }
+        .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -63,7 +69,8 @@
                 data-img="{{ .UrlHinhAnh }}"
                 data-ghichu="{{ urlquery .GhiChu }}" 
                 data-trangthai="{{ .TrangThai }}" 
-                data-danhmuc="{{ urlquery .DanhMuc }}">
+                data-danhmuc="{{ urlquery .DanhMuc }}"
+                data-giabanthuc="{{ printf "%.0f" .GiaBanThuc }}">
                 <textarea class="t-thongso">{{ .ThongSo }}</textarea>
                 <textarea class="t-mota">{{ .MoTaChiTiet }}</textarea>
             </div>
@@ -103,7 +110,9 @@
                             <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
                                 <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
-                                    <img data-raw-img="{{ .UrlHinhAnh }}" class="preview-img-table max-w-full max-h-full object-cover rounded-sm">
+                                    <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}https://via.placeholder.com/50?text=No+Img{{ end }}" 
+                                         class="preview-img-table max-w-full max-h-full object-cover rounded-sm"
+                                         onerror="this.src='https://via.placeholder.com/50?text=Error'">
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-slate-900 min-w-[200px]">{{ .TenSanPham }}</td>
@@ -131,7 +140,8 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Sửa
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Sửa
                                 </button>
                             </td>
                         </tr>
@@ -144,6 +154,7 @@
 
     <div id="modalSP" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[96vh]">
+            
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-xl">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                 <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition">✕</button>
@@ -195,13 +206,11 @@
                     </div>
 
                     <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
-                        <div class="section-title flex justify-between">
-                            <span>💰 Định giá Kinh Doanh</span>
-                        </div>
+                        <div class="section-title flex justify-between"><span>💰 Định giá Kinh Doanh</span></div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions()">
+                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions();">
                             </div>
                             
                             <div class="md:col-span-1">
@@ -220,7 +229,7 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                             <div>
-                                <label>Giá Niêm Yết (Gạch ngang trên Web)</label>
+                                <label>Giá Niêm Yết (Gạch ngang)</label>
                                 <input type="text" name="gia_ban_le" id="gia_ban_le" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                             </div>
                             <div>
@@ -243,9 +252,14 @@
 
                     <div class="form-section mb-0">
                         <div class="section-title">🖼️ Hình ảnh & Bài viết mô tả</div>
+                        
+                        <div class="bg-blue-50 border border-blue-100 p-3 rounded mb-3 text-xs text-blue-800">
+                            💡 Mẹo: Có thể dán link <b>Google Drive</b> (đã chia sẻ công khai). Hệ thống sẽ tự động chuyển đổi.
+                        </div>
+
                         <div class="mb-5">
                             <div class="flex justify-between items-center mb-2">
-                                <label style="margin-bottom:0">Danh sách Link ảnh (URL)</label>
+                                <label style="margin-bottom:0">Danh sách Link ảnh</label>
                                 <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
                             </div>
                             <div id="imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
@@ -271,10 +285,18 @@
     <script>
         function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
         // LOAD DATA
-        const mapSP = {}; document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { let id = el.getAttribute('data-id'); if(id) { mapSP[id] = { ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-ten')), ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')), sku: decodeGo(el.getAttribute('data-sku')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0, thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), bao_hanh: decodeGo(el.getAttribute('data-baohanh')), mau_sac: decodeGo(el.getAttribute('data-mausac')), tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), url_hinh_anh: el.getAttribute('data-img'), ghi_chu: decodeGo(el.getAttribute('data-ghichu')), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: decodeGo(el.getAttribute('data-danhmuc')), thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value }; } });
+        const mapSP = {}; document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { let id = el.getAttribute('data-id'); if(id) { mapSP[id] = { ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-ten')), ten_rut_gon: decodeGo(el.getAttribute('data-rutgon')), sku: decodeGo(el.getAttribute('data-sku')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_ban_le: parseFloat(el.getAttribute('data-giabanle')) || 0, giam_gia: parseFloat(el.getAttribute('data-giamgia')) || 0, thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), bao_hanh: decodeGo(el.getAttribute('data-baohanh')), mau_sac: decodeGo(el.getAttribute('data-mausac')), tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), url_hinh_anh: el.getAttribute('data-img'), ghi_chu: decodeGo(el.getAttribute('data-ghichu')), trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0, danh_muc: decodeGo(el.getAttribute('data-danhmuc')), thong_so: el.querySelector('.t-thongso').value, mo_ta_chi_tiet: el.querySelector('.t-mota').value, gia_ban_thuc: parseFloat(el.getAttribute('data-giabanthuc')) || 0 }; } });
         var listDM = []; const dicDanhMuc = {}; document.querySelectorAll('#data_danhmuc .dm-item').forEach(el => { let ten = decodeGo(el.getAttribute('data-ten')); if(ten) { listDM.push(ten); dicDanhMuc[ten] = { prefix: el.getAttribute('data-prefix'), nextStt: parseInt(el.getAttribute('data-nextstt')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }; } });
         var listTH = []; document.querySelectorAll('#data_thuonghieu .th-item').forEach(el => { let ten = decodeGo(el.getAttribute('data-ten')); if(ten) listTH.push(ten); });
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
+        document.querySelectorAll('.preview-img-table').forEach(img => { 
+            let raw = img.getAttribute('src'); 
+            // Xử lý hiển thị ảnh cho bảng chính
+            if (raw && raw.includes('drive.google.com')) {
+                img.src = convertDriveLink(raw);
+            }
+        });
+        document.querySelectorAll('.dm-tags').forEach(span => { let raw = span.getAttribute('data-tags'); if(raw) span.innerText = raw.split('|').join(', '); });
         document.getElementById('data_island').remove();
 
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
@@ -286,7 +308,6 @@
 
         let isEditingMode = false;
         
-        // LOGIC TAGIFY
         tagifyDM.on('add', function(e) { if(isEditingMode) return; if (tagifyDM.value.length > 0) { const info = dicDanhMuc[tagifyDM.value[0].value]; if (info) { if (document.getElementById('ma_san_pham').value === "") { document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0'); } renderSmartProfitOptions(); applySmartProfit(); } } });
         tagifyDM.on('remove', function(e) { if(isEditingMode) return; if (tagifyDM.value.length === 0) { if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; renderSmartProfitOptions(); } });
 
@@ -296,22 +317,32 @@
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
 
-        // --- LOGIC SMART DROPDOWN & TÍNH TOÁN ---
+        // [MỚI] HÀM CONVERT LINK DRIVE
+        function convertDriveLink(url) {
+            if (!url) return "";
+            if (url.includes("drive.google.com") && url.includes("/d/")) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return "https://lh3.googleusercontent.com/d/" + match[1];
+                }
+            }
+            return url;
+        }
+
+        // --- SMART DROPDOWN ---
         function renderSmartProfitOptions() {
-            if(isEditingMode && document.getElementById('smart_profit_select').value === 'manual') return; // Đang sửa tay thì không reload
+            if(isEditingMode && document.getElementById('smart_profit_select').value === 'manual') return;
 
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             const select = document.getElementById('smart_profit_select');
-            select.innerHTML = ""; // Xóa cũ
+            select.innerHTML = "";
 
             if (giaNhap <= 0) {
                 select.innerHTML = '<option value="0">--- Nhập giá vốn trước ---</option>';
                 return;
             }
 
-            // 1. Option theo Danh Mục
-            let catMargin = 0;
-            let catName = "";
+            let catMargin = 0, catName = "";
             const tags = tagifyDM.value;
             if (tags && tags.length > 0) {
                 const info = dicDanhMuc[tags[0].value];
@@ -320,14 +351,12 @@
                     catName = tags[0].value;
                     let optCat = document.createElement('option');
                     optCat.value = catMargin;
-                    optCat.innerHTML = `🔷 Theo DM ${catName} (Lãi ${catMargin}%)`;
-                    // Highlight đỏ nếu được chọn
+                    optCat.innerHTML = `🔷 Theo Danh Mục ${catName} (${catMargin}%)`;
                     if(catMargin > 0) optCat.setAttribute('data-color', 'red'); 
                     select.appendChild(optCat);
                 }
             }
 
-            // 2. Option theo Khung Giá
             let priceMargin = 0;
             for (let i = 0; i < listBLN.length; i++) {
                 if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
@@ -337,17 +366,15 @@
             if (priceMargin > 0) {
                 let optPrice = document.createElement('option');
                 optPrice.value = priceMargin;
-                optPrice.innerHTML = `🔶 Theo Khung Giá (Lãi ${priceMargin}%)`;
+                optPrice.innerHTML = `🔶 Theo Khung Giá (${priceMargin}%)`;
                 select.appendChild(optPrice);
             }
 
-            // 3. Option Tự nhập
             let optManual = document.createElement('option');
             optManual.value = 'manual';
             optManual.innerHTML = '✍️ Tự nhập số khác...';
             select.appendChild(optManual);
 
-            // Mặc định chọn cái đầu tiên (Ưu tiên Danh mục -> Khung giá)
             if (catMargin > 0) select.value = catMargin;
             else if (priceMargin > 0) select.value = priceMargin;
         }
@@ -358,9 +385,8 @@
             let finalMargin = 0;
 
             if (val === 'manual') {
-                // Nếu chọn Manual -> Hỏi popup
                 Swal.fire({
-                    title: 'Nhập % Lợi nhuận mong muốn',
+                    title: 'Nhập % Lợi nhuận',
                     input: 'number',
                     inputValue: document.getElementById('loi_nhuan').value,
                     showCancelButton: true,
@@ -368,12 +394,10 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         finalMargin = parseFloat(result.value) || 0;
-                        // Cập nhật lại text option manual cho dễ nhìn
                         select.options[select.selectedIndex].text = `✍️ Tự nhập (Đang dùng: ${finalMargin}%)`;
                         document.getElementById('loi_nhuan').value = finalMargin;
                         calcPrices(finalMargin);
                     } else {
-                        // Nếu hủy thì quay về auto
                         renderSmartProfitOptions();
                         applySmartProfit();
                     }
@@ -381,11 +405,7 @@
             } else {
                 finalMargin = parseFloat(val) || 0;
                 document.getElementById('loi_nhuan').value = finalMargin;
-                
-                // Tô màu đỏ cho select nếu có lãi
-                if(finalMargin > 0) select.style.color = "#dc2626"; // Red-600
-                else select.style.color = "#334155"; // Slate-700
-
+                if(finalMargin > 0) select.style.color = "#dc2626"; else select.style.color = "#334155";
                 calcPrices(finalMargin);
             }
         }
@@ -411,7 +431,6 @@
         }
 
         function autoCalcBackward() {
-            // Khi sửa giá bán lẻ -> Chuyển dropdown sang Manual
             let pList = getNum(document.getElementById('gia_ban_le').value);
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
@@ -421,13 +440,11 @@
                 let laiVND = giaBanThuc - giaNhap;
                 let phanTramLai = (laiVND / giaNhap) * 100;
                 
-                // Cập nhật UI Manual
                 let select = document.getElementById('smart_profit_select');
-                // Tạo option manual nếu chưa có hoặc update nó
                 let found = false;
                 for(let i=0; i<select.options.length; i++) {
                     if(select.options[i].value === 'manual') {
-                        select.options[i].text = `✍️ Tự chỉnh (Đang dùng: ${phanTramLai.toFixed(1)}%)`;
+                        select.options[i].text = `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`;
                         select.selectedIndex = i;
                         found = true;
                         break;
@@ -447,12 +464,26 @@
             }
         }
 
-        // --- GIAO DIỆN ---
+        // --- GIAO DIỆN HÌNH ẢNH ---
         function addImgInput(value) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
-            div.innerHTML = `<input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh..." value="${value}"> <span onclick="this.parentElement.remove()" class="btn-remove-img">✕</span>`;
+            
+            // Xử lý link Drive khi hiển thị lên form sửa
+            let displayValue = value;
+            let imgSrc = "https://via.placeholder.com/42?text=IMG";
+            
+            if (value) {
+                let directLink = convertDriveLink(value);
+                imgSrc = directLink;
+            }
+
+            div.innerHTML = `
+                <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='https://via.placeholder.com/42?text=Error'">
+                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)"> 
+                <span onclick="this.parentElement.remove()" class="btn-remove-img">✕</span>
+            `;
             container.appendChild(div);
         }
 
@@ -463,7 +494,6 @@
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
             document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
             
-            // Reset Smart Select
             document.getElementById('smart_profit_select').innerHTML = '<option value="0">--- Nhập giá vốn ---</option>';
             document.getElementById('gia_ban_thuc').value = "";
             document.getElementById('lai_vnd').value = "";
@@ -482,42 +512,31 @@
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
-            // --- LOGIC PHỤC HỒI TRẠNG THÁI DROPDOWN KHI SỬA ---
-            // 1. Render trước các option Auto dựa trên giá nhập hiện tại
             renderSmartProfitOptions();
 
-            // 2. Tính xem % lãi hiện tại của sản phẩm là bao nhiêu
             let currentMargin = 0;
             if(sp.gia_nhap > 0) {
-                // Lấy giá bán thực để tính lãi chuẩn
                 let giaBanThuc = sp.gia_ban_le * (1 - sp.giam_gia/100);
                 let lai = giaBanThuc - sp.gia_nhap;
                 currentMargin = (lai / sp.gia_nhap) * 100;
             }
 
-            // 3. So khớp để chọn đúng option trong dropdown
             let select = document.getElementById('smart_profit_select');
             let matched = false;
-            // Duyệt qua các option (trừ manual) xem có cái nào khớp % ko
             for(let i=0; i<select.options.length; i++) {
                 let optVal = parseFloat(select.options[i].value);
                 if (select.options[i].value !== 'manual' && Math.abs(currentMargin - optVal) < 0.1) {
-                    select.selectedIndex = i;
-                    matched = true;
-                    break;
+                    select.selectedIndex = i; matched = true; break;
                 }
             }
-            // Nếu ko khớp cái nào -> Chuyển sang Manual
             if(!matched && sp.gia_nhap > 0) {
                 for(let i=0; i<select.options.length; i++) {
                     if(select.options[i].value === 'manual') {
-                        select.options[i].text = `✍️ Tự chỉnh (Đang dùng: ${currentMargin.toFixed(1)}%)`;
-                        select.selectedIndex = i;
-                        break;
+                        select.options[i].text = `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`;
+                        select.selectedIndex = i; break;
                     }
                 }
             }
-            // Kích hoạt tô màu đỏ
             applySmartProfit();
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
@@ -546,7 +565,12 @@
 
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
-            const links = []; document.querySelectorAll('.img-link-input, .img-input-group input').forEach(inp => { if(inp.value.trim()) links.push(inp.value.trim()); });
+            const links = []; document.querySelectorAll('.img-input-group input').forEach(inp => { 
+                if(inp.value.trim()) {
+                    let finalLink = convertDriveLink(inp.value.trim()); // Auto convert khi lưu
+                    links.push(finalLink); 
+                }
+            });
             document.getElementById('url_hinh_anh').value = links.join('|');
             const result = await Swal.fire({ title: 'Xác nhận lưu?', text: "Bạn có chắc chắn muốn lưu thông tin sản phẩm này?", icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
