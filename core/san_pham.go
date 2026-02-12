@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strings"
 	"app/cau_hinh"
 )
@@ -73,29 +72,25 @@ type SanPham struct {
 	NgayCapNhat    string  `json:"ngay_cap_nhat"`
 }
 
+// STORE ĐA SHOP
 var (
-	_DS_SanPham  []*SanPham
-	_Map_SanPham map[string]*SanPham
+	CacheSanPham    = make(map[string][]*SanPham)
+	CacheMapSanPham = make(map[string]map[string]*SanPham)
 )
 
-func NapSanPham(targetSpreadsheetID string) {
-	if targetSpreadsheetID == "" { targetSpreadsheetID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(targetSpreadsheetID, "SAN_PHAM")
+func NapSanPham(shopID string) {
+	raw, err := loadSheetData(shopID, "SAN_PHAM")
 	if err != nil { return }
 
-	_Map_SanPham = make(map[string]*SanPham)
-	_DS_SanPham = []*SanPham{}
-
+	list := []*SanPham{}
+	
 	for i, r := range raw {
 		if i < DongBatDau_SanPham-1 { continue }
 		maSP := layString(r, CotSP_MaSanPham)
 		if maSP == "" { continue }
 
-		key := TaoCompositeKey(targetSpreadsheetID, maSP)
-		if _, daTonTai := _Map_SanPham[key]; daTonTai { continue }
-
 		sp := &SanPham{
-			SpreadsheetID:  targetSpreadsheetID,
+			SpreadsheetID: shopID,
 			DongTrongSheet: i + 1,
 			MaSanPham:      maSP,
 			TenSanPham:     layString(r, CotSP_TenSanPham),
@@ -126,9 +121,15 @@ func NapSanPham(targetSpreadsheetID string) {
 			NgayTao:        layString(r, CotSP_NgayTao),
 			NgayCapNhat:    layString(r, CotSP_NgayCapNhat),
 		}
-		_DS_SanPham = append(_DS_SanPham, sp)
-		_Map_SanPham[key] = sp
+		
+		list = append(list, sp)
+		key := TaoCompositeKey(shopID, maSP)
+		CacheMapSanPham[key] = sp
 	}
+
+	KhoaHeThong.Lock()
+	CacheSanPham[shopID] = list
+	KhoaHeThong.Unlock()
 }
 
 func LayDanhSachSanPham() []*SanPham {
