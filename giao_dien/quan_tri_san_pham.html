@@ -110,9 +110,9 @@
                             <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-6 py-4">
                                 <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
-                                    <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23fee2e2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%23ef4444%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EL%E1%BB%97i%3C%2Ftext%3E%3C%2Fsvg%3E{{ end }}" 
+                                    <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}2000%2Fsvg"%20width%3D"40"%20height%3D"40"><rect%20width%3D"40"%20height%3D"40"%20fill%3D"%23f1f5f9"%2F><text%20x%3D"50%25"%20y%3D"50%25"%20font-family%3D"sans-serif"%20font-weight%3D"bold"%20font-size%3D"10"%20fill%3D"%2394a3b8"%20text-anchor%3D"middle"%20dominant-baseline%3D"middle">No%20Img<%2Ftext><%2Fsvg>{{ end }}" 
                                          class="preview-img-table max-w-full max-h-full object-cover rounded-sm"
-                                         onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23fee2e2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%23ef4444%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EL%E1%BB%97i%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                                         onerror="this.src='2000%2Fsvg"%20width%3D"40"%20height%3D"40"><rect%20width%3D"40"%20height%3D"40"%20fill%3D"%23f1f5f9"%2F><text%20x%3D"50%25"%20y%3D"50%25"%20font-family%3D"sans-serif"%20font-weight%3D"bold"%20font-size%3D"10"%20fill%3D"%2394a3b8"%20text-anchor%3D"middle"%20dominant-baseline%3D"middle">No%20Img<%2Ftext><%2Fsvg>'">
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-slate-900 min-w-[200px]">{{ .TenSanPham }}</td>
@@ -472,7 +472,7 @@
             
             // Xử lý link Drive khi hiển thị lên form sửa
             let displayValue = value;
-            let imgSrc = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23fee2e2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%23ef4444%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EL%E1%BB%97i%3C%2Ftext%3E%3C%2Fsvg%3E";
+            let imgSrc = "2000%2Fsvg"%20width%3D"40"%20height%3D"40"><rect%20width%3D"40"%20height%3D"40"%20fill%3D"%23f1f5f9"%2F><text%20x%3D"50%25"%20y%3D"50%25"%20font-family%3D"sans-serif"%20font-weight%3D"bold"%20font-size%3D"10"%20fill%3D"%2394a3b8"%20text-anchor%3D"middle"%20dominant-baseline%3D"middle">No%20Img<%2Ftext><%2Fsvg>";
             
             if (value) {
                 let directLink = convertDriveLink(value);
@@ -480,7 +480,7 @@
             }
 
             div.innerHTML = `
-                <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23fee2e2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%23ef4444%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EL%E1%BB%97i%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='2000%2Fsvg"%20width%3D"40"%20height%3D"40"><rect%20width%3D"40"%20height%3D"40"%20fill%3D"%23f1f5f9"%2F><text%20x%3D"50%25"%20y%3D"50%25"%20font-family%3D"sans-serif"%20font-weight%3D"bold"%20font-size%3D"10"%20fill%3D"%2394a3b8"%20text-anchor%3D"middle"%20dominant-baseline%3D"middle">No%20Img<%2Ftext><%2Fsvg>'">
                 <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)"> 
                 <span onclick="this.parentElement.remove()" class="btn-remove-img">✕</span>
             `;
