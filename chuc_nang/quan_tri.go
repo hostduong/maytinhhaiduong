@@ -3,13 +3,11 @@ package chuc_nang
 import (
 	"net/http"
 	"time"
-
 	"app/core"
-
 	"github.com/gin-gonic/gin"
 )
 
-// Struct dữ liệu hiển thị
+// Struct hiển thị
 type DuLieuDashboard struct {
 	TongDoanhThu    float64
 	DonHangHomNay   int
@@ -20,15 +18,14 @@ type DuLieuDashboard struct {
 }
 
 func TrangTongQuan(c *gin.Context) {
-	// [SAAS] Lấy Context
-	shopID := c.GetString("SHOP_ID")
+	shopID := c.GetString("SHOP_ID") // [SAAS]
 	userID := c.GetString("USER_ID")
 	vaiTro := c.GetString("USER_ROLE")
 	
-	// Lấy thông tin user (truyền shopID)
+	// Lấy khách hàng theo shop
 	kh, _ := core.LayKhachHang(shopID, userID)
 	
-	// Tính thống kê cho Shop này
+	// Tính thống kê theo shop
 	stats := tinhToanThongKe(shopID)
 
 	c.HTML(http.StatusOK, "quan_tri", gin.H{
@@ -41,9 +38,8 @@ func TrangTongQuan(c *gin.Context) {
 	})
 }
 
-// API Reload dữ liệu (Đồng bộ cho Shop hiện tại)
 func API_NapLaiDuLieu(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID")
+	shopID := c.GetString("SHOP_ID") // [SAAS]
 	vaiTro := c.GetString("USER_ROLE")
 	
 	if vaiTro != "admin_root" && vaiTro != "admin" {
@@ -54,7 +50,7 @@ func API_NapLaiDuLieu(c *gin.Context) {
 	go func() {
 		core.HeThongDangBan = true
 		
-		// Nạp lại toàn bộ dữ liệu của Shop này
+		// [SAAS] Nạp lại dữ liệu của chính Shop này
 		core.NapPhanQuyen(shopID) 
 		core.NapDanhMuc(shopID)   
 		core.NapThuongHieu(shopID)
@@ -67,18 +63,18 @@ func API_NapLaiDuLieu(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong", 
-		"thong_diep": "Đang tiến hành đồng bộ dữ liệu từ Sheet...",
+		"thong_diep": "Đang tiến hành đồng bộ toàn bộ dữ liệu...",
 	})
 }
 
-// Hàm tính toán thống kê (Theo Shop)
+// Hàm thống kê (Cần ShopID)
 func tinhToanThongKe(shopID string) DuLieuDashboard {
 	var kq DuLieuDashboard
 
 	core.KhoaHeThong.RLock()
 	defer core.KhoaHeThong.RUnlock()
 
-	// Lấy danh sách của Shop ID
+	// Đếm số lượng trong Shop
 	kq.TongSanPham = len(core.LayDanhSachSanPham(shopID))
 	kq.TongKhachHang = len(core.LayDanhSachKhachHang(shopID))
 	
@@ -89,7 +85,7 @@ func tinhToanThongKe(shopID string) DuLieuDashboard {
 		t := time.Now().AddDate(0, 0, -i)
 		label := t.Format("02/01")
 		kq.ChartNhan = append(kq.ChartNhan, label)
-		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0) 
+		kq.ChartDoanhThu = append(kq.ChartDoanhThu, 0)
 	}
 
 	return kq
