@@ -12,6 +12,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Middleware lấy ShopID
+func XacDinhShop(c *gin.Context) {
+	host := c.Request.Host
+	// Tách port nếu có (localhost:8080 -> localhost)
+	if strings.Contains(host, ":") {
+		host = strings.Split(host, ":")[0]
+	}
+
+	shopID := cau_hinh.MapDomainShop[host]
+	if shopID == "" {
+		shopID = cau_hinh.BienCauHinh.IdFileSheet // Fallback
+	}
+
+	c.Set("SHOP_ID", shopID) // Lưu để dùng sau này
+	c.Next()
+}
+
+func KiemTraDangNhap(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	cookie, _ := c.Cookie("session_id")
+
+	// Gọi hàm Core mới có shopID
+	kh, ok := core.TimKhachHangTheoCookie(shopID, cookie)
+	
+	if !ok {
+		c.Redirect(http.StatusFound, "/login")
+		c.Abort()
+		return
+	}
+	
 // =============================================================
 // PHẦN 1: RATE LIMIT (GIỮ NGUYÊN LOGIC CŨ)
 // =============================================================
