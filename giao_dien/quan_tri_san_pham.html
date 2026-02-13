@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        /* ... (GIỮ NGUYÊN CSS CŨ CỦA BẠN) ... */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         .modal-body { max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 2rem; background-color: #f8fafc; }
         .modal-body::-webkit-scrollbar { width: 6px; }
@@ -210,14 +209,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                             <div>
                                 <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions();">
+                                <input type="text" name="gia_nhap" id="gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions(); applySmartProfit();">
                             </div>
                             
                             <div class="md:col-span-1">
                                 <label>Quy tắc tính lãi & Biên độ %</label>
-                                <select id="smart_profit_select" class="input-premium bg-white cursor-pointer font-bold text-slate-700" onchange="applySmartProfit()">
-                                    <option value="0">--- Vui lòng nhập giá vốn ---</option>
-                                </select>
+                                <input id="smart_profit_select" class="input-premium bg-white cursor-text font-bold text-blue-700" placeholder="Chọn hoặc tự gõ % (vd: 15)...">
                                 <input type="hidden" id="loi_nhuan" value="0">
                             </div>
 
@@ -234,7 +231,7 @@
                             </div>
                             <div>
                                 <label>Giảm giá Khuyến mãi (%)</label>
-                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="renderSmartProfitOptions(); applySmartProfit()">
+                                <input type="number" name="giam_gia" id="giam_gia" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="applySmartProfit()">
                             </div>
                             <div>
                                 <label class="text-emerald-700">Giá Bán Ra Thực Tế (Sau KM)</label>
@@ -245,7 +242,7 @@
                         <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer select-none mb-0">
                                 <input type="checkbox" name="trang_thai" id="trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" checked>
-                                <span class="ml-3 text-sm font-bold text-slate-800">Được phép kinh doanh (Hiển thị trên Web)</span>
+                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
                             </label>
                         </div>
                     </div>
@@ -291,10 +288,7 @@
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
         document.querySelectorAll('.preview-img-table').forEach(img => { 
             let raw = img.getAttribute('src'); 
-            // Xử lý hiển thị ảnh cho bảng chính
-            if (raw && raw.includes('drive.google.com')) {
-                img.src = convertDriveLink(raw);
-            }
+            if (raw && raw.includes('drive.google.com')) { img.src = convertDriveLink(raw); }
         });
         document.querySelectorAll('.dm-tags').forEach(span => { let raw = span.getAttribute('data-tags'); if(raw) span.innerText = raw.split('|').join(', '); });
         document.getElementById('data_island').remove();
@@ -306,10 +300,42 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
 
+        // [MỚI] INIT TAGIFY CHO Ô NHẬP LỢI NHUẬN
+        const tagifyProfit = new Tagify(document.querySelector('#smart_profit_select'), {
+            mode: 'select',
+            enforceWhitelist: false, // CHo phép tự gõ số
+            whitelist: [],
+            dropdown: { maxItems: 10, classname: "tags-look", enabled: 0, closeOnSelect: true }
+        });
+
         let isEditingMode = false;
         
-        tagifyDM.on('add', function(e) { if(isEditingMode) return; if (tagifyDM.value.length > 0) { const info = dicDanhMuc[tagifyDM.value[0].value]; if (info) { if (document.getElementById('ma_san_pham').value === "") { document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0'); } renderSmartProfitOptions(); applySmartProfit(); } } });
-        tagifyDM.on('remove', function(e) { if(isEditingMode) return; if (tagifyDM.value.length === 0) { if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; renderSmartProfitOptions(); } });
+        tagifyDM.on('add', function(e) { 
+            if(isEditingMode) return; 
+            if (tagifyDM.value.length > 0) { 
+                const info = dicDanhMuc[tagifyDM.value[0].value]; 
+                if (info) { 
+                    if (document.getElementById('ma_san_pham').value === "") { 
+                        document.getElementById('ma_san_pham_preview').value = info.prefix + String(info.nextStt + 1).padStart(4, '0'); 
+                    } 
+                } 
+                renderSmartProfitOptions(); 
+                applySmartProfit(); 
+            } 
+        });
+        
+        tagifyDM.on('remove', function(e) { 
+            if(isEditingMode) return; 
+            if (tagifyDM.value.length === 0) { 
+                if(document.getElementById('ma_san_pham').value === "") document.getElementById('ma_san_pham_preview').value = ""; 
+                renderSmartProfitOptions(); 
+            } 
+        });
+
+        // Bắt sự kiện khi người dùng Chọn/Gõ trên Tagify Profit
+        tagifyProfit.on('change', function(e) {
+            if(!isEditingMode) applySmartProfit();
+        });
 
         // --- HÀM TIỆN ÍCH ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
@@ -317,113 +343,77 @@
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
 
-        // [MỚI] HÀM CONVERT LINK DRIVE
         function convertDriveLink(url) {
             if (!url) return "";
             if (url.includes("drive.google.com") && url.includes("/d/")) {
                 const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                    return "https://lh3.googleusercontent.com/d/" + match[1];
-                }
+                if (match && match[1]) return "https://lh3.googleusercontent.com/d/" + match[1];
             }
             return url;
         }
 
-        // --- SMART DROPDOWN ---
+        // --- SMART PROFIT LOGIC ---
         function renderSmartProfitOptions() {
-            if(isEditingMode && document.getElementById('smart_profit_select').value === 'manual') return;
-
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
-            const select = document.getElementById('smart_profit_select');
-            select.innerHTML = "";
+            let whitelist = [];
 
-            if (giaNhap <= 0) {
-                select.innerHTML = '<option value="0">--- Nhập giá vốn trước ---</option>';
-                return;
-            }
+            if (giaNhap > 0) {
+                const tags = tagifyDM.value;
+                if (tags && tags.length > 0) {
+                    const info = dicDanhMuc[tags[0].value];
+                    if (info && info.loiNhuan > 0) {
+                        whitelist.push({ value: `🔷 Theo Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan });
+                    }
+                }
 
-            let catMargin = 0, catName = "";
-            const tags = tagifyDM.value;
-            if (tags && tags.length > 0) {
-                const info = dicDanhMuc[tags[0].value];
-                if (info && info.loiNhuan > 0) {
-                    catMargin = info.loiNhuan;
-                    catName = tags[0].value;
-                    let optCat = document.createElement('option');
-                    optCat.value = catMargin;
-                    optCat.innerHTML = `🔷 Theo Danh Mục ${catName} (${catMargin}%)`;
-                    if(catMargin > 0) optCat.setAttribute('data-color', 'red'); 
-                    select.appendChild(optCat);
+                let priceMargin = 0;
+                for (let i = 0; i < listBLN.length; i++) {
+                    if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
+                }
+                if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
+                
+                if (priceMargin > 0) {
+                    whitelist.push({ value: `🔶 Theo Khung Giá (${priceMargin}%)`, margin: priceMargin });
                 }
             }
-
-            let priceMargin = 0;
-            for (let i = 0; i < listBLN.length; i++) {
-                if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
-            }
-            if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
             
-            if (priceMargin > 0) {
-                let optPrice = document.createElement('option');
-                optPrice.value = priceMargin;
-                optPrice.innerHTML = `🔶 Theo Khung Giá (${priceMargin}%)`;
-                select.appendChild(optPrice);
+            tagifyProfit.settings.whitelist = whitelist;
+
+            // Tự động chọn nếu đang rỗng và không ở chế độ sửa
+            if (!tagifyProfit.value.length && whitelist.length > 0 && !isEditingMode) {
+                tagifyProfit.addTags([whitelist[0]]);
             }
-
-            let optManual = document.createElement('option');
-            optManual.value = 'manual';
-            optManual.innerHTML = '✍️ Tự nhập số khác...';
-            select.appendChild(optManual);
-
-            if (catMargin > 0) select.value = catMargin;
-            else if (priceMargin > 0) select.value = priceMargin;
         }
 
-function applySmartProfit(isUserClick = false) {
-            let select = document.getElementById('smart_profit_select');
-            let val = select.value;
+        function applySmartProfit() {
+            let val = tagifyProfit.value; // Dữ liệu của Tagify trả về dạng Mảng Object
             let finalMargin = 0;
 
-            if (val === 'manual') {
-                // NẾU HỆ THỐNG TỰ ĐỘNG GỌI -> Chỉ tính toán ngầm, KHÔNG BẬT POPUP
-                if (!isUserClick) {
-                    let text = select.options[select.selectedIndex].text;
-                    let match = text.match(/\(([-\d.]+)%\)/);
-                    if (match && match[1]) {
-                        finalMargin = parseFloat(match[1]);
+            if (val && val.length > 0) {
+                let selected = val[0];
+                if (selected.margin !== undefined) {
+                    // Chọn từ danh sách gợi ý
+                    finalMargin = parseFloat(selected.margin);
+                } else {
+                    // Người dùng tự GÕ MỘT SỐ VÀO (Vd: "25" hoặc "15%")
+                    let match = selected.value.match(/[\d.]+/); // Bóc tách lấy đúng con số
+                    if (match) {
+                        finalMargin = parseFloat(match[0]);
+                        // Thay đổi lại text hiển thị cho chuyên nghiệp (Không kích hoạt event loop)
+                        setTimeout(() => {
+                            isEditingMode = true; // Khóa sự kiện
+                            tagifyProfit.removeAllTags();
+                            tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${finalMargin}%)`, margin: finalMargin }]);
+                            isEditingMode = false; // Mở sự kiện
+                        }, 10);
                     }
-                    document.getElementById('loi_nhuan').value = finalMargin;
-                    calcPrices(finalMargin);
-                    return; 
                 }
-
-                // NẾU NGƯỜI DÙNG TỰ TAY BẤM -> Bật popup yêu cầu nhập
-                Swal.fire({
-                    title: 'Nhập % Lợi nhuận',
-                    input: 'number',
-                    inputValue: document.getElementById('loi_nhuan').value,
-                    showCancelButton: true,
-                    confirmButtonText: 'Áp dụng',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        finalMargin = parseFloat(result.value) || 0;
-                        select.options[select.selectedIndex].text = `✍️ Tự nhập (${finalMargin}%)`;
-                        document.getElementById('loi_nhuan').value = finalMargin;
-                        calcPrices(finalMargin);
-                    } else {
-                        // Nếu bấm Hủy, quay về tùy chọn tự động trước đó (ẩn popup)
-                        renderSmartProfitOptions();
-                        applySmartProfit(false); 
-                    }
-                });
-            } else {
-                finalMargin = parseFloat(val) || 0;
-                document.getElementById('loi_nhuan').value = finalMargin;
-                if(finalMargin > 0) select.style.color = "#dc2626"; else select.style.color = "#334155";
-                calcPrices(finalMargin);
             }
+
+            document.getElementById('loi_nhuan').value = finalMargin;
+            calcPrices(finalMargin);
         }
-        
+
         function calcPrices(loiNhuan) {
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
@@ -441,6 +431,10 @@ function applySmartProfit(isUserClick = false) {
 
                 let giaBanThuc = round10k(pList * (1 - (giamGia / 100)));
                 document.getElementById('gia_ban_thuc').value = formatNumber(giaBanThuc.toString());
+            } else {
+                document.getElementById('lai_vnd').value = "";
+                document.getElementById('gia_ban_le').value = "";
+                document.getElementById('gia_ban_thuc').value = "";
             }
         }
 
@@ -454,27 +448,15 @@ function applySmartProfit(isUserClick = false) {
                 let laiVND = giaBanThuc - giaNhap;
                 let phanTramLai = (laiVND / giaNhap) * 100;
                 
-                let select = document.getElementById('smart_profit_select');
-                let found = false;
-                for(let i=0; i<select.options.length; i++) {
-                    if(select.options[i].value === 'manual') {
-                        select.options[i].text = `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`;
-                        select.selectedIndex = i;
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found) {
-                    let opt = document.createElement('option');
-                    opt.value = 'manual';
-                    opt.text = `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`;
-                    select.appendChild(opt);
-                    select.value = 'manual';
-                }
-
                 document.getElementById('loi_nhuan').value = phanTramLai.toFixed(2);
                 document.getElementById('lai_vnd').value = formatNumber(Math.round(laiVND).toString());
                 document.getElementById('gia_ban_thuc').value = formatNumber(round10k(giaBanThuc).toString());
+
+                // Âm thầm Update giao diện Tagify Profit mà không bị gọi hàm loop
+                isEditingMode = true; 
+                tagifyProfit.removeAllTags();
+                tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`, margin: phanTramLai }]);
+                isEditingMode = false;
             }
         }
 
@@ -483,16 +465,8 @@ function applySmartProfit(isUserClick = false) {
             const container = document.getElementById('imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
-            
-            // Xử lý link Drive khi hiển thị lên form sửa
-            let displayValue = value;
             let imgSrc = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
-            
-            if (value) {
-                let directLink = convertDriveLink(value);
-                imgSrc = directLink;
-            }
-
+            if (value) imgSrc = convertDriveLink(value);
             div.innerHTML = `
                 <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
                 <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)"> 
@@ -502,31 +476,34 @@ function applySmartProfit(isUserClick = false) {
         }
 
         function openModal() {
-            isEditingMode = false; document.getElementById('formSP').reset();
+            isEditingMode = true; // Tạm thời khóa event
+            document.getElementById('formSP').reset();
             document.getElementById('ma_san_pham').value = ""; document.getElementById('ma_san_pham_preview').value = ""; 
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             tagifyDM.removeAllTags(); tagifyTH.removeAllTags(); tagifyDonVi.removeAllTags(); tagifyTinhTrang.removeAllTags(); tagifyMauSac.removeAllTags();
+            tagifyProfit.removeAllTags(); // Reset ô lợi nhuận
+
             document.getElementById('imgContainer').innerHTML = ''; addImgInput('');
-            
-            document.getElementById('smart_profit_select').innerHTML = '<option value="0">--- Nhập giá vốn ---</option>';
             document.getElementById('gia_ban_thuc').value = "";
             document.getElementById('lai_vnd').value = "";
+            document.getElementById('loi_nhuan').value = "0";
 
             document.getElementById('modalSP').classList.remove('hidden');
+            setTimeout(() => { isEditingMode = false; }, 300); // Mở lại event
         }
         
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
             const sp = mapSP[id]; if(!sp) return;
-            isEditingMode = true;
+            isEditingMode = true; // KHÓA EVENT ĐỂ KHÔNG NHẢY TUNG TÓE KHI FILL DỮ LIỆU
 
             document.getElementById('ma_san_pham').value = sp.ma_san_pham; document.getElementById('ma_san_pham_preview').value = sp.ma_san_pham; 
             document.getElementById('ten_san_pham').value = sp.ten_san_pham; document.getElementById('ten_rut_gon').value = sp.ten_rut_gon; document.getElementById('sku').value = sp.sku;
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
-            renderSmartProfitOptions();
+            renderSmartProfitOptions(); 
 
             let currentMargin = 0;
             if(sp.gia_nhap > 0) {
@@ -535,23 +512,24 @@ function applySmartProfit(isUserClick = false) {
                 currentMargin = (lai / sp.gia_nhap) * 100;
             }
 
-            let select = document.getElementById('smart_profit_select');
+            // Tìm xem tỉ lệ lợi nhuận hiện tại có trùng với khung gợi ý nào không
             let matched = false;
-            for(let i=0; i<select.options.length; i++) {
-                let optVal = parseFloat(select.options[i].value);
-                if (select.options[i].value !== 'manual' && Math.abs(currentMargin - optVal) < 0.1) {
-                    select.selectedIndex = i; matched = true; break;
+            tagifyProfit.settings.whitelist.forEach(item => {
+                if (Math.abs(item.margin - currentMargin) < 0.1) {
+                    tagifyProfit.removeAllTags();
+                    tagifyProfit.addTags([item]);
+                    matched = true;
                 }
-            }
+            });
+
+            // Nếu không trùng, hiển thị dạng số tùy chỉnh
             if(!matched && sp.gia_nhap > 0) {
-                for(let i=0; i<select.options.length; i++) {
-                    if(select.options[i].value === 'manual') {
-                        select.options[i].text = `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`;
-                        select.selectedIndex = i; break;
-                    }
-                }
+                tagifyProfit.removeAllTags();
+                tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`, margin: currentMargin }]);
             }
-            applySmartProfit();
+            
+            // Ép điền dữ liệu vào form luôn
+            calcPrices(currentMargin);
 
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
@@ -574,14 +552,15 @@ function applySmartProfit(isUserClick = false) {
 
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             document.getElementById('modalSP').classList.remove('hidden');
-            setTimeout(() => { isEditingMode = false; }, 500);
+            
+            setTimeout(() => { isEditingMode = false; }, 300); // Mở sự kiện lại
         }
 
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             const links = []; document.querySelectorAll('.img-input-group input').forEach(inp => { 
                 if(inp.value.trim()) {
-                    let finalLink = convertDriveLink(inp.value.trim()); // Auto convert khi lưu
+                    let finalLink = convertDriveLink(inp.value.trim()); 
                     links.push(finalLink); 
                 }
             });
