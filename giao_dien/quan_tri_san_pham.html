@@ -160,12 +160,12 @@
                                 </div>
                                 <div>
                                     <label>Mã SKU (Nội bộ/Mã Vạch)</label>
-                                    <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Để trống tự sinh (VD: SP001-01)">
+                                    <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Đang chờ tạo tự động...">
                                 </div>
                                 <div class="flex flex-col gap-3 pb-1">
                                     <label class="flex items-center cursor-pointer select-none mb-0">
                                         <input type="radio" name="r_sku_chinh" id="f_sku_chinh" class="w-5 h-5 text-purple-600 focus:ring-purple-500 cursor-pointer" onchange="setMainSKU()">
-                                        <span class="ml-2 text-sm font-bold text-slate-800">👑 BẢN ĐẠI DIỆN (WEB)</span>
+                                        <span class="ml-2 text-sm font-bold text-slate-800">👑 BẢN ĐẠI DIỆN WEB</span>
                                     </label>
                                     <label class="flex items-center cursor-pointer select-none mb-0">
                                         <input type="checkbox" id="f_trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" onchange="updateTabColor()">
@@ -178,7 +178,7 @@
                         <div class="form-section">
                             <div class="section-title">
                                 <span>📝 Thông tin chung</span>
-                                <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn">
+                                <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn btn-sync-main">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
@@ -204,7 +204,7 @@
                         <div class="form-section">
                             <div class="section-title">
                                 <span>🏷️ Phân loại & Thuộc tính</span>
-                                <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh')" class="copy-btn">
+                                <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh')" class="copy-btn btn-sync-main">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
@@ -231,7 +231,7 @@
                         <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
                             <div class="section-title flex justify-between">
                                 <span>💰 Định giá Kinh Doanh</span>
-                                <button type="button" onclick="syncFromMain('gia_nhap', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn">
+                                <button type="button" onclick="syncFromMain('gia_nhap', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
@@ -246,7 +246,7 @@
                                 <div>
                                     <label>Quy tắc tính lãi</label>
                                     <select id="f_quy_tac_gia" class="input-premium font-bold text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()">
-                                        <option value="manual">✍️ Tự chỉnh</option>
+                                        <option value="manual">Tự chỉnh</option>
                                     </select>
                                 </div>
 
@@ -284,7 +284,7 @@
                         <div class="form-section mb-0">
                             <div class="section-title">
                                 <span>🖼️ Hình ảnh & Bài viết mô tả</span>
-                                <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn">
+                                <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn btn-sync-main">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
@@ -293,7 +293,7 @@
                             <div class="mb-5">
                                 <div class="flex justify-between items-center mb-2">
                                     <label style="margin-bottom:0">Danh sách Link ảnh</label>
-                                    <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
+                                    <button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
                                 </div>
                                 <div id="f_imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
                             </div>
@@ -329,6 +329,7 @@
             if(id) { 
                 if(!mapGroupSP[id]) mapGroupSP[id] = [];
                 mapGroupSP[id].push({
+                    _is_saved: true, // Cờ nhận biết đây là hàng đã ghi xuống DB
                     ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-tensp')), ten_rut_gon: decodeGo(el.getAttribute('data-tenrutgon')), slug: decodeGo(el.getAttribute('data-slug')),
                     ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), 
                     ma_danh_muc: decodeGo(el.getAttribute('data-danhmuc')), ma_thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), mau_sac: decodeGo(el.getAttribute('data-mausac')),
@@ -354,18 +355,24 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
 
-        // TỰ ĐỘNG SINH MÃ SẢN PHẨM & CẬP NHẬT LUẬT GIÁ KHI ĐỔI DANH MỤC
+        // TỰ ĐỘNG SINH MÃ SẢN PHẨM & MÃ SKU KHI ĐỔI DANH MỤC
         tagifyDM.on('add', function(e) { 
             if(isEditingMode) return; 
             
-            // Sinh mã gốc nếu chưa có (áp dụng cho thêm mới)
             let maSpInput = document.getElementById('f_ma_san_pham');
             if (!maSpInput.value && tagifyDM.value.length > 0) {
                 const info = dicDanhMuc[tagifyDM.value[0].value]; 
                 if (info) { 
                     let newMa = info.prefix + String(info.nextStt + 1).padStart(4, '0');
                     maSpInput.value = newMa;
-                    currentSkus.forEach(sku => sku.ma_san_pham = newMa);
+                    currentSkus.forEach((sku, idx) => {
+                        sku.ma_san_pham = newMa;
+                        // Chỉ ép sinh mã SKU nếu nó chưa được lưu vào DB (Mới tinh)
+                        if (!sku._is_saved && !sku.ma_sku) {
+                            sku.ma_sku = newMa + "-" + String(idx + 1).padStart(2, '0');
+                        }
+                    });
+                    document.getElementById('f_ma_sku').value = currentSkus[activeTabIndex].ma_sku;
                 } 
             }
             renderQuyTacGia(); 
@@ -373,11 +380,11 @@
 
         tagifyDM.on('remove', function(e) { 
             if(isEditingMode) return; 
-            // Nếu rút hết Danh Mục và đây là SP mới tinh -> Xóa trắng Mã gốc
-            let isAllNew = currentSkus.every(sku => !sku.ma_sku);
+            let isAllNew = currentSkus.every(sku => !sku._is_saved);
             if (tagifyDM.value.length === 0 && isAllNew) {
                 document.getElementById('f_ma_san_pham').value = "";
-                currentSkus.forEach(sku => sku.ma_san_pham = "");
+                currentSkus.forEach(sku => { sku.ma_san_pham = ""; sku.ma_sku = ""; });
+                document.getElementById('f_ma_sku').value = "";
             }
             renderQuyTacGia(); 
         });
@@ -389,6 +396,7 @@
 
         function createEmptySKU() {
             return {
+                _is_saved: false, // Cờ nhận biết hàng mới đẻ trên Form
                 ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản 1", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
                 khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", thong_so_html: "", mo_ta_html: ""
             };
@@ -411,7 +419,7 @@
                 if (isDeleted) {
                     cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
                 } else if (isMain) {
-                    cls += "bg-amber-100 text-amber-800 border-amber-300 font-extrabold shadow-sm "; // Đổi sang màu Cam Vàng cực nổi
+                    cls += "bg-amber-100 text-amber-800 border-amber-300 font-extrabold shadow-sm "; 
                 } else if (isOff) {
                     cls += "bg-slate-100 text-slate-500 border-slate-200 ";
                 } else {
@@ -421,8 +429,7 @@
                 let name = sku.ten_sku ? sku.ten_sku : `Phiên bản ${idx+1}`;
                 let crown = isMain ? "👑 " : "";
                 
-                // Show X nếu chưa bị xóa logic, HOẶC nếu nó là tab mới tinh (chưa lưu RAM)
-                let showX = (!isDeleted && aliveCount > 1) || (!sku.ma_sku);
+                let showX = (!isDeleted && aliveCount > 1) || (!sku._is_saved);
 
                 html += `
                     <div class="${cls}" onclick="switchTab(${idx})">
@@ -453,6 +460,11 @@
                 newSku.ma_danh_muc = mainRef.ma_danh_muc; newSku.ma_thuong_hieu = mainRef.ma_thuong_hieu;
                 newSku.don_vi = mainRef.don_vi; newSku.bao_hanh = mainRef.bao_hanh; 
                 newSku.thong_so_html = mainRef.thong_so_html; newSku.mo_ta_html = mainRef.mo_ta_html;
+                
+                // Tự sinh mã SKU nếu đã có mã sản phẩm gốc
+                if (mainRef.ma_san_pham) {
+                    newSku.ma_sku = mainRef.ma_san_pham + "-" + String(currentSkus.length + 1).padStart(2, '0');
+                }
             }
             newSku.ten_sku = `Phiên bản ${currentSkus.length + 1}`;
             currentSkus.push(newSku);
@@ -461,10 +473,10 @@
             loadTabToForm(activeTabIndex);
         }
 
-        // XOÁ THÔNG MINH (PHÂN BIỆT TAB LƯU RAM / CHƯA LƯU)
+        // XOÁ THÔNG MINH (PHÂN BIỆT TAB ĐÃ LƯU RAM / CHƯA LƯU)
         function removeTab(idx) {
-            let isNewTab = !currentSkus[idx].ma_sku; 
-            let msg = isNewTab ? "Phiên bản này vừa tạo, sẽ bị xóa vĩnh viễn khỏi Form." : "Tab này sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm Lưu Sản Phẩm.";
+            let isNewTab = !currentSkus[idx]._is_saved; 
+            let msg = isNewTab ? "Phiên bản này chưa lưu (chưa có trong CSDL), sẽ bị xóa vĩnh viễn khỏi Form." : "Phiên bản đã lưu CSDL sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm nút Lưu Sản Phẩm bên dưới.";
 
             Swal.fire({ title: 'Xóa phiên bản này?', text: msg, icon: 'warning', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#ef4444' }).then((result) => {
                 if(result.isConfirmed) {
@@ -490,15 +502,26 @@
 
         function restoreTab() {
             if (activeTabIndex >= 0 && currentSkus[activeTabIndex]) {
-                currentSkus[activeTabIndex].trang_thai = 1; 
-                renderTabs(); loadTabToForm(activeTabIndex);
+                Swal.fire({
+                    title: 'Khôi phục phiên bản này?',
+                    text: "Phiên bản này sẽ được mở khóa và tiếp tục kinh doanh.",
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý',
+                    confirmButtonColor: '#3b82f6'
+                }).then((result) => {
+                    if(result.isConfirmed) {
+                        currentSkus[activeTabIndex].trang_thai = 1; 
+                        renderTabs(); loadTabToForm(activeTabIndex);
+                    }
+                });
             }
         }
 
         function setMainSKU() {
             currentSkus.forEach((sku, idx) => { sku.sku_chinh = (idx === activeTabIndex) ? 1 : 0; });
             document.getElementById('f_trang_thai').checked = true; // Đại diện luôn bật hiển thị web
-            updateTabColor(); // Lên màu luôn
+            updateTabColor(); 
         }
 
         function updateTabName() {
@@ -515,7 +538,7 @@
             }
         }
 
-        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
+        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN" THÔNG MINH
         function syncFromMain(...props) {
             saveCurrentTabToState(); 
             
@@ -532,7 +555,7 @@
                     }
                 });
                 if (count > 0) { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 }); } 
-                else { Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để copy!`, showConfirmButton: false, timer: 1500 }); }
+                else { Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để đồng bộ!`, showConfirmButton: false, timer: 1500 }); }
             } else {
                 props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
@@ -544,7 +567,7 @@
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
-            if (sku.trang_thai === -1) return; 
+            if (sku.trang_thai === -1) return; // Tab đã đánh dấu xóa thì ngưng ghi nhận rác từ form
             
             sku.ten_sku = document.getElementById('f_ten_sku').value;
             sku.ma_sku = document.getElementById('f_ma_sku').value;
@@ -587,10 +610,21 @@
 
             const fieldset = document.getElementById('form_fieldset');
             const warningBox = document.getElementById('warning_deleted');
+            const syncBtns = document.querySelectorAll('.btn-sync-main');
+            
+            // XỬ LÝ KHÓA CỨNG TAB BỊ XÓA LOGIC
             if (sp.trang_thai === -1) {
-                fieldset.disabled = true; warningBox.classList.remove('hidden');
+                fieldset.disabled = true; 
+                warningBox.classList.remove('hidden');
+                syncBtns.forEach(b => b.classList.add('hidden'));
+                [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(true));
+                document.getElementById('btn_add_img').classList.add('hidden');
             } else {
-                fieldset.disabled = false; warningBox.classList.add('hidden');
+                fieldset.disabled = false; 
+                warningBox.classList.add('hidden');
+                syncBtns.forEach(b => b.classList.remove('hidden'));
+                [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(false));
+                document.getElementById('btn_add_img').classList.remove('hidden');
             }
 
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
@@ -599,12 +633,14 @@
             // KHÓA MÃ SKU NẾU ĐÃ GHI RAM (Sheet)
             let maSkuInput = document.getElementById('f_ma_sku');
             maSkuInput.value = sp.ma_sku;
-            if (sp.ma_sku) { 
+            if (sp._is_saved) { 
                 maSkuInput.disabled = true;
                 maSkuInput.classList.add('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
             } else {
-                maSkuInput.disabled = false;
-                maSkuInput.classList.remove('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
+                if (sp.trang_thai !== -1) {
+                    maSkuInput.disabled = false;
+                    maSkuInput.classList.remove('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
+                }
             }
 
             document.getElementById('f_sku_chinh').checked = (sp.sku_chinh === 1);
@@ -647,8 +683,10 @@
             document.getElementById('f_mo_ta_html').value = sp.mo_ta_html;
             document.getElementById('f_ghi_chu').value = sp.ghi_chu;
 
+            // Xử lý ẩn nút Xóa của Ảnh nếu Tab bị xóa
             document.getElementById('f_imgContainer').innerHTML = '';
-            if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
+            let isReadonly = (sp.trang_thai === -1);
+            if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link, isReadonly)); } else { addImgInput('', isReadonly); }
 
             setTimeout(() => { isEditingMode = false; }, 300); 
         }
@@ -833,7 +871,7 @@
         }
 
         // --- HÌNH ẢNH ---
-        function addImgInput(value) {
+        function addImgInput(value, isReadonly = false) {
             const container = document.getElementById('f_imgContainer');
             const div = document.createElement('div');
             div.className = 'img-input-group';
@@ -841,7 +879,7 @@
             div.innerHTML = `
                 <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
                 <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)"> 
-                <span onclick="this.parentElement.remove()" class="btn-remove-img">✕</span>
+                <span onclick="this.parentElement.remove()" class="btn-remove-img ${isReadonly ? 'hidden' : ''}">✕</span>
             `;
             container.appendChild(div);
         }
