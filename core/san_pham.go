@@ -29,15 +29,16 @@ const (
 	CotSP_BaoHanh        = 17 // R
 	CotSP_TinhTrang      = 18 // S
 	CotSP_GiaNhap        = 19 // T
-	CotSP_GiaNiemYet     = 20 // U
-	CotSP_PhanTramGiam   = 21 // V
-	CotSP_SoTienGiam     = 22 // W
-	CotSP_GiaBan         = 23 // X
-	CotSP_GhiChu         = 24 // Y
-	CotSP_NguoiTao       = 25 // Z
-	CotSP_NgayTao        = 26 // AA
-	CotSP_NguoiCapNhat   = 27 // AB
-	CotSP_NgayCapNhat    = 28 // AC
+	CotSP_PhanTramLai    = 20 // U (MỚI BỔ SUNG)
+	CotSP_GiaNiemYet     = 21 // V
+	CotSP_PhanTramGiam   = 22 // W
+	CotSP_SoTienGiam     = 23 // X
+	CotSP_GiaBan         = 24 // Y
+	CotSP_GhiChu         = 25 // Z
+	CotSP_NguoiTao       = 26 // AA
+	CotSP_NgayTao        = 27 // AB
+	CotSP_NguoiCapNhat   = 28 // AC
+	CotSP_NgayCapNhat    = 29 // AD
 )
 
 type SanPham struct {
@@ -64,6 +65,7 @@ type SanPham struct {
 	BaoHanh        string  `json:"bao_hanh"`
 	TinhTrang      string  `json:"tinh_trang"`
 	GiaNhap        float64 `json:"gia_nhap"`
+	PhanTramLai    float64 `json:"phan_tram_lai"`
 	GiaNiemYet     float64 `json:"gia_niem_yet"`
 	PhanTramGiam   float64 `json:"phan_tram_giam"`
 	SoTienGiam     float64 `json:"so_tien_giam"`
@@ -132,6 +134,7 @@ func NapSanPham(shopID string) {
 			BaoHanh:        layString(r, CotSP_BaoHanh),
 			TinhTrang:      layString(r, CotSP_TinhTrang),
 			GiaNhap:        layFloat(r, CotSP_GiaNhap),
+			PhanTramLai:    layFloat(r, CotSP_PhanTramLai),
 			GiaNiemYet:     layFloat(r, CotSP_GiaNiemYet),
 			PhanTramGiam:   layFloat(r, CotSP_PhanTramGiam),
 			SoTienGiam:     layFloat(r, CotSP_SoTienGiam),
