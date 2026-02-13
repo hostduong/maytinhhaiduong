@@ -47,9 +47,19 @@
 
     <div id="data_island" style="display:none;">
         <div id="data_danhmuc">
-            {{ range .ListDanhMuc }}{{ if ne .MaDanhMuc "" }}<div class="dm-item" data-ma="{{ .MaDanhMuc }}" data-ten="{{ urlquery .TenDanhMuc }}" data-prefix="{{ .MaDanhMuc }}" data-nextstt="{{ .Slot }}" data-loinhuan="{{ .LoiNhuan }}"></div>{{ end }}{{ end }}
+            {{ range .ListDanhMuc }}
+                {{ if and (ne .MaDanhMuc "") (eq .TrangThai 1) }}
+                <div class="dm-item" data-ma="{{ .MaDanhMuc }}" data-ten="{{ urlquery .TenDanhMuc }}" data-prefix="{{ .MaDanhMuc }}" data-nextstt="{{ .Slot }}" data-loinhuan="{{ .LoiNhuan }}"></div>
+                {{ end }}
+            {{ end }}
         </div>
-        <div id="data_thuonghieu">{{ range .ListThuongHieu }}{{ if ne .MaThuongHieu "" }}<div class="th-item" data-ma="{{ .MaThuongHieu }}" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}{{ end }}</div>
+        <div id="data_thuonghieu">
+            {{ range .ListThuongHieu }}
+                {{ if and (ne .MaThuongHieu "") (eq .TrangThai 1) }}
+                <div class="th-item" data-ma="{{ .MaThuongHieu }}" data-ten="{{ urlquery .TenThuongHieu }}"></div>
+                {{ end }}
+            {{ end }}
+        </div>
         <div id="data_bln">{{ range .ListBLN }}<div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>{{ end }}</div>
         
         <div id="data_sanpham">
@@ -354,7 +364,7 @@
             let ma = el.getAttribute('data-ma');
             let ten = decodeGo(el.getAttribute('data-ten')); 
             if(ma) { 
-                listDM.push({ value: ma, name: ten }); // value là MÃ, name là TÊN
+                listDM.push({ value: ma, name: ten }); 
                 dicDanhMuc[ma] = { prefix: ma, nextStt: parseInt(el.getAttribute('data-nextstt')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }; 
             } 
         });
@@ -612,9 +622,9 @@
             sku.bao_hanh = bhN ? `${bhN} ${bhU}` : "";
 
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
-            sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; // ĐÃ LƯU TRỰC TIẾP % LÃI
+            sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; 
             sku.gia_niem_yet = getNum(document.getElementById('f_gia_niem_yet').value);
-            sku.phan_tram_giam = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0; // Fix lỗi step
+            sku.phan_tram_giam = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0; 
             sku.so_tien_giam = getNum(document.getElementById('f_so_tien_giam').value);
             sku.gia_ban = getNum(document.getElementById('f_gia_ban').value);
             
