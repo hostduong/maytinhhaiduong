@@ -30,7 +30,7 @@ func TrangChu(c *gin.Context) {
 func ChiTietSanPham(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	id := c.Param("id")
-	sp, tonTai := core.LayChiTietSanPham(shopID, id)
+	sp, tonTai := core.LayChiTietSKU(shopID, id)
 	if !tonTai { c.String(http.StatusNotFound, "Không tìm thấy!"); return }
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	c.HTML(http.StatusOK, "khung_giao_dien", gin.H{
