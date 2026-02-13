@@ -560,22 +560,21 @@ function removeTab(idx) {
             sku.ghi_chu = document.getElementById('f_ghi_chu').value;
         }
 
-        function loadTabToForm(idx) {
+function loadTabToForm(idx) {
             if(idx < 0 || idx >= currentSkus.length) return;
-            isEditingMode = true; 
+            isEditingMode = true; // Khóa không cho các hàm onchange tự chạy nhảy
             let sp = currentSkus[idx];
 
-            // Xử lý Cảnh Báo "Đã xóa"
+            // 1. Xử lý Trạng thái Cảnh báo
             const fieldset = document.getElementById('form_fieldset');
             const warningBox = document.getElementById('warning_deleted');
             if (sp.trang_thai === -1) {
-                fieldset.disabled = true; // Khóa sạch form
-                warningBox.classList.remove('hidden');
+                fieldset.disabled = true; warningBox.classList.remove('hidden');
             } else {
-                fieldset.disabled = false;
-                warningBox.classList.add('hidden');
+                fieldset.disabled = false; warningBox.classList.add('hidden');
             }
 
+            // 2. Điền thông tin cơ bản
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('f_ten_sku').value = sp.ten_sku;
             document.getElementById('f_ma_sku').value = sp.ma_sku;
@@ -584,12 +583,14 @@ function removeTab(idx) {
             document.getElementById('f_ten_san_pham').value = sp.ten_san_pham;
             document.getElementById('f_ten_rut_gon').value = sp.ten_rut_gon;
 
+            // 3. Điền Tagify
             tagifyDM.removeAllTags(); if(sp.ma_danh_muc) tagifyDM.addTags(sp.ma_danh_muc.split("|"));
             tagifyTH.removeAllTags(); if(sp.ma_thuong_hieu) tagifyTH.addTags(sp.ma_thuong_hieu.split("|"));
             tagifyDonVi.removeAllTags(); if(sp.don_vi) tagifyDonVi.addTags(sp.don_vi.split("|"));
             tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
             tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
 
+            // 4. Điền Thuộc tính
             document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
             document.getElementById('f_kich_thuoc').value = sp.kich_thuoc;
             
@@ -599,19 +600,23 @@ function removeTab(idx) {
                 else { document.getElementById('f_bao_hanh_num').value = sp.bao_hanh; }
             } else { document.getElementById('f_bao_hanh_num').value = ""; document.getElementById('f_bao_hanh_unit').value = "Tháng"; }
 
+            // 5. Điền Giá & Tính toán Lợi nhuận (FIX LỖI NHẢY TAB)
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_gia_niem_yet').value = sp.gia_niem_yet > 0 ? formatNumber(sp.gia_niem_yet.toString()) : "";
             document.getElementById('f_phan_tram_giam').value = sp.phan_tram_giam > 0 ? sp.phan_tram_giam : "";
             document.getElementById('f_so_tien_giam').value = sp.so_tien_giam > 0 ? formatNumber(sp.so_tien_giam.toString()) : "";
             
-            renderSmartProfitOptions(); 
             let currentMargin = 0;
-            // FIX LỖI: Chia cho số 0
             if(sp.gia_nhap > 0 && sp.gia_ban > 0) {
                 currentMargin = ((sp.gia_ban - sp.gia_nhap) / sp.gia_nhap) * 100;
             }
+
+            // Chỉ load danh sách gợi ý vào Tagify, KHÔNG tự động ép chọn (Khóa isEditingMode)
+            let whitelist = generateSmartProfitWhitelist(sp.gia_nhap);
+            tagifyProfit.settings.whitelist = whitelist;
+
             let matched = false;
-            tagifyProfit.settings.whitelist.forEach(item => {
+            whitelist.forEach(item => {
                 if (Math.abs(item.margin - currentMargin) < 0.1) {
                     tagifyProfit.removeAllTags(); tagifyProfit.addTags([item]); matched = true;
                 }
@@ -620,8 +625,9 @@ function removeTab(idx) {
                 tagifyProfit.removeAllTags();
                 tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`, margin: currentMargin }]);
             }
-            calcPrices(currentMargin); 
+            calcPrices(currentMargin); // Cập nhật lại UI tiền bạc
 
+            // 6. Điền Nội dung & Ảnh
             document.getElementById('f_thong_so_html').value = sp.thong_so_html;
             document.getElementById('f_mo_ta_html').value = sp.mo_ta_html;
             document.getElementById('f_ghi_chu').value = sp.ghi_chu;
@@ -629,37 +635,48 @@ function removeTab(idx) {
             document.getElementById('f_imgContainer').innerHTML = '';
             if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
 
-            setTimeout(() => { isEditingMode = false; }, 300); 
+            setTimeout(() => { isEditingMode = false; }, 300); // Mở sự kiện lại
         }
 
-        // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN ---
+        // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN (ĐÃ FIX TOÁN HỌC) ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
         function convertDriveLink(url) { if (!url) return ""; if (url.includes("drive.google.com") && url.includes("/d/")) { const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/); if (match && match[1]) return "https://lh3.googleusercontent.com/d/" + match[1]; } return url; }
 
-        function renderSmartProfitOptions() {
-            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let whitelist = []; let bestOption = null;
+        // Tách hàm tạo Whitelist riêng để tái sử dụng
+        function generateSmartProfitWhitelist(giaNhap) {
+            let whitelist = [];
             if (giaNhap > 0) {
                 const tags = tagifyDM.value;
                 if (tags && tags.length > 0) {
                     const info = dicDanhMuc[tags[0].value];
                     if (info && info.loiNhuan > 0) {
-                        let opt = { value: `🔷 Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan }; whitelist.push(opt); bestOption = opt; 
+                        whitelist.push({ value: `🔷 Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan });
                     }
                 }
                 let priceMargin = 0;
                 for (let i = 0; i < listBLN.length; i++) { if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; } }
                 if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
                 if (priceMargin > 0) {
-                    let opt = { value: `🔶 Khung Giá (${priceMargin}%)`, margin: priceMargin }; whitelist.push(opt); if (!bestOption) bestOption = opt; 
+                    whitelist.push({ value: `🔶 Khung Giá (${priceMargin}%)`, margin: priceMargin });
                 }
             }
+            return whitelist;
+        }
+
+        function renderSmartProfitOptions() {
+            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
+            let whitelist = generateSmartProfitWhitelist(giaNhap);
             tagifyProfit.settings.whitelist = whitelist;
-            if (!isEditingMode) {
-                isEditingMode = true; tagifyProfit.removeAllTags(); if (bestOption) tagifyProfit.addTags([bestOption]); isEditingMode = false;
+
+            // Nếu người dùng đang tự gõ Giá Nhập (không phải do máy load) -> Tự nhảy ưu tiên
+            if (!isEditingMode && whitelist.length > 0) {
+                isEditingMode = true; 
+                tagifyProfit.removeAllTags(); 
+                tagifyProfit.addTags([whitelist[0]]); // Bốc thằng Ưu tiên 1 lên
+                isEditingMode = false;
             }
         }
 
@@ -692,14 +709,21 @@ function removeTab(idx) {
             if (giaNhap > 0) {
                 let laiVND = giaNhap * (loiNhuan / 100);
                 document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                let pList = round10k(giaNhap + laiVND);
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-
-                let tienGiam = Math.round(pList * (giamGia / 100));
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
                 
-                let giaBanThuc = pList - tienGiam;
+                // 1. TÍNH BÁN THỰC TẾ (Cố định từ Giá Vốn + Lãi)
+                let giaBanThuc = round10k(giaNhap + laiVND);
                 document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
+
+                // 2. TÍNH GIÁ NIÊM YẾT (Chia ngược theo % Giảm Giá)
+                let pList = giaBanThuc;
+                let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) {
+                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
+                    tienGiam = pList - giaBanThuc;
+                }
+                
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
             } else {
                 document.getElementById('f_lai_vnd').value = "0"; document.getElementById('f_gia_niem_yet').value = "0";
                 document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0";
@@ -708,35 +732,32 @@ function removeTab(idx) {
 
         function autoCalcBackward() {
             let pList = getNum(document.getElementById('f_gia_niem_yet').value);
-            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let giamGia = getNum(document.getElementById('f_phan_tram_giam').value) || 0;
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             
-            // FIX LỖI: Chỉ tính % khi Giá Nhập lớn hơn 0
-            if (giaNhap > 0 && pList > 0) {
-                let tienGiam = Math.round(pList * (giamGia / 100));
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
-
-                let giaBanThuc = pList - tienGiam;
-                let laiVND = giaBanThuc - giaNhap;
-                let phanTramLai = (laiVND / giaNhap) * 100;
+            // Chỉ tính lại % giảm giá khi Giá Niêm Yết cao hơn Bán Thực Tế
+            if (giaBanThuc > 0 && pList >= giaBanThuc) {
+                let tienGiam = pList - giaBanThuc;
+                let phanTramGiam = (tienGiam / pList) * 100;
                 
-                document.getElementById('f_loi_nhuan').value = phanTramLai.toFixed(2);
-                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
-
-                isEditingMode = true; tagifyProfit.removeAllTags(); tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`, margin: phanTramLai }]); isEditingMode = false;
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
             } else {
-                document.getElementById('f_loi_nhuan').value = "0";
+                document.getElementById('f_so_tien_giam').value = "0";
+                document.getElementById('f_phan_tram_giam').value = "0";
             }
         }
 
         function applyDiscountMoney() {
-            let pList = getNum(document.getElementById('f_gia_niem_yet').value);
             let tienGiam = getNum(document.getElementById('f_so_tien_giam').value);
-            if(pList > 0) {
-                let phanTram = (tienGiam / pList) * 100;
-                document.getElementById('f_phan_tram_giam').value = phanTram.toFixed(1);
-                autoCalcBackward(); 
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            
+            if(giaBanThuc > 0) {
+                // Tiền giảm cộng thẳng vào Bán Thực Tế để ra Giá Gạch Ngang
+                let pList = round10k(giaBanThuc + tienGiam);
+                let phanTramGiam = (tienGiam / pList) * 100;
+                
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
             }
         }
 
