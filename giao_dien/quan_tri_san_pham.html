@@ -200,7 +200,7 @@
                         <div class="form-section">
                             <div class="section-title">
                                 <span>🏷️ Phân loại & Thuộc tính</span>
-                                <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'bao_hanh')" class="copy-btn">
+                                <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh')" class="copy-btn">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
@@ -431,19 +431,66 @@
             loadTabToForm(activeTabIndex);
         }
 
-        function removeTab(idx) {
-            Swal.fire({ title: 'Xóa phiên bản này?', text: "Tab này sẽ bị gạch bỏ và bị xóa thực sự khi bạn bấm Lưu.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#ef4444' }).then((result) => {
+function removeTab(idx) {
+            // Logic: Nếu chưa có mã SKU thực (từ DB trả về) -> Đây là tab mới tạo trên UI, xóa mất luôn
+            let isNewTab = !currentSkus[idx].ma_sku; 
+            let msg = isNewTab ? "Phiên bản này vừa tạo, sẽ bị xóa vĩnh viễn khỏi Form." : "Tab này sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm Lưu Sản Phẩm.";
+
+            Swal.fire({ title: 'Xóa phiên bản này?', text: msg, icon: 'warning', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#ef4444' }).then((result) => {
                 if(result.isConfirmed) {
-                    currentSkus[idx].trang_thai = -1; // Xóa Logic
-                    // Nếu tab vừa xóa là Tab Đại Diện, chuyển vương miện cho Tab sống đầu tiên
-                    if(currentSkus[idx].sku_chinh === 1) {
-                        currentSkus[idx].sku_chinh = 0;
+                    let wasMain = currentSkus[idx].sku_chinh === 1;
+
+                    if (isNewTab) {
+                        // Xóa bay màu khỏi mảng
+                        currentSkus.splice(idx, 1);
+                        if(activeTabIndex >= currentSkus.length) activeTabIndex = currentSkus.length - 1;
+                        if(activeTabIndex < 0) activeTabIndex = 0; // Chống lỗi mảng âm
+                    } else {
+                        // Đánh dấu chờ xóa (Soft Delete)
+                        currentSkus[idx].trang_thai = -1; 
+                    }
+
+                    // Chuyển vương miện nếu tab vừa bay màu là Tab Đại Diện
+                    if(wasMain && currentSkus.length > 0) {
+                        if(!isNewTab) currentSkus[idx].sku_chinh = 0;
                         let newMain = currentSkus.findIndex(s => s.trang_thai !== -1);
                         if(newMain !== -1) currentSkus[newMain].sku_chinh = 1;
                     }
+                    
                     renderTabs(); loadTabToForm(activeTabIndex);
                 }
             });
+        }
+
+        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
+        function syncFromMain(...props) {
+            saveCurrentTabToState(); // Chốt sổ dữ liệu vừa gõ vào RAM tạm
+            
+            let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
+            if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
+
+            let mainSku = currentSkus[mainIdx];
+
+            if (mainIdx === activeTabIndex) {
+                // TRƯỜNG HỢP 1: Đang đứng ở Tab Đại Diện -> Đẩy dữ liệu ra cho các Tab đàn em
+                let count = 0;
+                currentSkus.forEach((sku, idx) => {
+                    if (idx !== mainIdx && sku.trang_thai !== -1) {
+                        props.forEach(p => sku[p] = mainSku[p]);
+                        count++;
+                    }
+                });
+                if (count > 0) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 });
+                } else {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để copy!`, showConfirmButton: false, timer: 1500 });
+                }
+            } else {
+                // TRƯỜNG HỢP 2: Đang đứng ở Tab Phụ -> Kéo dữ liệu từ Tab Đại Diện về
+                props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
+                loadTabToForm(activeTabIndex); // Tải lại giao diện để hiển thị
+            }
         }
 
         function restoreTab() {
@@ -472,20 +519,6 @@
             }
         }
 
-        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
-        function syncFromMain(...props) {
-            saveCurrentTabToState();
-            let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
-            if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
-            if (mainIdx === activeTabIndex) { Swal.fire('Oops...', 'Bạn đang ở Bản Đại Diện rồi, cần gì đồng bộ nữa? 😅', 'info'); return; }
-
-            let mainSku = currentSkus[mainIdx];
-            // Ép đè dữ liệu
-            props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
-            
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã dán dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
-            loadTabToForm(activeTabIndex); // Tải lại UI
-        }
 
         // --- ĐỌC / GHI DỮ LIỆU FORM <-> STATE ---
         function saveCurrentTabToState() {
