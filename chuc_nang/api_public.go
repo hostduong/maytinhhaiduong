@@ -58,7 +58,7 @@ func API_ChiTietSanPham(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
 	id := c.Param("id")
 	
-	sp, tonTai := core.LayChiTietSanPham(shopID, id)
+	sp, tonTai := core.LayChiTietSKU(shopID, id)
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
