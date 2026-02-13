@@ -30,8 +30,8 @@ func API_LayMenu(c *gin.Context) {
 	uniqueDM := make(map[string]bool)
 
 	for _, sp := range dsSP {
-		if sp != nil && sp.DanhMuc != "" {
-			parts := strings.Split(sp.DanhMuc, "|")
+		if sp != nil && sp.MaDanhMuc != "" {
+			parts := strings.Split(sp.MaDanhMuc, "|")
 			for _, p := range parts {
 				p = strings.TrimSpace(p)
 				if p != "" { uniqueDM[p] = true }
