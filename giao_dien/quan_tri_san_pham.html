@@ -352,20 +352,25 @@
             return url;
         }
 
-        // --- SMART PROFIT LOGIC ---
+// --- SMART PROFIT LOGIC ---
         function renderSmartProfitOptions() {
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let whitelist = [];
+            let bestOption = null; // Biến lưu cấu hình tốt nhất
 
             if (giaNhap > 0) {
+                // 1. Kiểm tra Theo Danh Mục trước (Ưu tiên cao nhất)
                 const tags = tagifyDM.value;
                 if (tags && tags.length > 0) {
                     const info = dicDanhMuc[tags[0].value];
                     if (info && info.loiNhuan > 0) {
-                        whitelist.push({ value: `🔷 Theo Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan });
+                        let opt = { value: `🔷 Theo Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan };
+                        whitelist.push(opt);
+                        bestOption = opt; // Lấy danh mục làm lựa chọn số 1
                     }
                 }
 
+                // 2. Kiểm tra Theo Khung Giá (Ưu tiên 2)
                 let priceMargin = 0;
                 for (let i = 0; i < listBLN.length; i++) {
                     if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; }
@@ -373,15 +378,22 @@
                 if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
                 
                 if (priceMargin > 0) {
-                    whitelist.push({ value: `🔶 Theo Khung Giá (${priceMargin}%)`, margin: priceMargin });
+                    let opt = { value: `🔶 Theo Khung Giá (${priceMargin}%)`, margin: priceMargin };
+                    whitelist.push(opt);
+                    if (!bestOption) bestOption = opt; // Nếu chưa có Danh mục thì lấy Khung giá
                 }
             }
             
             tagifyProfit.settings.whitelist = whitelist;
 
-            // Tự động chọn nếu đang rỗng và không ở chế độ sửa
-            if (!tagifyProfit.value.length && whitelist.length > 0 && !isEditingMode) {
-                tagifyProfit.addTags([whitelist[0]]);
+            // [FIX LỖI CỦA BẠN ĐÂY] Tự động chọn Option Tốt nhất (Ghi đè luôn lựa chọn cũ)
+            if (!isEditingMode) {
+                isEditingMode = true; // Khóa event tạm để không bị loop
+                tagifyProfit.removeAllTags();
+                if (bestOption) {
+                    tagifyProfit.addTags([bestOption]);
+                }
+                isEditingMode = false;
             }
         }
 
