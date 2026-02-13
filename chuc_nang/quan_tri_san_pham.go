@@ -2,14 +2,44 @@ package chuc_nang
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
+
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
+
+// =============================================================
+// STRUCT HỨNG DỮ LIỆU TỪ GIAO DIỆN MỚI (TỪNG TAB SKU)
+// =============================================================
+type InputSKU struct {
+	MaSKU        string  `json:"ma_sku"`
+	TenSKU       string  `json:"ten_sku"`
+	SKUChinh     int     `json:"sku_chinh"`
+	TrangThai    int     `json:"trang_thai"`
+	TenSanPham   string  `json:"ten_san_pham"`
+	TenRutGon    string  `json:"ten_rut_gon"`
+	MaDanhMuc    string  `json:"ma_danh_muc"`
+	MaThuongHieu string  `json:"ma_thuong_hieu"`
+	DonVi        string  `json:"don_vi"`
+	MauSac       string  `json:"mau_sac"`
+	KhoiLuong    float64 `json:"khoi_luong"`
+	KichThuoc    string  `json:"kich_thuoc"`
+	UrlHinhAnh   string  `json:"url_hinh_anh"`
+	ThongSoHTML  string  `json:"thong_so_html"`
+	MoTaHTML     string  `json:"mo_ta_html"`
+	BaoHanh      string  `json:"bao_hanh"`
+	TinhTrang    string  `json:"tinh_trang"`
+	GiaNhap      float64 `json:"gia_nhap"`
+	GiaNiemYet   float64 `json:"gia_niem_yet"`
+	PhanTramGiam float64 `json:"phan_tram_giam"`
+	SoTienGiam   float64 `json:"so_tien_giam"`
+	GiaBan       float64 `json:"gia_ban"`
+	GhiChu       string  `json:"ghi_chu"`
+}
 
 // =============================================================
 // 1. TRANG QUẢN LÝ (LIST)
@@ -25,42 +55,54 @@ func TrangQuanLySanPham(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// Lấy thông tin người dùng (Cần ShopID để biết user của shop nào)
+	// Lấy thông tin người dùng
 	kh, found := core.LayKhachHang(shopID, userID)
 	if !found || kh == nil {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// [SAAS] Check quyền theo Shop
+	// [SAAS] Check quyền
 	if !core.KiemTraQuyen(shopID, kh.VaiTroQuyenHan, "product.view") {
 		c.Writer.WriteHeader(http.StatusForbidden)
 		c.Writer.Write([]byte(`<h3>⛔ Truy cập bị từ chối</h3><a href="/">Về trang chủ</a>`))
 		return
 	}
 
-	// [SAAS] Lấy danh sách của riêng Shop này
+	// [SAAS] Lấy TOÀN BỘ danh sách dòng (SKU) của Shop này
 	rawList := core.LayDanhSachSanPham(shopID)
 	
-	// Lọc và làm sạch danh sách hiển thị
-	var cleanList []*core.SanPham
-	uniqueDM := make(map[string]bool)
-	uniqueTH := make(map[string]bool)
+	var cleanList []*core.SanPham // Danh sách hiển thị Bảng (Chỉ chứa các SKU Chính)
+	var fullList []*core.SanPham  // Danh sách đầy đủ để Frontend dựng lại Modal
+
+	// Gom nhóm theo MaSanPham
+	groupSP := make(map[string][]*core.SanPham)
 
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
-			cleanList = append(cleanList, sp)
-			
-			// Thu thập danh mục để filter nhanh (nếu cần)
-			if sp.DanhMuc != "" {
-				parts := strings.Split(sp.DanhMuc, "|")
-				for _, p := range parts {
-					if p = strings.TrimSpace(p); p != "" { uniqueDM[p] = true }
-				}
+			fullList = append(fullList, sp)
+			// Không hiển thị các SKU đã bị xóa (Trạng thái = 0 ở cấp độ record logic)
+			if sp.TrangThai != -1 { 
+				groupSP[sp.MaSanPham] = append(groupSP[sp.MaSanPham], sp)
 			}
-			// Thu thập thương hiệu
-			th := strings.TrimSpace(sp.ThuongHieu)
-			if th != "" { uniqueTH[th] = true }
+		}
+	}
+
+	// Lọc ra SKU Chính để đại diện hiển thị ra Bảng HTML
+	for _, dsSKU := range groupSP {
+		var spChinh *core.SanPham
+		for _, sp := range dsSKU {
+			if sp.SKUChinh == 1 {
+				spChinh = sp
+				break
+			}
+		}
+		// Fallback: Lỗi người dùng không set SKU Chính, ép lấy dòng đầu tiên làm đại diện
+		if spChinh == nil && len(dsSKU) > 0 {
+			spChinh = dsSKU[0]
+		}
+		if spChinh != nil {
+			cleanList = append(cleanList, spChinh)
 		}
 	}
 
@@ -70,9 +112,10 @@ func TrangQuanLySanPham(c *gin.Context) {
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
-		"DanhSach":       cleanList,
 		
-		// [SAAS] Load các danh sách bổ trợ theo ShopID
+		"DanhSach":       cleanList, // Truyền cho Table (1 dòng/1 SP)
+		"DanhSachFull":   fullList,  // Truyền để dựng lại dữ liệu các Tab biến thể
+		
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(shopID),    
 		"ListThuongHieu": core.LayDanhSachThuongHieu(shopID), 
 		"ListBLN":        core.LayDanhSachBienLoiNhuan(shopID), 
@@ -80,16 +123,17 @@ func TrangQuanLySanPham(c *gin.Context) {
 }
 
 // =============================================================
-// 2. API LƯU SẢN PHẨM (THÊM / SỬA)
+// 2. API LƯU SẢN PHẨM (XỬ LÝ DỮ LIỆU NHIỀU TAB)
 // =============================================================
 func API_LuuSanPham(c *gin.Context) {
 	// [SAAS] Lấy Context
 	shopID := c.GetString("SHOP_ID")
 	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 	
 	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
 	
-	// Check Quyền (Truyền ShopID)
+	// Check Quyền
 	if maSP == "" {
 		if !core.KiemTraQuyen(shopID, vaiTro, "product.create") {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm sản phẩm!"})
@@ -102,174 +146,176 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	tenSP := strings.TrimSpace(c.PostForm("ten_san_pham"))
-	if tenSP == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Tên sản phẩm không được trống!"})
+	// Lấy mảng JSON chứa các Tabs từ Frontend gửi lên
+	dataJSON := c.PostForm("data_skus")
+	if dataJSON == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Dữ liệu phiên bản (SKU) trống!"})
 		return
 	}
 
-	// --- 1. XỬ LÝ DỮ LIỆU ĐẦU VÀO ---
-	
-	// Xử lý tiền tệ (Xóa dấu chấm, phẩy)
-	giaNhap, _  := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_nhap"), ".", ""), ",", ""), 64)
-	giaBanLe, _ := strconv.ParseFloat(strings.ReplaceAll(strings.ReplaceAll(c.PostForm("gia_ban_le"), ".", ""), ",", ""), 64)
-	giamGia, _  := strconv.ParseFloat(c.PostForm("giam_gia"), 64)
-	
-	// Tính giá bán thực
-	giaBanThuc := giaBanLe
-	if giamGia > 0 {
-		giaBanThuc = giaBanLe * (1 - giamGia/100)
+	var inputSKUs []InputSKU
+	if err := json.Unmarshal([]byte(dataJSON), &inputSKUs); err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": "Định dạng dữ liệu không hợp lệ!"})
+		return
 	}
 
-	// Xử lý Tags (JSON Tagify)
-	thuongHieu := xuLyTags(c.PostForm("ma_thuong_hieu"))
-	danhMuc    := xuLyTags(c.PostForm("ma_danh_muc")) 
-	donVi      := xuLyTags(c.PostForm("don_vi"))
-	mauSac     := xuLyTags(c.PostForm("mau_sac"))
-	tinhTrang  := xuLyTags(c.PostForm("tinh_trang"))
-	
-	tenRutGon  := strings.TrimSpace(c.PostForm("ten_rut_gon"))
-	sku        := strings.TrimSpace(c.PostForm("sku"))
-	moTa       := c.PostForm("mo_ta_chi_tiet")
-	hinhAnh    := strings.TrimSpace(c.PostForm("url_hinh_anh"))
-	thongSo    := c.PostForm("thong_so")
-	ghiChu     := c.PostForm("ghi_chu")
-	
-	// Xử lý bảo hành
-	bhNum := c.PostForm("bao_hanh_num")
-	bhUnit := c.PostForm("bao_hanh_unit")
-	baoHanh := ""
-	if bhNum != "" {
-		baoHanh = bhNum + " " + bhUnit
+	if len(inputSKUs) == 0 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Phải có ít nhất 1 phiên bản (SKU)!"})
+		return
 	}
 
-	// Tạo Slug và Trạng thái
-	slug := taoSlugChuan(tenSP)
-	trangThai := 0
-	if c.PostForm("trang_thai") == "on" { trangThai = 1 }
+	// Đảm bảo luôn có 1 SKU Chính (Chống lỗi ngớ ngẩn từ Frontend)
+	hasMain := false
+	for _, sku := range inputSKUs {
+		if sku.SKUChinh == 1 {
+			hasMain = true; break
+		}
+	}
+	if !hasMain { inputSKUs[0].SKUChinh = 1 }
 
-	// --- 2. KHỞI TẠO HOẶC TÌM SẢN PHẨM ---
-	var sp *core.SanPham
-	isNew := false
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
-	userID := c.GetString("USER_ID")
 
+	// --- NẾU THÊM MỚI TOÀN BỘ (Chưa có MaSanPham gốc) ---
 	if maSP == "" {
-		// --- THÊM MỚI ---
-		isNew = true
-		
-		// Tìm mã danh mục đầu tiên để sinh mã SP (VD: MAIN -> MAIN0001)
 		firstDM := ""
-		if danhMuc != "" { firstDM = strings.Split(danhMuc, "|")[0] }
-		
-		// [SAAS] Tìm mã danh mục trong Shop hiện tại
+		if inputSKUs[0].MaDanhMuc != "" { firstDM = strings.Split(inputSKUs[0].MaDanhMuc, "|")[0] }
 		maCodeDM := core.TimMaDanhMucTheoTen(shopID, firstDM) 
-		
-		// [SAAS] Sinh mã mới dựa trên ShopID
 		maSP = core.TaoMaSPMoi(shopID, maCodeDM) 
-		
-		sp = &core.SanPham{
-			SpreadsheetID: shopID, // Gán vào Shop hiện tại
-			MaSanPham:     maSP,
-			NgayTao:       nowStr,
-			NguoiTao:      userID,
-		}
-	} else {
-		// --- CẬP NHẬT ---
-		// [SAAS] Tìm chi tiết trong Shop hiện tại
-		foundSP, ok := core.LayChiTietSanPham(shopID, maSP)
-		if ok { 
-			sp = foundSP 
-		} else { 
-			// Fallback nếu không tìm thấy trong RAM (hiếm)
-			sp = &core.SanPham{SpreadsheetID: shopID, MaSanPham: maSP} 
-		}
 	}
 
-	// Khóa RAM để cập nhật an toàn
-	if !isNew { core.KhoaHeThong.Lock() }
-
-	// --- 3. GÁN DỮ LIỆU VÀO STRUCT ---
-	sp.TenSanPham = tenSP
-	sp.TenRutGon  = tenRutGon
-	sp.Slug       = slug
-	sp.Sku        = sku
-	sp.DanhMuc    = danhMuc
-	sp.ThuongHieu = thuongHieu
-	sp.DonVi      = donVi
-	sp.MauSac     = mauSac
-	sp.TinhTrang  = tinhTrang
-	sp.MoTaChiTiet= moTa
-	sp.UrlHinhAnh = hinhAnh
-	sp.ThongSo    = thongSo
-	sp.BaoHanh    = baoHanh
-	sp.TrangThai  = trangThai
-	
-	sp.GiaNhap    = giaNhap
-	sp.GiaBanLe   = giaBanLe
-	sp.GiamGia    = giamGia
-	sp.GiaBanThuc = giaBanThuc
-	
-	sp.GhiChu     = ghiChu
-	sp.NgayCapNhat= nowStr
-
-	if !isNew {
-		core.KhoaHeThong.Unlock()
-	} else {
-		// Nếu là mới, tính dòng tiếp theo và thêm vào RAM
-		currentList := core.LayDanhSachSanPham(shopID)
-		sp.DongTrongSheet = core.DongBatDau_SanPham + len(currentList)
-		
-		// [SAAS] Thêm vào RAM của Shop
-		core.ThemSanPhamVaoRam(sp)
+	// Lấy danh sách SKU cũ (nếu đang sửa) để đối chiếu
+	existingSKUs := core.LayNhomSanPham(shopID, maSP)
+	existingMap := make(map[string]*core.SanPham)
+	for _, sp := range existingSKUs {
+		existingMap[sp.LấyIDDuyNhat()] = sp
 	}
+	processedSKUs := make(map[string]bool) // Đánh dấu những SKU còn được giữ lại
 
-	// --- 4. ĐẨY VÀO HÀNG CHỜ GHI (QUEUE) ---
-	targetRow := sp.DongTrongSheet
-	if targetRow > 0 {
+	// Khóa RAM để cập nhật hàng loạt an toàn
+	core.KhoaHeThong.Lock()
+	defer core.KhoaHeThong.Unlock()
+
+	for i, in := range inputSKUs {
+		skuID := in.MaSKU
+		
+		// Sinh mã SKU tự động nếu trống (VD: MAIN0001-01)
+		if skuID == "" {
+			skuID = fmt.Sprintf("%s-%02d", maSP, i+1)
+		}
+		
+		var sp *core.SanPham
+		isNewSKU := false
+		
+		if exist, ok := existingMap[skuID]; ok {
+			sp = exist // Ghi đè vào biến cũ
+			processedSKUs[skuID] = true
+		} else {
+			isNewSKU = true
+			currentList := core.CacheSanPham[shopID]
+			sp = &core.SanPham{
+				SpreadsheetID:  shopID,
+				DongTrongSheet: core.DongBatDau_SanPham + len(currentList),
+				MaSanPham:      maSP,
+				MaSKU:          skuID,
+				NgayTao:        nowStr,
+				NguoiTao:       userID,
+			}
+		}
+
+		// Map dữ liệu từ Input vào Struct Core
+		sp.TenSanPham   = strings.TrimSpace(in.TenSanPham)
+		sp.TenRutGon    = strings.TrimSpace(in.TenRutGon)
+		sp.Slug         = taoSlugChuan(sp.TenSanPham) // Có thể cải tiến slug gắn thêm màu sắc
+		sp.TenSKU       = strings.TrimSpace(in.TenSKU)
+		sp.SKUChinh     = in.SKUChinh
+		sp.TrangThai    = in.TrangThai
+		sp.MaDanhMuc    = xuLyTags(in.MaDanhMuc)
+		sp.MaThuongHieu = xuLyTags(in.MaThuongHieu)
+		sp.DonVi        = xuLyTags(in.DonVi)
+		sp.MauSac       = xuLyTags(in.MauSac)
+		sp.KhoiLuong    = in.KhoiLuong
+		sp.KichThuoc    = in.KichThuoc
+		sp.UrlHinhAnh   = strings.TrimSpace(in.UrlHinhAnh)
+		sp.ThongSoHTML  = in.ThongSoHTML
+		sp.MoTaHTML     = in.MoTaHTML
+		sp.BaoHanh      = in.BaoHanh
+		sp.TinhTrang    = xuLyTags(in.TinhTrang)
+		sp.GiaNhap      = in.GiaNhap
+		sp.GiaNiemYet   = in.GiaNiemYet
+		sp.PhanTramGiam = in.PhanTramGiam
+		sp.SoTienGiam   = in.SoTienGiam
+		sp.GiaBan       = in.GiaBan
+		sp.GhiChu       = in.GhiChu
+		sp.NgayCapNhat  = nowStr
+		sp.NguoiCapNhat = userID
+
+		// Nếu là SKU mới, nhét nó vào các ngăn chứa RAM
+		if isNewSKU {
+			core.CacheSanPham[shopID] = append(core.CacheSanPham[shopID], sp)
+			core.CacheMapSKU[core.TaoCompositeKey(shopID, sp.LấyIDDuyNhat())] = sp
+			core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
+		}
+
+		// Đẩy vào hàng chờ Ghi Xuống Google Sheet (Lưu 29 Cột)
 		ghi := core.ThemVaoHangCho
 		sheet := "SAN_PHAM"
-
-		// Sử dụng shopID làm ID file sheet
-		ghi(shopID, sheet, targetRow, core.CotSP_MaSanPham, sp.MaSanPham)
-		ghi(shopID, sheet, targetRow, core.CotSP_TenSanPham, sp.TenSanPham)
-		ghi(shopID, sheet, targetRow, core.CotSP_TenRutGon, sp.TenRutGon)
-		ghi(shopID, sheet, targetRow, core.CotSP_Slug, sp.Slug)
-		ghi(shopID, sheet, targetRow, core.CotSP_Sku, sp.Sku)
-		ghi(shopID, sheet, targetRow, core.CotSP_DanhMuc, sp.DanhMuc)
-		ghi(shopID, sheet, targetRow, core.CotSP_ThuongHieu, sp.ThuongHieu)
-		ghi(shopID, sheet, targetRow, core.CotSP_DonVi, sp.DonVi)
-		ghi(shopID, sheet, targetRow, core.CotSP_MauSac, sp.MauSac)
-		ghi(shopID, sheet, targetRow, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
-		ghi(shopID, sheet, targetRow, core.CotSP_ThongSo, sp.ThongSo)
-		ghi(shopID, sheet, targetRow, core.CotSP_MoTaChiTiet, sp.MoTaChiTiet)
-		ghi(shopID, sheet, targetRow, core.CotSP_BaoHanh, sp.BaoHanh)
-		ghi(shopID, sheet, targetRow, core.CotSP_TinhTrang, sp.TinhTrang)
-		ghi(shopID, sheet, targetRow, core.CotSP_TrangThai, sp.TrangThai)
+		r := sp.DongTrongSheet
 		
-		ghi(shopID, sheet, targetRow, core.CotSP_GiaNhap, sp.GiaNhap)
-		ghi(shopID, sheet, targetRow, core.CotSP_GiaBanLe, sp.GiaBanLe)
-		ghi(shopID, sheet, targetRow, core.CotSP_GiamGia, sp.GiamGia)
-		ghi(shopID, sheet, targetRow, core.CotSP_GiaBanThuc, sp.GiaBanThuc)
-		
-		ghi(shopID, sheet, targetRow, core.CotSP_GhiChu, sp.GhiChu)
-		ghi(shopID, sheet, targetRow, core.CotSP_NguoiTao, sp.NguoiTao)
-		ghi(shopID, sheet, targetRow, core.CotSP_NgayTao, sp.NgayTao)
-		ghi(shopID, sheet, targetRow, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
+		ghi(shopID, sheet, r, core.CotSP_MaSanPham, sp.MaSanPham)
+		ghi(shopID, sheet, r, core.CotSP_TenSanPham, sp.TenSanPham)
+		ghi(shopID, sheet, r, core.CotSP_TenRutGon, sp.TenRutGon)
+		ghi(shopID, sheet, r, core.CotSP_Slug, sp.Slug)
+		ghi(shopID, sheet, r, core.CotSP_MaSKU, sp.MaSKU)
+		ghi(shopID, sheet, r, core.CotSP_TenSKU, sp.TenSKU)
+		ghi(shopID, sheet, r, core.CotSP_SKUChinh, sp.SKUChinh)
+		ghi(shopID, sheet, r, core.CotSP_TrangThai, sp.TrangThai)
+		ghi(shopID, sheet, r, core.CotSP_MaDanhMuc, sp.MaDanhMuc)
+		ghi(shopID, sheet, r, core.CotSP_MaThuongHieu, sp.MaThuongHieu)
+		ghi(shopID, sheet, r, core.CotSP_DonVi, sp.DonVi)
+		ghi(shopID, sheet, r, core.CotSP_MauSac, sp.MauSac)
+		ghi(shopID, sheet, r, core.CotSP_KhoiLuong, sp.KhoiLuong)
+		ghi(shopID, sheet, r, core.CotSP_KichThuoc, sp.KichThuoc)
+		ghi(shopID, sheet, r, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
+		ghi(shopID, sheet, r, core.CotSP_ThongSoHTML, sp.ThongSoHTML)
+		ghi(shopID, sheet, r, core.CotSP_MoTaHTML, sp.MoTaHTML)
+		ghi(shopID, sheet, r, core.CotSP_BaoHanh, sp.BaoHanh)
+		ghi(shopID, sheet, r, core.CotSP_TinhTrang, sp.TinhTrang)
+		ghi(shopID, sheet, r, core.CotSP_GiaNhap, sp.GiaNhap)
+		ghi(shopID, sheet, r, core.CotSP_GiaNiemYet, sp.GiaNiemYet)
+		ghi(shopID, sheet, r, core.CotSP_PhanTramGiam, sp.PhanTramGiam)
+		ghi(shopID, sheet, r, core.CotSP_SoTienGiam, sp.SoTienGiam)
+		ghi(shopID, sheet, r, core.CotSP_GiaBan, sp.GiaBan)
+		ghi(shopID, sheet, r, core.CotSP_GhiChu, sp.GhiChu)
+		ghi(shopID, sheet, r, core.CotSP_NguoiTao, sp.NguoiTao)
+		ghi(shopID, sheet, r, core.CotSP_NgayTao, sp.NgayTao)
+		ghi(shopID, sheet, r, core.CotSP_NguoiCapNhat, sp.NguoiCapNhat)
+		ghi(shopID, sheet, r, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu sản phẩm thành công!"})
+	// --- DỌN DẸP SKU BỊ XÓA ---
+	// Nếu lúc sửa, người dùng bấm Xóa 1 Tab trên giao diện -> Nghĩa là SKU đó vắng mặt trong mảng
+	for skuID, sp := range existingMap {
+		if !processedSKUs[skuID] {
+			sp.TrangThai = -1 // Đánh dấu xóa logic (Không xóa hẳn dòng)
+			sp.SKUChinh = 0
+			sp.NgayCapNhat = nowStr
+			sp.NguoiCapNhat = userID
+			
+			core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_TrangThai, -1)
+			core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_SKUChinh, 0)
+		}
+	}
+
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu toàn bộ biến thể sản phẩm thành công!"})
 }
 
 // =============================================================
 // 3. CÁC HÀM HELPER (XỬ LÝ CHUỖI/TAGS)
 // =============================================================
-
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
-	// Nếu không phải JSON (người dùng nhập tay không dùng Tagify)
 	if !strings.Contains(raw, "[") { return raw }
 	
 	var items []TagifyItem
@@ -288,7 +334,6 @@ func taoSlugChuan(s string) string {
 	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, "đ", "d")
 	
-	// Map ký tự có dấu sang không dấu
 	patterns := map[string]string{
 		"[áàảãạăắằẳẵặâấầẩẫậ]": "a",
 		"[éèẻẽẹêếềểễệ]":       "e",
@@ -302,7 +347,6 @@ func taoSlugChuan(s string) string {
 		s = re.ReplaceAllString(s, r)
 	}
 	
-	// Xóa ký tự đặc biệt
 	reInvalid := regexp.MustCompile(`[^a-z0-9]+`)
 	s = reInvalid.ReplaceAllString(s, "-")
 	return strings.Trim(s, "-")
