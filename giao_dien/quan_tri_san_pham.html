@@ -20,6 +20,7 @@
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
         input.input-premium:focus, select.input-premium:focus, textarea.input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
+        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9; cursor: not-allowed; color: #94a3b8; }
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
@@ -31,12 +32,11 @@
         .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TABS CSS */
-        .sku-tab { padding: 0.5rem 1rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; background: #f1f5f9; color: #64748b; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .sku-tab:hover { background: #e2e8f0; }
-        .sku-tab.active { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .copy-btn { font-size: 0.7rem; padding: 2px 6px; background: #e2e8f0; border-radius: 4px; color: #475569; cursor: pointer; transition: 0.2s; font-weight: bold; text-transform: none; letter-spacing: 0; }
-        .copy-btn:hover { background: #3b82f6; color: white; }
+        /* TABS CSS - Chuẩn UI PIM */
+        .sku-tab { padding: 0.5rem 1.25rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
+        .sku-tab:hover { filter: brightness(0.95); }
+        .copy-btn { font-size: 0.75rem; padding: 4px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; color: #3b82f6; cursor: pointer; transition: 0.2s; font-weight: bold; text-transform: none; letter-spacing: 0; display: inline-flex; align-items: center; gap: 4px; }
+        .copy-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -145,146 +145,168 @@
                 </div>
             
             <div class="modal-body pt-5">
-                <form id="formSP">
-                    <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/30" style="padding-bottom: 1rem;">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
-                            <div>
-                                <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
-                                <input type="text" id="f_ten_sku" class="input-premium font-bold text-purple-800" placeholder="VD: Màu Xanh - Bản 256GB" required>
+                <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 font-bold flex justify-between items-center shadow-sm">
+                    <span class="flex items-center gap-2">⚠️ Phiên bản này đang được đánh dấu CHỜ XÓA.</span>
+                    <button type="button" onclick="restoreTab()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm transition shadow-sm">Khôi phục</button>
+                </div>
+
+                <fieldset id="form_fieldset">
+                    <form id="formSP">
+                        <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/30">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                                <div>
+                                    <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
+                                    <input type="text" id="f_ten_sku" class="input-premium font-bold text-purple-800" placeholder="VD: Bản 256GB - Màu Trắng" required onkeyup="updateTabName()">
+                                </div>
+                                <div>
+                                    <label>Mã SKU (Nội bộ/Mã Vạch)</label>
+                                    <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Để trống tự sinh (VD: SP001-01)">
+                                </div>
+                                <div class="flex items-center pb-2">
+                                    <label class="flex items-center cursor-pointer select-none mb-0">
+                                        <input type="radio" name="r_sku_chinh" id="f_sku_chinh" class="w-5 h-5 text-purple-600 focus:ring-purple-500 cursor-pointer" onchange="setMainSKU()">
+                                        <span class="ml-2 text-sm font-bold text-slate-800">👑 Làm Bản Đại Diện (Web)</span>
+                                    </label>
+                                </div>
                             </div>
-                            <div>
-                                <label>Mã SKU (Nội bộ/Mã Vạch)</label>
-                                <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Để trống tự sinh (VD: SP001-01)">
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>📝 Thông tin chung</span>
+                                <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon', 'tinh_trang')" class="copy-btn">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
+                                    Đồng bộ từ Bản Đại Diện
+                                </button>
                             </div>
-                            <div class="flex items-center pb-2">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                                    <div class="md:col-span-1">
+                                        <label>Mã Gốc (SP)</label>
+                                        <input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự động...">
+                                    </div>
+                                    <div class="md:col-span-3">
+                                        <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
+                                        <input type="text" id="f_ten_san_pham" class="input-premium text-lg font-bold" required placeholder="Ví dụ: iPhone 15 Pro Max...">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn..."></div>
+                                    <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium" placeholder="Mới 100%..."></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>🏷️ Phân loại & Thuộc tính</span>
+                                <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'bao_hanh')" class="copy-btn">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
+                                    Đồng bộ từ Bản Đại Diện
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                                <div><label>Danh Mục <span class="text-red-500">*</span></label><input id="f_ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục..."></div>
+                                <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium" placeholder="Cái..."></div>
+                                <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium" placeholder="Đen..."></div>
+                                <div><label>Khối lượng (Gram)</label><input type="number" id="f_khoi_luong" class="input-premium text-center" placeholder="500"></div>
+                                <div><label>Kích thước (DxRxC)</label><input type="text" id="f_kich_thuoc" class="input-premium text-center" placeholder="10x20x5"></div>
+                                <div>
+                                    <label>Bảo hành</label>
+                                    <div class="flex gap-1 items-stretch">
+                                        <input type="number" id="f_bao_hanh_num" class="input-premium text-center px-1" style="width: 40%" placeholder="12">
+                                        <select id="f_bao_hanh_unit" class="input-premium cursor-pointer px-1" style="width: 60%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
+                            <div class="section-title flex justify-between">
+                                <span>💰 Định giá Kinh Doanh</span>
+                                <button type="button" onclick="syncFromMain('gia_nhap', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
+                                    Đồng bộ từ Bản Đại Diện
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                                <div>
+                                    <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
+                                    <input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions(); applySmartProfit();">
+                                </div>
+                                
+                                <div class="md:col-span-1">
+                                    <label>Quy tắc tính lãi & Biên độ %</label>
+                                    <input id="f_smart_profit" class="input-premium bg-white cursor-text font-bold text-blue-700" placeholder="Chọn hoặc tự gõ %...">
+                                    <input type="hidden" id="f_loi_nhuan" value="0">
+                                </div>
+
+                                <div>
+                                    <label>Lãi VNĐ (Trước Thuế)</label>
+                                    <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <div>
+                                    <label>Giá Niêm Yết</label>
+                                    <input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                </div>
+                                <div>
+                                    <label>Giảm giá (%)</label>
+                                    <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="applySmartProfit()">
+                                </div>
+                                <div>
+                                    <label>Hoặc Giảm (VNĐ)</label>
+                                    <input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
+                                </div>
+                                <div>
+                                    <label class="text-emerald-700">Bán Thực Tế</label>
+                                    <input type="text" id="f_gia_ban" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
                                 <label class="flex items-center cursor-pointer select-none mb-0">
-                                    <input type="radio" name="r_sku_chinh" id="f_sku_chinh" class="w-5 h-5 text-purple-600 focus:ring-purple-500 cursor-pointer" onchange="setMainSKU()">
-                                    <span class="ml-2 text-sm font-bold text-slate-800">👑 Làm Bản Đại Diện (Web)</span>
+                                    <input type="checkbox" id="f_trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" onchange="updateTabColor()">
+                                    <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
                                 </label>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-section">
-                        <div class="section-title">
-                            <span>📝 Thông tin chung</span>
-                            <button type="button" onclick="copyToAll('f_ten_san_pham')" class="copy-btn">📑 Áp dụng cho mọi Tabs</button>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                                <div class="md:col-span-1">
-                                    <label>Mã Gốc (SP)</label>
-                                    <input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự động...">
-                                </div>
-                                <div class="md:col-span-3">
-                                    <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
-                                    <input type="text" id="f_ten_san_pham" class="input-premium text-lg font-bold" required placeholder="Ví dụ: iPhone 15 Pro Max...">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hiển thị trên hóa đơn..."></div>
-                                <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium" placeholder="Mới 100%..."></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="section-title">
-                            <span>🏷️ Phân loại & Thuộc tính</span>
-                            <button type="button" onclick="copyToAll('f_ma_danh_muc', 'f_ma_thuong_hieu')" class="copy-btn">📑 Áp dụng cho mọi Tabs</button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
-                            <div><label>Danh Mục <span class="text-red-500">*</span></label><input id="f_ma_danh_muc" class="input-premium" placeholder="Click để chọn danh mục..."></div>
-                            <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                            <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium" placeholder="Cái..."></div>
-                            <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium" placeholder="Đen..."></div>
-                            <div><label>Khối lượng (Gram)</label><input type="number" id="f_khoi_luong" class="input-premium text-center" placeholder="500"></div>
-                            <div><label>Kích thước (DxRxC)</label><input type="text" id="f_kich_thuoc" class="input-premium text-center" placeholder="10x20x5"></div>
-                            <div>
-                                <label>Bảo hành</label>
-                                <div class="flex gap-1 items-stretch">
-                                    <input type="number" id="f_bao_hanh_num" class="input-premium text-center px-1" style="width: 40%" placeholder="12">
-                                    <select id="f_bao_hanh_unit" class="input-premium cursor-pointer px-1" style="width: 60%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
-                        <div class="section-title flex justify-between"><span>💰 Định giá Kinh Doanh</span></div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-                            <div>
-                                <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                <input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions(); applySmartProfit();">
+                        <div class="form-section mb-0">
+                            <div class="section-title">
+                                <span>🖼️ Hình ảnh & Bài viết mô tả</span>
+                                <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> 
+                                    Đồng bộ từ Bản Đại Diện
+                                </button>
                             </div>
                             
-                            <div class="md:col-span-1">
-                                <label>Quy tắc tính lãi & Biên độ %</label>
-                                <input id="f_smart_profit" class="input-premium bg-white cursor-text font-bold text-blue-700" placeholder="Chọn hoặc tự gõ %...">
-                                <input type="hidden" id="f_loi_nhuan" value="0">
+                            <div class="mb-5">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label style="margin-bottom:0">Danh sách Link ảnh</label>
+                                    <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
+                                </div>
+                                <div id="f_imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
                             </div>
-
-                            <div>
-                                <label>Lãi VNĐ (Trước Thuế)</label>
-                                <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div><label>Thông số kỹ thuật</label><textarea id="f_thong_so_html" rows="5" class="input-premium font-mono text-sm"></textarea></div>
+                                <div><label>Bài viết mô tả</label><textarea id="f_mo_ta_html" rows="5" class="input-premium"></textarea></div>
                             </div>
+                            <div class="mt-4"><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-yellow-50 text-yellow-800 border-yellow-200"></div>
                         </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                            <div>
-                                <label>Giá Niêm Yết</label>
-                                <input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
-                            </div>
-                            <div>
-                                <label>Giảm giá (%)</label>
-                                <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="applySmartProfit()">
-                            </div>
-                            <div>
-                                <label>Hoặc Giảm (VNĐ)</label>
-                                <input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
-                            </div>
-                            <div>
-                                <label class="text-emerald-700">Bán Thực Tế</label>
-                                <input type="text" id="f_gia_ban" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
-                            </div>
-                        </div>
-
-                        <div class="mt-5 pt-5 border-t border-slate-200 flex items-center justify-between">
-                            <label class="flex items-center cursor-pointer select-none mb-0">
-                                <input type="checkbox" id="f_trang_thai" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
-                                <span class="ml-3 text-sm font-bold text-slate-800">✅ Được phép kinh doanh (Hiển thị trên Web)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-section mb-0">
-                        <div class="section-title">
-                            <span>🖼️ Hình ảnh & Bài viết mô tả</span>
-                            <button type="button" onclick="copyToAll('f_thong_so_html', 'f_mo_ta_html', 'f_imgContainer')" class="copy-btn">📑 Áp dụng cho mọi Tabs</button>
-                        </div>
-                        
-                        <div class="mb-5">
-                            <div class="flex justify-between items-center mb-2">
-                                <label style="margin-bottom:0">Danh sách Link ảnh</label>
-                                <button type="button" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
-                            </div>
-                            <div id="f_imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div><label>Thông số kỹ thuật</label><textarea id="f_thong_so_html" rows="5" class="input-premium font-mono text-sm"></textarea></div>
-                            <div><label>Bài viết mô tả</label><textarea id="f_mo_ta_html" rows="5" class="input-premium"></textarea></div>
-                        </div>
-                        <div class="mt-4"><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-yellow-50 text-yellow-800 border-yellow-200"></div>
-                    </div>
-                </form>
+                    </form>
+                </fieldset>
             </div>
 
             <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-between items-center shrink-0">
                 <span class="text-xs text-slate-400 italic">⚠️ Dữ liệu sẽ được lưu chung khi bấm nút "Lưu Sản Phẩm"</span>
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition">Hủy Bỏ</button>
+                    <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition border border-slate-300">Hủy Bỏ</button>
                     <button type="button" id="btnSave" onclick="confirmSave()" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lưu Sản Phẩm
                     </button>
@@ -297,14 +319,14 @@
         function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
         
         // --- NẠP DỮ LIỆU TỪ BACKEND ---
-        const mapGroupSP = {}; // Gom nhóm SKU theo Mã Sản Phẩm
+        const mapGroupSP = {}; // Gom nhóm SKU theo Mã Sản Phẩm gốc
         document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { 
             let id = el.getAttribute('data-masp'); 
             if(id) { 
                 if(!mapGroupSP[id]) mapGroupSP[id] = [];
                 mapGroupSP[id].push({
                     ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-tensp')), ten_rut_gon: decodeGo(el.getAttribute('data-tenrutgon')), slug: decodeGo(el.getAttribute('data-slug')),
-                    ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')) || 0,
+                    ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), // Giữ nguyên -1 0 1
                     ma_danh_muc: decodeGo(el.getAttribute('data-danhmuc')), ma_thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), mau_sac: decodeGo(el.getAttribute('data-mausac')),
                     khoi_luong: parseFloat(el.getAttribute('data-khoiluong')) || 0, kich_thuoc: decodeGo(el.getAttribute('data-kichthuoc')), url_hinh_anh: el.getAttribute('data-img'), bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
                     tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_niem_yet: parseFloat(el.getAttribute('data-gianiemuyet')) || 0, phan_tram_giam: parseFloat(el.getAttribute('data-ptgiam')) || 0,
@@ -326,7 +348,7 @@
         const tagifyTH = new Tagify(document.querySelector('#f_ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
         const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
         const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-        const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc"] });
+        const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng"] });
         const tagifyProfit = new Tagify(document.querySelector('#f_smart_profit'), { mode: 'select', enforceWhitelist: false, whitelist: [], dropdown: { maxItems: 10, classname: "tags-look", enabled: 0, closeOnSelect: true } });
 
         // --- QUẢN LÝ STATE TAB ---
@@ -336,25 +358,49 @@
 
         function createEmptySKU() {
             return {
-                ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Mặc định", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
+                ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản mới", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
                 khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", thong_so_html: "", mo_ta_html: ""
             };
         }
 
+        // TỰ ĐỘNG LÊN MÀU UI CHO TAB
         function renderTabs() {
             let html = "";
+            let aliveCount = currentSkus.filter(s => s.trang_thai !== -1).length;
+
             currentSkus.forEach((sku, idx) => {
-                let crown = sku.sku_chinh === 1 ? "👑 " : "";
-                let activeCls = idx === activeTabIndex ? "active" : "";
+                let isMain = sku.sku_chinh === 1;
+                let isDeleted = sku.trang_thai === -1;
+                let isOff = sku.trang_thai === 0;
+                let isActive = idx === activeTabIndex;
+                
+                let cls = "sku-tab group relative ";
+                if (isActive) cls += "ring-2 ring-offset-1 ring-blue-500 "; // Viền đang chọn
+                
+                if (isDeleted) {
+                    cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
+                } else if (isMain) {
+                    cls += "bg-blue-100 text-blue-800 border-blue-300 font-extrabold shadow-sm ";
+                } else if (isOff) {
+                    cls += "bg-slate-100 text-slate-500 border-slate-200 ";
+                } else {
+                    cls += "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold ";
+                }
+
                 let name = sku.ten_sku ? sku.ten_sku : `Phiên bản ${idx+1}`;
+                let crown = isMain ? "👑 " : "";
+                
+                // Chỉ hiện nút Xóa nếu tab không bị xóa VÀ (còn ít nhất 2 tab sống)
+                let showX = !isDeleted && aliveCount > 1;
+
                 html += `
-                    <div class="sku-tab ${activeCls} group relative" onclick="switchTab(${idx})">
+                    <div class="${cls}" onclick="switchTab(${idx})">
                         ${crown}${name}
-                        ${currentSkus.length > 1 ? `<span onclick="event.stopPropagation(); removeTab(${idx})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition">✕</span>` : ''}
+                        ${showX ? `<span onclick="event.stopPropagation(); removeTab(${idx})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm">✕</span>` : ''}
                     </div>
                 `;
             });
-            html += `<button onclick="addTab()" class="sku-tab text-blue-600 bg-blue-50 border-blue-200 border-dashed hover:bg-blue-100">+ Thêm phiên bản</button>`;
+            html += `<button onclick="addTab()" class="sku-tab text-blue-600 bg-blue-50 border-blue-200 border-dashed hover:bg-blue-100 font-bold">+ Thêm phiên bản</button>`;
             document.getElementById('tabs_container').innerHTML = html;
         }
 
@@ -368,11 +414,15 @@
         function addTab() {
             saveCurrentTabToState();
             let newSku = createEmptySKU();
-            // Kế thừa thông tin chung từ Tab 0
-            if(currentSkus.length > 0) {
-                let ref = currentSkus[0];
-                newSku.ma_san_pham = ref.ma_san_pham; newSku.ten_san_pham = ref.ten_san_pham; newSku.ma_danh_muc = ref.ma_danh_muc; newSku.ma_thuong_hieu = ref.ma_thuong_hieu;
-                newSku.don_vi = ref.don_vi; newSku.bao_hanh = ref.bao_hanh; newSku.thong_so_html = ref.thong_so_html; newSku.mo_ta_html = ref.mo_ta_html;
+            // Lấy Tab Đại Diện làm mẫu kế thừa
+            let mainRef = currentSkus.find(s => s.sku_chinh === 1 && s.trang_thai !== -1);
+            if (!mainRef && currentSkus.length > 0) mainRef = currentSkus[0]; // Dự phòng
+            
+            if(mainRef) {
+                newSku.ma_san_pham = mainRef.ma_san_pham; newSku.ten_san_pham = mainRef.ten_san_pham; 
+                newSku.ma_danh_muc = mainRef.ma_danh_muc; newSku.ma_thuong_hieu = mainRef.ma_thuong_hieu;
+                newSku.don_vi = mainRef.don_vi; newSku.bao_hanh = mainRef.bao_hanh; 
+                newSku.thong_so_html = mainRef.thong_so_html; newSku.mo_ta_html = mainRef.mo_ta_html;
             }
             newSku.ten_sku = `Phiên bản ${currentSkus.length + 1}`;
             currentSkus.push(newSku);
@@ -382,42 +432,66 @@
         }
 
         function removeTab(idx) {
-            Swal.fire({ title: 'Xóa phiên bản này?', text: "Hành động này sẽ xóa Tab hiện tại.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Xóa' }).then((result) => {
+            Swal.fire({ title: 'Xóa phiên bản này?', text: "Tab này sẽ bị gạch bỏ và bị xóa thực sự khi bạn bấm Lưu.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#ef4444' }).then((result) => {
                 if(result.isConfirmed) {
-                    let wasMain = currentSkus[idx].sku_chinh === 1;
-                    currentSkus.splice(idx, 1);
-                    if(wasMain && currentSkus.length > 0) currentSkus[0].sku_chinh = 1;
-                    if(activeTabIndex >= currentSkus.length) activeTabIndex = currentSkus.length - 1;
+                    currentSkus[idx].trang_thai = -1; // Xóa Logic
+                    // Nếu tab vừa xóa là Tab Đại Diện, chuyển vương miện cho Tab sống đầu tiên
+                    if(currentSkus[idx].sku_chinh === 1) {
+                        currentSkus[idx].sku_chinh = 0;
+                        let newMain = currentSkus.findIndex(s => s.trang_thai !== -1);
+                        if(newMain !== -1) currentSkus[newMain].sku_chinh = 1;
+                    }
                     renderTabs(); loadTabToForm(activeTabIndex);
                 }
             });
         }
 
+        function restoreTab() {
+            if (activeTabIndex >= 0 && currentSkus[activeTabIndex]) {
+                currentSkus[activeTabIndex].trang_thai = 1; // Mặc định bật lại bán
+                renderTabs(); loadTabToForm(activeTabIndex);
+            }
+        }
+
         function setMainSKU() {
             currentSkus.forEach((sku, idx) => { sku.sku_chinh = (idx === activeTabIndex) ? 1 : 0; });
-            document.getElementById('f_trang_thai').checked = true; // Đại diện luôn ép bật trạng thái
             renderTabs();
         }
 
-        function copyToAll(...fields) {
+        function updateTabName() {
+            if (activeTabIndex >= 0) {
+                currentSkus[activeTabIndex].ten_sku = document.getElementById('f_ten_sku').value;
+                renderTabs();
+            }
+        }
+
+        function updateTabColor() {
+            if (activeTabIndex >= 0 && currentSkus[activeTabIndex].trang_thai !== -1) {
+                currentSkus[activeTabIndex].trang_thai = document.getElementById('f_trang_thai').checked ? 1 : 0;
+                renderTabs();
+            }
+        }
+
+        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
+        function syncFromMain(...props) {
             saveCurrentTabToState();
-            let src = currentSkus[activeTabIndex];
-            currentSkus.forEach((sku, idx) => {
-                if(idx !== activeTabIndex) {
-                    fields.forEach(f => {
-                        let prop = f.replace('f_', '');
-                        if(f === 'f_imgContainer') prop = 'url_hinh_anh'; // map ID to property
-                        sku[prop] = src[prop];
-                    });
-                }
-            });
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Đã copy cho tất cả các Tab!', showConfirmButton: false, timer: 1500 });
+            let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
+            if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
+            if (mainIdx === activeTabIndex) { Swal.fire('Oops...', 'Bạn đang ở Bản Đại Diện rồi, cần gì đồng bộ nữa? 😅', 'info'); return; }
+
+            let mainSku = currentSkus[mainIdx];
+            // Ép đè dữ liệu
+            props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
+            
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã dán dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
+            loadTabToForm(activeTabIndex); // Tải lại UI
         }
 
         // --- ĐỌC / GHI DỮ LIỆU FORM <-> STATE ---
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
+            if (sku.trang_thai === -1) return; // Tab đã xóa thì ko lấy rác từ Form vào nữa
             
             sku.ten_sku = document.getElementById('f_ten_sku').value;
             sku.ma_sku = document.getElementById('f_ma_sku').value;
@@ -455,8 +529,19 @@
 
         function loadTabToForm(idx) {
             if(idx < 0 || idx >= currentSkus.length) return;
-            isEditingMode = true; // Khóa sự kiện
+            isEditingMode = true; 
             let sp = currentSkus[idx];
+
+            // Xử lý Cảnh Báo "Đã xóa"
+            const fieldset = document.getElementById('form_fieldset');
+            const warningBox = document.getElementById('warning_deleted');
+            if (sp.trang_thai === -1) {
+                fieldset.disabled = true; // Khóa sạch form
+                warningBox.classList.remove('hidden');
+            } else {
+                fieldset.disabled = false;
+                warningBox.classList.add('hidden');
+            }
 
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('f_ten_sku').value = sp.ten_sku;
@@ -488,6 +573,7 @@
             
             renderSmartProfitOptions(); 
             let currentMargin = 0;
+            // FIX LỖI: Chia cho số 0
             if(sp.gia_nhap > 0 && sp.gia_ban > 0) {
                 currentMargin = ((sp.gia_ban - sp.gia_nhap) / sp.gia_nhap) * 100;
             }
@@ -501,7 +587,7 @@
                 tagifyProfit.removeAllTags();
                 tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`, margin: currentMargin }]);
             }
-            calcPrices(currentMargin); // Ép render Giá bán
+            calcPrices(currentMargin); 
 
             document.getElementById('f_thong_so_html').value = sp.thong_so_html;
             document.getElementById('f_mo_ta_html').value = sp.mo_ta_html;
@@ -510,7 +596,7 @@
             document.getElementById('f_imgContainer').innerHTML = '';
             if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
 
-            setTimeout(() => { isEditingMode = false; }, 300); // Mở sự kiện lại
+            setTimeout(() => { isEditingMode = false; }, 300); 
         }
 
         // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN ---
@@ -576,15 +662,14 @@
                 let pList = round10k(giaNhap + laiVND);
                 document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
 
-                // Tính tiền giảm và giá thực tế
                 let tienGiam = Math.round(pList * (giamGia / 100));
                 document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
                 
                 let giaBanThuc = pList - tienGiam;
                 document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
             } else {
-                document.getElementById('f_lai_vnd').value = ""; document.getElementById('f_gia_niem_yet').value = "";
-                document.getElementById('f_so_tien_giam').value = ""; document.getElementById('f_gia_ban').value = "";
+                document.getElementById('f_lai_vnd').value = "0"; document.getElementById('f_gia_niem_yet').value = "0";
+                document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0";
             }
         }
 
@@ -593,6 +678,7 @@
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let giamGia = getNum(document.getElementById('f_phan_tram_giam').value) || 0;
             
+            // FIX LỖI: Chỉ tính % khi Giá Nhập lớn hơn 0
             if (giaNhap > 0 && pList > 0) {
                 let tienGiam = Math.round(pList * (giamGia / 100));
                 document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
@@ -606,6 +692,8 @@
                 document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
 
                 isEditingMode = true; tagifyProfit.removeAllTags(); tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${phanTramLai.toFixed(1)}%)`, margin: phanTramLai }]); isEditingMode = false;
+            } else {
+                document.getElementById('f_loi_nhuan').value = "0";
             }
         }
 
@@ -615,7 +703,7 @@
             if(pList > 0) {
                 let phanTram = (tienGiam / pList) * 100;
                 document.getElementById('f_phan_tram_giam').value = phanTram.toFixed(1);
-                autoCalcBackward(); // Tính ngược lại lãi
+                autoCalcBackward(); 
             }
         }
 
@@ -635,7 +723,7 @@
         // --- ĐIỀU KHIỂN MODAL ---
         function openModal() {
             document.getElementById('formSP').reset();
-            let newSku = createEmptySKU(); newSku.sku_chinh = 1; // Tab 1 mặc định là đại diện
+            let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
             
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
@@ -647,23 +735,24 @@
 
         function editSP(id) {
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
-            currentSkus = JSON.parse(JSON.stringify(list)); // Deep copy để sửa đổi an toàn
-            activeTabIndex = 0;
+            currentSkus = JSON.parse(JSON.stringify(list)); 
+            // Ưu tiên mở Tab đại diện đầu tiên
+            activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
+            if(activeTabIndex === -1) activeTabIndex = 0;
             
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
-            renderTabs(); loadTabToForm(0);
+            renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
         }
         
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
-            saveCurrentTabToState(); // Chốt sổ tab cuối
+            saveCurrentTabToState(); 
             
-            // Validate: Bắt buộc phải có 1 Tab làm đại diện
-            let hasMain = currentSkus.some(sku => sku.sku_chinh === 1);
-            if(!hasMain) { Swal.fire('Lỗi', 'Bắt buộc phải chọn 1 phiên bản làm Đại Diện hiển thị trên Web!', 'error'); return; }
+            let hasMain = currentSkus.some(sku => sku.sku_chinh === 1 && sku.trang_thai !== -1);
+            if(!hasMain) { Swal.fire('Lỗi', 'Bắt buộc phải chọn 1 phiên bản làm Đại Diện (không bị xóa)!', 'error'); return; }
 
-            const result = await Swal.fire({ title: 'Lưu toàn bộ phiên bản?', text: `Bạn đang lưu ${currentSkus.length} phiên bản cho sản phẩm này.`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
+            const result = await Swal.fire({ title: 'Lưu toàn bộ phiên bản?', text: `Bạn đang thao tác với ${currentSkus.length} Tab phiên bản cho nhóm sản phẩm này.`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
         }
 
@@ -673,7 +762,7 @@
             
             const fd = new FormData();
             fd.set('ma_san_pham', currentSkus[0].ma_san_pham || ""); 
-            fd.set('data_skus', JSON.stringify(currentSkus)); // Gửi cả mảng JSON qua 1 trường
+            fd.set('data_skus', JSON.stringify(currentSkus)); 
             
             try {
                 const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
