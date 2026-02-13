@@ -379,15 +379,14 @@
             else if (priceMargin > 0) select.value = priceMargin;
         }
 
-        function applySmartProfit() {
+function applySmartProfit(isUserClick = false) {
             let select = document.getElementById('smart_profit_select');
             let val = select.value;
             let finalMargin = 0;
 
             if (val === 'manual') {
-                // SỬA CHỖ NÀY: Nếu đang mở Form sửa, KHÔNG bật popup nhập số
-                if (isEditingMode) {
-                    // Lấy tỷ lệ lợi nhuận hiện tại từ cái label của option 'manual' (đã set ở editSP)
+                // NẾU HỆ THỐNG TỰ ĐỘNG GỌI -> Chỉ tính toán ngầm, KHÔNG BẬT POPUP
+                if (!isUserClick) {
                     let text = select.options[select.selectedIndex].text;
                     let match = text.match(/\(([-\d.]+)%\)/);
                     if (match && match[1]) {
@@ -395,10 +394,10 @@
                     }
                     document.getElementById('loi_nhuan').value = finalMargin;
                     calcPrices(finalMargin);
-                    return; // Thoát hàm, không gọi Swal.fire
+                    return; 
                 }
 
-                // Nếu người dùng chủ động chọn 'manual' từ dropdown thì mới hiện popup
+                // NẾU NGƯỜI DÙNG TỰ TAY BẤM -> Bật popup yêu cầu nhập
                 Swal.fire({
                     title: 'Nhập % Lợi nhuận',
                     input: 'number',
@@ -408,12 +407,13 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         finalMargin = parseFloat(result.value) || 0;
-                        select.options[select.selectedIndex].text = `✍️ Tự nhập (Đang dùng: ${finalMargin}%)`;
+                        select.options[select.selectedIndex].text = `✍️ Tự nhập (${finalMargin}%)`;
                         document.getElementById('loi_nhuan').value = finalMargin;
                         calcPrices(finalMargin);
                     } else {
+                        // Nếu bấm Hủy, quay về tùy chọn tự động trước đó (ẩn popup)
                         renderSmartProfitOptions();
-                        applySmartProfit();
+                        applySmartProfit(false); 
                     }
                 });
             } else {
@@ -423,6 +423,7 @@
                 calcPrices(finalMargin);
             }
         }
+        
         function calcPrices(loiNhuan) {
             let giaNhap = getNum(document.getElementById('gia_nhap').value);
             let giamGia = parseFloat(document.getElementById('giam_gia').value) || 0;
