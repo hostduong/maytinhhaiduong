@@ -232,16 +232,23 @@
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5 items-end">
                                 <div>
                                     <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                    <input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderSmartProfitOptions(); applySmartProfit();">
+                                    <input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
                                 </div>
                                 
-                                <div class="md:col-span-1">
-                                    <label>Quy tắc tính lãi & Biên độ %</label>
-                                    <input id="f_smart_profit" class="input-premium bg-white cursor-text font-bold text-blue-700" placeholder="Chọn hoặc tự gõ %...">
-                                    <input type="hidden" id="f_loi_nhuan" value="0">
+                                <div>
+                                    <label>Quy tắc tính lãi</label>
+                                    <select id="f_quy_tac_gia" class="input-premium font-bold text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()">
+                                        <option value="manual">✍️ Tự chỉnh</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>Biên độ Lãi (%)</label>
+                                    <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="0.1" onkeyup="calcPrices()">
                                 </div>
 
                                 <div>
@@ -250,22 +257,22 @@
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm items-end">
                                 <div>
-                                    <label>Giá Niêm Yết</label>
+                                    <label>Giá Niêm Yết (Gạch ngang)</label>
                                     <input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                                 </div>
                                 <div>
                                     <label>Giảm giá (%)</label>
-                                    <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" onkeyup="applySmartProfit()">
+                                    <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="0.1" onkeyup="calcPrices()">
                                 </div>
                                 <div>
                                     <label>Hoặc Giảm (VNĐ)</label>
                                     <input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
                                 </div>
                                 <div>
-                                    <label class="text-emerald-700">Bán Thực Tế</label>
-                                    <input type="text" id="f_gia_ban" readonly class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0">
+                                    <label class="text-emerald-700">Giá Bán Thực Tế</label>
+                                    <input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
                                 </div>
                             </div>
 
@@ -326,7 +333,7 @@
                 if(!mapGroupSP[id]) mapGroupSP[id] = [];
                 mapGroupSP[id].push({
                     ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-tensp')), ten_rut_gon: decodeGo(el.getAttribute('data-tenrutgon')), slug: decodeGo(el.getAttribute('data-slug')),
-                    ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), // Giữ nguyên -1 0 1
+                    ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), 
                     ma_danh_muc: decodeGo(el.getAttribute('data-danhmuc')), ma_thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), mau_sac: decodeGo(el.getAttribute('data-mausac')),
                     khoi_luong: parseFloat(el.getAttribute('data-khoiluong')) || 0, kich_thuoc: decodeGo(el.getAttribute('data-kichthuoc')), url_hinh_anh: el.getAttribute('data-img'), bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
                     tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, gia_niem_yet: parseFloat(el.getAttribute('data-gianiemuyet')) || 0, phan_tram_giam: parseFloat(el.getAttribute('data-ptgiam')) || 0,
@@ -349,7 +356,10 @@
         const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
         const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng"] });
-        const tagifyProfit = new Tagify(document.querySelector('#f_smart_profit'), { mode: 'select', enforceWhitelist: false, whitelist: [], dropdown: { maxItems: 10, classname: "tags-look", enabled: 0, closeOnSelect: true } });
+
+        // Tự động load lại Option Lợi nhuận khi đổi Danh mục
+        tagifyDM.on('add', function(e) { if(isEditingMode) return; renderQuyTacGia(); });
+        tagifyDM.on('remove', function(e) { if(isEditingMode) return; renderQuyTacGia(); });
 
         // --- QUẢN LÝ STATE TAB ---
         let currentSkus = [];
@@ -375,7 +385,7 @@
                 let isActive = idx === activeTabIndex;
                 
                 let cls = "sku-tab group relative ";
-                if (isActive) cls += "ring-2 ring-offset-1 ring-blue-500 "; // Viền đang chọn
+                if (isActive) cls += "ring-2 ring-offset-1 ring-blue-500 "; 
                 
                 if (isDeleted) {
                     cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
@@ -389,8 +399,6 @@
 
                 let name = sku.ten_sku ? sku.ten_sku : `Phiên bản ${idx+1}`;
                 let crown = isMain ? "👑 " : "";
-                
-                // Chỉ hiện nút Xóa nếu tab không bị xóa VÀ (còn ít nhất 2 tab sống)
                 let showX = !isDeleted && aliveCount > 1;
 
                 html += `
@@ -414,9 +422,8 @@
         function addTab() {
             saveCurrentTabToState();
             let newSku = createEmptySKU();
-            // Lấy Tab Đại Diện làm mẫu kế thừa
             let mainRef = currentSkus.find(s => s.sku_chinh === 1 && s.trang_thai !== -1);
-            if (!mainRef && currentSkus.length > 0) mainRef = currentSkus[0]; // Dự phòng
+            if (!mainRef && currentSkus.length > 0) mainRef = currentSkus[0]; 
             
             if(mainRef) {
                 newSku.ma_san_pham = mainRef.ma_san_pham; newSku.ten_san_pham = mainRef.ten_san_pham; 
@@ -431,8 +438,8 @@
             loadTabToForm(activeTabIndex);
         }
 
-function removeTab(idx) {
-            // Logic: Nếu chưa có mã SKU thực (từ DB trả về) -> Đây là tab mới tạo trên UI, xóa mất luôn
+        // XOÁ THÔNG MINH
+        function removeTab(idx) {
             let isNewTab = !currentSkus[idx].ma_sku; 
             let msg = isNewTab ? "Phiên bản này vừa tạo, sẽ bị xóa vĩnh viễn khỏi Form." : "Tab này sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm Lưu Sản Phẩm.";
 
@@ -441,61 +448,26 @@ function removeTab(idx) {
                     let wasMain = currentSkus[idx].sku_chinh === 1;
 
                     if (isNewTab) {
-                        // Xóa bay màu khỏi mảng
                         currentSkus.splice(idx, 1);
                         if(activeTabIndex >= currentSkus.length) activeTabIndex = currentSkus.length - 1;
-                        if(activeTabIndex < 0) activeTabIndex = 0; // Chống lỗi mảng âm
+                        if(activeTabIndex < 0) activeTabIndex = 0; 
                     } else {
-                        // Đánh dấu chờ xóa (Soft Delete)
                         currentSkus[idx].trang_thai = -1; 
                     }
 
-                    // Chuyển vương miện nếu tab vừa bay màu là Tab Đại Diện
                     if(wasMain && currentSkus.length > 0) {
                         if(!isNewTab) currentSkus[idx].sku_chinh = 0;
                         let newMain = currentSkus.findIndex(s => s.trang_thai !== -1);
                         if(newMain !== -1) currentSkus[newMain].sku_chinh = 1;
                     }
-                    
                     renderTabs(); loadTabToForm(activeTabIndex);
                 }
             });
         }
 
-        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
-        function syncFromMain(...props) {
-            saveCurrentTabToState(); // Chốt sổ dữ liệu vừa gõ vào RAM tạm
-            
-            let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
-            if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
-
-            let mainSku = currentSkus[mainIdx];
-
-            if (mainIdx === activeTabIndex) {
-                // TRƯỜNG HỢP 1: Đang đứng ở Tab Đại Diện -> Đẩy dữ liệu ra cho các Tab đàn em
-                let count = 0;
-                currentSkus.forEach((sku, idx) => {
-                    if (idx !== mainIdx && sku.trang_thai !== -1) {
-                        props.forEach(p => sku[p] = mainSku[p]);
-                        count++;
-                    }
-                });
-                if (count > 0) {
-                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 });
-                } else {
-                    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để copy!`, showConfirmButton: false, timer: 1500 });
-                }
-            } else {
-                // TRƯỜNG HỢP 2: Đang đứng ở Tab Phụ -> Kéo dữ liệu từ Tab Đại Diện về
-                props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
-                loadTabToForm(activeTabIndex); // Tải lại giao diện để hiển thị
-            }
-        }
-
         function restoreTab() {
             if (activeTabIndex >= 0 && currentSkus[activeTabIndex]) {
-                currentSkus[activeTabIndex].trang_thai = 1; // Mặc định bật lại bán
+                currentSkus[activeTabIndex].trang_thai = 1; 
                 renderTabs(); loadTabToForm(activeTabIndex);
             }
         }
@@ -519,12 +491,35 @@ function removeTab(idx) {
             }
         }
 
+        // TÍNH NĂNG "ĐỒNG BỘ TỪ BẢN ĐẠI DIỆN"
+        function syncFromMain(...props) {
+            saveCurrentTabToState(); 
+            let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
+            if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
+            let mainSku = currentSkus[mainIdx];
+
+            if (mainIdx === activeTabIndex) {
+                let count = 0;
+                currentSkus.forEach((sku, idx) => {
+                    if (idx !== mainIdx && sku.trang_thai !== -1) {
+                        props.forEach(p => sku[p] = mainSku[p]);
+                        count++;
+                    }
+                });
+                if (count > 0) { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 }); } 
+                else { Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để copy!`, showConfirmButton: false, timer: 1500 }); }
+            } else {
+                props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
+                loadTabToForm(activeTabIndex); 
+            }
+        }
 
         // --- ĐỌC / GHI DỮ LIỆU FORM <-> STATE ---
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
-            if (sku.trang_thai === -1) return; // Tab đã xóa thì ko lấy rác từ Form vào nữa
+            if (sku.trang_thai === -1) return; 
             
             sku.ten_sku = document.getElementById('f_ten_sku').value;
             sku.ma_sku = document.getElementById('f_ma_sku').value;
@@ -560,12 +555,11 @@ function removeTab(idx) {
             sku.ghi_chu = document.getElementById('f_ghi_chu').value;
         }
 
-function loadTabToForm(idx) {
+        function loadTabToForm(idx) {
             if(idx < 0 || idx >= currentSkus.length) return;
-            isEditingMode = true; // Khóa không cho các hàm onchange tự chạy nhảy
+            isEditingMode = true; 
             let sp = currentSkus[idx];
 
-            // 1. Xử lý Trạng thái Cảnh báo
             const fieldset = document.getElementById('form_fieldset');
             const warningBox = document.getElementById('warning_deleted');
             if (sp.trang_thai === -1) {
@@ -574,7 +568,6 @@ function loadTabToForm(idx) {
                 fieldset.disabled = false; warningBox.classList.add('hidden');
             }
 
-            // 2. Điền thông tin cơ bản
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('f_ten_sku').value = sp.ten_sku;
             document.getElementById('f_ma_sku').value = sp.ma_sku;
@@ -583,14 +576,12 @@ function loadTabToForm(idx) {
             document.getElementById('f_ten_san_pham').value = sp.ten_san_pham;
             document.getElementById('f_ten_rut_gon').value = sp.ten_rut_gon;
 
-            // 3. Điền Tagify
             tagifyDM.removeAllTags(); if(sp.ma_danh_muc) tagifyDM.addTags(sp.ma_danh_muc.split("|"));
             tagifyTH.removeAllTags(); if(sp.ma_thuong_hieu) tagifyTH.addTags(sp.ma_thuong_hieu.split("|"));
             tagifyDonVi.removeAllTags(); if(sp.don_vi) tagifyDonVi.addTags(sp.don_vi.split("|"));
             tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
             tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
 
-            // 4. Điền Thuộc tính
             document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
             document.getElementById('f_kich_thuoc').value = sp.kich_thuoc;
             
@@ -600,34 +591,22 @@ function loadTabToForm(idx) {
                 else { document.getElementById('f_bao_hanh_num').value = sp.bao_hanh; }
             } else { document.getElementById('f_bao_hanh_num').value = ""; document.getElementById('f_bao_hanh_unit').value = "Tháng"; }
 
-            // 5. Điền Giá & Tính toán Lợi nhuận (FIX LỖI NHẢY TAB)
+            // ĐIỀN GIÁ
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_gia_niem_yet').value = sp.gia_niem_yet > 0 ? formatNumber(sp.gia_niem_yet.toString()) : "";
             document.getElementById('f_phan_tram_giam').value = sp.phan_tram_giam > 0 ? sp.phan_tram_giam : "";
             document.getElementById('f_so_tien_giam').value = sp.so_tien_giam > 0 ? formatNumber(sp.so_tien_giam.toString()) : "";
+            document.getElementById('f_gia_ban').value = sp.gia_ban > 0 ? formatNumber(sp.gia_ban.toString()) : "";
             
+            // XỬ LÝ QUY TẮC LỢI NHUẬN (CÁCH MỚI)
             let currentMargin = 0;
             if(sp.gia_nhap > 0 && sp.gia_ban > 0) {
                 currentMargin = ((sp.gia_ban - sp.gia_nhap) / sp.gia_nhap) * 100;
             }
+            renderQuyTacGia(); // Gen options
+            matchAndSetQuyTacGia(currentMargin); 
+            calcPrices(); // Chạy lại hàm để điền ô Lãi VNĐ
 
-            // Chỉ load danh sách gợi ý vào Tagify, KHÔNG tự động ép chọn (Khóa isEditingMode)
-            let whitelist = generateSmartProfitWhitelist(sp.gia_nhap);
-            tagifyProfit.settings.whitelist = whitelist;
-
-            let matched = false;
-            whitelist.forEach(item => {
-                if (Math.abs(item.margin - currentMargin) < 0.1) {
-                    tagifyProfit.removeAllTags(); tagifyProfit.addTags([item]); matched = true;
-                }
-            });
-            if(!matched && sp.gia_nhap > 0) {
-                tagifyProfit.removeAllTags();
-                tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${currentMargin.toFixed(1)}%)`, margin: currentMargin }]);
-            }
-            calcPrices(currentMargin); // Cập nhật lại UI tiền bạc
-
-            // 6. Điền Nội dung & Ảnh
             document.getElementById('f_thong_so_html').value = sp.thong_so_html;
             document.getElementById('f_mo_ta_html').value = sp.mo_ta_html;
             document.getElementById('f_ghi_chu').value = sp.ghi_chu;
@@ -635,86 +614,123 @@ function loadTabToForm(idx) {
             document.getElementById('f_imgContainer').innerHTML = '';
             if (sp.url_hinh_anh) { sp.url_hinh_anh.split('|').forEach(link => addImgInput(link)); } else { addImgInput(''); }
 
-            setTimeout(() => { isEditingMode = false; }, 300); // Mở sự kiện lại
+            setTimeout(() => { isEditingMode = false; }, 300); 
         }
 
-        // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN (ĐÃ FIX TOÁN HỌC) ---
+        // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN ---
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
         function convertDriveLink(url) { if (!url) return ""; if (url.includes("drive.google.com") && url.includes("/d/")) { const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/); if (match && match[1]) return "https://lh3.googleusercontent.com/d/" + match[1]; } return url; }
 
-        // Tách hàm tạo Whitelist riêng để tái sử dụng
-        function generateSmartProfitWhitelist(giaNhap) {
-            let whitelist = [];
+        // --- TÍNH TOÁN GIÁ & QUY TẮC 4x4 ---
+        function renderQuyTacGia() {
+            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
+            let select = document.getElementById('f_quy_tac_gia');
+            let currentVal = select.value;
+            
+            let html = `<option value="manual">✍️ Tự chỉnh</option>`;
+            
+            // 1. Theo Danh mục
+            let marginDM = 0;
+            const tags = tagifyDM.value;
+            if (tags && tags.length > 0) {
+                const info = dicDanhMuc[tags[0].value];
+                if (info && info.loiNhuan > 0) {
+                    marginDM = info.loiNhuan;
+                    html += `<option value="danhmuc" data-margin="${marginDM}">🔷 Theo Danh Mục (${marginDM}%)</option>`;
+                }
+            }
+            
+            // 2. Theo Khung giá
+            let marginKhung = 0;
             if (giaNhap > 0) {
-                const tags = tagifyDM.value;
-                if (tags && tags.length > 0) {
-                    const info = dicDanhMuc[tags[0].value];
-                    if (info && info.loiNhuan > 0) {
-                        whitelist.push({ value: `🔷 Danh Mục (${info.loiNhuan}%)`, margin: info.loiNhuan });
+                for (let i = 0; i < listBLN.length; i++) { 
+                    if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } 
+                }
+                if (marginKhung === 0 && listBLN.length > 0) marginKhung = listBLN[listBLN.length - 1].loiNhuan;
+                if (marginKhung > 0) {
+                    html += `<option value="khunggia" data-margin="${marginKhung}">🔶 Theo Khung Giá (${marginKhung}%)</option>`;
+                }
+            }
+            
+            select.innerHTML = html;
+            
+            // Tự động nhảy ưu tiên nếu user đang gõ Giá Nhập (Ko ở chế độ sửa Tab)
+            if (!isEditingMode) {
+                if (marginDM > 0) select.value = "danhmuc";
+                else if (marginKhung > 0) select.value = "khunggia";
+                else select.value = "manual";
+                applyQuyTacGia();
+            } else {
+                // Đang sửa tab, cố gắng giữ lại Value cũ nếu tồn tại
+                if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+                    select.value = currentVal;
+                }
+            }
+        }
+
+        // Xử lý khi user chọn Select Box
+        function applyQuyTacGia() {
+            let select = document.getElementById('f_quy_tac_gia');
+            let inputPhanTram = document.getElementById('f_bien_do_phan_tram');
+            
+            if (select.value === "manual") {
+                // Mở khóa nhập
+                inputPhanTram.disabled = false;
+                inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                inputPhanTram.classList.add('bg-white', 'text-blue-700');
+            } else {
+                // Khóa cứng
+                inputPhanTram.disabled = true;
+                inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                inputPhanTram.classList.remove('bg-white', 'text-blue-700');
+                
+                let selectedOpt = select.options[select.selectedIndex];
+                let margin = selectedOpt.getAttribute('data-margin');
+                if (margin) inputPhanTram.value = margin;
+            }
+            if (!isEditingMode) calcPrices();
+        }
+
+        // Dùng khi chuyển Tab: Tìm xem % lợi nhuận cũ khớp với Option nào
+        function matchAndSetQuyTacGia(currentMargin) {
+            let select = document.getElementById('f_quy_tac_gia');
+            let options = select.options;
+            let matched = false;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value !== "manual") {
+                    let m = parseFloat(options[i].getAttribute('data-margin'));
+                    if (Math.abs(m - currentMargin) < 0.1) {
+                        select.value = options[i].value;
+                        matched = true;
+                        break;
                     }
                 }
-                let priceMargin = 0;
-                for (let i = 0; i < listBLN.length; i++) { if (giaNhap <= listBLN[i].khung) { priceMargin = listBLN[i].loiNhuan; break; } }
-                if (priceMargin === 0 && listBLN.length > 0) priceMargin = listBLN[listBLN.length - 1].loiNhuan;
-                if (priceMargin > 0) {
-                    whitelist.push({ value: `🔶 Khung Giá (${priceMargin}%)`, margin: priceMargin });
-                }
             }
-            return whitelist;
+            
+            if (!matched) select.value = "manual";
+            applyQuyTacGia(); // Set màu và disabled
+            document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin.toFixed(2) : "";
         }
 
-        function renderSmartProfitOptions() {
+        // TÍNH BÁN THỰC TẾ & NIÊM YẾT (Xuôi)
+        function calcPrices() {
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let whitelist = generateSmartProfitWhitelist(giaNhap);
-            tagifyProfit.settings.whitelist = whitelist;
-
-            // Nếu người dùng đang tự gõ Giá Nhập (không phải do máy load) -> Tự nhảy ưu tiên
-            if (!isEditingMode && whitelist.length > 0) {
-                isEditingMode = true; 
-                tagifyProfit.removeAllTags(); 
-                tagifyProfit.addTags([whitelist[0]]); // Bốc thằng Ưu tiên 1 lên
-                isEditingMode = false;
-            }
-        }
-
-        tagifyDM.on('add', function(e) { if(isEditingMode) return; renderSmartProfitOptions(); applySmartProfit(); });
-        tagifyDM.on('remove', function(e) { if(isEditingMode) return; renderSmartProfitOptions(); });
-        tagifyProfit.on('change', function(e) { if(!isEditingMode) applySmartProfit(); });
-
-        function applySmartProfit() {
-            let val = tagifyProfit.value; let finalMargin = 0;
-            if (val && val.length > 0) {
-                let selected = val[0];
-                if (selected.margin !== undefined) { finalMargin = parseFloat(selected.margin); } 
-                else {
-                    let match = selected.value.match(/[\d.]+/); 
-                    if (match && match[0]) {
-                        finalMargin = parseFloat(match[0]) || 0;
-                        setTimeout(() => { isEditingMode = true; tagifyProfit.removeAllTags(); tagifyProfit.addTags([{ value: `✍️ Tự chỉnh (${finalMargin}%)`, margin: finalMargin }]); isEditingMode = false; }, 10);
-                    }
-                }
-            }
-            document.getElementById('f_loi_nhuan').value = finalMargin;
-            calcPrices(finalMargin);
-        }
-
-        function calcPrices(loiNhuan) {
-            loiNhuan = parseFloat(loiNhuan) || 0;
-            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let giamGia = getNum(document.getElementById('f_phan_tram_giam').value) || 0;
+            let bienDo = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0;
+            let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
             
             if (giaNhap > 0) {
-                let laiVND = giaNhap * (loiNhuan / 100);
+                let laiVND = giaNhap * (bienDo / 100);
                 document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
                 
-                // 1. TÍNH BÁN THỰC TẾ (Cố định từ Giá Vốn + Lãi)
                 let giaBanThuc = round10k(giaNhap + laiVND);
-                document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
+                // Tránh việc overwrite Giá Bán nếu đang mở form load
+                if (!isEditingMode) document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
 
-                // 2. TÍNH GIÁ NIÊM YẾT (Chia ngược theo % Giảm Giá)
+                // Tính Niêm yết
                 let pList = giaBanThuc;
                 let tienGiam = 0;
                 if (giamGia > 0 && giamGia < 100) {
@@ -722,19 +738,25 @@ function loadTabToForm(idx) {
                     tienGiam = pList - giaBanThuc;
                 }
                 
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                if (!isEditingMode) {
+                    document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                    document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                }
             } else {
-                document.getElementById('f_lai_vnd').value = "0"; document.getElementById('f_gia_niem_yet').value = "0";
-                document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0";
+                document.getElementById('f_lai_vnd').value = "0"; 
+                if (!isEditingMode) {
+                    document.getElementById('f_gia_niem_yet').value = "0";
+                    document.getElementById('f_so_tien_giam').value = "0"; 
+                    document.getElementById('f_gia_ban').value = "0";
+                }
             }
         }
 
+        // TÍNH % KHI GÕ GIÁ NIÊM YẾT (Ngược Giảm Giá)
         function autoCalcBackward() {
             let pList = getNum(document.getElementById('f_gia_niem_yet').value);
             let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             
-            // Chỉ tính lại % giảm giá khi Giá Niêm Yết cao hơn Bán Thực Tế
             if (giaBanThuc > 0 && pList >= giaBanThuc) {
                 let tienGiam = pList - giaBanThuc;
                 let phanTramGiam = (tienGiam / pList) * 100;
@@ -747,12 +769,12 @@ function loadTabToForm(idx) {
             }
         }
 
+        // TÍNH KHI GÕ TIỀN GIẢM
         function applyDiscountMoney() {
             let tienGiam = getNum(document.getElementById('f_so_tien_giam').value);
             let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             
             if(giaBanThuc > 0) {
-                // Tiền giảm cộng thẳng vào Bán Thực Tế để ra Giá Gạch Ngang
                 let pList = round10k(giaBanThuc + tienGiam);
                 let phanTramGiam = (tienGiam / pList) * 100;
                 
@@ -761,6 +783,36 @@ function loadTabToForm(idx) {
             }
         }
 
+        // TÍNH KHI GÕ GIÁ BÁN (Tính ngược ra Biên Độ)
+        function autoCalcFromGiaBan() {
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
+            let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
+
+            if (giaNhap > 0 && giaBanThuc >= giaNhap) {
+                let laiVND = giaBanThuc - giaNhap;
+                let phanTramLai = (laiVND / giaNhap) * 100;
+                
+                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
+                document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
+                
+                // Ép quy tắc về Tự Chỉnh
+                document.getElementById('f_quy_tac_gia').value = "manual";
+                applyQuyTacGia(); // Mở khóa Input
+
+                // Giữ nguyên % Giảm Giá, Đội lại Giá Niêm Yết
+                let pList = giaBanThuc;
+                let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) {
+                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
+                    tienGiam = pList - giaBanThuc;
+                }
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+            }
+        }
+
+        // --- HÌNH ẢNH ---
         function addImgInput(value) {
             const container = document.getElementById('f_imgContainer');
             const div = document.createElement('div');
@@ -790,7 +842,6 @@ function loadTabToForm(idx) {
         function editSP(id) {
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
             currentSkus = JSON.parse(JSON.stringify(list)); 
-            // Ưu tiên mở Tab đại diện đầu tiên
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if(activeTabIndex === -1) activeTabIndex = 0;
             
