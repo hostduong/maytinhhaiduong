@@ -20,10 +20,16 @@
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
         input.input-premium:focus, select.input-premium:focus, textarea.input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
-        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9; cursor: not-allowed; color: #94a3b8; }
+        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: dashed !important; }
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        /* CSS Ẩn hiện các nút đồng bộ và CSS cho Tagify khi bị khóa (Xóa Tab) */
+        fieldset:disabled .btn-sync-main { display: none !important; }
+        .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
+        .tagify[readonly] .tagify__tag { background-color: #e2e8f0; color: #64748b; }
+        .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
         
@@ -80,34 +86,34 @@
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-4 font-bold">Mã SP</th>
-                            <th class="px-6 py-4 font-bold">Ảnh</th>
-                            <th class="px-6 py-4 font-bold">Tên Sản Phẩm (Đại diện)</th>
-                            <th class="px-6 py-4 font-bold">Danh Mục</th>
-                            <th class="px-6 py-4 text-right font-bold">Giá Bán</th>
-                            <th class="px-6 py-4 text-center font-bold">Trạng Thái</th>
-                            <th class="px-6 py-4 text-center font-bold">Thao tác</th>
+                            <th class="px-4 py-4 font-bold w-24">Mã SP</th>
+                            <th class="px-4 py-4 font-bold text-center w-20">Ảnh</th>
+                            <th class="px-4 py-4 font-bold">Tên Sản Phẩm (Đại diện)</th>
+                            <th class="px-4 py-4 font-bold text-center w-32">Danh Mục</th>
+                            <th class="px-4 py-4 text-right font-bold w-32">Giá Bán</th>
+                            <th class="px-4 py-4 text-center font-bold w-24">Trạng Thái</th>
+                            <th class="px-4 py-4 text-center font-bold w-24">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         {{ range .DanhSach }}
                         <tr class="bg-white hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
-                            <td class="px-6 py-4">
-                                <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden">
+                            <td class="px-4 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
+                            <td class="px-4 py-4">
+                                <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden mx-auto">
                                     <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E{{ end }}" 
                                          class="preview-img-table max-w-full max-h-full object-cover rounded-sm"
                                          onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
                                 </div>
                             </td>
-                            <td class="px-6 py-4 font-medium text-slate-900 min-w-[200px]">
+                            <td class="px-4 py-4 font-medium text-slate-900 min-w-[200px]">
                                 {{ .TenSanPham }}<br>
                                 {{ if .TenSKU }}<span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 mt-1 inline-block">Đại diện: {{ .TenSKU }}</span>{{ end }}
                             </td>
-                            <td class="px-6 py-4">
-                                {{ if .MaDanhMuc }}<div class="flex flex-wrap gap-1 w-48"><span class="dm-tags bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded border border-slate-200" data-tags="{{ .MaDanhMuc }}"></span></div>{{ end }}
+                            <td class="px-4 py-4 text-center">
+                                {{ if .MaDanhMuc }}<div class="flex flex-wrap gap-1 justify-center"><span class="dm-tags bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded border border-slate-200" data-tags="{{ .MaDanhMuc }}"></span></div>{{ end }}
                             </td>
-                            <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <td class="px-4 py-4 text-right whitespace-nowrap">
                                 {{ if gt .PhanTramGiam 0.0 }}
                                     <div class="font-bold text-red-600">{{ format_money .GiaBan }} ₫</div>
                                     <div class="text-xs text-slate-400 line-through">{{ format_money .GiaNiemYet }} ₫</div>
@@ -115,11 +121,11 @@
                                     <div class="font-bold text-slate-700">{{ format_money .GiaNiemYet }} ₫</div>
                                 {{ end }}
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-4 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="inline-flex items-center bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-0.5 rounded-full">Bán</span>
                                 {{ else }}<span class="inline-flex items-center bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-0.5 rounded-full">Tắt</span>{{ end }}
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-4 py-4 text-center">
                                 <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     Sửa
@@ -367,7 +373,6 @@
                     maSpInput.value = newMa;
                     currentSkus.forEach((sku, idx) => {
                         sku.ma_san_pham = newMa;
-                        // Chỉ ép sinh mã SKU nếu nó chưa được lưu vào DB (Mới tinh)
                         if (!sku._is_saved && !sku.ma_sku) {
                             sku.ma_sku = newMa + "-" + String(idx + 1).padStart(2, '0');
                         }
@@ -396,7 +401,7 @@
 
         function createEmptySKU() {
             return {
-                _is_saved: false, // Cờ nhận biết hàng mới đẻ trên Form
+                _is_saved: false,
                 ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản 1", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
                 khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", thong_so_html: "", mo_ta_html: ""
             };
@@ -461,7 +466,6 @@
                 newSku.don_vi = mainRef.don_vi; newSku.bao_hanh = mainRef.bao_hanh; 
                 newSku.thong_so_html = mainRef.thong_so_html; newSku.mo_ta_html = mainRef.mo_ta_html;
                 
-                // Tự sinh mã SKU nếu đã có mã sản phẩm gốc
                 if (mainRef.ma_san_pham) {
                     newSku.ma_sku = mainRef.ma_san_pham + "-" + String(currentSkus.length + 1).padStart(2, '0');
                 }
@@ -473,7 +477,7 @@
             loadTabToForm(activeTabIndex);
         }
 
-        // XOÁ THÔNG MINH (PHÂN BIỆT TAB ĐÃ LƯU RAM / CHƯA LƯU)
+        // XOÁ THÔNG MINH (PHÂN BIỆT TAB LƯU RAM / CHƯA LƯU)
         function removeTab(idx) {
             let isNewTab = !currentSkus[idx]._is_saved; 
             let msg = isNewTab ? "Phiên bản này chưa lưu (chưa có trong CSDL), sẽ bị xóa vĩnh viễn khỏi Form." : "Phiên bản đã lưu CSDL sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm nút Lưu Sản Phẩm bên dưới.";
@@ -610,19 +614,16 @@
 
             const fieldset = document.getElementById('form_fieldset');
             const warningBox = document.getElementById('warning_deleted');
-            const syncBtns = document.querySelectorAll('.btn-sync-main');
             
             // XỬ LÝ KHÓA CỨNG TAB BỊ XÓA LOGIC
             if (sp.trang_thai === -1) {
                 fieldset.disabled = true; 
                 warningBox.classList.remove('hidden');
-                syncBtns.forEach(b => b.classList.add('hidden'));
                 [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(true));
                 document.getElementById('btn_add_img').classList.add('hidden');
             } else {
                 fieldset.disabled = false; 
                 warningBox.classList.add('hidden');
-                syncBtns.forEach(b => b.classList.remove('hidden'));
                 [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(false));
                 document.getElementById('btn_add_img').classList.remove('hidden');
             }
@@ -878,7 +879,7 @@
             let imgSrc = value ? convertDriveLink(value) : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             div.innerHTML = `
                 <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
-                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)"> 
+                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)" ${isReadonly ? 'disabled' : ''}> 
                 <span onclick="this.parentElement.remove()" class="btn-remove-img ${isReadonly ? 'hidden' : ''}">✕</span>
             `;
             container.appendChild(div);
