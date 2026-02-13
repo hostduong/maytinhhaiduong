@@ -34,6 +34,7 @@ type InputSKU struct {
 	BaoHanh      string  `json:"bao_hanh"`
 	TinhTrang    string  `json:"tinh_trang"`
 	GiaNhap      float64 `json:"gia_nhap"`
+	PhanTramLai  float64 `json:"phan_tram_lai"` // <-- BỔ SUNG CỘT LÃI (U)
 	GiaNiemYet   float64 `json:"gia_niem_yet"`
 	PhanTramGiam float64 `json:"phan_tram_giam"`
 	SoTienGiam   float64 `json:"so_tien_giam"`
@@ -81,7 +82,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
 			fullList = append(fullList, sp)
-			// Không hiển thị các SKU đã bị xóa (Trạng thái = 0 ở cấp độ record logic)
+			// Không hiển thị các SKU đã bị xóa (Trạng thái = -1 ở cấp độ record logic)
 			if sp.TrangThai != -1 { 
 				groupSP[sp.MaSanPham] = append(groupSP[sp.MaSanPham], sp)
 			}
@@ -177,10 +178,16 @@ func API_LuuSanPham(c *gin.Context) {
 
 	// --- NẾU THÊM MỚI TOÀN BỘ (Chưa có MaSanPham gốc) ---
 	if maSP == "" {
-		firstDM := ""
-		if inputSKUs[0].MaDanhMuc != "" { firstDM = strings.Split(inputSKUs[0].MaDanhMuc, "|")[0] }
-		maCodeDM := core.TimMaDanhMucTheoTen(shopID, firstDM) 
-		maSP = core.TaoMaSPMoi(shopID, maCodeDM) 
+		firstCodeDM := ""
+		if inputSKUs[0].MaDanhMuc != "" { 
+			// Frontend gửi lên JSON Tagify, hàm xuLyTags sẽ móc lấy trường "value" (Chính là Mã code).
+			parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
+			if parsedDM != "" {
+				firstCodeDM = strings.Split(parsedDM, "|")[0] 
+			}
+		}
+		// Đã có mã Code, đẻ số thứ tự trực tiếp luôn, ko cần hàm TimMaDanhMucTheoTen nữa
+		maSP = core.TaoMaSPMoi(shopID, firstCodeDM) 
 	}
 
 	// Lấy danh sách SKU cũ (nếu đang sửa) để đối chiếu
@@ -225,12 +232,12 @@ func API_LuuSanPham(c *gin.Context) {
 		// Map dữ liệu từ Input vào Struct Core
 		sp.TenSanPham   = strings.TrimSpace(in.TenSanPham)
 		sp.TenRutGon    = strings.TrimSpace(in.TenRutGon)
-		sp.Slug         = taoSlugChuan(sp.TenSanPham) // Có thể cải tiến slug gắn thêm màu sắc
+		sp.Slug         = taoSlugChuan(sp.TenSanPham)
 		sp.TenSKU       = strings.TrimSpace(in.TenSKU)
 		sp.SKUChinh     = in.SKUChinh
 		sp.TrangThai    = in.TrangThai
-		sp.MaDanhMuc    = xuLyTags(in.MaDanhMuc)
-		sp.MaThuongHieu = xuLyTags(in.MaThuongHieu)
+		sp.MaDanhMuc    = xuLyTags(in.MaDanhMuc)    // Lấy value (Mã)
+		sp.MaThuongHieu = xuLyTags(in.MaThuongHieu) // Lấy value (Mã)
 		sp.DonVi        = xuLyTags(in.DonVi)
 		sp.MauSac       = xuLyTags(in.MauSac)
 		sp.KhoiLuong    = in.KhoiLuong
@@ -241,6 +248,7 @@ func API_LuuSanPham(c *gin.Context) {
 		sp.BaoHanh      = in.BaoHanh
 		sp.TinhTrang    = xuLyTags(in.TinhTrang)
 		sp.GiaNhap      = in.GiaNhap
+		sp.PhanTramLai  = in.PhanTramLai // <-- LƯU PHẦN TRĂM LÃI MỚI
 		sp.GiaNiemYet   = in.GiaNiemYet
 		sp.PhanTramGiam = in.PhanTramGiam
 		sp.SoTienGiam   = in.SoTienGiam
@@ -256,7 +264,7 @@ func API_LuuSanPham(c *gin.Context) {
 			core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
 		}
 
-		// Đẩy vào hàng chờ Ghi Xuống Google Sheet (Lưu 29 Cột)
+		// Đẩy vào hàng chờ Ghi Xuống Google Sheet (ĐỦ 30 CỘT)
 		ghi := core.ThemVaoHangCho
 		sheet := "SAN_PHAM"
 		r := sp.DongTrongSheet
@@ -281,6 +289,7 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(shopID, sheet, r, core.CotSP_BaoHanh, sp.BaoHanh)
 		ghi(shopID, sheet, r, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(shopID, sheet, r, core.CotSP_GiaNhap, sp.GiaNhap)
+		ghi(shopID, sheet, r, core.CotSP_PhanTramLai, sp.PhanTramLai) // BỔ SUNG GHI CỘT LÃI (U)
 		ghi(shopID, sheet, r, core.CotSP_GiaNiemYet, sp.GiaNiemYet)
 		ghi(shopID, sheet, r, core.CotSP_PhanTramGiam, sp.PhanTramGiam)
 		ghi(shopID, sheet, r, core.CotSP_SoTienGiam, sp.SoTienGiam)
@@ -293,10 +302,9 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 
 	// --- DỌN DẸP SKU BỊ XÓA ---
-	// Nếu lúc sửa, người dùng bấm Xóa 1 Tab trên giao diện -> Nghĩa là SKU đó vắng mặt trong mảng
 	for skuID, sp := range existingMap {
 		if !processedSKUs[skuID] {
-			sp.TrangThai = -1 // Đánh dấu xóa logic (Không xóa hẳn dòng)
+			sp.TrangThai = -1 // Đánh dấu xóa logic
 			sp.SKUChinh = 0
 			sp.NgayCapNhat = nowStr
 			sp.NguoiCapNhat = userID
@@ -314,6 +322,8 @@ func API_LuuSanPham(c *gin.Context) {
 // =============================================================
 type TagifyItem struct { Value string `json:"value"` }
 
+// Hàm này nhặt giá trị "value" từ mảng JSON của Tagify
+// Vì Frontend đã cấu hình truyền Mã vào Value, nên hàm này tự động trả về đúng Mã (VD: MAIN, GIGA)
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
 	if !strings.Contains(raw, "[") { return raw }
