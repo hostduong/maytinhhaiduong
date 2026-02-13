@@ -506,7 +506,7 @@
         
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
-        function editSP(id) {
+function editSP(id) {
             const sp = mapSP[id]; if(!sp) return;
             isEditingMode = true; // KHÓA EVENT ĐỂ KHÔNG NHẢY TUNG TÓE KHI FILL DỮ LIỆU
 
@@ -515,6 +515,10 @@
             document.getElementById('gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('gia_ban_le').value = formatNumber(sp.gia_ban_le.toString()); document.getElementById('giam_gia').value = sp.giam_gia;
             
+            // [ĐÃ FIX LỖI] Đưa việc điền Danh Mục lên trước để hàm Lợi Nhuận bên dưới có cơ sở tính toán
+            tagifyDM.removeAllTags(); if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
+
+            // Bắt đầu tính toán Lợi Nhuận
             renderSmartProfitOptions(); 
 
             let currentMargin = 0;
@@ -524,7 +528,7 @@
                 currentMargin = (lai / sp.gia_nhap) * 100;
             }
 
-            // Tìm xem tỉ lệ lợi nhuận hiện tại có trùng với khung gợi ý nào không
+            // Tìm xem tỉ lệ lợi nhuận hiện tại có trùng với khung gợi ý nào không (kể cả Danh mục)
             let matched = false;
             tagifyProfit.settings.whitelist.forEach(item => {
                 if (Math.abs(item.margin - currentMargin) < 0.1) {
@@ -543,13 +547,12 @@
             // Ép điền dữ liệu vào form luôn
             calcPrices(currentMargin);
 
+            // Điền các trường còn lại
             if(sp.thuong_hieu) { document.querySelector('#ma_thuong_hieu').value = sp.thuong_hieu; } else { tagifyTH.removeAllTags(); }
             if(sp.don_vi) { document.querySelector('#don_vi').value = sp.don_vi; } else { tagifyDonVi.removeAllTags(); }
             if(sp.tinh_trang) { document.querySelector('#tinh_trang').value = sp.tinh_trang; } else { tagifyTinhTrang.removeAllTags(); }
             if(sp.mau_sac) { document.querySelector('#mau_sac').value = sp.mau_sac; } else { tagifyMauSac.removeAllTags(); }
             
-            tagifyDM.removeAllTags(); if(sp.danh_muc) tagifyDM.addTags(sp.danh_muc.split("|"));
-
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
                 if (parts.length >= 2) { document.getElementById('bao_hanh_num').value = parts[0]; document.getElementById('bao_hanh_unit').value = parts[1]; } 
@@ -567,7 +570,7 @@
             
             setTimeout(() => { isEditingMode = false; }, 300); // Mở sự kiện lại
         }
-
+        
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             const links = []; document.querySelectorAll('.img-input-group input').forEach(inp => { 
