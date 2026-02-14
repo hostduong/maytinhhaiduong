@@ -83,10 +83,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
 			fullList = append(fullList, sp)
-			// Không hiển thị các SKU đã bị xóa (Trạng thái = -1 ở cấp độ record logic)
-			if sp.TrangThai != -1 { 
 				groupSP[sp.MaSanPham] = append(groupSP[sp.MaSanPham], sp)
-			}
 		}
 	}
 
