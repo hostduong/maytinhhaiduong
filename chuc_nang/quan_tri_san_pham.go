@@ -147,74 +147,83 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	// Lấy mảng JSON chứa các Tabs từ Frontend gửi lên
 	dataJSON := c.PostForm("data_skus")
-	if dataJSON == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Dữ liệu phiên bản (SKU) trống!"})
-		return
-	}
-
 	var inputSKUs []InputSKU
-	if err := json.Unmarshal([]byte(dataJSON), &inputSKUs); err != nil {
-		c.JSON(200, gin.H{"status": "error", "msg": "Định dạng dữ liệu không hợp lệ!"})
+	if err := json.Unmarshal([]byte(dataJSON), &inputSKUs); err != nil || len(inputSKUs) == 0 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Dữ liệu không hợp lệ!"})
 		return
 	}
 
-	if len(inputSKUs) == 0 {
-		c.JSON(200, gin.H{"status": "error", "msg": "Phải có ít nhất 1 phiên bản (SKU)!"})
-		return
-	}
-
-	// Đảm bảo luôn có 1 SKU Chính (Chống lỗi ngớ ngẩn từ Frontend)
+	// Đảm bảo SKU Chính
 	hasMain := false
 	for _, sku := range inputSKUs {
-		if sku.SKUChinh == 1 {
-			hasMain = true; break
-		}
+		if sku.SKUChinh == 1 { hasMain = true; break }
 	}
 	if !hasMain { inputSKUs[0].SKUChinh = 1 }
 
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
 
-	// --- NẾU THÊM MỚI TOÀN BỘ (Chưa có MaSanPham gốc) ---
+	// 1. NẾU LÀ TẠO MỚI (Frontend để trống mã) -> Tự sinh
 	if maSP == "" {
 		firstCodeDM := ""
 		if inputSKUs[0].MaDanhMuc != "" { 
-			// Frontend gửi lên JSON Tagify, hàm xuLyTags sẽ móc lấy trường "value" (Chính là Mã code).
 			parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
-			if parsedDM != "" {
-				firstCodeDM = strings.Split(parsedDM, "|")[0] 
+			if parsedDM != "" { firstCodeDM = strings.Split(parsedDM, "|")[0] }
+		}
+		maSP = core.TaoMaSPMoi(shopID, firstCodeDM) 
+	} else {
+		// 2. LOGIC MỚI: NẾU CÓ MÃ RỒI (Frontend tự điền) -> KIỂM TRA XEM CÓ PHẢI MỚI KHÔNG?
+		// Kiểm tra trong RAM xem mã này đã tồn tại chưa
+		listCheck := core.LayNhomSanPham(shopID, maSP)
+		
+		if len(listCheck) == 0 {
+			// AHA! Mã này chưa từng tồn tại -> Đây là TẠO MỚI nhưng Frontend tự điền mã.
+			// Chúng ta cần "Cập nhật ngược" lại Slot cho Danh mục để lần sau nó không bị trùng.
+			
+			// Bước A: Lấy Mã Danh Mục từ dữ liệu gửi lên
+			firstCodeDM := ""
+			if inputSKUs[0].MaDanhMuc != "" { 
+				parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
+				if parsedDM != "" { firstCodeDM = strings.Split(parsedDM, "|")[0] }
+			}
+
+			// Bước B: Tách số từ Mã SP (Ví dụ MAIN0005 -> lấy số 5)
+			// Giả sử quy tắc là Ký tự + Số. Ta xoá hết chữ, chỉ lấy số.
+			re := regexp.MustCompile(`[0-9]+`)
+			nums := re.FindAllString(maSP, -1)
+			if len(nums) > 0 {
+				// Lấy cụm số cuối cùng (thường là slot)
+				lastNumStr := nums[len(nums)-1] 
+				if slotMoi, err := strconv.Atoi(lastNumStr); err == nil {
+					// Bước C: Gọi hàm cập nhật Slot cưỡng bức
+					if firstCodeDM != "" {
+						core.CapNhatSlotThuCong(shopID, firstCodeDM, slotMoi)
+					}
+				}
 			}
 		}
-		// Đã có mã Code, đẻ số thứ tự trực tiếp luôn, ko cần hàm TimMaDanhMucTheoTen nữa
-		maSP = core.TaoMaSPMoi(shopID, firstCodeDM) 
 	}
 
-	// Lấy danh sách SKU cũ (nếu đang sửa) để đối chiếu
+	// ... (Đoạn dưới giữ nguyên logic lưu bình thường) ...
 	existingSKUs := core.LayNhomSanPham(shopID, maSP)
 	existingMap := make(map[string]*core.SanPham)
 	for _, sp := range existingSKUs {
 		existingMap[sp.LấyIDDuyNhat()] = sp
 	}
-	processedSKUs := make(map[string]bool) // Đánh dấu những SKU còn được giữ lại
+	processedSKUs := make(map[string]bool) 
 
-	// Khóa RAM để cập nhật hàng loạt an toàn
 	core.KhoaHeThong.Lock()
 	defer core.KhoaHeThong.Unlock()
 
 	for i, in := range inputSKUs {
 		skuID := in.MaSKU
-		
-		// Sinh mã SKU tự động nếu trống (VD: MAIN0001-01)
-		if skuID == "" {
-			skuID = fmt.Sprintf("%s-%02d", maSP, i+1)
-		}
+		if skuID == "" { skuID = fmt.Sprintf("%s-%02d", maSP, i+1) }
 		
 		var sp *core.SanPham
 		isNewSKU := false
 		
 		if exist, ok := existingMap[skuID]; ok {
-			sp = exist // Ghi đè vào biến cũ
+			sp = exist 
 			processedSKUs[skuID] = true
 		} else {
 			isNewSKU = true
@@ -229,15 +238,14 @@ func API_LuuSanPham(c *gin.Context) {
 			}
 		}
 
-		// Map dữ liệu từ Input vào Struct Core
 		sp.TenSanPham   = strings.TrimSpace(in.TenSanPham)
 		sp.TenRutGon    = strings.TrimSpace(in.TenRutGon)
 		sp.Slug         = taoSlugChuan(sp.TenSanPham)
 		sp.TenSKU       = strings.TrimSpace(in.TenSKU)
 		sp.SKUChinh     = in.SKUChinh
 		sp.TrangThai    = in.TrangThai
-		sp.MaDanhMuc    = xuLyTags(in.MaDanhMuc)    // Lấy value (Mã)
-		sp.MaThuongHieu = xuLyTags(in.MaThuongHieu) // Lấy value (Mã)
+		sp.MaDanhMuc    = xuLyTags(in.MaDanhMuc)
+		sp.MaThuongHieu = xuLyTags(in.MaThuongHieu)
 		sp.DonVi        = xuLyTags(in.DonVi)
 		sp.MauSac       = xuLyTags(in.MauSac)
 		sp.KhoiLuong    = in.KhoiLuong
@@ -248,7 +256,7 @@ func API_LuuSanPham(c *gin.Context) {
 		sp.BaoHanh      = in.BaoHanh
 		sp.TinhTrang    = xuLyTags(in.TinhTrang)
 		sp.GiaNhap      = in.GiaNhap
-		sp.PhanTramLai  = in.PhanTramLai // <-- LƯU PHẦN TRĂM LÃI MỚI
+		sp.PhanTramLai  = in.PhanTramLai 
 		sp.GiaNiemYet   = in.GiaNiemYet
 		sp.PhanTramGiam = in.PhanTramGiam
 		sp.SoTienGiam   = in.SoTienGiam
@@ -257,14 +265,12 @@ func API_LuuSanPham(c *gin.Context) {
 		sp.NgayCapNhat  = nowStr
 		sp.NguoiCapNhat = userID
 
-		// Nếu là SKU mới, nhét nó vào các ngăn chứa RAM
 		if isNewSKU {
 			core.CacheSanPham[shopID] = append(core.CacheSanPham[shopID], sp)
 			core.CacheMapSKU[core.TaoCompositeKey(shopID, sp.LấyIDDuyNhat())] = sp
 			core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
 		}
 
-		// Đẩy vào hàng chờ Ghi Xuống Google Sheet (ĐỦ 30 CỘT)
 		ghi := core.ThemVaoHangCho
 		sheet := "SAN_PHAM"
 		r := sp.DongTrongSheet
@@ -289,7 +295,7 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(shopID, sheet, r, core.CotSP_BaoHanh, sp.BaoHanh)
 		ghi(shopID, sheet, r, core.CotSP_TinhTrang, sp.TinhTrang)
 		ghi(shopID, sheet, r, core.CotSP_GiaNhap, sp.GiaNhap)
-		ghi(shopID, sheet, r, core.CotSP_PhanTramLai, sp.PhanTramLai) // BỔ SUNG GHI CỘT LÃI (U)
+		ghi(shopID, sheet, r, core.CotSP_PhanTramLai, sp.PhanTramLai) 
 		ghi(shopID, sheet, r, core.CotSP_GiaNiemYet, sp.GiaNiemYet)
 		ghi(shopID, sheet, r, core.CotSP_PhanTramGiam, sp.PhanTramGiam)
 		ghi(shopID, sheet, r, core.CotSP_SoTienGiam, sp.SoTienGiam)
@@ -301,10 +307,9 @@ func API_LuuSanPham(c *gin.Context) {
 		ghi(shopID, sheet, r, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
 	}
 
-	// --- DỌN DẸP SKU BỊ XÓA ---
 	for skuID, sp := range existingMap {
 		if !processedSKUs[skuID] {
-			sp.TrangThai = -1 // Đánh dấu xóa logic
+			sp.TrangThai = -1 
 			sp.SKUChinh = 0
 			sp.NgayCapNhat = nowStr
 			sp.NguoiCapNhat = userID
