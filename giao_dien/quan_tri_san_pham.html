@@ -106,8 +106,7 @@
                             <td class="px-4 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-4 py-4">
                                 <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden mx-auto">
-                                    <img data-src="{{ .UrlHinhAnh }}" 
-                                         src="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E"
+                                    <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh | firstImg }}{{ else }}data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E{{ end }}" 
                                          class="preview-img-table max-w-full max-h-full object-cover rounded-sm"
                                          onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
                                 </div>
@@ -363,19 +362,6 @@
 
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
         
-        // --- SỬA CHỖ NÀY: DÙNG DATA-SRC ĐỂ LẤY DỮ LIỆU ---
-        document.querySelectorAll('.preview-img-table').forEach(img => { 
-            let raw = img.getAttribute('data-src'); // Đọc link gốc từ đây
-            if(raw) {
-                // Tách chuỗi nếu có nhiều ảnh
-                if(raw.includes('|')) raw = raw.split('|')[0];
-                
-                // Convert link drive nếu có
-                if (raw.includes('drive.google.com')) img.src = convertDriveLink(raw);
-                else img.src = raw;
-            }
-        });
-
         document.querySelectorAll('.dm-tags-container').forEach(div => { 
             let rawMa = div.getAttribute('data-tags'); 
             if(rawMa) {
@@ -631,8 +617,9 @@
             let arrMaDM = arrTenDM.map(t => dicDanhMucByTen[t] ? dicDanhMucByTen[t].ma : t);
             sku.ma_danh_muc = arrMaDM.join("|");
 
+            // --- ĐÃ SỬA LẠI LOGIC THƯƠNG HIỆU TẠI ĐÂY ---
             let arrTenTH = tagifyTH.value.map(v => v.value);
-            let arrMaTH = arrTenTH.map(t => dicThuongHieuByTen[t] ? dicThuongHieuByTen[t].ma : t);
+            let arrMaTH = arrTenTH.map(t => dicThuongHieuByTen[t] ? dicThuongHieuByTen[t] : t);
             sku.ma_thuong_hieu = arrMaTH.join("|");
 
             sku.don_vi = tagifyDonVi.value.map(v => v.value).join("|");
@@ -987,4 +974,3 @@
     </script>
     {{ template "footer" . }}
 {{ end }}
-}
