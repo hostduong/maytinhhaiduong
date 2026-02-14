@@ -31,6 +31,20 @@
         .tagify[readonly] .tagify__tag { background-color: #e2e8f0; color: #64748b; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
+        /* CSS CHO TAG DANH MỤC Ở BẢNG (VIÊN THUỐC) */
+        .dm-tag-single {
+            display: inline-block;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+            margin: 2px;
+            white-space: nowrap;
+        }
+
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
         
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
@@ -96,13 +110,13 @@
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-4 font-bold w-24">Mã SP</th>
+                            <th class="px-4 py-4 font-bold w-28">Mã SP</th>
                             <th class="px-4 py-4 font-bold text-center w-20">Ảnh</th>
-                            <th class="px-4 py-4 font-bold">Tên Sản Phẩm (Đại diện)</th>
-                            <th class="px-4 py-4 font-bold text-center w-32">Danh Mục</th>
+                            <th class="px-4 py-4 font-bold w-auto">Tên Sản Phẩm (Đại diện)</th>
+                            <th class="px-4 py-4 font-bold text-center w-48">Danh Mục</th>
                             <th class="px-4 py-4 text-right font-bold w-32">Giá Bán</th>
-                            <th class="px-4 py-4 text-center font-bold w-24">Trạng Thái</th>
-                            <th class="px-4 py-4 text-center font-bold w-24">Thao tác</th>
+                            <th class="px-4 py-4 text-center font-bold w-28">Trạng Thái</th>
+                            <th class="px-4 py-4 text-center font-bold w-28">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -121,7 +135,7 @@
                                 {{ if .TenSKU }}<span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 mt-1 inline-block">Đại diện: {{ .TenSKU }}</span>{{ end }}
                             </td>
                             <td class="px-4 py-4 text-center">
-                                {{ if .MaDanhMuc }}<div class="flex flex-wrap gap-1 justify-center"><span class="dm-tags bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded border border-slate-200" data-tags="{{ .MaDanhMuc }}"></span></div>{{ end }}
+                                {{ if .MaDanhMuc }}<div class="flex flex-wrap gap-1 justify-center dm-tags-container" data-tags="{{ .MaDanhMuc }}"></div>{{ end }}
                             </td>
                             <td class="px-4 py-4 text-right whitespace-nowrap">
                                 {{ if gt .PhanTramGiam 0.0 }}
@@ -367,13 +381,31 @@
         });
 
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
-        document.querySelectorAll('.preview-img-table').forEach(img => { let raw = img.getAttribute('src'); if (raw && raw.includes('drive.google.com')) { img.src = convertDriveLink(raw); } });
-        document.querySelectorAll('.dm-tags').forEach(span => { 
-            let rawMa = span.getAttribute('data-tags'); 
+        
+        // --- FIX LỖI ẢNH (CHỈ LẤY CÁI ĐẦU TIÊN NẾU CÓ DẤU |) ---
+        document.querySelectorAll('.preview-img-table').forEach(img => { 
+            let raw = img.getAttribute('src'); 
+            if(raw) {
+                // Tách chuỗi nếu có nhiều ảnh
+                if(raw.includes('|')) raw = raw.split('|')[0];
+                
+                // Convert link drive nếu có
+                if (raw.includes('drive.google.com')) img.src = convertDriveLink(raw);
+                else img.src = raw;
+            }
+        });
+
+        // --- TẠO THẺ TAGS (VIÊN THUỐC) CHO DANH MỤC ---
+        document.querySelectorAll('.dm-tags-container').forEach(div => { 
+            let rawMa = div.getAttribute('data-tags'); 
             if(rawMa) {
-                // Dịch Mã thành Tên khi hiển thị ra bảng tổng
-                let tenTags = rawMa.split('|').map(m => dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m);
-                span.innerText = tenTags.join(', '); 
+                // Dịch Mã thành Tên
+                let html = "";
+                rawMa.split('|').forEach(m => {
+                    let ten = dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m;
+                    html += `<span class="dm-tag-single">${ten}</span>`;
+                });
+                div.innerHTML = html; 
             }
         });
         
@@ -399,13 +431,12 @@
         document.getElementById('data_island').remove();
 
         // --- INIT TAGIFY ---
-        // Giờ đây Tagify dùng danh sách Tên, nên không cần tagTextProp phức tạp nữa. Cực mượt.
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('#f_ma_danh_muc'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#f_ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
-        const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { ...tagifySelectConfig, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
-        const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { ...tagifySelectConfig, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-        const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { ...tagifySelectConfig, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
+        const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
+        const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
+        const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
 
         // TỰ ĐỘNG SINH MÃ SẢN PHẨM & MÃ SKU KHI ĐỔI DANH MỤC
         tagifyDM.on('add', function(e) { 
