@@ -87,7 +87,7 @@
                     </div>
                     <input type="text" id="searchInput" onkeyup="filterAndSort()" 
                         class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-blue-500 focus:border-blue-500 transition outline-none" 
-                        placeholder="Tìm Mã, Tên, Phiên bản, Trạng thái...">
+                        placeholder="Tìm Mã, Tên, Giá, Bán, Tắt, Xóa...">
                 </div>
 
                 <select id="sortSelect" onchange="filterAndSort()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-medium">
@@ -113,8 +113,8 @@
                         <tr>
                             <th class="px-4 py-4 font-bold w-28">Mã SP</th>
                             <th class="px-4 py-4 font-bold text-center w-28">Ảnh</th>
-                            <th class="px-4 py-4 font-bold">Tên Sản Phẩm (Đại diện)</th>
-                            <th class="px-4 py-4 font-bold text-center">Danh Mục</th>
+                            <th class="px-4 py-4 font-bold w-auto">Tên Sản Phẩm (Đại diện)</th>
+                            <th class="px-4 py-4 font-bold text-center w-auto">Danh Mục</th>
                             <th class="px-4 py-4 text-right font-bold w-32">Giá Bán</th>
                             <th class="px-4 py-4 text-center font-bold w-28">Trạng Thái</th>
                             <th class="px-4 py-4 text-center font-bold w-32">Thao tác</th>
@@ -170,10 +170,16 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         Sửa
                                     </button>
+                                    
                                     {{ if ne .TrangThai -1 }}
                                     <button onclick="deleteSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 px-2.5 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         Xóa
+                                    </button>
+                                    {{ else }}
+                                    <button onclick="restoreSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 border border-green-200 px-2.5 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                        Khôi phục
                                     </button>
                                     {{ end }}
                                 </div>
@@ -369,7 +375,12 @@
                 const price = row.getAttribute('data-price') || '';
                 const statusText = (row.getAttribute('data-status-text') || '').toLowerCase();
                 
-                const match = code.includes(searchText) || name.includes(searchText) || skuName.includes(searchText) || catName.includes(searchText) || price.includes(searchText) || statusText.includes(searchText);
+                const match = code.includes(searchText) || 
+                              name.includes(searchText) || 
+                              skuName.includes(searchText) || 
+                              catName.includes(searchText) || 
+                              price.includes(searchText) || 
+                              statusText.includes(searchText);
                 row.style.display = match ? '' : 'none';
             });
 
@@ -725,93 +736,170 @@
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let select = document.getElementById('f_quy_tac_gia');
             let currentVal = select.value;
+            
             let html = `<option value="manual">Tự chỉnh</option>`;
+            
             let marginDM = 0;
             const tags = tagifyDM.value;
             if (tags && tags.length > 0) {
                 const info = dicDanhMucByTen[tags[0].value]; 
-                if (info && info.loiNhuan > 0) { marginDM = info.loiNhuan; html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`; }
+                if (info && info.loiNhuan > 0) {
+                    marginDM = info.loiNhuan;
+                    html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`;
+                }
             }
+            
             let marginKhung = 0;
             if (giaNhap > 0) {
-                for (let i = 0; i < listBLN.length; i++) { if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } }
+                for (let i = 0; i < listBLN.length; i++) { 
+                    if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } 
+                }
                 if (marginKhung === 0 && listBLN.length > 0) marginKhung = listBLN[listBLN.length - 1].loiNhuan;
-                if (marginKhung > 0) { html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`; }
+                if (marginKhung > 0) {
+                    html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`;
+                }
             }
+            
             select.innerHTML = html;
+            
             if (!isEditingMode) {
-                if (marginDM > 0) select.value = "danhmuc"; else if (marginKhung > 0) select.value = "khunggia"; else select.value = "manual";
+                if (marginDM > 0) select.value = "danhmuc";
+                else if (marginKhung > 0) select.value = "khunggia";
+                else select.value = "manual";
                 applyQuyTacGia();
-            } else { if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) { select.value = currentVal; } }
+            } else {
+                if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+                    select.value = currentVal;
+                }
+            }
         }
 
         function applyQuyTacGia() {
             let select = document.getElementById('f_quy_tac_gia');
             let inputPhanTram = document.getElementById('f_bien_do_phan_tram');
+            
             if (select.value === "manual") {
-                inputPhanTram.disabled = false; inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.add('bg-white', 'text-blue-700');
+                inputPhanTram.disabled = false;
+                inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                inputPhanTram.classList.add('bg-white', 'text-blue-700');
             } else {
-                inputPhanTram.disabled = true; inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.remove('bg-white', 'text-blue-700');
-                let selectedOpt = select.options[select.selectedIndex]; let margin = selectedOpt.getAttribute('data-margin'); if (margin) inputPhanTram.value = margin;
+                inputPhanTram.disabled = true;
+                inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                inputPhanTram.classList.remove('bg-white', 'text-blue-700');
+                
+                let selectedOpt = select.options[select.selectedIndex];
+                let margin = selectedOpt.getAttribute('data-margin');
+                if (margin) inputPhanTram.value = margin;
             }
             if (!isEditingMode) calcPrices();
         }
 
         function matchAndSetQuyTacGia(currentMargin) {
-            let select = document.getElementById('f_quy_tac_gia'); let options = select.options; let matched = false;
+            let select = document.getElementById('f_quy_tac_gia');
+            let options = select.options;
+            let matched = false;
+            
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value !== "manual") {
                     let m = parseFloat(options[i].getAttribute('data-margin'));
-                    if (Math.abs(m - currentMargin) < 0.1) { select.value = options[i].value; matched = true; break; }
+                    if (Math.abs(m - currentMargin) < 0.1) {
+                        select.value = options[i].value;
+                        matched = true;
+                        break;
+                    }
                 }
             }
+            
             if (!matched) select.value = "manual";
-            applyQuyTacGia(); document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
+            applyQuyTacGia(); 
+            document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
         }
 
         function calcPrices() {
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let bienDo = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0;
             let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
+            
             if (giaNhap > 0) {
                 let laiVND = giaNhap * (bienDo / 100);
                 document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
+                
                 let giaBanThuc = round10k(giaNhap + laiVND);
                 if (!isEditingMode) document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
-                let pList = giaBanThuc; let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
-                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); }
+
+                let pList = giaBanThuc;
+                let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) {
+                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
+                    tienGiam = pList - giaBanThuc;
+                }
+                
+                if (!isEditingMode) {
+                    document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                    document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                }
             } else {
                 document.getElementById('f_lai_vnd').value = "0"; 
-                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = "0"; document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0"; }
+                if (!isEditingMode) {
+                    document.getElementById('f_gia_niem_yet').value = "0";
+                    document.getElementById('f_so_tien_giam').value = "0"; 
+                    document.getElementById('f_gia_ban').value = "0";
+                }
             }
         }
 
         function autoCalcBackward() {
-            let pList = getNum(document.getElementById('f_gia_niem_yet').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            let pList = getNum(document.getElementById('f_gia_niem_yet').value);
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            
             if (giaBanThuc > 0 && pList >= giaBanThuc) {
-                let tienGiam = pList - giaBanThuc; let phanTramGiam = (tienGiam / pList) * 100;
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
-            } else { document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_phan_tram_giam').value = "0"; }
+                let tienGiam = pList - giaBanThuc;
+                let phanTramGiam = (tienGiam / pList) * 100;
+                
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+            } else {
+                document.getElementById('f_so_tien_giam').value = "0";
+                document.getElementById('f_phan_tram_giam').value = "0";
+            }
         }
 
         function applyDiscountMoney() {
-            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value);
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            
             if(giaBanThuc > 0) {
-                let pList = round10k(giaBanThuc + tienGiam); let phanTramGiam = (tienGiam / pList) * 100;
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+                let pList = round10k(giaBanThuc + tienGiam);
+                let phanTramGiam = (tienGiam / pList) * 100;
+                
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
             }
         }
 
         function autoCalcFromGiaBan() {
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value); let giaNhap = getNum(document.getElementById('f_gia_nhap').value); let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
+            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
+            let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
+
             if (giaNhap > 0 && giaBanThuc >= giaNhap) {
-                let laiVND = giaBanThuc - giaNhap; let phanTramLai = (laiVND / giaNhap) * 100;
-                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString()); document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
-                document.getElementById('f_quy_tac_gia').value = "manual"; applyQuyTacGia(); 
-                let pList = giaBanThuc; let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                let laiVND = giaBanThuc - giaNhap;
+                let phanTramLai = (laiVND / giaNhap) * 100;
+                
+                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
+                document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
+                
+                document.getElementById('f_quy_tac_gia').value = "manual";
+                applyQuyTacGia(); 
+
+                let pList = giaBanThuc;
+                let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) {
+                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
+                    tienGiam = pList - giaBanThuc;
+                }
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
             }
         }
 
@@ -832,6 +920,7 @@
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
+            
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -844,6 +933,7 @@
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if(activeTabIndex === -1) activeTabIndex = 0;
+            
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -876,6 +966,34 @@
 
             // Gửi lên Server
             await sendDataToBackend(skusToDelete);
+        }
+
+        // [MỚI] CHỨC NĂNG KHÔI PHỤC (CHO SẢN PHẨM ĐÃ XÓA)
+        async function restoreSP(id) {
+            const result = await Swal.fire({
+                title: 'Khôi phục sản phẩm?',
+                text: "Sản phẩm sẽ được mở lại trạng thái kinh doanh (1).",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Khôi phục',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) return;
+
+            if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
+            
+            // Clone & Khôi phục
+            const skusToRestore = JSON.parse(JSON.stringify(mapGroupSP[id]));
+            
+            skusToRestore.forEach(s => {
+                // Chỉ khôi phục những dòng đang bị xóa (-1) về 1
+                if(s.trang_thai === -1) s.trang_thai = 1;
+            });
+
+            await sendDataToBackend(skusToRestore);
         }
         
         // [MỚI] HÀM GỬI DỮ LIỆU CHUNG (Dùng cho cả Save và Delete)
