@@ -25,28 +25,17 @@
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         .tagify--focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         
-        /* CSS Ẩn hiện các nút đồng bộ và CSS cho Tagify khi bị khóa */
         fieldset:disabled .btn-sync-main { display: none !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         .tagify[readonly] .tagify__tag { background-color: #e2e8f0; color: #64748b; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
-        /* CSS CHO TAG DANH MỤC Ở BẢNG (VIÊN THUỐC) */
+        /* CSS CHO TAG DANH MỤC (VIÊN THUỐC) */
         .dm-tag-single {
-            display: inline-block;
-            background-color: #f1f5f9;
-            color: #475569;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            border: 1px solid #e2e8f0;
-            margin: 2px;
-            white-space: nowrap;
+            display: inline-block; background-color: #f1f5f9; color: #475569; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #e2e8f0; margin: 2px; white-space: nowrap;
         }
 
         .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
-        
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
         .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
         .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
@@ -61,18 +50,10 @@
 
     <div id="data_island" style="display:none;">
         <div id="data_danhmuc">
-            {{ range .ListDanhMuc }}
-                {{ if and (ne .MaDanhMuc "") (eq .TrangThai 1) }}
-                <div class="dm-item" data-ma="{{ .MaDanhMuc }}" data-ten="{{ urlquery .TenDanhMuc }}" data-prefix="{{ .MaDanhMuc }}" data-nextstt="{{ .Slot }}" data-loinhuan="{{ .LoiNhuan }}"></div>
-                {{ end }}
-            {{ end }}
+            {{ range .ListDanhMuc }}{{ if and (ne .MaDanhMuc "") (eq .TrangThai 1) }}<div class="dm-item" data-ma="{{ .MaDanhMuc }}" data-ten="{{ urlquery .TenDanhMuc }}" data-prefix="{{ .MaDanhMuc }}" data-nextstt="{{ .Slot }}" data-loinhuan="{{ .LoiNhuan }}"></div>{{ end }}{{ end }}
         </div>
         <div id="data_thuonghieu">
-            {{ range .ListThuongHieu }}
-                {{ if and (ne .MaThuongHieu "") (eq .TrangThai 1) }}
-                <div class="th-item" data-ma="{{ .MaThuongHieu }}" data-ten="{{ urlquery .TenThuongHieu }}"></div>
-                {{ end }}
-            {{ end }}
+            {{ range .ListThuongHieu }}{{ if and (ne .MaThuongHieu "") (eq .TrangThai 1) }}<div class="th-item" data-ma="{{ .MaThuongHieu }}" data-ten="{{ urlquery .TenThuongHieu }}"></div>{{ end }}{{ end }}
         </div>
         <div id="data_bln">{{ range .ListBLN }}<div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>{{ end }}</div>
         
@@ -125,7 +106,8 @@
                             <td class="px-4 py-4 font-semibold text-slate-700 whitespace-nowrap">{{ .MaSanPham }}</td>
                             <td class="px-4 py-4">
                                 <div class="w-12 h-12 rounded border border-slate-200 bg-white p-0.5 flex items-center justify-center overflow-hidden mx-auto">
-                                    <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E{{ end }}" 
+                                    <img data-src="{{ .UrlHinhAnh }}" 
+                                         src="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E"
                                          class="preview-img-table max-w-full max-h-full object-cover rounded-sm"
                                          onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
                                 </div>
@@ -172,7 +154,7 @@
             </div>
 
             <div class="px-6 py-3 bg-white border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0" id="tabs_container">
-                </div>
+            </div>
             
             <div class="modal-body pt-5">
                 <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 font-bold flex justify-between items-center shadow-sm">
@@ -352,7 +334,6 @@
     <script>
         function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
         
-        // --- BƯỚC 1: XÂY DỰNG TỪ ĐIỂN TÊN VÀ MÃ ĐỂ TAGIFY TRÁO ĐỔI DANH TÍNH ---
         var listDM = []; 
         const dicDanhMucByMa = {}; 
         const dicDanhMucByTen = {}; 
@@ -360,7 +341,7 @@
             let ma = el.getAttribute('data-ma');
             let ten = decodeGo(el.getAttribute('data-ten')); 
             if(ma && ten) { 
-                listDM.push(ten); // Hiển thị tên cho người dùng
+                listDM.push(ten); 
                 let info = { ma: ma, ten: ten, prefix: el.getAttribute('data-prefix'), nextStt: parseInt(el.getAttribute('data-nextstt')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 };
                 dicDanhMucByMa[ma] = info; 
                 dicDanhMucByTen[ten] = info;
@@ -374,7 +355,7 @@
             let ma = el.getAttribute('data-ma');
             let ten = decodeGo(el.getAttribute('data-ten')); 
             if(ma && ten) { 
-                listTH.push(ten); // Hiển thị tên cho người dùng
+                listTH.push(ten);
                 dicThuongHieuByMa[ma] = ten;
                 dicThuongHieuByTen[ten] = ma;
             } 
@@ -382,9 +363,9 @@
 
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
         
-        // --- FIX LỖI ẢNH (CHỈ LẤY CÁI ĐẦU TIÊN NẾU CÓ DẤU |) ---
+        // --- SỬA CHỖ NÀY: DÙNG DATA-SRC ĐỂ LẤY DỮ LIỆU ---
         document.querySelectorAll('.preview-img-table').forEach(img => { 
-            let raw = img.getAttribute('src'); 
+            let raw = img.getAttribute('data-src'); // Đọc link gốc từ đây
             if(raw) {
                 // Tách chuỗi nếu có nhiều ảnh
                 if(raw.includes('|')) raw = raw.split('|')[0];
@@ -395,11 +376,9 @@
             }
         });
 
-        // --- TẠO THẺ TAGS (VIÊN THUỐC) CHO DANH MỤC ---
         document.querySelectorAll('.dm-tags-container').forEach(div => { 
             let rawMa = div.getAttribute('data-tags'); 
             if(rawMa) {
-                // Dịch Mã thành Tên
                 let html = "";
                 rawMa.split('|').forEach(m => {
                     let ten = dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m;
@@ -409,7 +388,6 @@
             }
         });
         
-        // --- NẠP DỮ LIỆU SẢN PHẨM TỪ BACKEND ---
         const mapGroupSP = {}; 
         document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { 
             let id = el.getAttribute('data-masp'); 
@@ -430,7 +408,6 @@
         });
         document.getElementById('data_island').remove();
 
-        // --- INIT TAGIFY ---
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('#f_ma_danh_muc'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#f_ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
@@ -438,16 +415,12 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
 
-        // TỰ ĐỘNG SINH MÃ SẢN PHẨM & MÃ SKU KHI ĐỔI DANH MỤC
         tagifyDM.on('add', function(e) { 
             if(isEditingMode) return; 
-            
             let maSpInput = document.getElementById('f_ma_san_pham');
             if (!maSpInput.value && tagifyDM.value.length > 0) {
-                // Lấy thông tin dựa theo TÊN vừa chọn
                 let tenDM = tagifyDM.value[0].value;
                 const info = dicDanhMucByTen[tenDM]; 
-                
                 if (info) { 
                     let newMa = info.prefix + String(info.nextStt + 1).padStart(4, '0');
                     maSpInput.value = newMa;
@@ -474,7 +447,6 @@
             renderQuyTacGia(); 
         });
 
-        // --- QUẢN LÝ STATE TAB ---
         let currentSkus = [];
         let activeTabIndex = 0;
         let isEditingMode = false;
@@ -622,7 +594,6 @@
 
         function syncFromMain(...props) {
             saveCurrentTabToState(); 
-            
             let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
             let mainSku = currentSkus[mainIdx];
@@ -644,7 +615,6 @@
             }
         }
 
-        // --- ĐỌC / GHI DỮ LIỆU FORM <-> STATE ---
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
@@ -657,7 +627,6 @@
             sku.ten_rut_gon = document.getElementById('f_ten_rut_gon').value;
             sku.trang_thai = document.getElementById('f_trang_thai').checked ? 1 : 0;
             
-            // Lấy Tên từ Tagify và dịch ngược sang Mã để lưu cho chuẩn
             let arrTenDM = tagifyDM.value.map(v => v.value);
             let arrMaDM = arrTenDM.map(t => dicDanhMucByTen[t] ? dicDanhMucByTen[t].ma : t);
             sku.ma_danh_muc = arrMaDM.join("|");
@@ -735,7 +704,6 @@
             document.getElementById('f_ten_san_pham').value = sp.ten_san_pham;
             document.getElementById('f_ten_rut_gon').value = sp.ten_rut_gon;
 
-            // Dịch Mã về Tên để Tagify hiển thị đẹp
             tagifyDM.removeAllTags(); 
             if(sp.ma_danh_muc) {
                 let arrTen = sp.ma_danh_muc.split("|").map(m => dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m);
@@ -761,7 +729,6 @@
                 else { document.getElementById('f_bao_hanh_num').value = sp.bao_hanh; }
             } else { document.getElementById('f_bao_hanh_num').value = ""; document.getElementById('f_bao_hanh_unit').value = "Tháng"; }
 
-            // ĐIỀN GIÁ
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_bien_do_phan_tram').value = sp.phan_tram_lai > 0 ? sp.phan_tram_lai : ""; 
             document.getElementById('f_gia_niem_yet').value = sp.gia_niem_yet > 0 ? formatNumber(sp.gia_niem_yet.toString()) : "";
@@ -784,14 +751,13 @@
             setTimeout(() => { isEditingMode = false; }, 300); 
         }
 
-        // --- HÀM TIỆN ÍCH TIỀN TỆ & TÍNH TOÁN ---
+        // --- CÁC HÀM TÍNH TOÁN GIỮ NGUYÊN (ĐÃ RÚT GỌN ĐỂ TRÁNH DÀI) ...
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
         function round10k(price) { if (price <= 0) return 0; return Math.floor(price / 10000) * 10000; }
         function convertDriveLink(url) { if (!url) return ""; if (url.includes("drive.google.com") && url.includes("/d/")) { const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/); if (match && match[1]) return "https://lh3.googleusercontent.com/d/" + match[1]; } return url; }
 
-        // --- TÍNH TOÁN GIÁ & QUY TẮC 4x4 ---
         function renderQuyTacGia() {
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let select = document.getElementById('f_quy_tac_gia');
@@ -802,7 +768,6 @@
             let marginDM = 0;
             const tags = tagifyDM.value;
             if (tags && tags.length > 0) {
-                // TÌm thông tin Danh mục thông qua TÊN
                 const info = dicDanhMucByTen[tags[0].value]; 
                 if (info && info.loiNhuan > 0) {
                     marginDM = info.loiNhuan;
@@ -964,7 +929,6 @@
             }
         }
 
-        // --- HÌNH ẢNH ---
         function addImgInput(value, isReadonly = false) {
             const container = document.getElementById('f_imgContainer');
             const div = document.createElement('div');
@@ -978,12 +942,10 @@
             container.appendChild(div);
         }
 
-        // --- ĐIỀU KHIỂN MODAL ---
         function openModal() {
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -996,7 +958,6 @@
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if(activeTabIndex === -1) activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -1005,10 +966,8 @@
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             saveCurrentTabToState(); 
-            
             let hasMain = currentSkus.some(sku => sku.sku_chinh === 1 && sku.trang_thai !== -1);
             if(!hasMain) { Swal.fire('Lỗi', 'Bắt buộc phải chọn 1 phiên bản làm Đại Diện (không bị xóa)!', 'error'); return; }
-
             const result = await Swal.fire({ title: 'Lưu toàn bộ phiên bản?', text: `Bạn đang thao tác với ${currentSkus.length} Tab phiên bản cho nhóm sản phẩm này.`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
         }
@@ -1016,11 +975,9 @@
         async function saveSP() {
             const btn = document.getElementById('btnSave'); const originalText = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `Đang lưu...`;
-            
             const fd = new FormData();
             fd.set('ma_san_pham', currentSkus[0].ma_san_pham || ""); 
             fd.set('data_skus', JSON.stringify(currentSkus)); 
-            
             try {
                 const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
                 if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
@@ -1030,3 +987,4 @@
     </script>
     {{ template "footer" . }}
 {{ end }}
+}
