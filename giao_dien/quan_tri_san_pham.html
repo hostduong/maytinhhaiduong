@@ -87,7 +87,7 @@
                     </div>
                     <input type="text" id="searchInput" onkeyup="filterAndSort()" 
                         class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-blue-500 focus:border-blue-500 transition outline-none" 
-                        placeholder="Tìm Mã, Tên, Giá, Trạng thái...">
+                        placeholder="Tìm Mã, Tên, Phiên bản, Trạng thái...">
                 </div>
 
                 <select id="sortSelect" onchange="filterAndSort()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-medium">
@@ -97,7 +97,6 @@
                     <option value="price_desc">💰 Giá: Cao -> Thấp</option>
                     <option value="name_asc">🔤 Tên: A -> Z</option>
                     <option value="name_desc">🔤 Tên: Z -> A</option>
-                    <option value="status">🔥 Trạng thái (Bán/Tắt)</option>
                 </select>
 
                 <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold shadow-md flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap">
@@ -126,9 +125,9 @@
                         <tr class="bg-white hover:bg-slate-50 transition sp-row"
                             data-code="{{ .MaSanPham }}"
                             data-name="{{ .TenSanPham }}"
+                            data-sku-name="{{ .TenSKU }}"
                             data-price="{{ .GiaBan }}"
                             data-date="{{ .NgayTao }}" 
-                            data-status="{{ .TrangThai }}"
                             data-status-text="{{ if eq .TrangThai 1 }}bán{{ else if eq .TrangThai -1 }}xóa{{ else }}tắt{{ end }}"
                             data-category="{{ .MaDanhMuc }}">
                             
@@ -183,20 +182,16 @@
 
     <div id="modalSP" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[96vh]">
-            
             <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-xl shrink-0">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                 <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition">✕</button>
             </div>
-
             <div class="px-6 py-3 bg-white border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0" id="tabs_container"></div>
-            
             <div class="modal-body pt-5">
                 <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 font-bold flex justify-between items-center shadow-sm">
                     <span class="flex items-center gap-2">⚠️ Phiên bản này đang được đánh dấu CHỜ XÓA. Toàn bộ thông tin đã bị khóa!</span>
                     <button type="button" onclick="restoreTab()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm transition shadow-sm">Khôi phục</button>
                 </div>
-
                 <fieldset id="form_fieldset">
                     <form id="formSP">
                         <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/30">
@@ -221,7 +216,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-section">
                             <div class="section-title">
                                 <span>📝 Thông tin chung</span>
@@ -247,7 +241,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-section">
                             <div class="section-title">
                                 <span>🏷️ Phân loại & Thuộc tính</span>
@@ -274,7 +267,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-section border-l-4 border-l-blue-500 bg-slate-50/50">
                             <div class="section-title flex justify-between">
                                 <span>💰 Định giá Kinh Doanh</span>
@@ -283,51 +275,19 @@
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
                             </div>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5 items-end">
-                                <div>
-                                    <label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label>
-                                    <input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
-                                </div>
-                                
-                                <div>
-                                    <label>Quy tắc tính lãi</label>
-                                    <select id="f_quy_tac_gia" class="input-premium font-bold text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()">
-                                        <option value="manual">Tự chỉnh</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label>Biên độ Lãi (%)</label>
-                                    <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()">
-                                </div>
-
-                                <div>
-                                    <label>Lãi VNĐ (Trước Thuế)</label>
-                                    <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0">
-                                </div>
+                                <div><label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
+                                <div><label>Quy tắc tính lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
+                                <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
+                                <div><label>Lãi VNĐ (Trước Thuế)</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
                             </div>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm items-end">
-                                <div>
-                                    <label>Giá Niêm Yết (Gạch ngang)</label>
-                                    <input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
-                                </div>
-                                <div>
-                                    <label>Giảm giá (%)</label>
-                                    <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()">
-                                </div>
-                                <div>
-                                    <label>Hoặc Giảm (VNĐ)</label>
-                                    <input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
-                                </div>
-                                <div>
-                                    <label class="text-emerald-700">Giá Bán Thực Tế</label>
-                                    <input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
-                                </div>
+                                <div><label>Giá Niêm Yết (Gạch ngang)</label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
+                                <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
+                                <div><label>Hoặc Giảm (VNĐ)</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
+                                <div><label class="text-emerald-700">Giá Bán Thực Tế</label><input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-bold" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()"></div>
                             </div>
                         </div>
-
                         <div class="form-section mb-0">
                             <div class="section-title">
                                 <span>🖼️ Hình ảnh & Bài viết mô tả</span>
@@ -336,12 +296,8 @@
                                     Đồng bộ từ Bản Đại Diện
                                 </button>
                             </div>
-                            
                             <div class="mb-5">
-                                <div class="flex justify-between items-center mb-2">
-                                    <label style="margin-bottom:0">Danh sách Link ảnh</label>
-                                    <button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button>
-                                </div>
+                                <div class="flex justify-between items-center mb-2"><label style="margin-bottom:0">Danh sách Link ảnh</label><button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-xs bg-slate-100 text-blue-600 px-3 py-1.5 rounded font-bold hover:bg-slate-200 transition">+ Thêm ảnh</button></div>
                                 <div id="f_imgContainer" class="space-y-2 border border-slate-200 rounded-lg p-3 bg-slate-50"></div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -353,7 +309,6 @@
                     </form>
                 </fieldset>
             </div>
-
             <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-between items-center shrink-0">
                 <span class="text-xs text-slate-400 italic">⚠️ Dữ liệu sẽ được lưu chung khi bấm nút "Lưu Sản Phẩm"</span>
                 <div class="flex gap-3">
@@ -393,27 +348,29 @@
             const sortMode = document.getElementById('sortSelect').value;
             const rows = Array.from(document.querySelectorAll('.sp-row'));
             
-            // 1. LỌC (SEARCH)
             rows.forEach(row => {
                 const code = (row.getAttribute('data-code') || '').toLowerCase();
                 const name = (row.getAttribute('data-name') || '').toLowerCase();
+                // Tìm cả tên phiên bản (SKU con)
+                const skuName = (row.getAttribute('data-sku-name') || '').toLowerCase();
                 
-                // Convert mã danh mục sang tên
                 const catRaw = (row.getAttribute('data-category') || '');
                 let catName = "";
                 catRaw.split('|').forEach(m => { if(dicDanhMucByMa[m]) catName += dicDanhMucByMa[m].ten.toLowerCase() + " "; });
                 
                 const price = row.getAttribute('data-price') || '';
-                
-                // Lấy text trạng thái (Bán/Tắt/Xóa) để tìm
                 const statusText = (row.getAttribute('data-status-text') || '').toLowerCase();
                 
-                // Tìm kiếm đa năng
-                const match = code.includes(searchText) || name.includes(searchText) || catName.includes(searchText) || price.includes(searchText) || statusText.includes(searchText);
+                // Logic tìm kiếm bao phủ
+                const match = code.includes(searchText) || 
+                              name.includes(searchText) || 
+                              skuName.includes(searchText) || 
+                              catName.includes(searchText) || 
+                              price.includes(searchText) || 
+                              statusText.includes(searchText);
                 row.style.display = match ? '' : 'none';
             });
 
-            // 2. SẮP XẾP (SORT)
             const tbody = document.getElementById('tableBodySP');
             const visibleRows = rows.filter(r => r.style.display !== 'none');
             
@@ -421,8 +378,7 @@
                 const getP = (el) => parseFloat(el.getAttribute('data-price')) || 0;
                 const getN = (el) => (el.getAttribute('data-name') || '').toLowerCase();
                 const getD = (el) => (el.getAttribute('data-date') || '');
-                const getS = (el) => parseInt(el.getAttribute('data-status')) || 0;
-
+                
                 switch (sortMode) {
                     case 'price_asc': return getP(a) - getP(b);
                     case 'price_desc': return getP(b) - getP(a);
@@ -430,7 +386,7 @@
                     case 'name_desc': return getN(b).localeCompare(getN(a));
                     case 'newest': return getD(b).localeCompare(getD(a));
                     case 'oldest': return getD(a).localeCompare(getD(b));
-                    case 'status': return getS(b) - getS(a); // Bán (1) -> Tắt (0) -> Xóa (-1)
+                    // Đã bỏ case status
                     default: return 0;
                 }
             });
@@ -817,7 +773,6 @@
             setTimeout(() => { isEditingMode = false; }, 300); 
         }
 
-        // --- CÁC HÀM TÍNH TOÁN GIỮ NGUYÊN (ĐÃ RÚT GỌN ĐỂ TRÁNH DÀI) ...
         function formatNumber(n) { return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNumber(input.value); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
