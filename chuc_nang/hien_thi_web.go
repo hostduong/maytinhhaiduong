@@ -1,10 +1,46 @@
 package chuc_nang
 
 import (
+	"encoding/json"
+	"html/template"
 	"net/http"
+	"strings"
+
 	"app/core"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
+
+// =============================================================
+// [MỚI] BỘ HÀM TIỆN ÍCH CHO HTML (VIEW HELPER)
+// =============================================================
+func LayBoHamHTML() template.FuncMap {
+	return template.FuncMap{
+		// 1. Hàm cắt chuỗi ảnh (Giải quyết vấn đề của bạn)
+		"firstImg": func(s string) string {
+			if s == "" { return "" }
+			// Cắt lấy ảnh đầu tiên trước dấu |
+			parts := strings.Split(s, "|")
+			url := strings.TrimSpace(parts[0])
+			return url
+		},
+
+		// 2. Định dạng tiền tệ (Mang từ main qua)
+		"format_money": func(n float64) string {
+			p := message.NewPrinter(language.Vietnamese)
+			return p.Sprintf("%.0f", n)
+		},
+
+		// 3. Xuất JSON cho JS dùng (Mang từ main qua)
+		"json": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+
+		"split": strings.Split,
+	}
+}
 
 func layThongTinNguoiDung(c *gin.Context) (bool, string, string) {
 	shopID := c.GetString("SHOP_ID")
