@@ -119,6 +119,22 @@ func LaySlotTiepTheo(shopID, maDM string) int {
 	return newSlot
 }
 
+// --- THÊM HÀM MỚI: CẬP NHẬT SLOT CƯỠNG BỨC (Dùng cho logic đồng bộ ngược) ---
+func CapNhatSlotThuCong(shopID, maDM string, slotMoi int) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
+	
+	// Chỉ cập nhật nếu tìm thấy danh mục VÀ số mới lớn hơn số cũ
+	if ok && slotMoi > dm.Slot {
+		dm.Slot = slotMoi
+		// Ghi đè số lớn nhất này vào Sheet (Vẫn dùng hàng đợi an toàn)
+		ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_Slot, slotMoi)
+	}
+}
+
 func ThemDanhMucVaoRam(dm *DanhMuc) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
