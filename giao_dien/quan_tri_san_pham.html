@@ -117,7 +117,7 @@
                             <th class="px-4 py-4 font-bold text-center">Danh Mục</th>
                             <th class="px-4 py-4 text-right font-bold w-32">Giá Bán</th>
                             <th class="px-4 py-4 text-center font-bold w-28">Trạng Thái</th>
-                            <th class="px-4 py-4 text-center font-bold w-28">Thao tác</th>
+                            <th class="px-4 py-4 text-center font-bold w-32">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100" id="tableBodySP">
@@ -128,6 +128,7 @@
                             data-sku-name="{{ .TenSKU }}"
                             data-price="{{ .GiaBan }}"
                             data-date="{{ .NgayTao }}" 
+                            data-status="{{ .TrangThai }}"
                             data-status-text="{{ if eq .TrangThai 1 }}bán{{ else if eq .TrangThai -1 }}xóa{{ else }}tắt{{ end }}"
                             data-category="{{ .MaDanhMuc }}">
                             
@@ -164,10 +165,18 @@
                                 {{ end }}
                             </td>
                             <td class="px-4 py-4 text-center">
-                                <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg font-bold transition w-full max-w-[80px] mx-auto text-xs uppercase tracking-wide">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                    Sửa
-                                </button>
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200 px-2.5 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                        Sửa
+                                    </button>
+                                    {{ if ne .TrangThai -1 }}
+                                    <button onclick="deleteSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 px-2.5 py-1.5 rounded-lg font-bold transition text-xs uppercase tracking-wide">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        Xóa
+                                    </button>
+                                    {{ end }}
+                                </div>
                             </td>
                         </tr>
                         {{ end }}
@@ -351,7 +360,6 @@
             rows.forEach(row => {
                 const code = (row.getAttribute('data-code') || '').toLowerCase();
                 const name = (row.getAttribute('data-name') || '').toLowerCase();
-                // Tìm cả tên phiên bản (SKU con)
                 const skuName = (row.getAttribute('data-sku-name') || '').toLowerCase();
                 
                 const catRaw = (row.getAttribute('data-category') || '');
@@ -361,13 +369,7 @@
                 const price = row.getAttribute('data-price') || '';
                 const statusText = (row.getAttribute('data-status-text') || '').toLowerCase();
                 
-                // Logic tìm kiếm bao phủ
-                const match = code.includes(searchText) || 
-                              name.includes(searchText) || 
-                              skuName.includes(searchText) || 
-                              catName.includes(searchText) || 
-                              price.includes(searchText) || 
-                              statusText.includes(searchText);
+                const match = code.includes(searchText) || name.includes(searchText) || skuName.includes(searchText) || catName.includes(searchText) || price.includes(searchText) || statusText.includes(searchText);
                 row.style.display = match ? '' : 'none';
             });
 
@@ -386,7 +388,6 @@
                     case 'name_desc': return getN(b).localeCompare(getN(a));
                     case 'newest': return getD(b).localeCompare(getD(a));
                     case 'oldest': return getD(a).localeCompare(getD(b));
-                    // Đã bỏ case status
                     default: return 0;
                 }
             });
@@ -481,67 +482,43 @@
             };
         }
 
+        // --- CÁC HÀM RENDER TABS, ADD TAB, REMOVE TAB (GIỮ NGUYÊN) ---
         function renderTabs() {
             let html = "";
             let aliveCount = currentSkus.filter(s => s.trang_thai !== -1).length;
-
             currentSkus.forEach((sku, idx) => {
                 let isMain = sku.sku_chinh === 1;
                 let isDeleted = sku.trang_thai === -1;
                 let isOff = sku.trang_thai === 0;
                 let isActive = idx === activeTabIndex;
-                
                 let cls = "sku-tab group relative ";
                 if (isActive) cls += "ring-2 ring-offset-1 ring-blue-500 "; 
-                
-                if (isDeleted) {
-                    cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
-                } else if (isMain) {
-                    cls += "bg-amber-100 text-amber-800 border-amber-300 font-extrabold shadow-sm "; 
-                } else if (isOff) {
-                    cls += "bg-slate-100 text-slate-500 border-slate-200 ";
-                } else {
-                    cls += "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold ";
-                }
-
+                if (isDeleted) cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
+                else if (isMain) cls += "bg-amber-100 text-amber-800 border-amber-300 font-extrabold shadow-sm "; 
+                else if (isOff) cls += "bg-slate-100 text-slate-500 border-slate-200 ";
+                else cls += "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold ";
                 let name = sku.ten_sku ? sku.ten_sku : `Phiên bản ${idx+1}`;
                 let crown = isMain ? "👑 " : "";
-                
                 let showX = (!isDeleted && aliveCount > 1) || (!sku._is_saved);
-
-                html += `
-                    <div class="${cls}" onclick="switchTab(${idx})">
-                        ${crown}${name}
-                        ${showX ? `<span onclick="event.stopPropagation(); removeTab(${idx})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm">✕</span>` : ''}
-                    </div>
-                `;
+                html += `<div class="${cls}" onclick="switchTab(${idx})">${crown}${name}${showX ? `<span onclick="event.stopPropagation(); removeTab(${idx})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm">✕</span>` : ''}</div>`;
             });
             html += `<button onclick="addTab()" class="sku-tab text-blue-600 bg-blue-50 border-blue-200 border-dashed hover:bg-blue-100 font-bold">+ Thêm phiên bản</button>`;
             document.getElementById('tabs_container').innerHTML = html;
         }
 
-        function switchTab(idx) {
-            saveCurrentTabToState();
-            activeTabIndex = idx;
-            renderTabs();
-            loadTabToForm(idx);
-        }
+        function switchTab(idx) { saveCurrentTabToState(); activeTabIndex = idx; renderTabs(); loadTabToForm(idx); }
 
         function addTab() {
             saveCurrentTabToState();
             let newSku = createEmptySKU();
             let mainRef = currentSkus.find(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if (!mainRef && currentSkus.length > 0) mainRef = currentSkus[0]; 
-            
             if(mainRef) {
                 newSku.ma_san_pham = mainRef.ma_san_pham; newSku.ten_san_pham = mainRef.ten_san_pham; 
                 newSku.ma_danh_muc = mainRef.ma_danh_muc; newSku.ma_thuong_hieu = mainRef.ma_thuong_hieu;
                 newSku.don_vi = mainRef.don_vi; newSku.bao_hanh = mainRef.bao_hanh; 
                 newSku.thong_so_html = mainRef.thong_so_html; newSku.mo_ta_html = mainRef.mo_ta_html;
-                
-                if (mainRef.ma_san_pham) {
-                    newSku.ma_sku = mainRef.ma_san_pham + "-" + String(currentSkus.length + 1).padStart(2, '0');
-                }
+                if (mainRef.ma_san_pham) newSku.ma_sku = mainRef.ma_san_pham + "-" + String(currentSkus.length + 1).padStart(2, '0');
             }
             newSku.ten_sku = `Phiên bản ${currentSkus.length + 1}`;
             currentSkus.push(newSku);
@@ -553,19 +530,14 @@
         function removeTab(idx) {
             let isNewTab = !currentSkus[idx]._is_saved; 
             let msg = isNewTab ? "Phiên bản này chưa lưu (chưa có trong CSDL), sẽ bị xóa vĩnh viễn khỏi Form." : "Phiên bản đã lưu CSDL sẽ bị gạch bỏ và chờ xóa thực sự khi bạn bấm nút Lưu Sản Phẩm bên dưới.";
-
             Swal.fire({ title: 'Xóa phiên bản này?', text: msg, icon: 'warning', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#ef4444' }).then((result) => {
                 if(result.isConfirmed) {
                     let wasMain = currentSkus[idx].sku_chinh === 1;
-
                     if (isNewTab) {
                         currentSkus.splice(idx, 1);
                         if(activeTabIndex >= currentSkus.length) activeTabIndex = currentSkus.length - 1;
                         if(activeTabIndex < 0) activeTabIndex = 0; 
-                    } else {
-                        currentSkus[idx].trang_thai = -1; 
-                    }
-
+                    } else { currentSkus[idx].trang_thai = -1; }
                     if(wasMain && currentSkus.length > 0) {
                         if(!isNewTab) currentSkus[idx].sku_chinh = 0;
                         let newMain = currentSkus.findIndex(s => s.trang_thai !== -1);
@@ -578,58 +550,28 @@
 
         function restoreTab() {
             if (activeTabIndex >= 0 && currentSkus[activeTabIndex]) {
-                Swal.fire({
-                    title: 'Khôi phục phiên bản này?',
-                    text: "Phiên bản này sẽ được mở khóa và tiếp tục kinh doanh.",
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Đồng ý',
-                    confirmButtonColor: '#3b82f6'
-                }).then((result) => {
-                    if(result.isConfirmed) {
-                        currentSkus[activeTabIndex].trang_thai = 1; 
-                        renderTabs(); loadTabToForm(activeTabIndex);
-                    }
+                Swal.fire({ title: 'Khôi phục phiên bản này?', text: "Phiên bản này sẽ được mở khóa và tiếp tục kinh doanh.", icon: 'info', showCancelButton: true, confirmButtonText: 'Đồng ý', confirmButtonColor: '#3b82f6' }).then((result) => {
+                    if(result.isConfirmed) { currentSkus[activeTabIndex].trang_thai = 1; renderTabs(); loadTabToForm(activeTabIndex); }
                 });
             }
         }
 
-        function setMainSKU() {
-            currentSkus.forEach((sku, idx) => { sku.sku_chinh = (idx === activeTabIndex) ? 1 : 0; });
-            document.getElementById('f_trang_thai').checked = true;
-            updateTabColor(); 
-        }
-
-        function updateTabName() {
-            if (activeTabIndex >= 0) {
-                currentSkus[activeTabIndex].ten_sku = document.getElementById('f_ten_sku').value;
-                renderTabs();
-            }
-        }
-
-        function updateTabColor() {
-            if (activeTabIndex >= 0 && currentSkus[activeTabIndex].trang_thai !== -1) {
-                currentSkus[activeTabIndex].trang_thai = document.getElementById('f_trang_thai').checked ? 1 : 0;
-                renderTabs();
-            }
-        }
+        function setMainSKU() { currentSkus.forEach((sku, idx) => { sku.sku_chinh = (idx === activeTabIndex) ? 1 : 0; }); document.getElementById('f_trang_thai').checked = true; updateTabColor(); }
+        function updateTabName() { if (activeTabIndex >= 0) { currentSkus[activeTabIndex].ten_sku = document.getElementById('f_ten_sku').value; renderTabs(); } }
+        function updateTabColor() { if (activeTabIndex >= 0 && currentSkus[activeTabIndex].trang_thai !== -1) { currentSkus[activeTabIndex].trang_thai = document.getElementById('f_trang_thai').checked ? 1 : 0; renderTabs(); } }
 
         function syncFromMain(...props) {
             saveCurrentTabToState(); 
             let mainIdx = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if (mainIdx === -1) { Swal.fire('Lỗi', 'Không tìm thấy Bản Đại Diện!', 'error'); return; }
             let mainSku = currentSkus[mainIdx];
-
             if (mainIdx === activeTabIndex) {
                 let count = 0;
                 currentSkus.forEach((sku, idx) => {
-                    if (idx !== mainIdx && sku.trang_thai !== -1) {
-                        props.forEach(p => sku[p] = mainSku[p]);
-                        count++;
-                    }
+                    if (idx !== mainIdx && sku.trang_thai !== -1) { props.forEach(p => sku[p] = mainSku[p]); count++; }
                 });
-                if (count > 0) { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 }); } 
-                else { Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để đồng bộ!`, showConfirmButton: false, timer: 1500 }); }
+                if (count > 0) Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 });
+                else Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên bản phụ nào để đồng bộ!`, showConfirmButton: false, timer: 1500 });
             } else {
                 props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
@@ -783,170 +725,93 @@
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let select = document.getElementById('f_quy_tac_gia');
             let currentVal = select.value;
-            
             let html = `<option value="manual">Tự chỉnh</option>`;
-            
             let marginDM = 0;
             const tags = tagifyDM.value;
             if (tags && tags.length > 0) {
                 const info = dicDanhMucByTen[tags[0].value]; 
-                if (info && info.loiNhuan > 0) {
-                    marginDM = info.loiNhuan;
-                    html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`;
-                }
+                if (info && info.loiNhuan > 0) { marginDM = info.loiNhuan; html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`; }
             }
-            
             let marginKhung = 0;
             if (giaNhap > 0) {
-                for (let i = 0; i < listBLN.length; i++) { 
-                    if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } 
-                }
+                for (let i = 0; i < listBLN.length; i++) { if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } }
                 if (marginKhung === 0 && listBLN.length > 0) marginKhung = listBLN[listBLN.length - 1].loiNhuan;
-                if (marginKhung > 0) {
-                    html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`;
-                }
+                if (marginKhung > 0) { html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`; }
             }
-            
             select.innerHTML = html;
-            
             if (!isEditingMode) {
-                if (marginDM > 0) select.value = "danhmuc";
-                else if (marginKhung > 0) select.value = "khunggia";
-                else select.value = "manual";
+                if (marginDM > 0) select.value = "danhmuc"; else if (marginKhung > 0) select.value = "khunggia"; else select.value = "manual";
                 applyQuyTacGia();
-            } else {
-                if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
-                    select.value = currentVal;
-                }
-            }
+            } else { if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) { select.value = currentVal; } }
         }
 
         function applyQuyTacGia() {
             let select = document.getElementById('f_quy_tac_gia');
             let inputPhanTram = document.getElementById('f_bien_do_phan_tram');
-            
             if (select.value === "manual") {
-                inputPhanTram.disabled = false;
-                inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-                inputPhanTram.classList.add('bg-white', 'text-blue-700');
+                inputPhanTram.disabled = false; inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.add('bg-white', 'text-blue-700');
             } else {
-                inputPhanTram.disabled = true;
-                inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-                inputPhanTram.classList.remove('bg-white', 'text-blue-700');
-                
-                let selectedOpt = select.options[select.selectedIndex];
-                let margin = selectedOpt.getAttribute('data-margin');
-                if (margin) inputPhanTram.value = margin;
+                inputPhanTram.disabled = true; inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.remove('bg-white', 'text-blue-700');
+                let selectedOpt = select.options[select.selectedIndex]; let margin = selectedOpt.getAttribute('data-margin'); if (margin) inputPhanTram.value = margin;
             }
             if (!isEditingMode) calcPrices();
         }
 
         function matchAndSetQuyTacGia(currentMargin) {
-            let select = document.getElementById('f_quy_tac_gia');
-            let options = select.options;
-            let matched = false;
-            
+            let select = document.getElementById('f_quy_tac_gia'); let options = select.options; let matched = false;
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value !== "manual") {
                     let m = parseFloat(options[i].getAttribute('data-margin'));
-                    if (Math.abs(m - currentMargin) < 0.1) {
-                        select.value = options[i].value;
-                        matched = true;
-                        break;
-                    }
+                    if (Math.abs(m - currentMargin) < 0.1) { select.value = options[i].value; matched = true; break; }
                 }
             }
-            
             if (!matched) select.value = "manual";
-            applyQuyTacGia(); 
-            document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
+            applyQuyTacGia(); document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
         }
 
         function calcPrices() {
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let bienDo = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0;
             let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
-            
             if (giaNhap > 0) {
                 let laiVND = giaNhap * (bienDo / 100);
                 document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                
                 let giaBanThuc = round10k(giaNhap + laiVND);
                 if (!isEditingMode) document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
-
-                let pList = giaBanThuc;
-                let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) {
-                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
-                    tienGiam = pList - giaBanThuc;
-                }
-                
-                if (!isEditingMode) {
-                    document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                    document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
-                }
+                let pList = giaBanThuc; let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
+                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); }
             } else {
                 document.getElementById('f_lai_vnd').value = "0"; 
-                if (!isEditingMode) {
-                    document.getElementById('f_gia_niem_yet').value = "0";
-                    document.getElementById('f_so_tien_giam').value = "0"; 
-                    document.getElementById('f_gia_ban').value = "0";
-                }
+                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = "0"; document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0"; }
             }
         }
 
         function autoCalcBackward() {
-            let pList = getNum(document.getElementById('f_gia_niem_yet').value);
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            
+            let pList = getNum(document.getElementById('f_gia_niem_yet').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             if (giaBanThuc > 0 && pList >= giaBanThuc) {
-                let tienGiam = pList - giaBanThuc;
-                let phanTramGiam = (tienGiam / pList) * 100;
-                
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
-                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
-            } else {
-                document.getElementById('f_so_tien_giam').value = "0";
-                document.getElementById('f_phan_tram_giam').value = "0";
-            }
+                let tienGiam = pList - giaBanThuc; let phanTramGiam = (tienGiam / pList) * 100;
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+            } else { document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_phan_tram_giam').value = "0"; }
         }
 
         function applyDiscountMoney() {
-            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value);
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            
+            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             if(giaBanThuc > 0) {
-                let pList = round10k(giaBanThuc + tienGiam);
-                let phanTramGiam = (tienGiam / pList) * 100;
-                
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+                let pList = round10k(giaBanThuc + tienGiam); let phanTramGiam = (tienGiam / pList) * 100;
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
             }
         }
 
         function autoCalcFromGiaBan() {
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
-
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value); let giaNhap = getNum(document.getElementById('f_gia_nhap').value); let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
             if (giaNhap > 0 && giaBanThuc >= giaNhap) {
-                let laiVND = giaBanThuc - giaNhap;
-                let phanTramLai = (laiVND / giaNhap) * 100;
-                
-                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
-                
-                document.getElementById('f_quy_tac_gia').value = "manual";
-                applyQuyTacGia(); 
-
-                let pList = giaBanThuc;
-                let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) {
-                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
-                    tienGiam = pList - giaBanThuc;
-                }
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                let laiVND = giaBanThuc - giaNhap; let phanTramLai = (laiVND / giaNhap) * 100;
+                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString()); document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
+                document.getElementById('f_quy_tac_gia').value = "manual"; applyQuyTacGia(); 
+                let pList = giaBanThuc; let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
             }
         }
 
@@ -967,7 +832,6 @@
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -980,35 +844,96 @@
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if(activeTabIndex === -1) activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
         }
+
+        // [MỚI] CHỨC NĂNG XÓA SẢN PHẨM
+        async function deleteSP(id) {
+            const result = await Swal.fire({
+                title: 'Xóa sản phẩm này?',
+                text: "Sản phẩm sẽ chuyển sang trạng thái 'Xóa' (-1) và bị khóa thông tin. Bạn có chắc chắn không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) return;
+
+            if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu sản phẩm!', 'error'); return; }
+            
+            // Clone toàn bộ phiên bản của SP này
+            const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
+            
+            // Đánh dấu xóa (-1) cho tất cả
+            skusToDelete.forEach(s => {
+                s.trang_thai = -1;
+            });
+
+            // Gửi lên Server
+            await sendDataToBackend(skusToDelete);
+        }
         
+        // [MỚI] HÀM GỬI DỮ LIỆU CHUNG (Dùng cho cả Save và Delete)
+        async function sendDataToBackend(skus) {
+            // Hiển thị loading...
+            const btnSave = document.getElementById('btnSave');
+            const originalText = btnSave.innerHTML;
+            
+            // Chỉ lock nút nếu đang mở modal
+            if(!document.getElementById('modalSP').classList.contains('hidden')) {
+                btnSave.disabled = true; 
+                btnSave.innerHTML = `Đang xử lý...`;
+            } else {
+                // Nếu đang ở ngoài bảng, hiện loading global hoặc để im cũng được
+                Swal.showLoading();
+            }
+            
+            const fd = new FormData();
+            fd.set('ma_san_pham', skus[0].ma_san_pham || ""); 
+            fd.set('data_skus', JSON.stringify(skus)); 
+            
+            try {
+                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd }); 
+                const data = await res.json();
+                
+                if(data.status === 'ok') {
+                    Swal.fire({
+                        icon: 'success', 
+                        title: 'Thành công', 
+                        text: data.msg, 
+                        showConfirmButton: false, 
+                        timer: 1500
+                    }).then(() => location.reload());
+                } else { 
+                    Swal.fire('Lỗi', data.msg, 'error'); 
+                    btnSave.disabled = false; 
+                    btnSave.innerHTML = originalText; 
+                }
+            } catch(e) { 
+                Swal.fire('Lỗi', 'Không kết nối được server', 'error'); 
+                btnSave.disabled = false; 
+                btnSave.innerHTML = originalText; 
+            }
+        }
+
         async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             saveCurrentTabToState(); 
             let hasMain = currentSkus.some(sku => sku.sku_chinh === 1 && sku.trang_thai !== -1);
             if(!hasMain) { Swal.fire('Lỗi', 'Bắt buộc phải chọn 1 phiên bản làm Đại Diện (không bị xóa)!', 'error'); return; }
 
-            const result = await Swal.fire({ title: 'Lưu toàn bộ phiên bản?', text: `Bạn đang thao tác với ${currentSkus.length} Tab phiên bản cho nhóm sản phẩm này.`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
+            const result = await Swal.fire({ title: 'Lưu thay đổi?', text: `Bạn đang thao tác với ${currentSkus.length} phiên bản.`, icon: 'question', showCancelButton: true, confirmButtonColor: '#2563eb', cancelButtonColor: '#64748b', confirmButtonText: 'Đồng ý', cancelButtonText: 'Hủy' });
             if (result.isConfirmed) saveSP();
         }
 
+        // Wrapper cũ để giữ tương thích code cũ (nếu có)
         async function saveSP() {
-            const btn = document.getElementById('btnSave'); const originalText = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = `Đang lưu...`;
-            
-            const fd = new FormData();
-            fd.set('ma_san_pham', currentSkus[0].ma_san_pham || ""); 
-            fd.set('data_skus', JSON.stringify(currentSkus)); 
-            
-            try {
-                const res = await fetch('/admin/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500}).then(() => location.reload());
-                else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originalText; }
-            } catch(e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); btn.disabled = false; btn.innerHTML = originalText; }
+            await sendDataToBackend(currentSkus);
         }
     </script>
     {{ template "footer" . }}
