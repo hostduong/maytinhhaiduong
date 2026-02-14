@@ -2,22 +2,18 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"app/cau_hinh"
-	"app/chuc_nang"
+	"app/chuc_nang" // Import gói chức năng để dùng LayBoHamHTML
 	"app/core"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
 //go:embed giao_dien/*.html
@@ -30,8 +26,7 @@ func main() {
 	core.KhoiTaoNenTang()
 	core.KhoiTaoWorkerGhiSheet()
 
-	// [BOOT] Nạp dữ liệu cho Shop Mặc định (Shop Gốc)
-	// Nếu bạn muốn nạp sẵn cho các Shop khác, hãy loop qua cau_hinh.MapDomainShop
+	// [BOOT] Nạp dữ liệu cho Shop Mặc định
 	log.Println("📦 [BOOT] Đang nạp dữ liệu Master Data (Default Shop)...")
 	core.NapPhanQuyen("")
 	core.NapDanhMuc("")
@@ -43,27 +38,17 @@ func main() {
 	router := gin.Default()
 
 	// --- [QUAN TRỌNG] KÍCH HOẠT SAAS MIDDLEWARE ---
-	// Middleware này sẽ nhìn Domain để xác định ShopID và gắn vào Context
 	router.Use(chuc_nang.XacDinhShop)
-	// ----------------------------------------------
 
-	// Đăng ký FuncMap cho HTML
-	funcMap := template.FuncMap{
-		"split": strings.Split,
-		"format_money": func(n float64) string {
-			p := message.NewPrinter(language.Vietnamese)
-			return p.Sprintf("%.0f", n)
-		},
-		"json": func(v interface{}) template.JS {
-			a, _ := json.Marshal(v)
-			return template.JS(a)
-		},
-	}
+	// --- [SỬA ĐOẠN NÀY] ĐĂNG KÝ FUNC MAP TỪ FILE hien_thi_web.go ---
+	// Lấy bộ hàm chuẩn (bao gồm firstImg, format_money, json...)
+	funcMap := chuc_nang.LayBoHamHTML()
 
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html"))
 	router.SetHTMLTemplate(templ)
+	// ---------------------------------------------------------------
 
-	// --- ĐỊNH NGHĨA ROUTER ---
+	// --- ĐỊNH NGHĨA ROUTER (GIỮ NGUYÊN) ---
 	
 	// Public
 	router.GET("/", chuc_nang.TrangChu)
@@ -77,8 +62,8 @@ func main() {
 	router.GET("/logout", chuc_nang.DangXuat)
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau)
 	
-	// User Profile (Cần Login)
-	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo) // Thêm middleware check login cho chắc
+	// User Profile
+	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
 	// API Public
 	api := router.Group("/api")
