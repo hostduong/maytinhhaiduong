@@ -1,5 +1,5 @@
 {{ define "quan_tri_san_pham" }}
-    {{ template "header" . }}
+    {{ template "header_admin" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
@@ -1040,5 +1040,5 @@
             await sendDataToBackend(currentSkus);
         }
     </script>
-    {{ template "footer" . }}
+    {{ template "footer_admin" . }}
 {{ end }}
