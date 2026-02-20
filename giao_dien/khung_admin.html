@@ -30,7 +30,11 @@
         
         <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
             <p class="text-xs font-bold text-slate-500 px-3 mb-4 uppercase tracking-widest">Quản Lý</p>
-
+            
+            <a href="/tai-khoan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Hồ sơ"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                <span class="text-lg">📊</span> Hồ sơ
+            </a>
+            
             <a href="/admin/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Tổng quan hệ thống"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg">📊</span> Tổng quan
             </a>
