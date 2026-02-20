@@ -86,12 +86,12 @@
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="search" id="searchInput" onkeyup="filterAndSort()" 
+                    <input type="search" id="searchInput" onkeyup="filterAndSort(true)" 
                         class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-blue-500 focus:border-blue-500 transition outline-none" 
                         placeholder="Tìm Mã, Tên, Phiên bản, Trạng thái...">
                 </div>
 
-                <select id="sortSelect" onchange="filterAndSort()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-medium">
+                <select id="sortSelect" onchange="filterAndSort(true)" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-medium">
                     <option value="newest">🕒 Mới nhất</option>
                     <option value="oldest">🕒 Cũ nhất</option>
                     <option value="price_asc">💰 Giá: Thấp -> Cao</option>
@@ -107,7 +107,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-slate-600" id="tableSP">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
@@ -197,8 +197,14 @@
                         {{ end }}
                     </tbody>
                 </table>
+                
                 <div id="noResult" class="hidden p-8 text-center text-slate-500 italic bg-slate-50 border-t border-slate-200">
                     Không tìm thấy sản phẩm nào phù hợp!
+                </div>
+                
+                <div id="scrollSentinel" class="hidden py-6 bg-slate-50 border-t border-slate-100 flex justify-center items-center gap-2 text-slate-500">
+                    <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-sm font-medium">Đang tải thêm sản phẩm...</span>
                 </div>
             </div>
         </div>
@@ -369,13 +375,36 @@
 
         var listBLN = []; document.querySelectorAll('#data_bln .bln-item').forEach(el => { if (parseInt(el.getAttribute('data-trangthai')) === 1) { listBLN.push({ khung: parseFloat(el.getAttribute('data-khung')) || 0, loiNhuan: parseFloat(el.getAttribute('data-loinhuan')) || 0 }); } }); listBLN.sort((a, b) => a.khung - b.khung);
         
+        // --- [MỚI] BIẾN TOÀN CỤC CHO PHÂN TRANG ---
+        let allRowElements = [];
+        let filteredAndSortedRows = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        // --- [MỚI] KHỞI TẠO BẢNG & INFINITE SCROLL ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lấy toàn bộ các dòng do Golang render cất vào mảng
+            allRowElements = Array.from(document.querySelectorAll('.sp-row'));
+            
+            // Xóa sạch bảng để JS tự vẽ lại dần dần
+            document.getElementById('tableBodySP').innerHTML = '';
+            
+            // Thiết lập Scroll Observer
+            setupInfiniteScroll();
+            
+            // Chạy bộ lọc ban đầu (Reset page = true)
+            filterAndSort(true);
+        });
+
         // --- HÀM LỌC VÀ SẮP XẾP ---
-        function filterAndSort() {
+        function filterAndSort(resetPage = true) {
+            if (resetPage) currentPage = 1;
+
             const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const sortMode = document.getElementById('sortSelect').value;
-            const rows = Array.from(document.querySelectorAll('.sp-row'));
             
-            rows.forEach(row => {
+            // 1. Lọc
+            filteredAndSortedRows = allRowElements.filter(row => {
                 const code = (row.getAttribute('data-code') || '').toLowerCase();
                 const name = (row.getAttribute('data-name') || '').toLowerCase();
                 const skuName = (row.getAttribute('data-sku-name') || '').toLowerCase();
@@ -387,19 +416,16 @@
                 const price = row.getAttribute('data-price') || '';
                 const statusText = (row.getAttribute('data-status-text') || '').toLowerCase();
                 
-                const match = code.includes(searchText) || 
-                              name.includes(searchText) || 
-                              skuName.includes(searchText) || 
-                              catName.includes(searchText) || 
-                              price.includes(searchText) || 
-                              statusText.includes(searchText);
-                row.style.display = match ? '' : 'none';
+                return code.includes(searchText) || 
+                       name.includes(searchText) || 
+                       skuName.includes(searchText) || 
+                       catName.includes(searchText) || 
+                       price.includes(searchText) || 
+                       statusText.includes(searchText);
             });
 
-            const tbody = document.getElementById('tableBodySP');
-            const visibleRows = rows.filter(r => r.style.display !== 'none');
-            
-            visibleRows.sort((a, b) => {
+            // 2. Sắp xếp
+            filteredAndSortedRows.sort((a, b) => {
                 const getP = (el) => parseFloat(el.getAttribute('data-price')) || 0;
                 const getN = (el) => (el.getAttribute('data-name') || '').toLowerCase();
                 const getD = (el) => (el.getAttribute('data-date') || '');
@@ -415,11 +441,57 @@
                 }
             });
 
-            visibleRows.forEach(row => tbody.appendChild(row));
+            // 3. Render bảng
+            renderTable();
+        }
+
+        // --- [MỚI] HÀM VẼ BẢNG THEO TRANG ---
+        function renderTable() {
+            const tbody = document.getElementById('tableBodySP');
             
+            // Nếu là tìm kiếm mới (trang 1) thì xóa sạch bảng cũ
+            if (currentPage === 1) {
+                tbody.innerHTML = ''; 
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = currentPage * itemsPerPage;
+            const rowsToRender = filteredAndSortedRows.slice(startIndex, endIndex);
+
+            // Dùng DocumentFragment để append một lần cho mượt
+            const fragment = document.createDocumentFragment();
+            rowsToRender.forEach(row => {
+                row.style.display = ''; 
+                fragment.appendChild(row);
+            });
+            tbody.appendChild(fragment);
+
+            // Xử lý thông báo "Không tìm thấy"
             const noRes = document.getElementById('noResult');
-            if (visibleRows.length === 0 && rows.length > 0) noRes.classList.remove('hidden');
+            if (filteredAndSortedRows.length === 0) noRes.classList.remove('hidden');
             else noRes.classList.add('hidden');
+
+            // Ẩn/Hiện icon loading của Infinite Scroll
+            const sentinel = document.getElementById('scrollSentinel');
+            if (endIndex < filteredAndSortedRows.length) sentinel.classList.remove('hidden');
+            else sentinel.classList.add('hidden');
+        }
+
+        // --- [MỚI] HÀM CÀI ĐẶT INFINITE SCROLL ---
+        function setupInfiniteScroll() {
+            const sentinel = document.getElementById('scrollSentinel');
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    if (currentPage * itemsPerPage < filteredAndSortedRows.length) {
+                        currentPage++;
+                        // Delay nhẹ 200ms để người dùng thấy mượt mà
+                        setTimeout(() => {
+                            renderTable();
+                        }, 200); 
+                    }
+                }
+            }, { rootMargin: '100px' }); // Kích hoạt trước khi cuộn tới sát đáy 100px
+            observer.observe(sentinel);
         }
 
         document.querySelectorAll('.dm-tags-container').forEach(div => { 
@@ -507,7 +579,6 @@
             };
         }
 
-        // --- CÁC HÀM RENDER TABS, ADD TAB, REMOVE TAB (GIỮ NGUYÊN) ---
         function renderTabs() {
             let html = "";
             let aliveCount = currentSkus.filter(s => s.trang_thai !== -1).length;
@@ -676,7 +747,6 @@
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('f_ten_sku').value = sp.ten_sku;
             
-            // [MỚI] HIỂN THỊ THỜI GIAN CẬP NHẬT TRÊN LABEL
             const lblNgayCapNhat = document.getElementById('f_ngay_cap_nhat');
             if (sp.ngay_cap_nhat) {
                 lblNgayCapNhat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Cập nhật: ${sp.ngay_cap_nhat}`;
@@ -869,7 +939,7 @@
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
         }
-        
+
         function closeModal() { document.getElementById('modalSP').classList.add('hidden'); }
 
         function editSP(id) {
