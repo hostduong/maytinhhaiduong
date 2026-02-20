@@ -1,5 +1,5 @@
 {{ define "quan_tri_cai_dat" }}
-    {{ template "header" . }}
+    {{ template "header_admin" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -367,5 +367,5 @@
         function editBLN(dong) { const item = mapBLN[dong]; if(!item) return; document.getElementById('is_new_bln').value = "false"; document.getElementById('bln_dong').value = item.dong; document.getElementById('bln_khung').value = item.khung.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); document.getElementById('bln_loi').value = item.loi; document.getElementById('bln_trangthai').checked = (item.tt === 1); document.getElementById('titleBLN').innerText = "Sửa Khung Giá"; document.getElementById('modalBLN').classList.remove('hidden'); }
         async function saveBLN() { if(!document.getElementById('bln_khung').value || !document.getElementById('bln_loi').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin', 'warning'); return; } const btn = document.getElementById('btnSaveBLN'); const originHTML = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang lưu...'; try { const res = await fetch('/admin/api/margin/save', { method: 'POST', body: new FormData(document.getElementById('formBLN')) }); const data = await res.json(); if(data.status === 'ok') { location.reload(); } else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originHTML; } } catch(e) { btn.disabled = false; btn.innerHTML = originHTML; } }
     </script>
-    {{ template "footer" . }}
+    {{ template "footer_admin" . }}
 {{ end }}
