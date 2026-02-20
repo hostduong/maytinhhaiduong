@@ -1,4 +1,4 @@
-package chuc_nang
+package chuc_nang_admin
 
 import (
 	"net/http"
