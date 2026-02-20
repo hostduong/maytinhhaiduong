@@ -79,9 +79,17 @@ func TrangHoSo(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	if !daLogin { c.Redirect(http.StatusFound, "/login"); return }
+	
 	cookie, _ := c.Cookie("session_id")
 	kh, _ := core.TimKhachHangTheoCookie(shopID, cookie)
-	c.HTML(http.StatusOK, "ho_so", gin.H{
+
+	// --- [MỚI] RẼ NHÁNH TEMPLATE THEO QUYỀN ---
+	templateName := "ho_so"         // Mặc định là cho Khách hàng
+	if quyen != "customer" {
+		templateName = "ho_so_admin" // Nếu là nhân sự -> Nạp file của Admin
+	}
+
+	c.HTML(http.StatusOK, templateName, gin.H{
 		"TieuDe": "Hồ sơ cá nhân", "DaDangNhap": daLogin,
 		"TenNguoiDung": tenUser, "QuyenHan": quyen, "NhanVien": kh,
 	})
