@@ -16,7 +16,7 @@
         input::-ms-reveal, input::-ms-clear { display: none; }
     </style>
 
-    <div class="max-w-4xl mx-auto py-10 px-4">
+    <div class="max-w-4xl mx-auto py-4">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-6">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-700 h-32 relative"></div>
             <div class="text-center -mt-16 relative px-6">
@@ -189,7 +189,6 @@
             if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText;
         }
 
-        // Logic ẩn hiện 2 icon mắt
         function togglePass(id) {
             const input = document.getElementById(id);
             const eyeSlash = document.getElementById('eye_slash_' + id);
@@ -222,7 +221,6 @@
             }
         }
 
-        // --- VALIDATION (Giữ nguyên logic chuẩn) ---
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
         const regexUrl  = { char: /[\s]/, full: /^https?:\/\/.+/ };
         const regexNum  = { char: /[^0-9]/, full: /^[0-9]+$/ };
@@ -252,7 +250,6 @@
             else { 
                 document.getElementById(id).classList.remove('input-error');
                 document.getElementById(errId).classList.remove('show');
-                // Re-check buttons
                 if(id.startsWith("new")) checkInfoBtn();
                 if(id.includes("Pass")) checkPassBtn();
                 if(id.includes("Pin")) checkPinBtn();
@@ -264,7 +261,6 @@
             if (!rules.full.test(val)) setError(id, errId, true); else setError(id, errId, false);
         }
 
-        // Mapping Events
         const fields = [
             { id: 'newName', rule: regexName, err: 'err_newName' },
             { id: 'newFb', rule: regexUrl, err: 'err_newFb' },
@@ -279,7 +275,6 @@
             el.addEventListener('blur', () => handleBlur(f.id, f.rule, f.err));
         });
 
-        // Simple validation for Old Pass/Pin (Just length > 0)
         document.getElementById('oldPass').addEventListener('input', checkPassBtn);
         document.getElementById('oldPin').addEventListener('input', checkPinBtn);
 
@@ -307,7 +302,6 @@
             document.getElementById('btnSavePin').disabled = !ok;
         }
 
-        // --- API ---
         async function postData(url, data) {
             const fd = new FormData(); for(const k in data) fd.append(k, data[k]);
             try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; }
