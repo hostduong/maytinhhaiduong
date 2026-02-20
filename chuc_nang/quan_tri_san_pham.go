@@ -149,10 +149,8 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 	if !hasMain { inputSKUs[0].SKUChinh = 1 }
 
-	// Tải múi giờ Việt Nam
-	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
-
-	// Ép time.Now() về múi giờ VN rồi mới Format
+	// Tự định nghĩa múi giờ GMT+7 (7 tiếng * 3600 giây)
+	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 
 	// 1. TẠO MÃ SP NẾU THÊM MỚI
