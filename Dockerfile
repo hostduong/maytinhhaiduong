@@ -11,11 +11,12 @@ FROM alpine:latest
 WORKDIR /root/
 RUN apk add --no-cache ca-certificates
 
-# Copy file chạy (Đã có)
+# Copy file chạy
 COPY --from=builder /app/server .
 
-# --- [THÊM DÒNG NÀY ĐỂ COPY GIAO DIỆN] ---
+# --- COPY CẢ 2 THƯ MỤC GIAO DIỆN ---
 COPY --from=builder /app/giao_dien ./giao_dien
+COPY --from=builder /app/giao_dien_admin ./giao_dien_admin
 # ------------------------------------------
 
 EXPOSE 8080
