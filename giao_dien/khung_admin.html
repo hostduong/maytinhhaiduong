@@ -18,10 +18,10 @@
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 bg-slate-50">
 
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0 shadow-xl z-20">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex-col hidden md:flex shrink-0 shadow-xl z-20 transition-all">
         <div class="h-20 flex items-center px-6 border-b border-slate-800">
-            <a href="/admin/tong-quan" class="text-xl font-bold text-white tracking-wider flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+            <a href="/" class="text-xl font-bold text-white tracking-wider flex items-center gap-3 group">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /></svg>
                 </div>
                 <span>WORKSPACE</span>
@@ -29,61 +29,65 @@
         </div>
         
         <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-            <p class="text-xs font-bold text-slate-500 px-3 mb-4 uppercase tracking-widest">Quản Lý</p>
-            
-            <a href="/tai-khoan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Hồ sơ"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg">📊</span> Hồ sơ
-            </a>
-            
-            <a href="/admin/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Tổng quan hệ thống"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg">📊</span> Tổng quan
-            </a>
-            
-            <a href="/admin/san-pham" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Quản lý sản phẩm"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg">📦</span> Sản phẩm
-            </a>
+            {{ if ne .QuyenHan "customer" }}
+                <p class="text-xs font-bold text-slate-500 px-3 mb-4 uppercase tracking-widest">Quản Lý</p>
 
-            <a href="/admin/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Quản lý thành viên"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg">👥</span> Nhân sự
-            </a>
+                <a href="/admin/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Tổng quan hệ thống"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg">📊</span> Tổng quan
+                </a>
+                
+                <a href="/admin/san-pham" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Quản lý sản phẩm"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg">📦</span> Sản phẩm
+                </a>
 
-            <p class="text-xs font-bold text-slate-500 px-3 mt-8 mb-4 uppercase tracking-widest">Hệ thống</p>
+                <a href="/admin/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Quản lý thành viên"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg">👥</span> Nhân sự
+                </a>
 
-            <a href="/admin/cai-dat" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Cài đặt hệ thống"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg">⚙️</span> Cài đặt & Cấu hình
+                <p class="text-xs font-bold text-slate-500 px-3 mt-8 mb-4 uppercase tracking-widest">Hệ thống</p>
+
+                <a href="/admin/cai-dat" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Cài đặt hệ thống"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg">⚙️</span> Cài đặt & Cấu hình
+                </a>
+            {{ else }}
+                <p class="text-xs font-bold text-slate-500 px-3 mb-4 uppercase tracking-widest">Tài Khoản</p>
+            {{ end }}
+
+            <a href="/tai-khoan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Hồ sơ cá nhân"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                <span class="text-lg">👤</span> Hồ sơ cá nhân
             </a>
         </nav>
 
         <div class="p-4 border-t border-slate-800">
+            <a href="/tai-khoan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Hồ sơ cá nhân"}}bg-slate-800 text-white{{else}}hover:bg-slate-800 hover:text-white text-slate-400{{end}} font-medium mb-2" title="Xem hồ sơ">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .TenNguoiDung }}" class="w-6 h-6 rounded-full bg-slate-700"> 
+                <span class="truncate">{{ .TenNguoiDung }}</span>
+            </a>
             <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition font-medium text-slate-400">
-                <span class="text-lg">🏠</span> Về trang cửa hàng
+                <span class="text-lg">🏠</span> Về Cửa hàng
             </a>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0 shadow-sm z-10">
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 shadow-sm z-10">
             <div class="flex items-center gap-4">
-                <h2 class="text-xl font-bold text-slate-800">{{ .TieuDe }}</h2>
-                <span class="bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded text-xs font-bold border border-blue-100 uppercase tracking-wider">{{ .QuyenHan }}</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-800 truncate">{{ .TieuDe }}</h2>
+                <span class="hidden md:inline-block bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded text-xs font-bold border border-blue-100 uppercase tracking-wider">{{ .QuyenHan }}</span>
             </div>
             
-            <div class="flex items-center gap-6">
-                <button onclick="reloadSystemGlobal(this)" class="flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-xl transition text-sm font-bold border border-indigo-100 shadow-sm" title="Kéo dữ liệu mới nhất từ Google Sheets">
+            <div class="flex items-center gap-4 md:gap-6">
+                {{ if ne .QuyenHan "customer" }}
+                <button onclick="reloadSystemGlobal(this)" class="flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3 md:px-4 py-2 rounded-xl transition text-sm font-bold border border-indigo-100 shadow-sm" title="Kéo dữ liệu mới nhất từ Google Sheets">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                    Đồng bộ Data
+                    <span class="hidden sm:inline">Đồng bộ Data</span>
                 </button>
+                {{ end }}
                 
-                <div class="flex items-center gap-3 border-l border-slate-200 pl-6">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Xin chào,</p>
-                        <p class="text-sm font-bold text-slate-700">{{ .TenNguoiDung }}</p>
-                    </div>
-                    <a href="/tai-khoan" class="w-10 h-10 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-200 hover:border-blue-500 transition cursor-pointer shadow-sm">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .TenNguoiDung }}" class="w-full h-full object-cover">
-                    </a>
-                </div>
+                <a href="/logout" class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-xl transition border border-red-100 shadow-sm" title="Đăng xuất">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                </a>
             </div>
         </header>
         
