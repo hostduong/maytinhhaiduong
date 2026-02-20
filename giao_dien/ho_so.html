@@ -1,5 +1,11 @@
 {{ define "ho_so" }}
-    {{ template "header_admin" . }}
+    
+    {{ if eq .QuyenHan "customer" }}
+        {{ template "header" . }}
+    {{ else }}
+        {{ template "header_admin" . }}
+    {{ end }}
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
@@ -16,7 +22,7 @@
         input::-ms-reveal, input::-ms-clear { display: none; }
     </style>
 
-    <div class="max-w-4xl mx-auto py-4">
+    <div class="max-w-4xl mx-auto py-4 px-4">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-6">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-700 h-32 relative"></div>
             <div class="text-center -mt-16 relative px-6">
@@ -332,5 +338,10 @@
         async function doiPin() { setBtnLoading('btnSavePin', 'Lưu...'); handleRes(await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }), 'modalPin', 'btnSavePin'); }
         async function guiYeuCauResetPin() { setBtnLoading('btnConfirmForgot', 'Gửi...'); try { const r = await fetch('/api/user/send-otp-pin', {method:'POST'}); handleRes(await r.json(), 'modalPin', 'btnConfirmForgot'); } catch(e){ setBtnNormal('btnConfirmForgot'); } }
     </script>
-    {{ template "footer_admin" . }}
+    
+    {{ if eq .QuyenHan "customer" }}
+        {{ template "footer" . }}
+    {{ else }}
+        {{ template "footer_admin" . }}
+    {{ end }}
 {{ end }}
