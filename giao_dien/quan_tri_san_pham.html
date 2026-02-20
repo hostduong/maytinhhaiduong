@@ -65,6 +65,7 @@
                 data-khoiluong="{{ .KhoiLuong }}" data-kichthuoc="{{ urlquery .KichThuoc }}" data-img="{{ .UrlHinhAnh }}" data-baohanh="{{ urlquery .BaoHanh }}"
                 data-tinhtrang="{{ urlquery .TinhTrang }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-ptlai="{{ .PhanTramLai }}" data-gianiemuyet="{{ printf "%.0f" .GiaNiemYet }}"
                 data-ptgiam="{{ printf "%.0f" .PhanTramGiam }}" data-tiengiam="{{ printf "%.0f" .SoTienGiam }}" data-giaban="{{ printf "%.0f" .GiaBan }}"
+                data-ngaycapnhat="{{ .NgayCapNhat }}"
                 data-ghichu="{{ urlquery .GhiChu }}">
                 <textarea class="t-thongso">{{ .ThongSoHTML }}</textarea>
                 <textarea class="t-mota">{{ .MoTaHTML }}</textarea>
@@ -87,7 +88,7 @@
                     </div>
                     <input type="text" id="searchInput" onkeyup="filterAndSort()" 
                         class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-blue-500 focus:border-blue-500 transition outline-none" 
-                        placeholder="Tìm Mã, Tên, Giá, Bán, Tắt, Xóa...">
+                        placeholder="Tìm Mã, Tên, Phiên bản, Trạng thái...">
                 </div>
 
                 <select id="sortSelect" onchange="filterAndSort()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-medium">
@@ -127,7 +128,7 @@
                             data-name="{{ .TenSanPham }}"
                             data-sku-name="{{ .TenSKU }}"
                             data-price="{{ .GiaBan }}"
-                            data-date="{{ .NgayTao }}" 
+                            data-date="{{ .NgayCapNhat }}" 
                             data-status="{{ .TrangThai }}"
                             data-status-text="{{ if eq .TrangThai 1 }}bán{{ else if eq .TrangThai -1 }}xóa{{ else }}tắt{{ end }}"
                             data-category="{{ .MaDanhMuc }}">
@@ -142,7 +143,15 @@
                             </td>
                             <td class="px-4 py-4 font-medium text-slate-900 min-w-[200px]">
                                 {{ .TenSanPham }}<br>
-                                {{ if .TenSKU }}<span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 mt-1 inline-block">Đại diện: {{ .TenSKU }}</span>{{ end }}
+                                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                    {{ if .TenSKU }}<span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 inline-block">Đại diện: {{ .TenSKU }}</span>{{ end }}
+                                    {{ if .NgayCapNhat }}
+                                        <span class="text-[11px] text-slate-400 flex items-center gap-1 font-normal bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            {{ .NgayCapNhat }}
+                                        </span>
+                                    {{ end }}
+                                </div>
                             </td>
                             <td class="px-4 py-4 text-center">
                                 {{ if .MaDanhMuc }}<div class="flex flex-wrap gap-1 justify-center dm-tags-container" data-tags="{{ .MaDanhMuc }}"></div>{{ end }}
@@ -212,7 +221,10 @@
                         <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/30">
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
                                 <div class="md:col-span-2">
-                                    <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
+                                    <label class="flex justify-between items-center w-full">
+                                        <span>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></span>
+                                        <span id="f_ngay_cap_nhat" class="text-[11px] text-slate-500 font-normal normal-case flex items-center gap-1 tracking-normal"></span>
+                                    </label>
                                     <input type="text" id="f_ten_sku" class="input-premium font-bold text-purple-800" placeholder="VD: Bản 256GB - Màu Trắng" required onkeyup="updateTabName()">
                                 </div>
                                 <div>
@@ -436,7 +448,9 @@
                     tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, 
                     phan_tram_lai: parseFloat(el.getAttribute('data-ptlai')) || 0, 
                     gia_niem_yet: parseFloat(el.getAttribute('data-gianiemuyet')) || 0, phan_tram_giam: parseFloat(el.getAttribute('data-ptgiam')) || 0,
-                    so_tien_giam: parseFloat(el.getAttribute('data-tiengiam')) || 0, gia_ban: parseFloat(el.getAttribute('data-giaban')) || 0, ghi_chu: decodeGo(el.getAttribute('data-ghichu')), thong_so_html: el.querySelector('.t-thongso').value, mo_ta_html: el.querySelector('.t-mota').value
+                    so_tien_giam: parseFloat(el.getAttribute('data-tiengiam')) || 0, gia_ban: parseFloat(el.getAttribute('data-giaban')) || 0, 
+                    ngay_cap_nhat: el.getAttribute('data-ngaycapnhat'), 
+                    ghi_chu: decodeGo(el.getAttribute('data-ghichu')), thong_so_html: el.querySelector('.t-thongso').value, mo_ta_html: el.querySelector('.t-mota').value
                 });
             } 
         });
@@ -489,7 +503,7 @@
             return {
                 _is_saved: false,
                 ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản 1", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
-                khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, phan_tram_lai: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", thong_so_html: "", mo_ta_html: ""
+                khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, phan_tram_lai: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", ngay_cap_nhat: "", thong_so_html: "", mo_ta_html: ""
             };
         }
 
@@ -662,6 +676,14 @@
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
             document.getElementById('f_ten_sku').value = sp.ten_sku;
             
+            // [MỚI] HIỂN THỊ THỜI GIAN CẬP NHẬT TRÊN LABEL
+            const lblNgayCapNhat = document.getElementById('f_ngay_cap_nhat');
+            if (sp.ngay_cap_nhat) {
+                lblNgayCapNhat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Cập nhật: ${sp.ngay_cap_nhat}`;
+            } else {
+                lblNgayCapNhat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> <span class="text-amber-500 italic">Chưa lưu (Mới)</span>`;
+            }
+            
             let maSkuInput = document.getElementById('f_ma_sku');
             maSkuInput.value = sp.ma_sku;
             if (sp._is_saved) { 
@@ -736,170 +758,93 @@
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let select = document.getElementById('f_quy_tac_gia');
             let currentVal = select.value;
-            
             let html = `<option value="manual">Tự chỉnh</option>`;
-            
             let marginDM = 0;
             const tags = tagifyDM.value;
             if (tags && tags.length > 0) {
                 const info = dicDanhMucByTen[tags[0].value]; 
-                if (info && info.loiNhuan > 0) {
-                    marginDM = info.loiNhuan;
-                    html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`;
-                }
+                if (info && info.loiNhuan > 0) { marginDM = info.loiNhuan; html += `<option value="danhmuc" data-margin="${marginDM}">Danh Mục (${marginDM}%)</option>`; }
             }
-            
             let marginKhung = 0;
             if (giaNhap > 0) {
-                for (let i = 0; i < listBLN.length; i++) { 
-                    if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } 
-                }
+                for (let i = 0; i < listBLN.length; i++) { if (giaNhap <= listBLN[i].khung) { marginKhung = listBLN[i].loiNhuan; break; } }
                 if (marginKhung === 0 && listBLN.length > 0) marginKhung = listBLN[listBLN.length - 1].loiNhuan;
-                if (marginKhung > 0) {
-                    html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`;
-                }
+                if (marginKhung > 0) { html += `<option value="khunggia" data-margin="${marginKhung}">Khung Giá (${marginKhung}%)</option>`; }
             }
-            
             select.innerHTML = html;
-            
             if (!isEditingMode) {
-                if (marginDM > 0) select.value = "danhmuc";
-                else if (marginKhung > 0) select.value = "khunggia";
-                else select.value = "manual";
+                if (marginDM > 0) select.value = "danhmuc"; else if (marginKhung > 0) select.value = "khunggia"; else select.value = "manual";
                 applyQuyTacGia();
-            } else {
-                if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
-                    select.value = currentVal;
-                }
-            }
+            } else { if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) { select.value = currentVal; } }
         }
 
         function applyQuyTacGia() {
             let select = document.getElementById('f_quy_tac_gia');
             let inputPhanTram = document.getElementById('f_bien_do_phan_tram');
-            
             if (select.value === "manual") {
-                inputPhanTram.disabled = false;
-                inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-                inputPhanTram.classList.add('bg-white', 'text-blue-700');
+                inputPhanTram.disabled = false; inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.add('bg-white', 'text-blue-700');
             } else {
-                inputPhanTram.disabled = true;
-                inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-                inputPhanTram.classList.remove('bg-white', 'text-blue-700');
-                
-                let selectedOpt = select.options[select.selectedIndex];
-                let margin = selectedOpt.getAttribute('data-margin');
-                if (margin) inputPhanTram.value = margin;
+                inputPhanTram.disabled = true; inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.remove('bg-white', 'text-blue-700');
+                let selectedOpt = select.options[select.selectedIndex]; let margin = selectedOpt.getAttribute('data-margin'); if (margin) inputPhanTram.value = margin;
             }
             if (!isEditingMode) calcPrices();
         }
 
         function matchAndSetQuyTacGia(currentMargin) {
-            let select = document.getElementById('f_quy_tac_gia');
-            let options = select.options;
-            let matched = false;
-            
+            let select = document.getElementById('f_quy_tac_gia'); let options = select.options; let matched = false;
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value !== "manual") {
                     let m = parseFloat(options[i].getAttribute('data-margin'));
-                    if (Math.abs(m - currentMargin) < 0.1) {
-                        select.value = options[i].value;
-                        matched = true;
-                        break;
-                    }
+                    if (Math.abs(m - currentMargin) < 0.1) { select.value = options[i].value; matched = true; break; }
                 }
             }
-            
             if (!matched) select.value = "manual";
-            applyQuyTacGia(); 
-            document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
+            applyQuyTacGia(); document.getElementById('f_bien_do_phan_tram').value = currentMargin > 0 ? currentMargin : "";
         }
 
         function calcPrices() {
             let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
             let bienDo = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0;
             let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
-            
             if (giaNhap > 0) {
                 let laiVND = giaNhap * (bienDo / 100);
                 document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                
                 let giaBanThuc = round10k(giaNhap + laiVND);
                 if (!isEditingMode) document.getElementById('f_gia_ban').value = formatNumber(giaBanThuc.toString());
-
-                let pList = giaBanThuc;
-                let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) {
-                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
-                    tienGiam = pList - giaBanThuc;
-                }
-                
-                if (!isEditingMode) {
-                    document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                    document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
-                }
+                let pList = giaBanThuc; let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
+                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); }
             } else {
                 document.getElementById('f_lai_vnd').value = "0"; 
-                if (!isEditingMode) {
-                    document.getElementById('f_gia_niem_yet').value = "0";
-                    document.getElementById('f_so_tien_giam').value = "0"; 
-                    document.getElementById('f_gia_ban').value = "0";
-                }
+                if (!isEditingMode) { document.getElementById('f_gia_niem_yet').value = "0"; document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_gia_ban').value = "0"; }
             }
         }
 
         function autoCalcBackward() {
-            let pList = getNum(document.getElementById('f_gia_niem_yet').value);
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            
+            let pList = getNum(document.getElementById('f_gia_niem_yet').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             if (giaBanThuc > 0 && pList >= giaBanThuc) {
-                let tienGiam = pList - giaBanThuc;
-                let phanTramGiam = (tienGiam / pList) * 100;
-                
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
-                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
-            } else {
-                document.getElementById('f_so_tien_giam').value = "0";
-                document.getElementById('f_phan_tram_giam').value = "0";
-            }
+                let tienGiam = pList - giaBanThuc; let phanTramGiam = (tienGiam / pList) * 100;
+                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+            } else { document.getElementById('f_so_tien_giam').value = "0"; document.getElementById('f_phan_tram_giam').value = "0"; }
         }
 
         function applyDiscountMoney() {
-            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value);
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            
+            let tienGiam = getNum(document.getElementById('f_so_tien_giam').value); let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
             if(giaBanThuc > 0) {
-                let pList = round10k(giaBanThuc + tienGiam);
-                let phanTramGiam = (tienGiam / pList) * 100;
-                
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
+                let pList = round10k(giaBanThuc + tienGiam); let phanTramGiam = (tienGiam / pList) * 100;
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_phan_tram_giam').value = phanTramGiam.toFixed(1);
             }
         }
 
         function autoCalcFromGiaBan() {
-            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value);
-            let giaNhap = getNum(document.getElementById('f_gia_nhap').value);
-            let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
-
+            let giaBanThuc = getNum(document.getElementById('f_gia_ban').value); let giaNhap = getNum(document.getElementById('f_gia_nhap').value); let giamGia = parseFloat(document.getElementById('f_phan_tram_giam').value) || 0;
             if (giaNhap > 0 && giaBanThuc >= giaNhap) {
-                let laiVND = giaBanThuc - giaNhap;
-                let phanTramLai = (laiVND / giaNhap) * 100;
-                
-                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString());
-                document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
-                
-                document.getElementById('f_quy_tac_gia').value = "manual";
-                applyQuyTacGia(); 
-
-                let pList = giaBanThuc;
-                let tienGiam = 0;
-                if (giamGia > 0 && giamGia < 100) {
-                    pList = round10k(giaBanThuc / (1 - (giamGia / 100)));
-                    tienGiam = pList - giaBanThuc;
-                }
-                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString());
-                document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
+                let laiVND = giaBanThuc - giaNhap; let phanTramLai = (laiVND / giaNhap) * 100;
+                document.getElementById('f_lai_vnd').value = formatNumber(Math.round(laiVND).toString()); document.getElementById('f_bien_do_phan_tram').value = phanTramLai.toFixed(2);
+                document.getElementById('f_quy_tac_gia').value = "manual"; applyQuyTacGia(); 
+                let pList = giaBanThuc; let tienGiam = 0;
+                if (giamGia > 0 && giamGia < 100) { pList = round10k(giaBanThuc / (1 - (giamGia / 100))); tienGiam = pList - giaBanThuc; }
+                document.getElementById('f_gia_niem_yet').value = formatNumber(pList.toString()); document.getElementById('f_so_tien_giam').value = formatNumber(tienGiam.toString());
             }
         }
 
@@ -920,7 +865,6 @@
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
@@ -933,13 +877,11 @@
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
             if(activeTabIndex === -1) activeTabIndex = 0;
-            
             document.getElementById('modalTitle').innerHTML = `Sửa Sản Phẩm: <span class="text-blue-600 ml-1 font-mono">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
         }
 
-        // [MỚI] CHỨC NĂNG XÓA SẢN PHẨM
         async function deleteSP(id) {
             const result = await Swal.fire({
                 title: 'Xóa sản phẩm này?',
@@ -956,19 +898,12 @@
 
             if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu sản phẩm!', 'error'); return; }
             
-            // Clone toàn bộ phiên bản của SP này
             const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
-            
-            // Đánh dấu xóa (-1) cho tất cả
-            skusToDelete.forEach(s => {
-                s.trang_thai = -1;
-            });
+            skusToDelete.forEach(s => { s.trang_thai = -1; });
 
-            // Gửi lên Server
             await sendDataToBackend(skusToDelete);
         }
 
-        // [MỚI] CHỨC NĂNG KHÔI PHỤC (CHO SẢN PHẨM ĐÃ XÓA)
         async function restoreSP(id) {
             const result = await Swal.fire({
                 title: 'Khôi phục sản phẩm?',
@@ -985,29 +920,21 @@
 
             if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
             
-            // Clone & Khôi phục
             const skusToRestore = JSON.parse(JSON.stringify(mapGroupSP[id]));
-            
             skusToRestore.forEach(s => {
-                // Chỉ khôi phục những dòng đang bị xóa (-1) về 1
                 if(s.trang_thai === -1) s.trang_thai = 1;
             });
 
             await sendDataToBackend(skusToRestore);
         }
         
-        // [MỚI] HÀM GỬI DỮ LIỆU CHUNG (Dùng cho cả Save và Delete)
         async function sendDataToBackend(skus) {
-            // Hiển thị loading...
             const btnSave = document.getElementById('btnSave');
             const originalText = btnSave.innerHTML;
             
-            // Chỉ lock nút nếu đang mở modal
             if(!document.getElementById('modalSP').classList.contains('hidden')) {
-                btnSave.disabled = true; 
-                btnSave.innerHTML = `Đang xử lý...`;
+                btnSave.disabled = true; btnSave.innerHTML = `Đang xử lý...`;
             } else {
-                // Nếu đang ở ngoài bảng, hiện loading global hoặc để im cũng được
                 Swal.showLoading();
             }
             
@@ -1020,22 +947,12 @@
                 const data = await res.json();
                 
                 if(data.status === 'ok') {
-                    Swal.fire({
-                        icon: 'success', 
-                        title: 'Thành công', 
-                        text: data.msg, 
-                        showConfirmButton: false, 
-                        timer: 1500
-                    }).then(() => location.reload());
+                    Swal.fire({ icon: 'success', title: 'Thành công', text: data.msg, showConfirmButton: false, timer: 1500 }).then(() => location.reload());
                 } else { 
-                    Swal.fire('Lỗi', data.msg, 'error'); 
-                    btnSave.disabled = false; 
-                    btnSave.innerHTML = originalText; 
+                    Swal.fire('Lỗi', data.msg, 'error'); btnSave.disabled = false; btnSave.innerHTML = originalText; 
                 }
             } catch(e) { 
-                Swal.fire('Lỗi', 'Không kết nối được server', 'error'); 
-                btnSave.disabled = false; 
-                btnSave.innerHTML = originalText; 
+                Swal.fire('Lỗi', 'Không kết nối được server', 'error'); btnSave.disabled = false; btnSave.innerHTML = originalText; 
             }
         }
 
@@ -1049,7 +966,6 @@
             if (result.isConfirmed) saveSP();
         }
 
-        // Wrapper cũ để giữ tương thích code cũ (nếu có)
         async function saveSP() {
             await sendDataToBackend(currentSkus);
         }
