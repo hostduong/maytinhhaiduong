@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto">
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">⚙️ Cài Đặt Hệ Thống</h1>
@@ -340,7 +340,6 @@
         function filterTable(inputId, tbodyId) { const query = document.getElementById(inputId).value.toLowerCase(); document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; }); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // --- HÀM SYNC SLOT (MỚI) ---
         async function syncSlot() {
             const btn = document.getElementById('btnSync'); const originText = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang quét...`;
@@ -354,7 +353,6 @@
             finally { btn.disabled = false; btn.innerHTML = originText; }
         }
 
-        // --- CÁC HÀM XỬ LÝ FORM NHƯ CŨ ---
         function openModalDM() { document.getElementById('formDM').reset(); document.getElementById('is_new_dm').value = "true"; document.getElementById('dm_ma').readOnly = false; document.getElementById('titleDM').innerText = "Thêm Danh Mục Mới"; document.getElementById('modalDM').classList.remove('hidden'); }
         function editDM(ma) { const item = mapDM[ma]; if(!item) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu', 'error'); return; } document.getElementById('is_new_dm').value = "false"; document.getElementById('dm_ma').value = item.ma; document.getElementById('dm_ma').readOnly = true; document.getElementById('dm_ten').value = item.ten; document.getElementById('dm_me').value = item.me; document.getElementById('dm_thue').value = item.thue; document.getElementById('dm_loi').value = item.loi; document.getElementById('dm_trangthai').checked = (item.tt === 1); document.getElementById('titleDM').innerText = "Sửa Danh Mục: " + item.ma; document.getElementById('modalDM').classList.remove('hidden'); }
         async function saveDM() { if(!document.getElementById('dm_ma').value || !document.getElementById('dm_ten').value) { Swal.fire('Lỗi', 'Nhập đủ thông tin', 'warning'); return; } const btn = document.getElementById('btnSaveDM'); const originHTML = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang lưu...'; try { const res = await fetch('/admin/api/category/save', { method: 'POST', body: new FormData(document.getElementById('formDM')) }); const data = await res.json(); if(data.status === 'ok') { location.reload(); } else { Swal.fire('Lỗi', data.msg, 'error'); btn.disabled = false; btn.innerHTML = originHTML; } } catch(e) { btn.disabled = false; btn.innerHTML = originHTML; } }
