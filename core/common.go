@@ -121,7 +121,7 @@ func TaoCompositeKey(sheetID, entityID string) string {
 }
 
 // Lấy dữ liệu thông minh (Tự tìm đúng API của Shop)
-func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
+func LoadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
 	if spreadsheetID == "" {
 		spreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
 	}
@@ -142,13 +142,13 @@ func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, erro
 
 // --- CÁC HÀM PARSE DỮ LIỆU ---
 
-func layString(row []interface{}, index int) string {
+func LayString(row []interface{}, index int) string {
 	if index >= len(row) || row[index] == nil { return "" }
 	return strings.TrimSpace(fmt.Sprintf("%v", row[index]))
 }
 
-func layInt(row []interface{}, index int) int {
-	s := layString(row, index)
+func LayInt(row []interface{}, index int) int {
+	s := LayString(row, index)
 	if s == "" { return 0 }
 	s = strings.ReplaceAll(s, ".", "")
 	s = strings.ReplaceAll(s, ",", "")
@@ -157,7 +157,7 @@ func layInt(row []interface{}, index int) int {
 	return val
 }
 
-func layFloat(row []interface{}, index int) float64 {
+func LayFloat(row []interface{}, index int) float64 {
 	s := layString(row, index)
 	if s == "" { return 0 }
 	s = strings.ReplaceAll(s, "đ", "")
