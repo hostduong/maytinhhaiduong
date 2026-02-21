@@ -56,7 +56,7 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		core.NapDanhMuc(shopID)   
 		core.NapThuongHieu(shopID)
 		core.NapBienLoiNhuan(shopID)
-		data_pc.NapSanPham(shopID)
+		data_pc.NapDuLieu(shopID)
 		core.NapKhachHang(shopID)
 		
 		core.HeThongDangBan = false
@@ -77,7 +77,7 @@ func tinhToanThongKe(shopID string) DuLieuDashboard {
 
 	// Đếm số lượng trong Shop
 	kq.TongSanPham = len(data_pc.LayDanhSachSanPham(shopID))
-	kq.TongKhachHang = len(data_pc.LayDanhSachKhachHang(shopID))
+	kq.TongKhachHang = len(core.LayDanhSachKhachHang(shopID))
 	
 	kq.TongDoanhThu = 0
 	kq.DonHangHomNay = 0
