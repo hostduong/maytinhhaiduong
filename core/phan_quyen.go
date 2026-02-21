@@ -25,7 +25,7 @@ var (
 func NapPhanQuyen(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 
-	raw, err := loadSheetData(shopID, "PHAN_QUYEN")
+	raw, err := LoadSheetData(shopID, "PHAN_QUYEN")
 	if err != nil { return }
 	if len(raw) < DongBatDau_PhanQuyen { return }
 
@@ -36,7 +36,7 @@ func NapPhanQuyen(shopID string) {
 	var danhSachVaiTro []string 
 
 	for i := CotPQ_StartRole; i < len(header); i++ {
-		roleName := strings.ToLower(strings.TrimSpace(layString(header, i)))
+		roleName := strings.ToLower(strings.TrimSpace(LayString(header, i)))
 		roleName = strings.ReplaceAll(roleName, " ", "_") 
 		if roleName != "" {
 			danhSachVaiTro = append(danhSachVaiTro, roleName)
@@ -48,12 +48,12 @@ func NapPhanQuyen(shopID string) {
 	for i, row := range raw {
 		if i < DongBatDau_PhanQuyen-1 { continue }
 
-		maChucNang := strings.TrimSpace(layString(row, CotPQ_MaChucNang))
+		maChucNang := strings.TrimSpace(LayString(row, CotPQ_MaChucNang))
 		if maChucNang == "" { continue }
 
 		for j, roleName := range danhSachVaiTro {
 			colIndex := CotPQ_StartRole + j
-			val := layString(row, colIndex)
+			val := LayString(row, colIndex)
 			isAllow := (val == "1" || strings.ToLower(val) == "true")
 
 			if isAllow {
