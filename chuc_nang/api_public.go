@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 	"app/core"
+	data_pc "app/core/may_tinh"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,7 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS] Quan trọng
 	
 	// Lấy danh sách của đúng Shop đó
-	danhSach := core.LayDanhSachSanPham(shopID)
+	danhSach := data_pc.LayDanhSachSanPham(shopID)
 	
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong",
@@ -26,7 +27,7 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 func API_LayMenu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
 	
-	dsSP := core.LayDanhSachSanPham(shopID)
+	dsSP := data_pc.LayDanhSachSanPham(shopID)
 	uniqueDM := make(map[string]bool)
 
 	for _, sp := range dsSP {
@@ -58,7 +59,7 @@ func API_ChiTietSanPham(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
 	id := c.Param("id")
 	
-	sp, tonTai := core.LayChiTietSKU(shopID, id)
+	sp, tonTai := data_pc.LayChiTietSKU(shopID, id)
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
