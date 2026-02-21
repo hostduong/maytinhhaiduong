@@ -14,6 +14,7 @@ import (
 // Trang Đăng Ký (View)
 func TrangDangKy(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
+	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	cookie, _ := c.Cookie("session_id")
 	
 	// Check nếu đã đăng nhập thì đá về trang chủ
