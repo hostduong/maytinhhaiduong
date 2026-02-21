@@ -9,6 +9,7 @@ import (
 	"app/core"     // Chứa Struct, Const, Hàm DB
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/run/v1"
 )
 
 // Trang Đăng Ký (View)
@@ -209,4 +210,39 @@ func XuLyDangKy(c *gin.Context) {
 	} else {
 		c.Redirect(http.StatusFound, "/")
 	}
+}
+
+// Code minh họa logic cốt lõi
+func TuDongThemSubdomain(subdomain string) error {
+	ctx := context.Background()
+	
+    // 1. Dùng file JSON đang có để xác thực với Google
+	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson 
+	srv, err := run.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	
+	// 2. Tên miền đầy đủ
+	fullDomain := subdomain + ".99k.vn"
+    // ID của project và khu vực (vd: projects/my-project/locations/asia-southeast1)
+	parent := "projects/project-47337221-fda1-48c7-b2f/locations/asia-southeast1" 
+
+	// 3. Cấu hình yêu cầu Add Mapping
+	req := &run.DomainMapping{
+		Metadata: &run.ObjectMeta{
+			Name: fullDomain,
+		},
+		Spec: &run.DomainMappingSpec{
+			RouteName:       "maytinhhaiduong", // Tên service Cloud Run của bạn
+			CertificateMode: "AUTOMATIC",     // Google tự lo SSL
+		},
+	}
+
+	// 4. Gửi lệnh lên Google Cloud
+	_, err = srv.Namespaces.Domainmappings.Create(parent, req).Do()
+	if err != nil {
+		log.Printf("❌ Lỗi tạo subdomain %s: %v", fullDomain, err)
+		return err
+	}
+	
+	log.Printf("✅ Đã lệnh cho Google tạo subdomain: %s", fullDomain)
+	return nil
 }
