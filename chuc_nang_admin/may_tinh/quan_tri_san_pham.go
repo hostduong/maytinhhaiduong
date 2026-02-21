@@ -1,4 +1,4 @@
-package chuc_nang_admin
+package may_tinh
 
 import (
 	"encoding/json"
@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"app/core"
+	"app/core"                         // Lõi chung (LayKhachHang, ThemVaoHangCho...)
+	data_pc "app/core/may_tinh"        // [MỚI] Lõi dữ liệu riêng của PC
 	"github.com/gin-gonic/gin"
 )
 
