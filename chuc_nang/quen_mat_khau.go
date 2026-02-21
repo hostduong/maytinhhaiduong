@@ -69,7 +69,6 @@ func TrangQuenMatKhau(c *gin.Context) {
 // [CÁCH 1]: Đổi mật khẩu bằng Mã PIN
 func XuLyQuenPassBangPIN(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
-	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 
 	dinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("dinh_danh")))
 	pinInput := strings.TrimSpace(c.PostForm("pin"))
@@ -111,7 +110,6 @@ func XuLyQuenPassBangPIN(c *gin.Context) {
 // [CÁCH 2 - BƯỚC 1]: Gửi OTP
 func XuLyGuiOTPEmail(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
-	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	dinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("dinh_danh")))
 	
 	// Tìm user
@@ -141,7 +139,6 @@ func XuLyGuiOTPEmail(c *gin.Context) {
 // [CÁCH 2 - BƯỚC 2]: Xác nhận OTP và Đổi Pass
 func XuLyQuenPassBangOTP(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
-	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 
 	dinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("dinh_danh")))
 	otp      := strings.TrimSpace(c.PostForm("otp"))
