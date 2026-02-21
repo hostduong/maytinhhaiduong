@@ -23,7 +23,7 @@ func TrangDangNhap(c *gin.Context) {
 			return
 		}
 	}
-	c.HTML(http.StatusOK, "dang_nhap", gin.H{"TieuDe": "Đăng Nhập"})
+	c.HTML(http.StatusOK, theme+"dang_nhap", gin.H{"TieuDe": "Đăng Nhập"})
 }
 
 func XuLyDangNhap(c *gin.Context) {
@@ -37,18 +37,18 @@ func XuLyDangNhap(c *gin.Context) {
 	// [SAAS] Tìm trong Shop hiện tại
 	kh, ok := core.TimKhachHangTheoUserOrEmail(shopID, inputDinhDanh)
 	if !ok {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản không tồn tại!"})
+		c.HTML(http.StatusOK, theme+"dang_nhap", gin.H{"Loi": "Tài khoản không tồn tại!"})
 		return
 	}
 
 	// [SỬA] Dùng hàm từ cau_hinh
 	if !cau_hinh.KiemTraMatKhau(pass, kh.MatKhauHash) {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Mật khẩu không đúng!"})
+		c.HTML(http.StatusOK, theme+"dang_nhap", gin.H{"Loi": "Mật khẩu không đúng!"})
 		return
 	}
 
 	if kh.TrangThai == 0 {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": "Tài khoản bị khóa!"})
+		c.HTML(http.StatusOK, theme+"dang_nhap", gin.H{"Loi": "Tài khoản bị khóa!"})
 		return
 	}
 
