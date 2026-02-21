@@ -76,7 +76,7 @@ func GatewaySaaS(c *gin.Context) {
 
 	// Lấy Theme
 	theme := tenant.CauHinh.Theme
-	if theme == "" { theme = "theme_pc" } // Default Theme
+	if theme == "" { theme = "may_tinh" } // Default Theme
 
 	// Đẩy thông tin vào luồng để các Middleware và Controller sau xài
 	c.Set("SHOP_ID", shopID)
