@@ -12,7 +12,7 @@ import (
 	"app/cau_hinh"
 	"app/chuc_nang"
 	"app/chuc_nang_admin" 
-	"app/chuc_nang_admin/may_tinh" // [MỚI] Import Controller riêng cho Máy tính
+	admin_may_tinh "app/chuc_nang_admin/may_tinh" // [MỚI] Import Controller riêng cho Máy tính
 	"app/core"
 
 	"github.com/gin-gonic/gin"
