@@ -24,7 +24,7 @@ func TrangDangKy(c *gin.Context) {
 			return
 		}
 	}
-	c.HTML(http.StatusOK, "dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
+	c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
 }
 
 // Xử Lý Đăng Ký (Logic)
@@ -51,33 +51,33 @@ func XuLyDangKy(c *gin.Context) {
 
 	// 2. VALIDATE DỮ LIỆU
 	if !cau_hinh.KiemTraHoTen(hoTen) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Họ tên không hợp lệ!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Họ tên không hợp lệ!"})
 		return
 	}
 	if !cau_hinh.KiemTraTenDangNhap(user) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập không đúng quy tắc!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Tên đăng nhập không đúng quy tắc!"})
 		return
 	}
 	if !cau_hinh.KiemTraEmail(email) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Email không hợp lệ!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Email không hợp lệ!"})
 		return
 	}
 	if !cau_hinh.KiemTraMaPin(maPin) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mã PIN phải đúng 8 số!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Mã PIN phải đúng 8 số!"})
 		return
 	}
 	if !cau_hinh.KiemTraDinhDangMatKhau(pass) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mật khẩu chứa ký tự không cho phép!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Mật khẩu chứa ký tự không cho phép!"})
 		return
 	}
 
 	// 3. KIỂM TRA TRÙNG LẶP
 	if _, ok := core.TimKhachHangTheoUserOrEmail(shopID, user); ok {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập đã tồn tại!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Tên đăng nhập đã tồn tại!"})
 		return
 	}
 	if _, ok := core.TimKhachHangTheoUserOrEmail(shopID, email); ok {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Email đã được sử dụng!"})
+		c.HTML(http.StatusOK, theme+"dang_ky", gin.H{"Loi": "Email đã được sử dụng!"})
 		return
 	}
 
