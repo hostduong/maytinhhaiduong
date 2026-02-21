@@ -1,5 +1,5 @@
-{{ define "theme_pc/quen_mat_khau" }}
-    {{ template "theme_pc/header" . }}
+{{ define "quen_mat_khau" }}
+    {{ template "header" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style> 
         .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; } 
@@ -136,5 +136,5 @@
         
         async function resetByOtp() { setBtnLoading('btnResetByOtp','Xác nhận...'); const r=await postData('/api/auth/reset-by-otp',{dinh_danh:document.getElementById('otpUser').value, otp:document.getElementById('otpInput').value, pass_moi:document.getElementById('otpNewPass').value}); if(r.status==='ok') Swal.fire({icon:'success',title:'Xong',text:r.msg}).then(()=>location.href='/login'); else {setBtnNormal('btnResetByOtp'); Swal.fire({icon:'error',title:'Lỗi',text:r.msg});} }
     </script>
-    {{ template "theme_pc/footer" . }}
+    {{ template "footer" . }}
 {{ end }}
