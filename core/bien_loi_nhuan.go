@@ -38,22 +38,22 @@ func capNhatKhoangGia(list []*BienLoiNhuan) {
 
 func NapBienLoiNhuan(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(shopID, "BIEN_LOI_NHUAN")
+	raw, err := LoadSheetData(shopID, "BIEN_LOI_NHUAN")
 	if err != nil { return }
 
 	list := []*BienLoiNhuan{}
 
 	for i, r := range raw {
 		if i < DongBatDau_BienLoiNhuan-1 { continue }
-		khungGia := layFloat(r, CotBLN_KhungGiaNhap)
+		khungGia := LayFloat(r, CotBLN_KhungGiaNhap)
 		if khungGia <= 0 { continue } 
 
 		bln := &BienLoiNhuan{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			KhungGiaNhap:   khungGia,
-			BienLoiNhuan:   layFloat(r, CotBLN_BienLoiNhuan),
-			TrangThai:      layInt(r, CotBLN_TrangThai),
+			BienLoiNhuan:   LayFloat(r, CotBLN_BienLoiNhuan),
+			TrangThai:      LayInt(r, CotBLN_TrangThai),
 		}
 		list = append(list, bln)
 	}
