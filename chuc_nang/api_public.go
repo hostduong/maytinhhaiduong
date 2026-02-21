@@ -3,7 +3,6 @@ package chuc_nang
 import (
 	"net/http"
 	"strings"
-	"app/core"
 	data_pc "app/core/may_tinh"
 
 	"github.com/gin-gonic/gin"
