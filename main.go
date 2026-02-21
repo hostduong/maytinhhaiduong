@@ -18,7 +18,7 @@ import (
 )
 
 // [SỬA] Nạp cả 2 thư mục HTML vào RAM
-//go:embed giao_dien/*.html giao_dien_admin/*.html
+//go:embed giao_dien/*/*.html giao_dien_admin/*.html
 var f embed.FS
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 	funcMap := chuc_nang.LayBoHamHTML()
 
 	// [SỬA] Parse cả 2 đường dẫn HTML
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien_admin/*.html"))
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*/*.html", "giao_dien_admin/*.html"))
 	router.SetHTMLTemplate(templ)
 
 	// --- ĐỊNH NGHĨA ROUTER ---
