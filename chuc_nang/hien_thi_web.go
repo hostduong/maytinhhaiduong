@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"app/core"
-	data_pc "app/core/may_tinh"
+	data_pc "app/core/may_tinh" // Lõi PC
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -47,13 +47,17 @@ func TrangChu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	
-	// Tạm thời vẫn lấy danh sách chung, Chặng 4 ta sẽ đổi hàm này thành LayDanhSachSanPham_PC
 	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	c.HTML(http.StatusOK, "/khung_giao_dien", gin.H{
+	// Lấy Cấu Hình của Shop để Render Khung Giao Diện chung
+	tenantVal, _ := c.Get("TENANT_INFO")
+	chuShop := tenantVal.(*core.KhachHang)
+
+	c.HTML(http.StatusOK, theme+"/trang_chu", gin.H{
 		"TieuDe": "Trang Chủ", "DanhSachSanPham": danhSachSP,
 		"DaDangNhap": daLogin, "TenNguoiDung": tenUser, "QuyenHan": quyen,
+		"CauHinhShop": chuShop.CauHinh,
 	})
 }
 
@@ -66,14 +70,19 @@ func ChiTietSanPham(c *gin.Context) {
 	if !tonTai { c.String(http.StatusNotFound, "Không tìm thấy!"); return }
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	c.HTML(http.StatusOK, "/chi_tiet_san_pham", gin.H{
+	tenantVal, _ := c.Get("TENANT_INFO")
+	chuShop := tenantVal.(*core.KhachHang)
+
+	c.HTML(http.StatusOK, theme+"/chi_tiet_san_pham", gin.H{
 		"TieuDe": sp.TenSanPham, "SanPham": sp,
 		"DaDangNhap": daLogin, "TenNguoiDung": tenUser, "QuyenHan": quyen,
+		"CauHinhShop": chuShop.CauHinh,
 	})
 }
 
 func TrangHoSo(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
+	theme := c.GetString("THEME") // Khai báo lại để dùng
 	
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	if !daLogin { c.Redirect(http.StatusFound, "/login"); return }
@@ -81,13 +90,17 @@ func TrangHoSo(c *gin.Context) {
 	cookie, _ := c.Cookie("session_id")
 	kh, _ := core.TimKhachHangTheoCookie(shopID, cookie)
 
-	templateName := theme + "/ho_so" // Giao diện khách
+	tenantVal, _ := c.Get("TENANT_INFO")
+	chuShop := tenantVal.(*core.KhachHang)
+
+	templateName := "ho_so" // Gọi form chung
 	if quyen != "customer" {
-		templateName = "ho_so_admin" // Giao diện Admin (Dùng chung)
+		templateName = "ho_so_admin" 
 	}
 
 	c.HTML(http.StatusOK, templateName, gin.H{
 		"TieuDe": "Hồ sơ cá nhân", "DaDangNhap": daLogin,
 		"TenNguoiDung": tenUser, "QuyenHan": quyen, "NhanVien": kh,
+		"CauHinhShop": chuShop.CauHinh, "Theme": theme, // Bơm theme vào để HTML tự điều hướng (nếu cần)
 	})
 }
