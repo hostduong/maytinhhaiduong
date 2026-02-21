@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"app/core"                         // Lõi chung (LayKhachHang, ThemVaoHangCho...)
-	data_pc "app/core/may_tinh"        // [MỚI] Lõi dữ liệu riêng của PC
+	"app/core"
+	data_pc "app/core/may_tinh" // [MỚI] Import Lõi dữ liệu riêng của ngành PC
 	"github.com/gin-gonic/gin"
 )
 
@@ -69,12 +69,13 @@ func TrangQuanLySanPham(c *gin.Context) {
 		return
 	}
 
-	rawList := core.LayDanhSachSanPham(shopID)
+	// [SỬA] Đọc dữ liệu từ data_pc
+	rawList := data_pc.LayDanhSachSanPham(shopID)
 	
-	var cleanList []*core.SanPham 
-	var fullList []*core.SanPham  
+	var cleanList []*data_pc.SanPham 
+	var fullList []*data_pc.SanPham  
 
-	groupSP := make(map[string][]*core.SanPham)
+	groupSP := make(map[string][]*data_pc.SanPham)
 
 	for _, sp := range rawList {
 		if sp != nil && sp.MaSanPham != "" {
@@ -84,7 +85,7 @@ func TrangQuanLySanPham(c *gin.Context) {
 	}
 
 	for _, dsSKU := range groupSP {
-		var spChinh *core.SanPham
+		var spChinh *data_pc.SanPham
 		for _, sp := range dsSKU {
 			if sp.SKUChinh == 1 {
 				spChinh = sp
@@ -99,8 +100,9 @@ func TrangQuanLySanPham(c *gin.Context) {
 		}
 	}
 
-	c.HTML(http.StatusOK, "quan_tri_san_pham", gin.H{
-		"TieuDe":         "Quản lý sản phẩm",
+	// [SỬA] Trỏ đúng vào template của PC
+	c.HTML(http.StatusOK, "may_tinh/quan_tri_san_pham", gin.H{
+		"TieuDe":         "Quản lý sản phẩm (Máy Tính)",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
 		"TenNguoiDung":   kh.TenKhachHang,
@@ -150,9 +152,13 @@ func API_LuuSanPham(c *gin.Context) {
 	}
 	if !hasMain { inputSKUs[0].SKUChinh = 1 }
 
-	// Tự định nghĩa múi giờ GMT+7 (7 tiếng * 3600 giây)
 	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
+
+	// Lấy danh sách nhóm sản phẩm từ Cache của PC
+	core.KhoaHeThong.RLock()
+	existingSKUs := data_pc.CacheGroupSanPham[core.TaoCompositeKey(shopID, maSP)]
+	core.KhoaHeThong.RUnlock()
 
 	// 1. TẠO MÃ SP NẾU THÊM MỚI
 	if maSP == "" {
@@ -164,8 +170,7 @@ func API_LuuSanPham(c *gin.Context) {
 		maSP = core.TaoMaSPMoi(shopID, firstCodeDM) 
 	} else {
 		// LOGIC CẬP NHẬT NGƯỢC SLOT
-		listCheck := core.LayNhomSanPham(shopID, maSP)
-		if len(listCheck) == 0 {
+		if len(existingSKUs) == 0 {
 			firstCodeDM := ""
 			if inputSKUs[0].MaDanhMuc != "" { 
 				parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
@@ -184,10 +189,9 @@ func API_LuuSanPham(c *gin.Context) {
 		}
 	}
 
-	existingSKUs := core.LayNhomSanPham(shopID, maSP)
-	existingMap := make(map[string]*core.SanPham)
+	existingMap := make(map[string]*data_pc.SanPham)
 	for _, sp := range existingSKUs {
-		existingMap[sp.LấyIDDuyNhat()] = sp
+		existingMap[sp.LayIDDuyNhat()] = sp
 	}
 	processedSKUs := make(map[string]bool) 
 
@@ -198,7 +202,7 @@ func API_LuuSanPham(c *gin.Context) {
 		skuID := in.MaSKU
 		if skuID == "" { skuID = fmt.Sprintf("%s-%02d", maSP, i+1) }
 		
-		var sp *core.SanPham
+		var sp *data_pc.SanPham
 		isNewSKU := false
 		
 		if exist, ok := existingMap[skuID]; ok {
@@ -206,10 +210,10 @@ func API_LuuSanPham(c *gin.Context) {
 			processedSKUs[skuID] = true
 		} else {
 			isNewSKU = true
-			currentList := core.CacheSanPham[shopID]
-			sp = &core.SanPham{
+			currentList := data_pc.CacheSanPham[shopID]
+			sp = &data_pc.SanPham{
 				SpreadsheetID:  shopID,
-				DongTrongSheet: core.DongBatDau_SanPham + len(currentList),
+				DongTrongSheet: data_pc.DongBatDau_SanPham + len(currentList),
 				MaSanPham:      maSP,
 				MaSKU:          skuID,
 			}
@@ -236,11 +240,9 @@ func API_LuuSanPham(c *gin.Context) {
 			isChanged = true
 			sp.NgayTao = nowStr
 			sp.NguoiTao = userID
-			// Yêu cầu: Tạo mới thì NgayCapNhat cũng bằng NgayTao
 			sp.NgayCapNhat = nowStr
 			sp.NguoiCapNhat = userID
 		} else {
-			// So sánh tất cả các trường dữ liệu
 			if sp.TenSanPham != newTenSanPham ||
 				sp.TenRutGon != newTenRutGon ||
 				sp.Slug != newSlug ||
@@ -267,7 +269,6 @@ func API_LuuSanPham(c *gin.Context) {
 				sp.GhiChu != in.GhiChu {
 				
 				isChanged = true
-				// Chỉ những Tab bị sửa mới được đổi thời gian cập nhật
 				sp.NgayCapNhat = nowStr
 				sp.NguoiCapNhat = userID
 			}
@@ -301,67 +302,65 @@ func API_LuuSanPham(c *gin.Context) {
 			sp.GhiChu       = in.GhiChu
 
 			if isNewSKU {
-				core.CacheSanPham[shopID] = append(core.CacheSanPham[shopID], sp)
-				core.CacheMapSKU[core.TaoCompositeKey(shopID, sp.LấyIDDuyNhat())] = sp
-				core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(core.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
+				data_pc.CacheSanPham[shopID] = append(data_pc.CacheSanPham[shopID], sp)
+				data_pc.CacheMapSKU[core.TaoCompositeKey(shopID, sp.LayIDDuyNhat())] = sp
+				data_pc.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(data_pc.CacheGroupSanPham[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
 			}
 
-			// Chỉ những row nào "isChanged" mới bị đẩy vào Queue Ghi Google Sheet (Tối ưu API)
+			// Ghi xuống Sheet "MAY_TINH"
 			ghi := core.ThemVaoHangCho
-			sheet := "SAN_PHAM"
+			sheet := data_pc.TenSheet
 			r := sp.DongTrongSheet
 			
-			ghi(shopID, sheet, r, core.CotSP_MaSanPham, sp.MaSanPham)
-			ghi(shopID, sheet, r, core.CotSP_TenSanPham, sp.TenSanPham)
-			ghi(shopID, sheet, r, core.CotSP_TenRutGon, sp.TenRutGon)
-			ghi(shopID, sheet, r, core.CotSP_Slug, sp.Slug)
-			ghi(shopID, sheet, r, core.CotSP_MaSKU, sp.MaSKU)
-			ghi(shopID, sheet, r, core.CotSP_TenSKU, sp.TenSKU)
-			ghi(shopID, sheet, r, core.CotSP_SKUChinh, sp.SKUChinh)
-			ghi(shopID, sheet, r, core.CotSP_TrangThai, sp.TrangThai)
-			ghi(shopID, sheet, r, core.CotSP_MaDanhMuc, sp.MaDanhMuc)
-			ghi(shopID, sheet, r, core.CotSP_MaThuongHieu, sp.MaThuongHieu)
-			ghi(shopID, sheet, r, core.CotSP_DonVi, sp.DonVi)
-			ghi(shopID, sheet, r, core.CotSP_MauSac, sp.MauSac)
-			ghi(shopID, sheet, r, core.CotSP_KhoiLuong, sp.KhoiLuong)
-			ghi(shopID, sheet, r, core.CotSP_KichThuoc, sp.KichThuoc)
-			ghi(shopID, sheet, r, core.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
-			ghi(shopID, sheet, r, core.CotSP_ThongSoHTML, sp.ThongSoHTML)
-			ghi(shopID, sheet, r, core.CotSP_MoTaHTML, sp.MoTaHTML)
-			ghi(shopID, sheet, r, core.CotSP_BaoHanh, sp.BaoHanh)
-			ghi(shopID, sheet, r, core.CotSP_TinhTrang, sp.TinhTrang)
-			ghi(shopID, sheet, r, core.CotSP_GiaNhap, sp.GiaNhap)
-			ghi(shopID, sheet, r, core.CotSP_PhanTramLai, sp.PhanTramLai) 
-			ghi(shopID, sheet, r, core.CotSP_GiaNiemYet, sp.GiaNiemYet)
-			ghi(shopID, sheet, r, core.CotSP_PhanTramGiam, sp.PhanTramGiam)
-			ghi(shopID, sheet, r, core.CotSP_SoTienGiam, sp.SoTienGiam)
-			ghi(shopID, sheet, r, core.CotSP_GiaBan, sp.GiaBan)
-			ghi(shopID, sheet, r, core.CotSP_GhiChu, sp.GhiChu)
+			ghi(shopID, sheet, r, data_pc.CotSP_MaSanPham, sp.MaSanPham)
+			ghi(shopID, sheet, r, data_pc.CotSP_TenSanPham, sp.TenSanPham)
+			ghi(shopID, sheet, r, data_pc.CotSP_TenRutGon, sp.TenRutGon)
+			ghi(shopID, sheet, r, data_pc.CotSP_Slug, sp.Slug)
+			ghi(shopID, sheet, r, data_pc.CotSP_MaSKU, sp.MaSKU)
+			ghi(shopID, sheet, r, data_pc.CotSP_TenSKU, sp.TenSKU)
+			ghi(shopID, sheet, r, data_pc.CotSP_SKUChinh, sp.SKUChinh)
+			ghi(shopID, sheet, r, data_pc.CotSP_TrangThai, sp.TrangThai)
+			ghi(shopID, sheet, r, data_pc.CotSP_MaDanhMuc, sp.MaDanhMuc)
+			ghi(shopID, sheet, r, data_pc.CotSP_MaThuongHieu, sp.MaThuongHieu)
+			ghi(shopID, sheet, r, data_pc.CotSP_DonVi, sp.DonVi)
+			ghi(shopID, sheet, r, data_pc.CotSP_MauSac, sp.MauSac)
+			ghi(shopID, sheet, r, data_pc.CotSP_KhoiLuong, sp.KhoiLuong)
+			ghi(shopID, sheet, r, data_pc.CotSP_KichThuoc, sp.KichThuoc)
+			ghi(shopID, sheet, r, data_pc.CotSP_UrlHinhAnh, sp.UrlHinhAnh)
+			ghi(shopID, sheet, r, data_pc.CotSP_ThongSoHTML, sp.ThongSoHTML)
+			ghi(shopID, sheet, r, data_pc.CotSP_MoTaHTML, sp.MoTaHTML)
+			ghi(shopID, sheet, r, data_pc.CotSP_BaoHanh, sp.BaoHanh)
+			ghi(shopID, sheet, r, data_pc.CotSP_TinhTrang, sp.TinhTrang)
+			ghi(shopID, sheet, r, data_pc.CotSP_GiaNhap, sp.GiaNhap)
+			ghi(shopID, sheet, r, data_pc.CotSP_PhanTramLai, sp.PhanTramLai) 
+			ghi(shopID, sheet, r, data_pc.CotSP_GiaNiemYet, sp.GiaNiemYet)
+			ghi(shopID, sheet, r, data_pc.CotSP_PhanTramGiam, sp.PhanTramGiam)
+			ghi(shopID, sheet, r, data_pc.CotSP_SoTienGiam, sp.SoTienGiam)
+			ghi(shopID, sheet, r, data_pc.CotSP_GiaBan, sp.GiaBan)
+			ghi(shopID, sheet, r, data_pc.CotSP_GhiChu, sp.GhiChu)
 			
 			if isNewSKU {
-				ghi(shopID, sheet, r, core.CotSP_NguoiTao, sp.NguoiTao)
-				ghi(shopID, sheet, r, core.CotSP_NgayTao, sp.NgayTao)
+				ghi(shopID, sheet, r, data_pc.CotSP_NguoiTao, sp.NguoiTao)
+				ghi(shopID, sheet, r, data_pc.CotSP_NgayTao, sp.NgayTao)
 			}
 			
-			ghi(shopID, sheet, r, core.CotSP_NguoiCapNhat, sp.NguoiCapNhat)
-			ghi(shopID, sheet, r, core.CotSP_NgayCapNhat, sp.NgayCapNhat)
+			ghi(shopID, sheet, r, data_pc.CotSP_NguoiCapNhat, sp.NguoiCapNhat)
+			ghi(shopID, sheet, r, data_pc.CotSP_NgayCapNhat, sp.NgayCapNhat)
 		}
 	}
 
-	// Xử lý những Tab bị xóa hoàn toàn khỏi giao diện
 	for skuID, sp := range existingMap {
 		if !processedSKUs[skuID] {
-			// Nếu trạng thái chưa phải -1 thì mới xóa và đổi ngày cập nhật
 			if sp.TrangThai != -1 {
 				sp.TrangThai = -1 
 				sp.SKUChinh = 0
 				sp.NgayCapNhat = nowStr
 				sp.NguoiCapNhat = userID
 				
-				core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_TrangThai, -1)
-				core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_SKUChinh, 0)
-				core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_NgayCapNhat, nowStr)
-				core.ThemVaoHangCho(shopID, "SAN_PHAM", sp.DongTrongSheet, core.CotSP_NguoiCapNhat, userID)
+				core.ThemVaoHangCho(shopID, data_pc.TenSheet, sp.DongTrongSheet, data_pc.CotSP_TrangThai, -1)
+				core.ThemVaoHangCho(shopID, data_pc.TenSheet, sp.DongTrongSheet, data_pc.CotSP_SKUChinh, 0)
+				core.ThemVaoHangCho(shopID, data_pc.TenSheet, sp.DongTrongSheet, data_pc.CotSP_NgayCapNhat, nowStr)
+				core.ThemVaoHangCho(shopID, data_pc.TenSheet, sp.DongTrongSheet, data_pc.CotSP_NguoiCapNhat, userID)
 			}
 		}
 	}
