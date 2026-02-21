@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"app/core"
+	data_pc "app/core/may_tinh"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -47,7 +48,7 @@ func TrangChu(c *gin.Context) {
 	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	
 	// Tạm thời vẫn lấy danh sách chung, Chặng 4 ta sẽ đổi hàm này thành LayDanhSachSanPham_PC
-	danhSachSP := core.LayDanhSachSanPham(shopID) 
+	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
 	c.HTML(http.StatusOK, theme+"/khung_giao_dien", gin.H{
@@ -61,7 +62,7 @@ func ChiTietSanPham(c *gin.Context) {
 	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	id := c.Param("id")
 	
-	sp, tonTai := core.LayChiTietSKU(shopID, id)
+	sp, tonTai := data_pc.LayChiTietSKU(shopID, id)
 	if !tonTai { c.String(http.StatusNotFound, "Không tìm thấy!"); return }
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
