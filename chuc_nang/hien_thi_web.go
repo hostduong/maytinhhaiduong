@@ -51,7 +51,7 @@ func TrangChu(c *gin.Context) {
 	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	c.HTML(http.StatusOK, theme+"/khung_giao_dien", gin.H{
+	c.HTML(http.StatusOK, "/khung_giao_dien", gin.H{
 		"TieuDe": "Trang Chủ", "DanhSachSanPham": danhSachSP,
 		"DaDangNhap": daLogin, "TenNguoiDung": tenUser, "QuyenHan": quyen,
 	})
@@ -66,7 +66,7 @@ func ChiTietSanPham(c *gin.Context) {
 	if !tonTai { c.String(http.StatusNotFound, "Không tìm thấy!"); return }
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	c.HTML(http.StatusOK, theme+"/chi_tiet_san_pham", gin.H{
+	c.HTML(http.StatusOK, "/chi_tiet_san_pham", gin.H{
 		"TieuDe": sp.TenSanPham, "SanPham": sp,
 		"DaDangNhap": daLogin, "TenNguoiDung": tenUser, "QuyenHan": quyen,
 	})
