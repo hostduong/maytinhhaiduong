@@ -69,6 +69,7 @@ func API_DoiThongTin(c *gin.Context) {
 		kh.MangXaHoi.Facebook = fbMoi
 		kh.MangXaHoi.Tiktok = tiktokMoi
 		
+		kh.NguoiCapNhat = kh.TenDangNhap // Lưu vết chính user tự sửa
 		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
 
@@ -78,17 +79,19 @@ func API_DoiThongTin(c *gin.Context) {
 		ghi := core.ThemVaoHangCho
 
 		// Ghi cột thường
-		ghi(shopID, sheet, row, core.CotKH_TenKhachHang, hoTenMoi)
-		ghi(shopID, sheet, row, core.CotKH_DienThoai, sdtMoi)
-		ghi(shopID, sheet, row, core.CotKH_NgaySinh, ngaySinhMoi)
+		ghi(shopID, sheet, row, core.CotKH_TenKhachHang, kh.TenKhachHang)
+		ghi(shopID, sheet, row, core.CotKH_DienThoai, kh.DienThoai)
+		ghi(shopID, sheet, row, core.CotKH_NgaySinh, kh.NgaySinh)
 		ghi(shopID, sheet, row, core.CotKH_GioiTinh, kh.GioiTinh)
-		ghi(shopID, sheet, row, core.CotKH_DiaChi, diaChiMoi)
-		ghi(shopID, sheet, row, core.CotKH_MaSoThue, maSoThueMoi)
+		ghi(shopID, sheet, row, core.CotKH_DiaChi, kh.DiaChi)
+		ghi(shopID, sheet, row, core.CotKH_MaSoThue, kh.MaSoThue)
 		
-		// [QUAN TRỌNG] Ghi cột JSON Mạng Xã Hội (Thay vì ghi cột rời như cũ)
+		// Ghi JSON
 		jsonMXH := core.ToJSON(kh.MangXaHoi)
 		ghi(shopID, sheet, row, core.CotKH_MangXaHoiJson, jsonMXH)
 		
+		// Lưu vết
+		ghi(shopID, sheet, row, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 		ghi(shopID, sheet, row, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 
 		c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật hồ sơ thành công!"})
@@ -118,10 +121,12 @@ func API_DoiMatKhau(c *gin.Context) {
 		
 		core.KhoaHeThong.Lock()
 		kh.MatKhauHash = hash
+		kh.NguoiCapNhat = kh.TenDangNhap
 		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
 		
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
+		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 		
 		c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mật khẩu thành công!"})
@@ -151,10 +156,12 @@ func API_DoiMaPin(c *gin.Context) {
 		
 		core.KhoaHeThong.Lock()
 		kh.MaPinHash = hashMoi
+		kh.NguoiCapNhat = kh.TenDangNhap
 		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
 
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashMoi)
+		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 		
 		c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mã PIN thành công!"})
@@ -182,10 +189,12 @@ func API_GuiOTPPin(c *gin.Context) {
 	
 	core.KhoaHeThong.Lock()
 	kh.MaPinHash = hashNewPin
+	kh.NguoiCapNhat = "Hệ thống" // Reset tự động thì ghi là Hệ thống
 	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 	
 	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashNewPin)
+	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã gửi mã PIN mới vào Email (Kiểm tra Log)!"})
