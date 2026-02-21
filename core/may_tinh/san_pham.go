@@ -1,11 +1,9 @@
 package may_tinh
 
 import (
-	"fmt"
-	"strings"
 
 	"app/cau_hinh"
-	"app/core" // Import lõi chung để xài Mutex và các hàm tiện ích
+	"app/core"
 )
 
 // ĐỔI TÊN SHEET THÀNH "MAY_TINH" NHƯ BẠN THIẾT KẾ
