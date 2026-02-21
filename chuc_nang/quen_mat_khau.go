@@ -69,6 +69,7 @@ func TrangQuenMatKhau(c *gin.Context) {
 // [CÁCH 1]: Đổi mật khẩu bằng Mã PIN
 func XuLyQuenPassBangPIN(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
+	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 
 	dinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("dinh_danh")))
 	pinInput := strings.TrimSpace(c.PostForm("pin"))
