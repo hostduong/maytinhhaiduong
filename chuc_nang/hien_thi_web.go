@@ -74,7 +74,6 @@ func ChiTietSanPham(c *gin.Context) {
 
 func TrangHoSo(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	if !daLogin { c.Redirect(http.StatusFound, "/login"); return }
