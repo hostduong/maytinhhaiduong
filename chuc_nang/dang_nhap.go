@@ -13,6 +13,7 @@ import (
 
 func TrangDangNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS] Lấy ShopID
+	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	cookie, _ := c.Cookie("session_id")
 	
 	if cookie != "" {
