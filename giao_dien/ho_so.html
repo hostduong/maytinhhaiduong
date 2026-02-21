@@ -1,5 +1,5 @@
-{{ define "theme_pc/ho_so" }}
-    {{ template "theme_pc/header" . }}
+{{ define "ho_so" }}
+    {{ template "header" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
@@ -338,5 +338,5 @@
         async function doiPin() { setBtnLoading('btnSavePin', 'Lưu...'); handleRes(await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }), 'modalPin', 'btnSavePin'); }
         async function guiYeuCauResetPin() { setBtnLoading('btnConfirmForgot', 'Gửi...'); try { const r = await fetch('/api/user/send-otp-pin', {method:'POST'}); handleRes(await r.json(), 'modalPin', 'btnConfirmForgot'); } catch(e){ setBtnNormal('btnConfirmForgot'); } }
     </script>
-    {{ template "theme_pc/footer" . }}
+    {{ template "footer" . }}
 {{ end }}
