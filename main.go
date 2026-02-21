@@ -37,7 +37,7 @@ func main() {
 	core.NapKhachHang("")
 
 	router := gin.Default()
-	router.Use(chuc_nang.XacDinhShop)
+	router.Use(chuc_nang.GatewaySaaS, chuc_nang.KiemTraGoiDichVu)
 
 	funcMap := chuc_nang.LayBoHamHTML()
 
