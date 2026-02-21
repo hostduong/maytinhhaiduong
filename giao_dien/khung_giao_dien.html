@@ -36,101 +36,15 @@
                 {{ end }}
             </a>
 
-            <div class="flex-1 max-w-2xl hidden md:block relative">
-                <input type="text" placeholder="Bạn cần tìm gì hôm nay?..." 
-                    class="w-full pl-5 pr-12 py-3 rounded-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition outline-none text-sm font-medium">
-                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                    </svg>
-                </button>
-            </div>
-
             <div class="flex items-center gap-6">
-                
-                {{/* --- LOGIC PHÂN QUYỀN HEADER --- */}}
-                
-                {{ if or (eq .QuyenHan "admin_root") (eq .QuyenHan "admin") (eq .QuyenHan "quan_ly") }}
-                    <div class="flex items-center gap-3">
-                        <button onclick="reloadSystemGlobal(this)" class="flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-full transition text-sm font-bold border border-indigo-100" title="Đồng bộ dữ liệu từ Sheet">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                            <span class="hidden xl:inline">Đồng bộ</span>
-                        </button>
-
-                        <a href="/admin/tong-quan" class="flex items-center gap-2 bg-slate-800 text-white hover:bg-black px-4 py-2 rounded-full transition text-sm font-bold shadow-lg shadow-slate-300/50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg>
-                            <span>Quản Trị</span>
-                        </a>
-                    </div>
-
-                {{ else }}
-                    <a href="#" class="relative group p-2 rounded-full hover:bg-gray-100 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-600 group-hover:text-blue-600 transition">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        <span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-sm border-2 border-white transform scale-90 group-hover:scale-110 transition">0</span>
-                    </a>
-                {{ end }}
-
-                {{ if .DaDangNhap }}
-                    <div class="flex items-center gap-4 pl-6 border-l border-gray-200">
-                        <a href="/tai-khoan" class="flex items-center gap-3 group">
-                            <div class="text-right hidden lg:block">
-                                <p class="text-xs text-gray-500 font-medium">Xin chào,</p>
-                                <p class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition truncate max-w-[120px]">{{ .TenNguoiDung }}</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-full border-2 border-gray-100 overflow-hidden group-hover:border-blue-500 transition shadow-sm">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .TenNguoiDung }}" class="w-full h-full object-cover">
-                            </div>
-                        </a>
-                        
-                        <a href="/logout" class="bg-gray-50 p-2.5 rounded-xl hover:bg-red-50 text-gray-500 hover:text-red-600 transition border border-gray-100 shadow-sm group relative" title="Đăng xuất">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                            </svg>
-                        </a>
-                    </div>
-                {{ else }}
-                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
-                        <a href="/login" class="text-gray-600 hover:text-blue-600 font-medium text-sm px-3 py-2 transition">Đăng nhập</a>
-                        <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-blue-300 transition transform hover:-translate-y-0.5">
-                            Đăng ký
-                        </a>
-                    </div>
-                {{ end }}
-            </div>
+                </div>
         </div>
     </header>
     
-    <script>
-        async function reloadSystemGlobal(btn) {
-            const originalContent = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-            
-            try {
-                const res = await fetch('/admin/reload');
-                const data = await res.json();
-                if (res.ok) {
-                    const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true});
-                    Toast.fire({icon: 'success', title: data.thong_diep});
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    Swal.fire({icon: 'error', title: 'Lỗi', text: data.thong_diep});
-                }
-            } catch (e) {
-                Swal.fire({icon: 'error', title: 'Lỗi mạng', text: 'Không kết nối được server'});
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-            }
-        }
-    </script>
-
     <main class="flex-grow container mx-auto px-4 py-8">
 {{ end }}
 
-{{ define "chung/footer" }}
+{{ define "footer" }}
     </main>
 
     <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
