@@ -1,6 +1,9 @@
 package may_tinh
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
 
 	"app/cau_hinh"
 	"app/core"
