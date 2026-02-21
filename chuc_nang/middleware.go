@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+
 	"app/cau_hinh"
 	"app/core"
 
@@ -12,35 +13,136 @@ import (
 )
 
 // =============================================================
-// PHẦN 0: MIDDLEWARE SAAS (QUAN TRỌNG NHẤT)
+// PHẦN 0: GATEWAY SAAS & TRẠM KIỂM SOÁT DỊCH VỤ (CHẶNG 2)
 // =============================================================
 
-// XacDinhShop: Nhìn Domain -> Ra ShopID
-func XacDinhShop(c *gin.Context) {
-	// 1. Lấy Host (VD: shop1.com:8080)
+// 1. GatewaySaaS: Điều phối Subdomain và Khởi tạo Shop
+func GatewaySaaS(c *gin.Context) {
 	host := c.Request.Host
-	
-	// 2. Bỏ Port nếu có (shop1.com)
 	if strings.Contains(host, ":") {
-		host = strings.Split(host, ":")[0]
+		host = strings.Split(host, ":")[0] // Bỏ port nếu chạy local (vd: localhost:8080)
 	}
 
-	// 3. Tra cứu trong Map cấu hình
-	shopID := cau_hinh.MapDomainShop[host]
+	masterShopID := cau_hinh.BienCauHinh.IdFileSheet // ID của Nền tảng www.99k.vn
 
-	// 4. Fallback (Nếu chạy Local hoặc chưa cấu hình -> Về Shop Gốc)
-	if shopID == "" {
-		shopID = cau_hinh.BienCauHinh.IdFileSheet
+	// --- TRƯỜNG HỢP 1: TẦNG 0 (TRANG CHỦ NỀN TẢNG) ---
+	if host == "www.99k.vn" || host == "99k.vn" || host == "localhost" {
+		c.Set("SHOP_ID", masterShopID)
+		c.Set("THEME", "theme_master")
+		c.Next()
+		return
 	}
 
-	// 5. Lưu vào Context để các hàm sau dùng
-	c.Set("SHOP_ID", shopID)
+	// --- TRƯỜNG HỢP 2: TẦNG 1 & TẦNG 3 (CỬA HÀNG) ---
+	subdomain := strings.Split(host, ".")[0] // Lấy "cuahang1" từ "cuahang1.99k.vn"
 	
+	// Quét RAM của Master để tìm Chủ Shop
+	danhSachChung := core.LayDanhSachKhachHang(masterShopID)
+	var tenant *core.KhachHang
+
+	for _, kh := range danhSachChung {
+		// Tìm theo Subdomain (Tên đăng nhập) hoặc Domain riêng
+		if strings.ToLower(kh.TenDangNhap) == subdomain || kh.CauHinh.CustomDomain == host {
+			tenant = kh
+			break
+		}
+	}
+
+	// Nếu không tìm thấy Chủ Shop nào khớp
+	if tenant == nil {
+		c.Data(http.StatusNotFound, "text/html; charset=utf-8", []byte(`
+			<div style="text-align:center; padding: 50px; font-family: sans-serif;">
+				<h1 style="color:#ef4444;">Cửa hàng không tồn tại</h1>
+				<p>Địa chỉ trang web này không thuộc hệ thống hoặc đã bị xóa.</p>
+				<p>Truy cập <a href="https://www.99k.vn" style="color:#3b82f6;">99K.vn</a> để tạo cửa hàng mới.</p>
+			</div>
+		`))
+		c.Abort()
+		return
+	}
+
+	// Lấy ID Sheet của cửa hàng đó
+	shopID := tenant.DataSheets.SpreadsheetID
+	if shopID == "" {
+		c.Data(http.StatusServiceUnavailable, "text/html; charset=utf-8", []byte(`
+			<div style="text-align:center; padding: 50px; font-family: sans-serif;">
+				<h1 style="color:#f59e0b;">Đang khởi tạo Dữ liệu</h1>
+				<p>Hệ thống đang chuẩn bị Database cho cửa hàng này. Vui lòng thử lại sau vài phút.</p>
+			</div>
+		`))
+		c.Abort()
+		return
+	}
+
+	// Lấy Theme
+	theme := tenant.CauHinh.Theme
+	if theme == "" { theme = "theme_pc" } // Default Theme
+
+	// Đẩy thông tin vào luồng để các Middleware và Controller sau xài
+	c.Set("SHOP_ID", shopID)
+	c.Set("THEME", theme)
+	c.Set("TENANT_INFO", tenant)
+
 	c.Next()
 }
 
+// 2. KiemTraGoiDichVu: Trạm thu phí tự động
+func KiemTraGoiDichVu(c *gin.Context) {
+	tenantVal, exists := c.Get("TENANT_INFO")
+	if !exists {
+		// Không có tenant info -> Đang ở Nền tảng mẹ (Tầng 0) -> Miễn phí qua trạm
+		c.Next()
+		return
+	}
+
+	tenant := tenantVal.(*core.KhachHang)
+	hasActivePlan := false
+	now := time.Now()
+
+	// Quét mảng Gói dịch vụ của Chủ shop
+	for _, plan := range tenant.GoiDichVu {
+		if plan.TrangThai == "active" || plan.TrangThai == "trial" {
+			// Nếu không có ngày hết hạn (Gói vĩnh viễn)
+			if plan.NgayHetHan == "" {
+				hasActivePlan = true
+				break
+			}
+			// Parse ngày và so sánh
+			expDate, err := time.Parse("2006-01-02", plan.NgayHetHan)
+			if err == nil && (expDate.After(now) || expDate.Equal(now)) {
+				hasActivePlan = true
+				break
+			}
+		}
+	}
+
+	// Nếu hết hạn -> Khóa chặn cửa
+	if !hasActivePlan {
+		if strings.HasPrefix(c.Request.URL.Path, "/api") {
+			c.AbortWithStatusJSON(http.StatusPaymentRequired, gin.H{"status": "error", "msg": "Cửa hàng đã hết hạn dịch vụ. Vui lòng gia hạn."})
+		} else {
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+				<div style="text-align:center; padding: 50px; font-family: sans-serif; background: #f8fafc; height: 100vh;">
+					<div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+						<div style="font-size: 48px; margin-bottom: 20px;">🚧</div>
+						<h1 style="color:#334155; margin-bottom: 10px;">Cửa Hàng Tạm Ngưng</h1>
+						<p style="color:#64748b; line-height: 1.6;">Cửa hàng này đang tạm ngưng hoạt động do hết hạn gói dịch vụ.</p>
+						<p style="color:#64748b; line-height: 1.6;">Nếu bạn là chủ cửa hàng, vui lòng đăng nhập vào hệ thống quản trị mẹ để gia hạn.</p>
+						<a href="https://www.99k.vn/login" style="display:inline-block; margin-top:20px; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; font-weight: bold; border-radius: 8px;">Quản lý thanh toán</a>
+					</div>
+				</div>
+			`))
+		}
+		c.Abort()
+		return
+	}
+
+	c.Next()
+}
+
+
 // =============================================================
-// PHẦN 1: RATE LIMIT (GIỮ NGUYÊN LOGIC CŨ)
+// PHẦN 1: RATE LIMIT (BẢO VỆ CHỐNG SPAM)
 // =============================================================
 var boDem = make(map[string]int)
 var mtx sync.Mutex
@@ -50,36 +152,28 @@ func KhoiTaoBoDemRateLimit() {
 		for {
 			time.Sleep(1 * time.Second)
 			mtx.Lock()
-			boDem = make(map[string]int) // Reset bộ đếm mỗi giây
+			boDem = make(map[string]int) 
 			mtx.Unlock()
 		}
 	}()
 }
 
-// Helper xóa cookie
 func xoaCookie(c *gin.Context) {
 	c.SetCookie("session_id", "", -1, "/", "", false, true)
 	c.SetCookie("session_sign", "", -1, "/", "", false, true)
 }
 
 // =============================================================
-// PHẦN 2: MIDDLEWARE XÁC THỰC (AUTH & RENEW)
+// PHẦN 2: MIDDLEWARE XÁC THỰC (AUTH)
 // =============================================================
-
-// KiemTraDangNhap: Dùng cho API User & các trang cần đăng nhập
 func KiemTraDangNhap(c *gin.Context) {
-	// Lấy ShopID đã xác định ở bước trên
 	shopID := c.GetString("SHOP_ID")
 
-	// 1. CHỐT CHẶN BẢO TRÌ (Dùng biến từ Core)
 	if core.HeThongDangBan && c.Request.Method != "GET" {
-		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"status": "error", "msg": "Hệ thống đang đồng bộ dữ liệu, vui lòng thử lại sau 5 giây.",
-		})
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{"status": "error", "msg": "Hệ thống đang đồng bộ, vui lòng thử lại sau 5 giây."})
 		return
 	}
 
-	// 2. KIỂM TRA RATE LIMIT (CHỐNG SPAM)
 	cookieID, err1 := c.Cookie("session_id")
 	cookieSign, err2 := c.Cookie("session_sign")
 	
@@ -100,21 +194,17 @@ func KiemTraDangNhap(c *gin.Context) {
 		return
 	}
 
-	// 3. KIỂM TRA COOKIE CƠ BẢN
 	if err1 != nil || cookieID == "" {
-		// Nếu là API (AJAX) -> Trả lỗi JSON
 		if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" || c.Request.Method == "POST" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "msg": "Vui lòng đăng nhập!"})
 		} else {
-			c.Redirect(http.StatusFound, "/login") // Nếu là trình duyệt -> Chuyển hướng
+			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 		}
 		return
 	}
 
-	// 4. KIỂM TRA CHỮ KÝ BẢO MẬT (SECURITY CHECK)
 	userAgent := c.Request.UserAgent()
-	// Hàm TaoChuKyBaoMat nằm ở cau_hinh/kiem_tra.go (nếu đã gộp) hoặc bao_mat/ma_hoa.go
 	signatureServer := cau_hinh.TaoChuKyBaoMat(cookieID, userAgent) 
 
 	if err2 != nil || cookieSign != signatureServer {
@@ -123,9 +213,7 @@ func KiemTraDangNhap(c *gin.Context) {
 		return
 	}
 
-	// 5. TÌM USER TRONG CORE (Quan trọng: Truyền ShopID vào)
 	khachHang, timThay := core.TimKhachHangTheoCookie(shopID, cookieID)
-
 	if !timThay {
 		xoaCookie(c)
 		c.Redirect(http.StatusFound, "/login")
@@ -133,64 +221,22 @@ func KiemTraDangNhap(c *gin.Context) {
 		return
 	}
 
-	// 6. LOGIC GIA HẠN THÔNG MINH (Auto-Renew)
-	// Logic này cần check lại với cấu trúc JSON Token mới
-	// Ở đây giả định bạn đang lấy thông tin từ TokenInfo trong Map
-	
-	// Tìm token info hiện tại
 	tokenInfo, ok := khachHang.RefreshTokens[cookieID]
 	if !ok {
-		// Trường hợp hiếm: Cookie đúng chữ ký nhưng không có trong Map (có thể do bị xóa)
 		xoaCookie(c)
 		c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 		return
 	}
 
-	thoiGianHetHan := tokenInfo.ExpiresAt
 	now := time.Now().Unix()
-
-	// Nếu đã hết hạn -> Đá ra
-	if now > thoiGianHetHan {
+	if now > tokenInfo.ExpiresAt {
 		xoaCookie(c)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "msg": "Phiên đăng nhập hết hạn"})
 		return
 	}
 
-	// Nếu còn hạn nhưng sắp hết (trong vùng ân hạn) -> GIA HẠN
-	thoiGianConLai := time.Duration(thoiGianHetHan - now) * time.Second
-	if thoiGianConLai < cau_hinh.ThoiGianAnHan {
-		
-		newExp := time.Now().Add(cau_hinh.ThoiGianHetHanCookie).Unix()
-		
-		// Cập nhật RAM Core
-		core.KhoaHeThong.Lock()
-		// Update thời gian trong Map Token
-		tokenInfo.ExpiresAt = newExp
-		khachHang.RefreshTokens[cookieID] = tokenInfo
-		core.KhoaHeThong.Unlock()
-
-		// Đẩy vào hàng chờ ghi JSON xuống Sheet
-		sID := khachHang.SpreadsheetID
-		if sID == "" { sID = shopID }
-		
-		// Ghi đè toàn bộ cột JSON RefreshToken (Cột F)
-		jsonStr := core.ToJSON(khachHang.RefreshTokens)
-		core.ThemVaoHangCho(
-			sID,
-			"KHACH_HANG",
-			khachHang.DongTrongSheet,
-			core.CotKH_RefreshTokenJson, 
-			jsonStr,
-		)
-
-		// Set lại Cookie mới cho trình duyệt
-		maxAge := int(cau_hinh.ThoiGianHetHanCookie.Seconds())
-		c.SetCookie("session_id", cookieID, maxAge, "/", "", false, true)
-		c.SetCookie("session_sign", cookieSign, maxAge, "/", "", false, true)
-	}
-
-	// 7. LƯU THÔNG TIN VÀO CONTEXT (Để Controller dùng)
+	// Gắn thông tin User vào Context
 	c.Set("USER_ID", khachHang.MaKhachHang)
 	c.Set("USER_ROLE", khachHang.VaiTroQuyenHan)
 	c.Set("USER_NAME", khachHang.TenKhachHang)
@@ -199,26 +245,22 @@ func KiemTraDangNhap(c *gin.Context) {
 }
 
 // =============================================================
-// PHẦN 3: MIDDLEWARE PHÂN QUYỀN (ADMIN GATEKEEPER)
+// PHẦN 3: PHÂN QUYỀN (ADMIN GATEKEEPER)
 // =============================================================
-
 func KiemTraQuyenHan(c *gin.Context) {
 	role := c.GetString("USER_ROLE")
 
-	// 1. Nếu mất role (lỗi session) -> Về Login
 	if role == "" {
 		c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 		return
 	}
 
-	// 2. CHẶN KHÁCH HÀNG
 	if role == "khach_hang" || role == "customer" {
 		c.Redirect(http.StatusFound, "/")
 		c.Abort()
 		return
 	}
 
-	// 3. Cho phép Admin/Nhân viên đi tiếp
 	c.Next()
 }
