@@ -1,49 +1,67 @@
 {{ define "quan_tri_thanh_vien" }}
     {{ template "header_admin" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; padding: 0.5rem 0.75rem; transition: 0.2s; outline: none; }
+        .input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background-color: #fff; }
+        .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; }
+        label.form-lbl { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem; display: block; }
+    </style>
 
     <div class="container mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">👥 Quản Lý Thành Viên & Phân Quyền</h1>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl font-bold text-slate-800">👥 Quản Lý Thành Viên</h1>
+            <div class="flex gap-2">
+                <button onclick="openMessageModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md flex items-center gap-2 transition text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Gửi Thông Báo (<span id="countSelected">0</span>)
+                </button>
+            </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3">Mã KH</th>
-                            <th class="px-6 py-3">Họ Tên / User</th>
-                            <th class="px-6 py-3">Vai Trò (Role)</th>
-                            <th class="px-6 py-3">Chức Vụ</th>
-                            <th class="px-6 py-3 text-center">Thao tác</th>
+                            <th class="px-4 py-3 text-center w-10">
+                                <input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                            </th>
+                            <th class="px-6 py-3 font-bold">Thành Viên</th>
+                            <th class="px-6 py-3 font-bold">Liên hệ</th>
+                            <th class="px-6 py-3 font-bold">Vai Trò</th>
+                            <th class="px-6 py-3 font-bold text-center">Trạng Thái</th>
+                            <th class="px-6 py-3 font-bold text-center">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{ range .DanhSach }}
-                        <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="px-6 py-4 font-bold">{{ .MaKhachHang }}</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-gray-800">{{ .TenKhachHang }}</div>
-                                <div class="text-xs text-gray-400">{{ .TenDangNhap }}</div>
+                        <tr class="bg-white border-b border-slate-100 hover:bg-slate-50 transition">
+                            <td class="px-4 py-4 text-center">
+                                <input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-blue-600 rounded border-gray-300" onchange="updateCount()">
                             </td>
                             <td class="px-6 py-4">
-                                {{ if eq .VaiTroQuyenHan "admin_root" }}
-                                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">SUPER ADMIN</span>
-                                {{ else if eq .VaiTroQuyenHan "admin" }}
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">ADMIN</span>
-                                {{ else if eq .VaiTroQuyenHan "sale" }}
-                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded">SALE</span>
-                                {{ else if eq .VaiTroQuyenHan "kho" }}
-                                    <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded">KHO</span>
-                                {{ else }}
-                                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">CUSTOMER</span>
-                                {{ end }}
+                                <div class="font-bold text-slate-800 text-base">{{ .TenKhachHang }}</div>
+                                <div class="text-xs text-slate-400 font-mono mt-1">ID: {{ .MaKhachHang }}</div>
+                                <div class="text-xs text-blue-500 font-medium">User: {{ .TenDangNhap }}</div>
                             </td>
-                            <td class="px-6 py-4">{{ .ChucVu }}</td>
+                            <td class="px-6 py-4 text-xs">
+                                <div>📞 {{ if .DienThoai }}{{ .DienThoai }}{{ else }}---{{ end }}</div>
+                                <div>📧 {{ if .Email }}{{ .Email }}{{ else }}---{{ end }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ if eq .VaiTroQuyenHan "admin_root" }}<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-200">SUPER ADMIN</span>
+                                {{ else if eq .VaiTroQuyenHan "admin" }}<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md border border-blue-200">ADMIN</span>
+                                {{ else if eq .VaiTroQuyenHan "sale" }}<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md border border-amber-200">SALE</span>
+                                {{ else if eq .VaiTroQuyenHan "kho" }}<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md border border-purple-200">KHO</span>
+                                {{ else }}<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md border border-slate-200">CUSTOMER</span>{{ end }}
+                            </td>
                             <td class="px-6 py-4 text-center">
-                                <button onclick="editMember('{{ .MaKhachHang }}', '{{ .TenKhachHang }}', '{{ .VaiTroQuyenHan }}')" 
-                                    class="text-blue-600 hover:underline font-bold">Phân Quyền</button>
+                                {{ if eq .TrangThai 1 }}<span class="w-3 h-3 bg-emerald-500 rounded-full inline-block shadow-sm" title="Hoạt động"></span>
+                                {{ else }}<span class="w-3 h-3 bg-red-500 rounded-full inline-block shadow-sm" title="Bị khóa"></span>{{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition border border-blue-200 hover:border-transparent">Quản lý</button>
                             </td>
                         </tr>
                         {{ end }}
@@ -53,67 +71,247 @@
         </div>
     </div>
 
-    <div id="modalMember" class="hidden fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
-                <h3 class="text-xl font-bold text-gray-800">Cấp Quyền Thành Viên</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <div id="data_members" class="hidden">
+        {{ range .DanhSach }}
+        <div class="m-data" 
+            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-role="{{ .VaiTroQuyenHan }}" 
+            data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
+            data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
+            data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
+            data-note="{{ .GhiChu }}">
+        </div>
+        {{ end }}
+    </div>
+
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
+                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Sửa Thông Tin & Phân Quyền</h3>
+                <button onclick="closeModal('modalEdit')" class="text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto bg-white">
+                <form id="formEdit" class="space-y-6">
+                    <input type="hidden" name="ma_khach_hang" id="f_ma">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-blue-600 border-b pb-2">Hồ sơ cá nhân</h4>
+                            <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold" required></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="form-lbl">Điện thoại</label><input type="text" name="dien_thoai" id="f_sdt" class="input-premium"></div>
+                                <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="form-lbl">Giới tính</label>
+                                    <select name="gioi_tinh" id="f_gender" class="input-premium bg-white">
+                                        <option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option>
+                                    </select>
+                                </div>
+                                <div><label class="form-lbl">Mã số thuế</label><input type="text" name="ma_so_thue" id="f_tax" class="input-premium"></div>
+                            </div>
+                            <div><label class="form-lbl">Địa chỉ</label><input type="text" name="dia_chi" id="f_address" class="input-premium"></div>
+                            
+                            <h4 class="font-bold text-blue-600 border-b pb-2 pt-2">Mạng xã hội</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label class="form-lbl">Zalo</label><input type="text" name="zalo" id="f_zalo" class="input-premium text-xs" placeholder="SĐT..."></div>
+                                <div><label class="form-lbl">Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium text-xs" placeholder="Link..."></div>
+                                <div><label class="form-lbl">Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium text-xs" placeholder="Link..."></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-purple-600 border-b pb-2">Hệ thống & Quyền hạn</h4>
+                            
+                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                <label class="form-lbl text-purple-800">Vai trò (Role) <span class="text-red-500">*</span></label>
+                                <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold" required>
+                                    <option value="customer">Khách hàng (Customer)</option>
+                                    <option value="sale">Nhân viên kinh doanh (Sale)</option>
+                                    <option value="kho">Thủ kho (Stock)</option>
+                                    <option value="admin">Quản trị viên (Admin)</option>
+                                    <option value="admin_root" disabled>SUPER ADMIN (Hệ thống)</option>
+                                </select>
+                                <p class="text-[10px] text-purple-600 mt-1">Lưu ý: Không thể tước quyền của Super Admin.</p>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <label class="form-lbl">Trạng thái tài khoản</label>
+                                <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold">
+                                    <option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option>
+                                    <option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-lbl">Reset Mật khẩu (Bỏ trống nếu không đổi)</label>
+                                <input type="text" name="mat_khau_moi" class="input-premium font-mono" placeholder="Nhập mật khẩu mới...">
+                            </div>
+
+                            <div>
+                                <label class="form-lbl">Ghi chú nội bộ</label>
+                                <textarea name="ghi_chu" id="f_note" rows="3" class="input-premium" placeholder="Ghi chú về khách/nhân viên này..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3 shrink-0">
+                <button onclick="closeModal('modalEdit')" class="px-5 py-2 text-slate-600 hover:bg-slate-200 rounded-lg font-bold transition">Hủy</button>
+                <button onclick="saveMember()" id="btnSaveMem" class="px-8 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-blue-600 rounded-t-2xl">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
+                <button onclick="closeModal('modalMsg')" class="text-white hover:text-red-200 text-2xl font-bold">&times;</button>
             </div>
             
             <div class="p-6 space-y-4">
-                <input type="hidden" id="editMaKH">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Họ Tên</label>
-                    <input type="text" id="editTen" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                <div class="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm font-medium border border-blue-100">
+                    Đang chuẩn bị gửi tin nhắn đến <span id="lblMsgCount" class="font-bold text-red-600 text-lg">0</span> người.
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vai Trò Hệ Thống</label>
-                    <select id="editRole" class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <option value="customer">Khách hàng (Customer)</option>
-                        <option value="sale">Nhân viên kinh doanh (Sale)</option>
-                        <option value="kho">Thủ kho (Stock)</option>
-                        <option value="admin">Quản trị viên (Admin)</option>
-                        <option value="admin_root" disabled>Super Admin (Không thể cấp)</option>
-                    </select>
-                    <p class="text-xs text-gray-400 mt-1">Vai trò quyết định quyền hạn trong Sheet PHAN_QUYEN.</p>
+                    <label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label>
+                    <input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật hệ thống..." required>
+                </div>
+                <div>
+                    <label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label>
+                    <textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung thông báo (hỗ trợ văn bản thuần)..." required></textarea>
                 </div>
             </div>
 
-            <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-bold">Hủy</button>
-                <button onclick="saveMember()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg">Lưu Quyền</button>
+            <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeModal('modalMsg')" class="px-5 py-2 text-slate-600 hover:bg-slate-200 rounded-lg font-bold transition">Hủy</button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="px-8 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    Phát sóng
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        function closeModal() { document.getElementById('modalMember').classList.add('hidden'); }
+        // Data Parser
+        const mapData = {};
+        document.querySelectorAll('.m-data').forEach(el => {
+            let id = el.getAttribute('data-id');
+            mapData[id] = {
+                ten: el.getAttribute('data-name'), role: el.getAttribute('data-role'),
+                sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
+                address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
+                zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note')
+            };
+        });
+
+        // UI Toggles
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
-        function editMember(ma, ten, role) {
-            document.getElementById('editMaKH').value = ma;
-            document.getElementById('editTen').value = ten;
-            document.getElementById('editRole').value = role;
-            document.getElementById('modalMember').classList.remove('hidden');
+        // EDIT LOGIC
+        function editMember(ma) {
+            let data = mapData[ma]; if(!data) return;
+            document.getElementById('formEdit').reset();
+            
+            document.getElementById('f_ma').value = ma;
+            document.getElementById('f_ten').value = data.ten;
+            document.getElementById('f_sdt').value = data.sdt;
+            document.getElementById('f_dob').value = data.dob;
+            document.getElementById('f_gender').value = data.gender;
+            document.getElementById('f_tax').value = data.tax;
+            document.getElementById('f_address').value = data.address;
+            document.getElementById('f_zalo').value = data.zalo;
+            document.getElementById('f_fb').value = data.fb;
+            document.getElementById('f_tiktok').value = data.tiktok;
+            document.getElementById('f_note').value = data.note;
+            document.getElementById('f_status').value = data.status;
+
+            let roleSelect = document.getElementById('f_role');
+            roleSelect.value = data.role;
+            if(data.role === "admin_root") {
+                roleSelect.disabled = true; // Khóa dropdown nếu là Super Admin
+            } else {
+                roleSelect.disabled = false;
+            }
+
+            document.getElementById('modalEdit').classList.remove('hidden');
         }
 
         async function saveMember() {
-            const fd = new FormData();
-            fd.append('ma_khach_hang', document.getElementById('editMaKH').value);
-            fd.append('ten_khach_hang', document.getElementById('editTen').value);
-            fd.append('vai_tro', document.getElementById('editRole').value);
+            const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
+            
+            const fd = new FormData(document.getElementById('formEdit'));
+            // Bổ sung role bị khóa
+            if(document.getElementById('f_role').disabled) fd.append('vai_tro', 'admin_root');
 
             try {
                 const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
                 const data = await res.json();
+                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
+                else Swal.fire('Lỗi', data.msg, 'error');
+            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = old; }
+        }
+
+        // MESSAGING LOGIC
+        function getSelectedIDs() {
+            let ids = [];
+            document.querySelectorAll('.chk-member:checked').forEach(cb => ids.push(cb.value));
+            return ids;
+        }
+
+        function toggleAllCheckboxes() {
+            let isChecked = document.getElementById('checkAll').checked;
+            document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked);
+            updateCount();
+        }
+
+        function updateCount() {
+            let count = document.querySelectorAll('.chk-member:checked').length;
+            document.getElementById('countSelected').innerText = count;
+            document.getElementById('lblMsgCount').innerText = count;
+        }
+
+        function openMessageModal() {
+            let count = getSelectedIDs().length;
+            if (count === 0) { Swal.fire('Oops!', 'Vui lòng tích chọn ít nhất 1 người nhận ở bảng danh sách.', 'warning'); return; }
+            document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = "";
+            updateCount();
+            document.getElementById('modalMsg').classList.remove('hidden');
+        }
+
+        async function sendMessages() {
+            let title = document.getElementById('msgTitle').value.trim();
+            let content = document.getElementById('msgContent').value.trim();
+            let ids = getSelectedIDs();
+
+            if (!title || !content) { Swal.fire('Lỗi', 'Tiêu đề và nội dung không được trống!', 'error'); return; }
+
+            const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'Đang gửi...';
+
+            const fd = new FormData();
+            fd.append('tieu_de', title);
+            fd.append('noi_dung', content);
+            fd.append('danh_sach_id', JSON.stringify(ids));
+
+            try {
+                const res = await fetch('/admin/api/member/send-msg', { method: 'POST', body: fd });
+                const data = await res.json();
                 if(data.status === 'ok') {
-                    Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false})
-                    .then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi', data.msg, 'error');
-                }
-            } catch(e) {
-                Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
-            }
+                    Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false});
+                    closeModal('modalMsg');
+                    document.querySelectorAll('.chk-member').forEach(cb => cb.checked = false);
+                    document.getElementById('checkAll').checked = false;
+                    updateCount();
+                } else Swal.fire('Lỗi', data.msg, 'error');
+            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = old; }
         }
     </script>
     {{ template "footer_admin" . }}
