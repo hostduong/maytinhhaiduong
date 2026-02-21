@@ -140,61 +140,61 @@ var (
 func NapKhachHang(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 
-	raw, err := loadSheetData(shopID, "KHACH_HANG")
+	raw, err := LoadSheetData(shopID, "KHACH_HANG")
 	if err != nil { return }
 
 	list := []*KhachHang{}
 
 	for i, r := range raw {
 		if i < DongBatDau_KhachHang-1 { continue }
-		maKH := layString(r, CotKH_MaKhachHang)
+		maKH := LayString(r, CotKH_MaKhachHang)
 		if maKH == "" { continue }
 
 		kh := &KhachHang{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			MaKhachHang:    maKH,
-			TenDangNhap:    layString(r, CotKH_TenDangNhap),
-			Email:          layString(r, CotKH_Email),
-			MatKhauHash:    layString(r, CotKH_MatKhauHash),
-			MaPinHash:      layString(r, CotKH_MaPinHash),
-			VaiTroQuyenHan: layString(r, CotKH_VaiTroQuyenHan),
-			ChucVu:         layString(r, CotKH_ChucVu),
-			TrangThai:      layInt(r, CotKH_TrangThai),
-			NguonKhachHang: layString(r, CotKH_NguonKhachHang),
-			TenKhachHang:   layString(r, CotKH_TenKhachHang),
-			DienThoai:      layString(r, CotKH_DienThoai),
-			AnhDaiDien:     layString(r, CotKH_AnhDaiDien),
-			DiaChi:         layString(r, CotKH_DiaChi),
-			NgaySinh:       layString(r, CotKH_NgaySinh),
-			GioiTinh:       layInt(r, CotKH_GioiTinh),
-			MaSoThue:       layString(r, CotKH_MaSoThue),
-			GhiChu:         layString(r, CotKH_GhiChu),
-			NgayTao:        layString(r, CotKH_NgayTao),
-			NguoiCapNhat:   layString(r, CotKH_NguoiCapNhat),
-			NgayCapNhat:    layString(r, CotKH_NgayCapNhat),
+			TenDangNhap:    LayString(r, CotKH_TenDangNhap),
+			Email:          LayString(r, CotKH_Email),
+			MatKhauHash:    LayString(r, CotKH_MatKhauHash),
+			MaPinHash:      LayString(r, CotKH_MaPinHash),
+			VaiTroQuyenHan: LayString(r, CotKH_VaiTroQuyenHan),
+			ChucVu:         LayString(r, CotKH_ChucVu),
+			TrangThai:      LayInt(r, CotKH_TrangThai),
+			NguonKhachHang: LayString(r, CotKH_NguonKhachHang),
+			TenKhachHang:   LayString(r, CotKH_TenKhachHang),
+			DienThoai:      LayString(r, CotKH_DienThoai),
+			AnhDaiDien:     LayString(r, CotKH_AnhDaiDien),
+			DiaChi:         LayString(r, CotKH_DiaChi),
+			NgaySinh:       LayString(r, CotKH_NgaySinh),
+			GioiTinh:       LayInt(r, CotKH_GioiTinh),
+			MaSoThue:       LayString(r, CotKH_MaSoThue),
+			GhiChu:         LayString(r, CotKH_GhiChu),
+			NgayTao:        LayString(r, CotKH_NgayTao),
+			NguoiCapNhat:   LayString(r, CotKH_NguoiCapNhat),
+			NgayCapNhat:    LayString(r, CotKH_NgayCapNhat),
 		}
 
 		// --- PARSE JSON (KÈM BẢO VỆ CHỐNG LỖI) ---
 		
 		// Token Map
-		_ = json.Unmarshal([]byte(layString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
 		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TokenInfo) }
 		
 		// Lõi SaaS (Cột J, K, L)
-		_ = json.Unmarshal([]byte(layString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
 		// Kích hoạt API riêng nếu chủ shop có cung cấp
         if kh.DataSheets.GoogleAuthJson != "" && kh.DataSheets.SpreadsheetID != "" {
         KetNoiGoogleSheetRieng(kh.DataSheets.SpreadsheetID, kh.DataSheets.GoogleAuthJson)
         }
-		_ = json.Unmarshal([]byte(layString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
 		if kh.GoiDichVu == nil { kh.GoiDichVu = make([]PlanInfo, 0) } // Ép mảng rỗng nếu chưa có
-		_ = json.Unmarshal([]byte(layString(r, CotKH_CauHinhJson)), &kh.CauHinh)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_CauHinhJson)), &kh.CauHinh)
 
 		// Thông tin râu ria
-		_ = json.Unmarshal([]byte(layString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
-		_ = json.Unmarshal([]byte(layString(r, CotKH_ViTienJson)), &kh.ViTien)
-		_ = json.Unmarshal([]byte(layString(r, CotKH_InboxJson)), &kh.Inbox)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_ViTienJson)), &kh.ViTien)
+		_ = json.Unmarshal([]byte(LayString(r, CotKH_InboxJson)), &kh.Inbox)
 		if kh.Inbox == nil { kh.Inbox = make([]MessageInfo, 0) }
 
 		list = append(list, kh)
