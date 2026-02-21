@@ -63,7 +63,7 @@ func taoMaOTP6So() string {
 // =============================================================
 
 func TrangQuenMatKhau(c *gin.Context) { 
-	c.HTML(http.StatusOK, theme+"quen_mat_khau", gin.H{}) 
+	c.HTML(http.StatusOK, "quen_mat_khau", gin.H{}) 
 }
 
 // [CÁCH 1]: Đổi mật khẩu bằng Mã PIN
