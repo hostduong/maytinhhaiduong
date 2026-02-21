@@ -28,6 +28,7 @@ func TrangDangNhap(c *gin.Context) {
 
 func XuLyDangNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
+	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 
 	inputDinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("input_dinh_danh")))
 	pass          := strings.TrimSpace(c.PostForm("mat_khau"))
