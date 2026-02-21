@@ -174,3 +174,21 @@ func LayChiTietSKU(shopID, idDuyNhat string) (*SanPham, bool) {
 	sp, ok := CacheMapSKU[key]
 	return sp, ok
 }
+
+func TaoMaSPMoi(shopID string, prefix string) string {
+	core.KhoaHeThong.RLock()
+	defer core.KhoaHeThong.RUnlock()
+	if prefix == "" { prefix = "SP" }
+	
+	maxNum := 0
+	list := CacheSanPham[shopID]
+	for _, sp := range list {
+		if strings.HasPrefix(sp.MaSanPham, prefix) {
+			numStr := strings.TrimPrefix(sp.MaSanPham, prefix)
+			if num, err := strconv.Atoi(numStr); err == nil {
+				if num > maxNum { maxNum = num }
+			}
+		}
+	}
+	return fmt.Sprintf("%s%04d", prefix, maxNum+1)
+}
