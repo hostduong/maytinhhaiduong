@@ -28,23 +28,23 @@ var (
 
 func NapThuongHieu(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(shopID, "THUONG_HIEU")
+	raw, err := LoadSheetData(shopID, "THUONG_HIEU")
 	if err != nil { return }
 
 	list := []*ThuongHieu{}
 	for i, r := range raw {
 		if i < DongBatDau_ThuongHieu-1 { continue }
-		maTH := layString(r, CotTH_MaThuongHieu)
+		maTH := LayString(r, CotTH_MaThuongHieu)
 		if maTH == "" { continue }
 
 		th := &ThuongHieu{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			MaThuongHieu:  maTH,
-			TenThuongHieu: layString(r, CotTH_TenThuongHieu),
-			LogoUrl:       layString(r, CotTH_LogoUrl),
-			MoTa:          layString(r, CotTH_MoTa),
-			TrangThai:     layInt(r, CotTH_TrangThai),
+			TenThuongHieu: LayString(r, CotTH_TenThuongHieu),
+			LogoUrl:       LayString(r, CotTH_LogoUrl),
+			MoTa:          LayString(r, CotTH_MoTa),
+			TrangThai:     LayInt(r, CotTH_TrangThai),
 		}
 		list = append(list, th)
 		key := TaoCompositeKey(shopID, maTH)
