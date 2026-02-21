@@ -158,7 +158,7 @@ func LayInt(row []interface{}, index int) int {
 }
 
 func LayFloat(row []interface{}, index int) float64 {
-	s := layString(row, index)
+	s := LayString(row, index)
 	if s == "" { return 0 }
 	s = strings.ReplaceAll(s, "đ", "")
 	s = strings.ReplaceAll(s, "USD", "")
