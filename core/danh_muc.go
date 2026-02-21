@@ -39,26 +39,26 @@ var (
 
 func NapDanhMuc(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := loadSheetData(shopID, "DANH_MUC")
+	raw, err := LoadSheetData(shopID, "DANH_MUC")
 	if err != nil { return }
 
 	list := []*DanhMuc{}
 
 	for i, r := range raw {
 		if i < DongBatDau_DanhMuc-1 { continue }
-		maDM := layString(r, CotDM_MaDanhMuc)
+		maDM := LayString(r, CotDM_MaDanhMuc)
 		if maDM == "" { continue }
 
 		dm := &DanhMuc{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
 			MaDanhMuc:      maDM,
-			TenDanhMuc:     layString(r, CotDM_TenDanhMuc),
-			DanhMucMe:      layString(r, CotDM_DanhMucMe),
-			ThueVAT:        layFloat(r, CotDM_ThueVAT),
-			LoiNhuan:       layFloat(r, CotDM_LoiNhuan),
-			Slot:           layInt(r, CotDM_Slot),
-			TrangThai:      layInt(r, CotDM_TrangThai), 
+			TenDanhMuc:     LayString(r, CotDM_TenDanhMuc),
+			DanhMucMe:      LayString(r, CotDM_DanhMucMe),
+			ThueVAT:        LayFloat(r, CotDM_ThueVAT),
+			LoiNhuan:       LayFloat(r, CotDM_LoiNhuan),
+			Slot:           LayInt(r, CotDM_Slot),
+			TrangThai:      LayInt(r, CotDM_TrangThai), 
 		}
 		
 		list = append(list, dm)
