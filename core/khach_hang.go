@@ -183,6 +183,10 @@ func NapKhachHang(shopID string) {
 		
 		// Lõi SaaS (Cột J, K, L)
 		_ = json.Unmarshal([]byte(layString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
+		// Kích hoạt API riêng nếu chủ shop có cung cấp
+        if kh.DataSheets.GoogleAuthJson != "" && kh.DataSheets.SpreadsheetID != "" {
+        KetNoiGoogleSheetRieng(kh.DataSheets.SpreadsheetID, kh.DataSheets.GoogleAuthJson)
+        }
 		_ = json.Unmarshal([]byte(layString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
 		if kh.GoiDichVu == nil { kh.GoiDichVu = make([]PlanInfo, 0) } // Ép mảng rỗng nếu chưa có
 		_ = json.Unmarshal([]byte(layString(r, CotKH_CauHinhJson)), &kh.CauHinh)
