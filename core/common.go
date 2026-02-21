@@ -21,33 +21,30 @@ import (
 // =============================================================
 
 var (
-	// Khóa an toàn (Mutex) bảo vệ toàn bộ dữ liệu RAM
+	// Khóa an toàn bảo vệ dữ liệu RAM
 	KhoaHeThong sync.RWMutex
-
-	// Dịch vụ Google Sheets API
-	DichVuSheet *sheets.Service
-
-	// Cờ báo hiệu hệ thống đang bận
 	HeThongDangBan bool
+
+	// --- [MỚI] BỂ CHỨA KẾT NỐI API (CONNECTION POOL) ---
+	MapDichVuSheet = make(map[string]*sheets.Service)
+	MutexDichVu    sync.RWMutex // Khóa riêng cho Pool
 )
 
-// Struct phục vụ cho Hàng Chờ Ghi (Giữ lại Struct này vì các file khác cần dùng)
 type YeuCauGhi struct {
-	SpreadsheetID string      // ID file Google Sheet
-	SheetName     string      // Tên Sheet
-	RowIndex      int         // Dòng cần ghi
-	ColIndex      int         // Cột cần ghi
-	Value         interface{} // Giá trị cần ghi
+	SpreadsheetID string      
+	SheetName     string      
+	RowIndex      int         
+	ColIndex      int         
+	Value         interface{} 
 }
 
-// Callback để main.go đăng ký hàm xử lý ghi
 var CallbackThemVaoHangCho func(req YeuCauGhi)
 
 // =============================================================
-// 2. KHỞI TẠO KẾT NỐI
+// 2. KHỞI TẠO KẾT NỐI (SERVER DEFAULT)
 // =============================================================
 func KhoiTaoNenTang() {
-	log.Println("🔌 [CORE] Đang kết nối Google Sheets...")
+	log.Println("🔌 [CORE] Đang kết nối Google Sheets (API Mặc định)...")
 
 	ctx := context.Background()
 	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson
@@ -56,50 +53,92 @@ func KhoiTaoNenTang() {
 	var err error
 
 	if jsonKey != "" {
-		log.Println("🔑 [AUTH] Phát hiện JSON Key, sử dụng chế độ Service Account Key.")
+		log.Println("🔑 [AUTH] Phát hiện JSON Key hệ thống, sử dụng Service Account.")
 		srv, err = sheets.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
 	} else {
-		log.Println("☁️ [AUTH] Không có JSON Key, chuyển sang chế độ Cloud Run (ADC).")
+		log.Println("☁️ [AUTH] Không có JSON Key, dùng chế độ Cloud Run (ADC).")
 		srv, err = sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsScope))
 	}
 
 	if err != nil {
-		log.Printf("❌ LỖI KẾT NỐI GOOGLE SHEETS: %v", err)
-		log.Println("⚠️ Hệ thống sẽ chạy ở chế độ Offline (Chỉ xem giao diện, không có dữ liệu).")
+		log.Printf("❌ LỖI KẾT NỐI MẶC ĐỊNH: %v", err)
 		return
 	}
 
-	DichVuSheet = srv
-	log.Println("✅ [CORE] Kết nối thành công!")
+	// Lưu API mặc định vào Pool
+	MutexDichVu.Lock()
+	MapDichVuSheet["default"] = srv
+	MapDichVuSheet[cau_hinh.BienCauHinh.IdFileSheet] = srv // Lưu cho Master Shop
+	MutexDichVu.Unlock()
+	
+	log.Println("✅ [CORE] Khởi tạo API mặc định thành công!")
 }
 
 // =============================================================
-// 3. HÀM TIỆN ÍCH CỐT LÕI (HELPER)
+// 3. QUẢN LÝ POOL KẾT NỐI (MULTITENANT API)
+// =============================================================
+
+// KetNoiGoogleSheetRieng: Tạo đường truyền API riêng cho Shop VIP
+func KetNoiGoogleSheetRieng(shopID string, jsonKey string) {
+	if jsonKey == "" || shopID == "" { return }
+
+	ctx := context.Background()
+	srv, err := sheets.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	if err != nil {
+		log.Printf("⚠️ [AUTH] Shop [%s] sai định dạng JSON API: %v", shopID, err)
+		return
+	}
+
+	MutexDichVu.Lock()
+	MapDichVuSheet[shopID] = srv
+	MutexDichVu.Unlock()
+	log.Printf("🚀 [AUTH] Kích hoạt đường truyền API Riêng (VIP) cho Shop [%s]", shopID)
+}
+
+// LayDichVuSheet: Lấy API của shop, nếu ko có thì lấy mặc định
+func LayDichVuSheet(shopID string) *sheets.Service {
+	MutexDichVu.RLock()
+	srv, ok := MapDichVuSheet[shopID]
+	MutexDichVu.RUnlock()
+
+	if ok && srv != nil {
+		return srv
+	}
+
+	// Fallback
+	MutexDichVu.RLock()
+	defaultSrv := MapDichVuSheet["default"]
+	MutexDichVu.RUnlock()
+	return defaultSrv
+}
+
+// =============================================================
+// 4. HÀM TIỆN ÍCH CỐT LÕI (HELPER)
 // =============================================================
 
 func TaoCompositeKey(sheetID, entityID string) string {
 	return fmt.Sprintf("%s__%s", sheetID, entityID)
 }
 
+// Lấy dữ liệu thông minh (Tự tìm đúng API của Shop)
 func loadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
-	if DichVuSheet == nil {
-		return nil, fmt.Errorf("chưa kết nối được Google Sheets")
-	}
-
 	if spreadsheetID == "" {
 		spreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
 	}
 
+	srv := LayDichVuSheet(spreadsheetID)
+	if srv == nil {
+		return nil, fmt.Errorf("chưa kết nối được Google Sheets API")
+	}
+
 	readRange := tenSheet + "!A:AZ"
-	resp, err := DichVuSheet.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
-		log.Printf("⚠️ Lỗi đọc sheet %s: %v", tenSheet, err)
+		log.Printf("⚠️ Lỗi đọc sheet %s (ID: %s): %v", tenSheet, spreadsheetID[:5], err)
 		return nil, err
 	}
 	return resp.Values, nil
 }
-
-// [ĐÃ XÓA HÀM ThemVaoHangCho TẠI ĐÂY ĐỂ KHÔNG BỊ TRÙNG VỚI write_queue.go]
 
 // --- CÁC HÀM PARSE DỮ LIỆU ---
 
