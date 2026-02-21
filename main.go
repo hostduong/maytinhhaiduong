@@ -90,6 +90,7 @@ func main() {
 		
 		admin.GET("/thanh-vien", chuc_nang_admin.TrangQuanLyThanhVien)
 		admin.POST("/api/member/save", chuc_nang_admin.API_Admin_LuuThanhVien)
+		admin.POST("/api/member/send-msg", chuc_nang_admin.API_Admin_GuiTinNhan)
 
 		admin.GET("/cai-dat", chuc_nang_admin.TrangQuanLyCaiDat)
 		admin.POST("/api/category/save", chuc_nang_admin.API_LuuDanhMuc)
