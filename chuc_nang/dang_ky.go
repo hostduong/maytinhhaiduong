@@ -30,6 +30,7 @@ func TrangDangKy(c *gin.Context) {
 // Xử Lý Đăng Ký (Logic)
 func XuLyDangKy(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // Lấy ShopID từ Middleware
+	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 
 	// 1. LẤY DỮ LIỆU TỪ FORM
 	hoTen     := strings.TrimSpace(c.PostForm("ho_ten"))
