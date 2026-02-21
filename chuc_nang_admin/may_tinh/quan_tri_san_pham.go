@@ -167,7 +167,7 @@ func API_LuuSanPham(c *gin.Context) {
 			parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
 			if parsedDM != "" { firstCodeDM = strings.Split(parsedDM, "|")[0] }
 		}
-		maSP = core.TaoMaSPMoi(shopID, firstCodeDM) 
+		maSP = data_pc.TaoMaSPMoi(shopID, firstCodeDM)
 	} else {
 		// LOGIC CẬP NHẬT NGƯỢC SLOT
 		if len(existingSKUs) == 0 {
