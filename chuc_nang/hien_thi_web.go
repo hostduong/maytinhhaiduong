@@ -45,19 +45,37 @@ func layThongTinNguoiDung(c *gin.Context) (bool, string, string) {
 
 func TrangChu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	theme := c.GetString("THEME") // [SAAS] Lấy theme động
-	
-	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
+	theme := c.GetString("THEME") 
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
-	// Lấy Cấu Hình của Shop để Render Khung Giao Diện chung
-	tenantVal, _ := c.Get("TENANT_INFO")
-	chuShop := tenantVal.(*core.KhachHang)
+	// 1. NGÃ RẼ 1: DÀNH CHO TRANG CHỦ NỀN TẢNG (99k.vn)
+	if theme == "theme_master" {
+		c.HTML(http.StatusOK, "theme_master/trang_chu", gin.H{
+			"TieuDe": "Nền tảng tạo Website & POS chỉ với 99K",
+			"DaDangNhap": daLogin, 
+			"TenNguoiDung": tenUser, 
+			"QuyenHan": quyen,
+		})
+		return
+	}
+
+	// 2. NGÃ RẼ 2: DÀNH CHO CỬA HÀNG B2C (VD: cuahang.99k.vn)
+	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
+	
+	tenantVal, exists := c.Get("TENANT_INFO")
+	var cauHinh core.UserConfig
+	if exists {
+		chuShop := tenantVal.(*core.KhachHang)
+		cauHinh = chuShop.CauHinh
+	}
 
 	c.HTML(http.StatusOK, theme+"/trang_chu", gin.H{
-		"TieuDe": "Trang Chủ", "DanhSachSanPham": danhSachSP,
-		"DaDangNhap": daLogin, "TenNguoiDung": tenUser, "QuyenHan": quyen,
-		"CauHinhShop": chuShop.CauHinh,
+		"TieuDe": "Trang Chủ", 
+		"DanhSachSanPham": danhSachSP,
+		"DaDangNhap": daLogin, 
+		"TenNguoiDung": tenUser, 
+		"QuyenHan": quyen,
+		"CauHinhShop": cauHinh,
 	})
 }
 
