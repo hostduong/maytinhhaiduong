@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <h2 class="mt-3 text-3xl font-bold text-gray-800" id="lblHoTen">{{ .NhanVien.TenKhachHang }}</h2>
-                <div class="text-blue-600 font-bold bg-blue-50 inline-block px-4 py-1 rounded-full text-xs mt-2 tracking-widest border border-blue-100">
+                <div class="text-blue-600 font-bold bg-blue-50 inline-block px-4 py-1 rounded-full text-xs mt-2 tracking-widest border border-blue-100 uppercase">
                     {{ .NhanVien.ChucVu }}
                 </div>
                 <div class="flex justify-center gap-4 mt-4">
@@ -35,7 +35,7 @@
                     {{ end }}
                     
                     {{ if .NhanVien.MangXaHoi.Tiktok }}
-                    <a href="{{ .NhanVien.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.12-8.84 0-20.29 0-31.48.04 4.5 1.44 9.04 4.14 12.74 3.08 4.21 6.27 6.4 9.53 5.37 2.84-.92 4.79-5.28 4.37-7.82.02-2.55 2.08-4.71 4.75-4.8 2.37.07 4.28 2.04 4.3 4.41.02 2.4-1.9 4.37-4.29 4.4-2.42.03-4.42-1.92-4.4-4.32-.01-2.4 1.93-4.33 4.33-4.31z"/></svg></a>
+                    <a href="{{ .NhanVien.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 448 512"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg></a>
                     {{ end }}
                     
                     {{ if .NhanVien.MangXaHoi.Zalo }}
@@ -57,15 +57,15 @@
                     <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Họ và tên</label><div class="text-gray-900 font-semibold">{{ .NhanVien.TenKhachHang }}</div></div>
                     <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Số điện thoại</label><div class="text-gray-900 font-semibold">{{ if .NhanVien.DienThoai }} {{ .NhanVien.DienThoai }} {{ else }} -- {{ end }}</div></div>
                     <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Email</label><div class="text-gray-900 font-semibold">{{ .NhanVien.Email }}</div></div>
+                    <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-blue-600 font-medium">{{ if .NhanVien.MangXaHoi.Zalo }} {{ .NhanVien.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
                     <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Ngày sinh</label><div class="text-gray-900 font-semibold">{{ if .NhanVien.NgaySinh }} {{ .NhanVien.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
                     <div class="md:col-span-2"><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Địa chỉ</label><div class="text-gray-900 font-semibold">{{ if .NhanVien.DiaChi }} {{ .NhanVien.DiaChi }} {{ else }} <span class="text-gray-400 italic">Chưa cập nhật</span> {{ end }}</div></div>
                 </div>
             </div>
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6">
                 <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin khác</h3>
-                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập</label><div class="text-gray-900 font-semibold italic">{{ .NhanVien.TenDangNhap }}</div></div>
+                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập</label><div class="text-blue-600 font-semibold italic">{{ .NhanVien.TenDangNhap }}</div></div>
                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế</label><div class="text-gray-900 font-semibold">{{ if .NhanVien.MaSoThue }} {{ .NhanVien.MaSoThue }} {{ else }} -- {{ end }}</div></div>
-                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo</label><div class="text-blue-600 font-medium">{{ if .NhanVien.MangXaHoi.Zalo }} {{ .NhanVien.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
             </div>
         </div>
     </div>
@@ -73,7 +73,10 @@
     <div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="p-8">
-                <h3 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">✏️ Cập nhật hồ sơ</h3>
+                <div class="flex justify-between items-center mb-6 border-b pb-2">
+                    <h3 class="text-2xl font-bold text-gray-800">✏️ Cập nhật hồ sơ</h3>
+                    <button onclick="toggleModal('modalInfo')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p></div>
@@ -84,7 +87,7 @@
                     
                     <div class="md:col-span-2 border-t pt-4 mt-2"><h4 class="text-sm font-bold text-blue-600 mb-3">Mạng xã hội</h4></div>
                     
-                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" placeholder="09xxxx..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"></div>
                     
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                     
@@ -98,9 +101,12 @@
         </div>
     </div>
 
-    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-96 transform transition-all">
-            <h3 class="text-2xl font-bold mb-6 text-gray-800">🔐 Đổi mật khẩu</h3>
+    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">🔐 Đổi mật khẩu</h3>
+                <button onclick="toggleModal('modalPass')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+            </div>
             <div class="space-y-4">
                 <div class="relative">
                     <input type="password" id="oldPass" placeholder="Mật khẩu hiện tại" class="w-full p-3.5 pr-10 border border-gray-300 rounded-xl outline-none transition">
@@ -125,9 +131,12 @@
         </div>
     </div>
 
-    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-96 transform transition-all">
-            <h3 class="text-2xl font-bold mb-2 text-gray-800">🔢 Mã PIN bảo mật</h3>
+    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-2xl font-bold text-gray-800">🔢 Mã PIN bảo mật</h3>
+                <button onclick="toggleModal('modalPin')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+            </div>
             
             <div id="viewChangePin" class="space-y-4 pt-4">
                 <div class="relative">
@@ -171,11 +180,13 @@
     </div>
 
     <script>
+        // Init Phone Input
         const inputPhone = document.querySelector("#newPhone");
-        const iti = window.intlTelInput(inputPhone, {
-            initialCountry: "vn", separateDialCode: true,
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
-        });
+        let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        // Init Zalo Input
+        const inputZalo = document.querySelector("#newZalo");
+        let itiZalo; if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
         function setBtnLoading(id, text) {
             const btn = document.getElementById(id);
@@ -209,7 +220,7 @@
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) checkInfoBtn();
+            if (!modal.classList.contains('hidden') && id === 'modalInfo') checkInfoBtn();
         }
 
         function switchPinView(mode) {
@@ -234,12 +245,12 @@
             const msg = document.getElementById(errId);
             if (isError) {
                 input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal');
-                msg.classList.add('show');
+                if(msg) msg.classList.add('show');
             } else {
                 input.classList.remove('input-error');
                 if(input.value.trim() !== "") input.classList.add('input-success');
                 else input.classList.add('input-normal');
-                msg.classList.remove('show');
+                if(msg) msg.classList.remove('show');
             }
             if(id.startsWith("new")) checkInfoBtn();
             if(id.includes("Pass")) checkPassBtn();
@@ -251,8 +262,7 @@
             if (val !== "" && rules.char.test(val)) setError(id, errId, true);
             else { 
                 document.getElementById(id).classList.remove('input-error');
-                document.getElementById(errId).classList.remove('show');
-                // Re-check buttons
+                if(document.getElementById(errId)) document.getElementById(errId).classList.remove('show');
                 if(id.startsWith("new")) checkInfoBtn();
                 if(id.includes("Pass")) checkPassBtn();
                 if(id.includes("Pin")) checkPinBtn();
@@ -264,7 +274,6 @@
             if (!rules.full.test(val)) setError(id, errId, true); else setError(id, errId, false);
         }
 
-        // Mapping Events
         const fields = [
             { id: 'newName', rule: regexName, err: 'err_newName' },
             { id: 'newFb', rule: regexUrl, err: 'err_newFb' },
@@ -275,11 +284,12 @@
         ];
         fields.forEach(f => {
             const el = document.getElementById(f.id);
-            el.addEventListener('input', () => handleInput(f.id, f.rule, f.err));
-            el.addEventListener('blur', () => handleBlur(f.id, f.rule, f.err));
+            if(el) {
+                el.addEventListener('input', () => handleInput(f.id, f.rule, f.err));
+                el.addEventListener('blur', () => handleBlur(f.id, f.rule, f.err));
+            }
         });
 
-        // Simple validation for Old Pass/Pin (Just length > 0)
         document.getElementById('oldPass').addEventListener('input', checkPassBtn);
         document.getElementById('oldPin').addEventListener('input', checkPinBtn);
 
@@ -294,8 +304,8 @@
         function checkInfoBtn() {
             const ids = ['newName', 'newFb', 'newTiktok', 'newTax'];
             let allOk = true;
-            ids.forEach(id => { if (document.getElementById(id).classList.contains('input-error')) allOk = false; });
-            if (inputPhone.classList.contains('input-error')) allOk = false;
+            ids.forEach(id => { if (document.getElementById(id) && document.getElementById(id).classList.contains('input-error')) allOk = false; });
+            if (inputPhone && inputPhone.classList.contains('input-error')) allOk = false;
             document.getElementById('btnSaveInfo').disabled = !allOk;
         }
         function checkPassBtn() {
@@ -322,12 +332,12 @@
             setBtnLoading('btnSaveInfo', 'Lưu...');
             const data = {
                 ho_ten: document.getElementById('newName').value,
-                dien_thoai: iti.getNumber(),
+                dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value,
                 ngay_sinh: document.getElementById('newDob').value,
                 gioi_tinh: document.getElementById('newGender').value,
                 dia_chi: document.getElementById('newAddress').value,
                 ma_so_thue: document.getElementById('newTax').value,
-                zalo: document.getElementById('newZalo').value,
+                zalo: itiZalo ? itiZalo.getNumber() : document.getElementById('newZalo').value,
                 url_fb: document.getElementById('newFb').value,
                 url_tiktok: document.getElementById('newTiktok').value
             };
