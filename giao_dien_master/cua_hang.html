@@ -27,7 +27,9 @@
         .input-success { border-color: #22c55e !important; }
         .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
         .error-text.show { display: block; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .iti { width: 100%; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -87,6 +89,7 @@
 
         <main class="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8">
             <div class="max-w-4xl mx-auto pb-10">
+                
                 {{ if eq (len .ChuShop.GoiDichVu) 0 }}
                 <div class="mb-6 lg:mb-8 bg-amber-50 border border-amber-300 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 hidden sm:flex">
@@ -122,6 +125,19 @@
                             </div>
                             <h2 class="mt-3 text-3xl font-bold text-gray-800">{{ .ChuShop.TenKhachHang }}</h2>
                             <div class="text-blue-600 font-bold bg-blue-50 inline-block px-4 py-1 rounded-full text-xs mt-2 tracking-widest border border-blue-100 uppercase">{{ .ChuShop.ChucVu }}</div>
+                            <div class="flex justify-center gap-4 mt-4">
+                                {{ if .ChuShop.MangXaHoi.Facebook }}
+                                <a href="{{ .ChuShop.MangXaHoi.Facebook }}" target="_blank" class="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                                {{ end }}
+                                
+                                {{ if .ChuShop.MangXaHoi.Tiktok }}
+                                <a href="{{ .ChuShop.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.12-8.84 0-20.29 0-31.48.04 4.5 1.44 9.04 4.14 12.74 3.08 4.21 6.27 6.4 9.53 5.37 2.84-.92 4.79-5.28 4.37-7.82.02-2.55 2.08-4.71 4.75-4.8 2.37.07 4.28 2.04 4.3 4.41.02 2.4-1.9 4.37-4.29 4.4-2.42.03-4.42-1.92-4.4-4.32-.01-2.4 1.93-4.33 4.33-4.31z"/></svg></a>
+                                {{ end }}
+                                
+                                {{ if .ChuShop.MangXaHoi.Zalo }}
+                                <a href="https://zalo.me/{{ .ChuShop.MangXaHoi.Zalo }}" target="_blank" class="p-2 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-bold text-xs flex items-center justify-center w-9 h-9 border border-blue-200">Zalo</a>
+                                {{ end }}
+                            </div>
                         </div>
                         <div class="flex flex-wrap justify-center gap-3 py-8 px-6">
                             <button onclick="toggleModal('modalInfo')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm transition transform hover:-translate-y-0.5 active:scale-95">Cập nhật hồ sơ</button>
@@ -142,9 +158,9 @@
                             </div>
                         </div>
                         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6">
-                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Định danh Nền tảng</h3>
+                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin khác</h3>
                             <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập (Domain)</label><div class="text-blue-600 font-semibold italic">{{ .ChuShop.TenDangNhap }}</div></div>
-                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế / CCCD</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
                             <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-gray-900 font-medium">{{ if .ChuShop.MangXaHoi.Zalo }} {{ .ChuShop.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
                         </div>
                     </div>
@@ -168,9 +184,18 @@
                         </div>
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col">
                             <h3 class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Gói Dịch Vụ Đang Dùng</h3>
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3"><span class="text-xl sm:text-2xl font-bold text-emerald-600">Gói Dùng Thử</span><span class="bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Đang hoạt động</span></div>
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3"><span class="text-xl sm:text-2xl font-bold text-emerald-600">Gói Dùng Thử</span>
+                            {{ if gt (len .ChuShop.GoiDichVu) 0 }}<span class="bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Đang hoạt động</span>{{ end }}</div>
                             <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-6 flex-1">
-                                <p class="text-xs sm:text-sm text-slate-600 font-medium flex justify-between"><span>Ngày hết hạn:</span> <b class="text-slate-800">Chưa xác định</b></p>
+                                <p class="text-xs sm:text-sm text-slate-600 font-medium flex justify-between"><span>Ngày hết hạn:</span> 
+                                    <b class="text-slate-800">
+                                        {{ if gt (len .ChuShop.GoiDichVu) 0 }}
+                                            {{ (index .ChuShop.GoiDichVu 0).NgayHetHan }}
+                                        {{ else }}
+                                            Chưa kích hoạt
+                                        {{ end }}
+                                    </b>
+                                </p>
                             </div>
                             <button onclick="switchTab('tab_goicuoc', document.querySelectorAll('.tab-btn')[3])" class="w-full bg-white border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 px-5 py-3 rounded-xl font-bold transition text-sm sm:text-base">Nâng cấp gói ngay</button>
                         </div>
@@ -185,7 +210,6 @@
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
                         <form id="formHaTang" class="space-y-10">
-                            
                             <div>
                                 <h3 class="font-bold text-lg text-blue-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
@@ -286,27 +310,6 @@
         </main>
     </div>
 
-    <div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl transform transition-transform duration-300 translate-y-0 max-h-[90vh] flex flex-col">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl shrink-0"><h3 class="text-lg font-bold text-slate-800">Cập nhật hồ sơ</h3><button onclick="toggleModal('modalInfo')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button></div>
-            <div class="p-5 overflow-y-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .ChuShop.TenKhachHang }}" class="input-premium"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
-                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .ChuShop.DienThoai }}" class="input-premium"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="input-premium bg-white px-2"><option value="Nam" {{ if eq .ChuShop.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .ChuShop.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .ChuShop.GioiTinh -1 }}selected{{ end }}>Khác</option></select></div>
-                        <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Ngày sinh</label><input type="date" id="newDob" value="{{ .ChuShop.NgaySinh }}" class="input-premium px-2"></div>
-                    </div>
-                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .ChuShop.MaSoThue }}" class="input-premium"></div>
-                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" class="input-premium" placeholder="09..."></div>
-                    <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Địa chỉ đầy đủ</label><input type="text" id="newAddress" value="{{ .ChuShop.DiaChi }}" class="input-premium"></div>
-                    <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" class="input-premium" placeholder="https://..."></div>
-                </div>
-            </div>
-            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 flex gap-3"><button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 bg-white border border-slate-300 rounded-xl font-bold">Hủy</button><button id="btnSaveInfo" onclick="capNhatThongTin()" class="flex-1 sm:flex-none sm:w-40 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div>
-        </div>
-    </div>
-    
     <div id="modalVerifyEmail" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
         <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Xác thực Email</h3><button onclick="toggleModal('modalVerifyEmail')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div>
@@ -324,31 +327,210 @@
         </div>
     </div>
 
-    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mật Khẩu</h3><button onclick="toggleModal('modalPass')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu hiện tại</label><div class="relative"><input type="password" id="oldPass" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu mới</label><div class="relative"><input type="password" id="newPass" class="input-premium pr-10"><button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPass" class="error-text">8-30 ký tự.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPass')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePass" onclick="doiPass()" class="flex-1 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
-    
-    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mã PIN</h3><button onclick="toggleModal('modalPin')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN hiện tại</label><div class="relative"><input type="password" id="oldPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN mới (8 số)</label><div class="relative"><input type="password" id="newPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPin" class="error-text">Đúng 8 số.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPin')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePin" onclick="doiPin()" class="flex-1 bg-purple-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
+    <div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6 border-b pb-2">
+                    <h3 class="text-2xl font-bold text-gray-800">✏️ Cập nhật hồ sơ</h3>
+                    <button onclick="toggleModal('modalInfo')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .ChuShop.TenKhachHang }}" class="input-premium"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .ChuShop.DienThoai }}" class="input-premium"><p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Ngày sinh</label><input type="date" id="newDob" value="{{ .ChuShop.NgaySinh }}" class="input-premium bg-white text-gray-700"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="input-premium bg-white text-gray-700"><option value="Nam" {{ if eq .ChuShop.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .ChuShop.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .ChuShop.GioiTinh -1 }}selected{{ end }}>Khác</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .ChuShop.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium"><p id="err_newTax" class="error-text">Chỉ nhập số.</p></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Địa chỉ</label><input type="text" id="newAddress" value="{{ .ChuShop.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium"></div>
+                    
+                    <div class="md:col-span-2 border-t pt-4 mt-2"><h4 class="text-sm font-bold text-blue-600 mb-3">Mạng xã hội</h4></div>
+                    
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" placeholder="09xxxx..." class="input-premium"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link TikTok</label><input type="text" id="newTiktok" value="{{ .ChuShop.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3 pt-5 border-t">
+                    <button onclick="toggleModal('modalInfo')" class="text-gray-500 hover:bg-gray-100 px-6 py-2.5 rounded-xl font-semibold transition">Hủy</button>
+                    <button id="btnSaveInfo" onclick="capNhatThongTin()" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-0.5">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">🔐 Đổi mật khẩu</h3>
+                <button onclick="toggleModal('modalPass')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="password" id="oldPass" placeholder="Mật khẩu hiện tại" class="input-premium pr-10">
+                    <button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-blue-600">
+                        <svg id="eye_slash_oldPass" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                        <svg id="eye_open_oldPass" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="newPass" placeholder="Mật khẩu mới (8-30 ký tự)" class="input-premium pr-10">
+                    <button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-blue-600">
+                        <svg id="eye_slash_newPass" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                        <svg id="eye_open_newPass" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                    <p id="err_newPass" class="error-text">8-30 ký tự. Không khoảng trắng.</p>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end gap-3 border-t pt-5">
+                <button onclick="toggleModal('modalPass')" class="text-gray-500 hover:bg-gray-100 px-5 py-2.5 rounded-xl font-semibold">Hủy</button>
+                <button id="btnSavePass" onclick="doiPass()" disabled class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-2xl font-bold text-gray-800">🔢 Mã PIN bảo mật</h3>
+                <button onclick="toggleModal('modalPin')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
+            </div>
+            
+            <div id="viewChangePin" class="space-y-4 pt-4">
+                <div class="relative">
+                    <input type="password" id="oldPin" maxlength="8" placeholder="Mã PIN hiện tại" class="input-premium pr-10">
+                    <button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-purple-600">
+                        <svg id="eye_slash_oldPin" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                        <svg id="eye_open_oldPin" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="newPin" maxlength="8" placeholder="Mã PIN mới (8 số)" class="input-premium pr-10">
+                    <button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-purple-600">
+                        <svg id="eye_slash_newPin" class="w-5 h-5 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                        <svg id="eye_open_newPin" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                    <p id="err_newPin" class="error-text">Mã PIN phải đúng 8 chữ số.</p>
+                </div>
+                <div class="text-right">
+                    <button onclick="switchPinView('forgot')" class="text-xs text-blue-600 hover:underline font-bold">Quên mã PIN?</button>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 border-t pt-5">
+                    <button onclick="toggleModal('modalPin')" class="text-gray-500 hover:bg-gray-100 px-4 py-2.5 rounded-xl font-semibold transition">Hủy</button>
+                    <button id="btnSavePin" onclick="doiPin()" disabled class="bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-purple-200">Lưu PIN</button>
+                </div>
+            </div>
+
+            <div id="viewForgotPin" class="hidden space-y-4 pt-4">
+                <div class="bg-blue-50 p-4 rounded-2xl text-xs text-blue-700 leading-relaxed border border-blue-100">
+                    Hệ thống sẽ <b>tạo mã PIN mới</b> và gửi trực tiếp tới Email đăng ký của bạn. Mã PIN cũ sẽ bị hủy ngay lập tức.
+                </div>
+                <button id="btnConfirmForgot" onclick="guiYeuCauResetPin()" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    XÁC NHẬN RESET VÀ GỬI EMAIL
+                </button>
+                <div class="mt-8 flex justify-start items-center border-t pt-5">
+                    <button onclick="switchPinView('change')" class="text-gray-400 text-sm font-bold hover:text-gray-600 transition flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg> Quay lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // UI & Tab Navigation
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebarBackdrop');
         function toggleSidebar() { sidebar.classList.toggle('-translate-x-full'); backdrop.classList.toggle('hidden'); }
         function switchTab(tabId, btn) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(tabId).classList.add('active'); if(window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) toggleSidebar(); }
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-        function togglePass(id) { const input = document.getElementById(id); input.type = input.type === "password" ? "text" : "password"; }
         
-        async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
+        function toggleModal(id) { 
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden'); 
+            if(!modal.classList.contains('hidden')) checkInfoBtn();
+        }
+        function togglePass(id) { const input = document.getElementById(id); const eyeSlash = document.getElementById('eye_slash_' + id); const eyeOpen = document.getElementById('eye_open_' + id); if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); } }
+        function switchPinView(mode) { const vChange = document.getElementById('viewChangePin'); const vForgot = document.getElementById('viewForgotPin'); if(mode === 'forgot') { vChange.classList.add('hidden'); vForgot.classList.remove('hidden'); } else { vForgot.classList.add('hidden'); vChange.classList.remove('hidden'); } }
 
+        function setBtnLoading(id, text) { const btn = document.getElementById(id); btn.disabled = true; btn.dataset.oldText = btn.innerHTML; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${text}`; }
+        function setBtnNormal(id) { const btn = document.getElementById(id); btn.disabled = false; if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText; }
+
+        // Core API function
+        async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
+        function handleRes(res, modalId, btnId) { setBtnNormal(btnId); if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload()); else Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); }
+
+        // Phone Input Init
+        const inputPhone = document.querySelector("#newPhone");
+        let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        // --- VALIDATION LOGIC ---
+        const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
+        const regexUrl  = { char: /[\s]/, full: /^https?:\/\/.+/ };
+        const regexNum  = { char: /[^0-9]/, full: /^[0-9]+$/ };
+        const regexPass = { char: /[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/, full: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ };
+        const regexPin  = { char: /[^0-9]/, full: /^\d{8}$/ };
+
+        function setError(id, errId, isError) {
+            const input = document.getElementById(id); const msg = document.getElementById(errId);
+            if (isError) { input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal'); msg.classList.add('show'); } 
+            else { input.classList.remove('input-error'); if(input.value.trim() !== "") input.classList.add('input-success'); else input.classList.add('input-normal'); msg.classList.remove('show'); }
+            if(id.startsWith("new")) checkInfoBtn(); if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn();
+        }
+
+        function handleInput(id, rules, errId) {
+            const val = document.getElementById(id).value;
+            if (val !== "" && rules.char.test(val)) setError(id, errId, true);
+            else { document.getElementById(id).classList.remove('input-error'); document.getElementById(errId).classList.remove('show'); if(id.startsWith("new")) checkInfoBtn(); if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn(); }
+        }
+        function handleBlur(id, rules, errId) {
+            const val = document.getElementById(id).value.trim();
+            if (val === "") return;
+            if (!rules.full.test(val)) setError(id, errId, true); else setError(id, errId, false);
+        }
+
+        const fields = [{ id: 'newName', rule: regexName, err: 'err_newName' }, { id: 'newFb', rule: regexUrl, err: 'err_newFb' }, { id: 'newTiktok', rule: regexUrl, err: 'err_newTiktok' }, { id: 'newTax', rule: regexNum, err: 'err_newTax' }, { id: 'newPass', rule: regexPass, err: 'err_newPass' }, { id: 'newPin', rule: regexPin, err: 'err_newPin' }];
+        fields.forEach(f => {
+            const el = document.getElementById(f.id);
+            if(el) { el.addEventListener('input', () => handleInput(f.id, f.rule, f.err)); el.addEventListener('blur', () => handleBlur(f.id, f.rule, f.err)); }
+        });
+
+        document.getElementById('oldPass').addEventListener('input', checkPassBtn);
+        document.getElementById('oldPin').addEventListener('input', checkPinBtn);
+
+        inputPhone.addEventListener('blur', () => {
+            if (inputPhone.value.trim() !== "") { if (!iti.isValidNumber()) { inputPhone.classList.add('input-error'); document.getElementById('err_newPhone').classList.add('show'); } else { inputPhone.classList.add('input-success'); inputPhone.classList.remove('input-error'); document.getElementById('err_newPhone').classList.remove('show'); } } 
+            else { inputPhone.classList.remove('input-error'); document.getElementById('err_newPhone').classList.remove('show'); }
+            checkInfoBtn();
+        });
+
+        function checkInfoBtn() {
+            const ids = ['newName', 'newFb', 'newTiktok', 'newTax']; let allOk = true;
+            ids.forEach(id => { if (document.getElementById(id).classList.contains('input-error')) allOk = false; });
+            if (inputPhone.classList.contains('input-error')) allOk = false;
+            document.getElementById('btnSaveInfo').disabled = !allOk;
+        }
+        function checkPassBtn() { const ok = document.getElementById('newPass').classList.contains('input-success') && document.getElementById('oldPass').value.length > 0; document.getElementById('btnSavePass').disabled = !ok; }
+        function checkPinBtn() { const ok = document.getElementById('newPin').classList.contains('input-success') && document.getElementById('oldPin').value.length > 0; document.getElementById('btnSavePin').disabled = !ok; }
+
+        // --- CÁC HÀM GỌI API ---
         async function luuHaTang() {
             const btn = document.getElementById('btnSaveHaTang'); const originTxt = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
             try { const res = await fetch('/cua-hang/api/cap-nhat-id', { method: 'POST', body: new FormData(document.getElementById('formHaTang')) }); const data = await res.json(); if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500}).then(() => location.reload()); else Swal.fire('Lỗi', data.msg, 'error'); } catch (e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); } finally { btn.disabled = false; btn.innerHTML = originTxt; }
         }
 
-        const inputPhone = document.querySelector("#newPhone"); let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
-        async function capNhatThongTin() { const btn = document.getElementById('btnSaveInfo'); btn.disabled = true; btn.innerText = "Đang lưu..."; const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value }; const res = await postData('/api/user/update-info', data); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
-        async function doiPass() { const btn = document.getElementById('btnSavePass'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
-        async function doiPin() { const btn = document.getElementById('btnSavePin'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
+        async function capNhatThongTin() {
+            setBtnLoading('btnSaveInfo', 'Lưu...');
+            const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value, url_tiktok: document.getElementById('newTiktok').value };
+            handleRes(await postData('/api/user/update-info', data), 'modalInfo', 'btnSaveInfo');
+        }
 
-        // CÁC HÀM XỬ LÝ KHÓA MỀM (SOFT GATE)
+        async function doiPass() { setBtnLoading('btnSavePass', 'Lưu...'); handleRes(await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value }), 'modalPass', 'btnSavePass'); }
+        async function doiPin() { setBtnLoading('btnSavePin', 'Lưu...'); handleRes(await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }), 'modalPin', 'btnSavePin'); }
+        async function guiYeuCauResetPin() { setBtnLoading('btnConfirmForgot', 'Gửi...'); try { const r = await fetch('/api/user/send-otp-pin', {method:'POST'}); handleRes(await r.json(), 'modalPin', 'btnConfirmForgot'); } catch(e){ setBtnNormal('btnConfirmForgot'); } }
+
+        // --- CÁC HÀM XỬ LÝ KHÓA MỀM (SOFT GATE) ---
+        
+        // 1. Giới hạn nhập số cho input OTP & Ấn Enter để submit
+        document.getElementById('otpKichHoat').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+        document.getElementById('otpKichHoat').addEventListener('keypress', function(e) { if (e.key === 'Enter' && this.value.length === 6) { e.preventDefault(); xacThucKichHoat(); } });
+
         async function xacThucKichHoat() {
             const btn = document.getElementById('btnVerifySoftGate'); btn.disabled = true; btn.innerText = "Đang kiểm tra...";
             const res = await postData('/api/user/verify-softgate', { otp: document.getElementById('otpKichHoat').value });
@@ -356,11 +538,50 @@
             else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
         }
 
+        // 2. Gửi lại OTP có xác nhận, hiển thị MSG từ API và đếm ngược 60s
         async function guiLaiOTPSoftGate() {
-            const btn = document.getElementById('btnResendSoftGate'); btn.disabled = true; btn.innerText = "Đang gửi...";
+            // Popup Hỏi xác nhận
+            const confirm = await Swal.fire({
+                title: 'Xác nhận gửi lại mã',
+                text: 'Hệ thống sẽ gửi một mã OTP mới đến email của bạn.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Gửi mã',
+                cancelButtonText: 'Hủy'
+            });
+            
+            if (!confirm.isConfirmed) return;
+
+            const btn = document.getElementById('btnResendSoftGate'); 
+            btn.disabled = true; btn.innerText = "Đang gửi...";
+            
+            // Gọi API
             const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
-            if(res.status === 'ok') { Swal.fire({icon:'info', title:'Đã gửi lại', text:'Vui lòng kiểm tra hộp thư', toast:true, position:'top-end', showConfirmButton:false, timer:3000}); btn.innerText = "Gửi lại mã OTP"; btn.disabled = false; }
-            else { Swal.fire('Lỗi', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
+            
+            if(res.status === 'ok') { 
+                // Hiển thị thông điệp chính xác từ Backend (Apps Script) trả về
+                Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, toast:true, position:'top-end', showConfirmButton:false, timer:4000}); 
+                
+                // Khóa đếm ngược 60s
+                let timeLeft = 60;
+                btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                const timerId = setInterval(() => {
+                    timeLeft--;
+                    btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                    if(timeLeft <= 0) {
+                        clearInterval(timerId);
+                        btn.disabled = false;
+                        btn.innerText = "Gửi lại mã OTP";
+                    }
+                }, 1000);
+            }
+            else { 
+                Swal.fire('Lỗi hệ thống', res.msg, 'error'); 
+                btn.innerText = "Thử lại"; 
+                btn.disabled = false; 
+            }
         }
     </script>
 </body>
