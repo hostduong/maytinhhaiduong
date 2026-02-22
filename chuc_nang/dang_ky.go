@@ -137,11 +137,11 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_ChucVu, newKH.ChucVu)
 	ghi(shopID, sh, r, core.CotKH_TrangThai, newKH.TrangThai)
 
-	// CHẠY NGẦM GỬI OTP (Nếu là chủ shop đăng ký mới)
+	// CHẠY NGẦM GỬI OTP (Gửi thật qua Google Apps Script)
 	if theme == "theme_master" && vaiTro != "quan_tri_vien_he_thong" {
-		code := taoMaOTP6So() 
-		luuOTPCucBo(shopID, user, code)
-		log.Printf("📧 [MAIL MOCK] Gửi OTP KÍCH HOẠT '%s' đến %s", code, email)
+		code := core.TaoMaOTP6So() 
+		core.LuuOTP(shopID + "_" + user, code) // Lưu vào RAM
+		go core.GuiMailXacMinhAPI(email, code) // Chạy ngầm gửi Email thật để không block giao diện
 	}
 
 	// TẠO COOKIE ĐĂNG NHẬP
@@ -177,7 +177,7 @@ func API_XacThucKichHoat(c *gin.Context) {
 	otp := strings.TrimSpace(c.PostForm("otp"))
 
 	kh, ok := core.LayKhachHang(masterShopID, userID)
-	if !ok || !kiemTraOTPCucBo(masterShopID, kh.TenDangNhap, otp) {
+	if !ok || !core.KiemTraOTP(masterShopID + "_" + kh.TenDangNhap, otp) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã OTP không đúng hoặc đã hết hạn!"})
 		return
 	}
