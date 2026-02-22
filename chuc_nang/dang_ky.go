@@ -1,14 +1,17 @@
 package chuc_nang
 
 import (
+	"context" // [MỚI THÊM]
+	"log"     // [MỚI THÊM]
 	"net/http"
 	"strings"
 	"time"
 
-	"app/cau_hinh" // Chứa hàm kiểm tra (KiemTraHoTen...)
-	"app/core"     // Chứa Struct, Const, Hàm DB
+	"app/cau_hinh"
+	"app/core"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/option" // [MỚI THÊM]
 	"google.golang.org/api/run/v1"
 )
 
