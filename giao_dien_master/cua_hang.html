@@ -226,13 +226,22 @@
                                         <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
                                     </div>
                                     <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 text-sm text-blue-800 leading-relaxed shadow-inner">
-                                        <b class="text-blue-900 flex items-center gap-1 mb-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Hướng dẫn thiết lập:</b>
-                                        <ul class="list-disc list-inside ml-4 space-y-1 text-blue-700">
-                                            <li><b>Cách lấy ID:</b> Là dải ký tự nằm giữa <code class="bg-white px-1 rounded text-blue-600">/d/</code> và <code class="bg-white px-1 rounded text-blue-600">/edit</code> (hoặc <code>/folders/</code>) trong link trình duyệt.</li>
-                                            <li><span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Share (Chia sẻ) cả File Sheet và Thư mục Drive, sau đó cấp quyền <b>Editor (Người chỉnh sửa)</b> cho Email hệ thống dưới đây:</li>
+                                        <b class="text-blue-900 flex items-center gap-1 mb-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Hướng dẫn thiết lập:</b>
+                                        <ul class="list-disc list-inside ml-2 sm:ml-4 space-y-3 text-blue-700">
+                                            <li><b>Cách lấy ID:</b> Là dải ký tự nằm giữa <code class="bg-white px-1.5 py-0.5 rounded text-blue-600 border border-blue-200">/d/</code> và <code class="bg-white px-1.5 py-0.5 rounded text-blue-600 border border-blue-200">/edit</code> (hoặc <code>/folders/</code>) trong thanh địa chỉ trình duyệt.</li>
+                                            <li>
+                                                <span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Chia sẻ quyền <b>Editor (Người chỉnh sửa)</b> cho cả File Sheet và Thư mục Drive theo 1 trong 2 cách sau:
+                                                <ul class="list-[circle] list-inside ml-6 mt-2 space-y-1.5 text-slate-700">
+                                                    <li><b>Cách 1:</b> Cấp quyền cho <i>"Bất kỳ ai có đường liên kết"</i>.</li>
+                                                    <li><b>Cách 2:</b> Chia sẻ cấp quyền riêng cho Email hệ thống (Khuyên dùng):</li>
+                                                </ul>
+                                            </li>
                                         </ul>
-                                        <div class="mt-3">
-                                            <code class="block p-3 bg-white rounded-lg border border-blue-200 select-all font-bold text-blue-700 text-center shadow-sm">www.99k.vn@gmail.com</code>
+                                        <div class="mt-4 flex justify-center sm:justify-start sm:ml-10">
+                                            <button type="button" onclick="copyEmailToClipboard()" class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg border-2 border-blue-200 font-bold text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm group">
+                                                <span>www.99k.vn@gmail.com</span>
+                                                <svg class="w-5 h-5 text-blue-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -600,6 +609,23 @@
                 }, 1000);
             }
             else { Swal.fire('Lỗi hệ thống', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
+        }
+
+        // Hàm Copy Email
+        function copyEmailToClipboard() {
+            navigator.clipboard.writeText("www.99k.vn@gmail.com").then(() => {
+                Swal.fire({
+                    icon: 'success', 
+                    title: 'Đã copy!', 
+                    text: 'Đã lưu Email vào khay nhớ tạm.', 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 2000
+                });
+            }).catch(err => {
+                console.error('Không thể copy', err);
+            });
         }
     </script>
 </body>
