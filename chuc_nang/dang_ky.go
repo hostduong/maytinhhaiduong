@@ -209,10 +209,10 @@ func XuLyXacThucOTP(c *gin.Context) {
 	core.KhoaHeThong.Lock()
 	kh.TrangThai = 1
 	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
-		MaGoi:      "TRIAL_3DAYS",
-		TenGoi:     "Dùng thử 3 ngày",
-		NgayHetHan: time.Now().AddDate(0, 0, 3).Format("2006-01-02 15:04:05"),
-		TrangThai:  "active", // Đổi số 1 thành chuỗi "active"
+		MaGoi:          "TRIAL_3DAYS",
+		TenGoiDichVu:   "Dùng thử 3 ngày", // <-- SỬA THÀNH TenGoiDichVu
+		NgayHetHan:     time.Now().AddDate(0, 0, 3).Format("2006-01-02 15:04:05"),
+		TrangThai:      "active",
 	})
 	
 	// Tạo Session Đăng nhập
