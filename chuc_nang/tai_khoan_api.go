@@ -2,97 +2,59 @@ package chuc_nang
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
 	"strings"
-	"time"
 
 	"app/cau_hinh"
 	"app/core"
-
 	"github.com/gin-gonic/gin"
 )
 
-// Helper tạo mã PIN 8 số
-func taoMaPIN8So() string {
-	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("%08d", rand.Intn(100000000))
-}
-
 // API_DoiThongTin : Cập nhật Full thông tin cá nhân
 func API_DoiThongTin(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
-
+	shopID := c.GetString("SHOP_ID") // Lấy ID của cửa hàng hiện tại
+	
 	hoTenMoi    := strings.TrimSpace(c.PostForm("ho_ten"))
 	sdtMoi      := strings.TrimSpace(c.PostForm("dien_thoai"))
 	ngaySinhMoi := strings.TrimSpace(c.PostForm("ngay_sinh"))
-	gioiTinhStr := strings.TrimSpace(c.PostForm("gioi_tinh"))
+	gioiTinhMoi := strings.TrimSpace(c.PostForm("gioi_tinh"))
 	
 	diaChiMoi   := strings.TrimSpace(c.PostForm("dia_chi"))
 	maSoThueMoi := strings.TrimSpace(c.PostForm("ma_so_thue"))
-	
-	// Mạng xã hội
 	zaloMoi     := strings.TrimSpace(c.PostForm("zalo"))
 	fbMoi       := strings.TrimSpace(c.PostForm("url_fb"))
 	tiktokMoi   := strings.TrimSpace(c.PostForm("url_tiktok"))
 
-	// Validate
 	if !cau_hinh.KiemTraHoTen(hoTenMoi) { 
 		c.JSON(200, gin.H{"status": "error", "msg": "Tên không hợp lệ!"})
 		return 
 	}
 	
 	cookie, _ := c.Cookie("session_id")
-	
-	// [SAAS] Tìm khách hàng trong Shop
 	if kh, ok := core.TimKhachHangTheoCookie(shopID, cookie); ok {
-		
 		core.KhoaHeThong.Lock()
 		kh.TenKhachHang = hoTenMoi
 		kh.DienThoai = sdtMoi
 		kh.NgaySinh = ngaySinhMoi
-		
-		// Convert giới tính
-		if gioiTinhStr == "Nam" { 
-			kh.GioiTinh = 1 
-		} else if gioiTinhStr == "Nữ" { 
-			kh.GioiTinh = 0 
-		} else { 
-			kh.GioiTinh = -1 
-		}
-		
+		gioiTinh := -1
+		if gioiTinhMoi == "Nam" { gioiTinh = 1 } else if gioiTinhMoi == "Nữ" { gioiTinh = 0 }
+		kh.GioiTinh = gioiTinh
 		kh.DiaChi = diaChiMoi
 		kh.MaSoThue = maSoThueMoi
-		
-		// Cập nhật Struct con (Mạng xã hội)
 		kh.MangXaHoi.Zalo = zaloMoi
 		kh.MangXaHoi.Facebook = fbMoi
 		kh.MangXaHoi.Tiktok = tiktokMoi
-		
-		kh.NguoiCapNhat = kh.TenDangNhap // Lưu vết chính user tự sửa
-		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
 
-		// Ghi xuống Sheet
 		row := kh.DongTrongSheet
 		sheet := "KHACH_HANG"
-		ghi := core.ThemVaoHangCho
 
-		// Ghi cột thường
-		ghi(shopID, sheet, row, core.CotKH_TenKhachHang, kh.TenKhachHang)
-		ghi(shopID, sheet, row, core.CotKH_DienThoai, kh.DienThoai)
-		ghi(shopID, sheet, row, core.CotKH_NgaySinh, kh.NgaySinh)
-		ghi(shopID, sheet, row, core.CotKH_GioiTinh, kh.GioiTinh)
-		ghi(shopID, sheet, row, core.CotKH_DiaChi, kh.DiaChi)
-		ghi(shopID, sheet, row, core.CotKH_MaSoThue, kh.MaSoThue)
-		
-		// Ghi JSON
-		jsonMXH := core.ToJSON(kh.MangXaHoi)
-		ghi(shopID, sheet, row, core.CotKH_MangXaHoiJson, jsonMXH)
-		
-		// Lưu vết
-		ghi(shopID, sheet, row, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
-		ghi(shopID, sheet, row, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_TenKhachHang, hoTenMoi)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_DienThoai, sdtMoi)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_NgaySinh, ngaySinhMoi)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_GioiTinh, gioiTinh)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_DiaChi, diaChiMoi)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_MaSoThue, maSoThueMoi)
+		core.ThemVaoHangCho(shopID, sheet, row, core.CotKH_MangXaHoiJson, core.ToJSON(kh.MangXaHoi))
 
 		c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật hồ sơ thành công!"})
 	} else { 
@@ -102,7 +64,7 @@ func API_DoiThongTin(c *gin.Context) {
 
 // API_DoiMatKhau
 func API_DoiMatKhau(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
+	shopID := c.GetString("SHOP_ID")
 	passCu := strings.TrimSpace(c.PostForm("pass_cu"))
 	passMoi := strings.TrimSpace(c.PostForm("pass_moi"))
 	cookie, _ := c.Cookie("session_id")
@@ -118,17 +80,10 @@ func API_DoiMatKhau(c *gin.Context) {
 			return 
 		}
 		hash, _ := cau_hinh.HashMatKhau(passMoi)
-		
 		core.KhoaHeThong.Lock()
 		kh.MatKhauHash = hash
-		kh.NguoiCapNhat = kh.TenDangNhap
-		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
-		
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
-		
 		c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mật khẩu thành công!"})
 	} else { 
 		c.JSON(401, gin.H{"status": "error", "msg": "Hết phiên"}) 
@@ -137,7 +92,7 @@ func API_DoiMatKhau(c *gin.Context) {
 
 // API_DoiMaPin
 func API_DoiMaPin(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
+	shopID := c.GetString("SHOP_ID")
 	pinCu := strings.TrimSpace(c.PostForm("pin_cu"))
 	pinMoi := strings.TrimSpace(c.PostForm("pin_moi"))
 	cookie, _ := c.Cookie("session_id")
@@ -153,49 +108,52 @@ func API_DoiMaPin(c *gin.Context) {
 			return
 		}
 		hashMoi, _ := cau_hinh.HashMatKhau(pinMoi)
-		
 		core.KhoaHeThong.Lock()
 		kh.MaPinHash = hashMoi
-		kh.NguoiCapNhat = kh.TenDangNhap
-		kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 		core.KhoaHeThong.Unlock()
-
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashMoi)
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
-		
 		c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mã PIN thành công!"})
 	} else { 
 		c.JSON(401, gin.H{"status": "error", "msg": "Hết phiên làm việc"}) 
 	}
 }
 
-// API_GuiOTPPin : Gửi mã PIN mới (Giả lập)
+// API_GuiOTPPin : Gửi mã PIN mới vào Email
 func API_GuiOTPPin(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
+	shopID := c.GetString("SHOP_ID")
 	cookie, _ := c.Cookie("session_id")
-	
 	kh, ok := core.TimKhachHangTheoCookie(shopID, cookie)
 	if !ok { c.JSON(401, gin.H{"status": "error", "msg": "Hết phiên làm việc"}); return }
 
-	// Tạo PIN mới
-	newPinRaw := taoMaPIN8So()
-	
-	// Gửi mail (Giả lập log console)
-	log.Printf("📧 [MAIL MOCK] Shop [%s] - Gửi PIN mới '%s' đến %s", shopID, newPinRaw, kh.Email)
+	theGui, msg := core.KiemTraRateLimit(kh.Email)
+	if !theGui { c.JSON(200, gin.H{"status": "error", "msg": msg}); return }
 
-	// Lưu PIN mới
-	hashNewPin, _ := cau_hinh.HashMatKhau(newPinRaw)
+	newPinRaw := core.TaoMaOTP()
 	
+	body := fmt.Sprintf(`Xin chào,
+
+Chúng tôi đã tạo mã PIN mới cho tài khoản %s theo yêu cầu của bạn trên hệ thống.
+
+Mã PIN mới của bạn là: %s
+
+Vì lý do bảo mật, vui lòng đổi mã PIN này ngay sau khi đăng nhập.
+
+Nếu bạn không yêu cầu thay đổi mã PIN, bạn hãy thay đổi thông tin ngay lập tức.
+
+Trân trọng,
+Đội ngũ hỗ trợ`, kh.Email, newPinRaw)
+
+	err := core.GuiMailThongBaoAPI(kh.Email, "Thông báo thay đổi mã PIN", "Hỗ trợ tài khoản", body)
+	if err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
+		return
+	}
+
+	hashNewPin, _ := cau_hinh.HashMatKhau(newPinRaw)
 	core.KhoaHeThong.Lock()
 	kh.MaPinHash = hashNewPin
-	kh.NguoiCapNhat = "Hệ thống" // Reset tự động thì ghi là Hệ thống
-	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
-	
 	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashNewPin)
-	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
-	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã gửi mã PIN mới vào Email (Kiểm tra Log)!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã gửi mã PIN mới vào Email!"})
 }
