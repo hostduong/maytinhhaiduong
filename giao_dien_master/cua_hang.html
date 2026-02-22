@@ -205,36 +205,26 @@
                 <div id="tab_hatang" class="tab-content space-y-6">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt Hạ Tầng</h1>
-                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Định cấu hình máy chủ dữ liệu (Google Workspace) và tên miền thương hiệu của bạn.</p>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Định cấu hình máy chủ dữ liệu (Google Workspace) và luồng nghiệp vụ của cửa hàng.</p>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
                         <form id="formHaTang" class="space-y-10">
+                            
                             <div>
                                 <h3 class="font-bold text-lg text-blue-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                                     1. Kết nối dữ liệu lưu trữ
                                 </h3>
-                                <div class="space-y-6">
+                                <div class="space-y-5">
                                     <div>
                                         <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
                                         <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
                                     </div>
-                                    
-                                    <div class="bg-blue-50/50 p-4 sm:p-5 rounded-xl border border-blue-100">
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">Chuyên ngành kinh doanh <span class="text-red-500">*</span></label>
-                                        <select name="chuyen_nganh" class="w-full p-3.5 sm:p-4 bg-white border border-slate-300 rounded-xl font-medium text-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition cursor-pointer shadow-sm">
-                                            <option value="" disabled {{ if eq .ChuShop.CauHinh.ChuyenNganh "" }}selected{{ end }}>-- Chọn lĩnh vực kinh doanh của bạn --</option>
-                                            <option value="may_tinh" {{ if eq .ChuShop.CauHinh.ChuyenNganh "may_tinh" }}selected{{ end }}>💻 Ngành Điện tử - Máy tính - Điện thoại</option>
-                                            </select>
-                                        <p class="text-xs text-slate-500 mt-2">Hệ thống sẽ tự động cấu hình giao diện Admin và tính năng chuyên biệt phù hợp với ngành hàng này.</p>
-                                    </div>
-
                                     <div>
                                         <label class="block text-sm font-bold text-slate-700 mb-2">Folder Drive ID (Nơi chứa ảnh, file)</label>
                                         <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
                                     </div>
-                                    
                                     <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 text-sm text-blue-800 leading-relaxed shadow-inner">
                                         <b class="text-blue-900 flex items-center gap-1 mb-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Hướng dẫn thiết lập:</b>
                                         <ul class="list-disc list-inside ml-4 space-y-1 text-blue-700">
@@ -242,7 +232,7 @@
                                             <li><span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Share (Chia sẻ) cả File Sheet và Thư mục Drive, sau đó cấp quyền <b>Editor (Người chỉnh sửa)</b> cho Email hệ thống dưới đây:</li>
                                         </ul>
                                         <div class="mt-3">
-                                            <code class="block p-3 bg-white rounded-lg border border-blue-200 select-all font-bold text-blue-700 text-center shadow-sm">data@99k.vn</code>
+                                            <code class="block p-3 bg-white rounded-lg border border-blue-200 select-all font-bold text-blue-700 text-center shadow-sm">www.99k.vn@gmail.com</code>
                                         </div>
                                     </div>
                                 </div>
@@ -273,10 +263,28 @@
                                 </div>
                             </div>
 
+                            <div>
+                                <h3 class="font-bold text-lg text-amber-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    4. Chuyên ngành kinh doanh
+                                </h3>
+                                <div class="bg-amber-50/40 p-4 sm:p-6 rounded-2xl border border-amber-200">
+                                    <label class="block text-sm font-bold text-slate-800 mb-3">Chọn lĩnh vực của cửa hàng <span class="text-red-500">*</span></label>
+                                    <select name="chuyen_nganh" class="w-full p-4 bg-white border-2 border-amber-100 rounded-xl font-bold text-slate-700 text-sm focus:ring-0 focus:border-amber-500 outline-none transition cursor-pointer shadow-sm appearance-none" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 1rem top 50%; background-size: 0.65rem auto;">
+                                        <option value="" disabled {{ if eq .ChuShop.CauHinh.ChuyenNganh "" }}selected{{ end }}>-- Vui lòng chọn ngành nghề --</option>
+                                        <option value="may_tinh" {{ if eq .ChuShop.CauHinh.ChuyenNganh "may_tinh" }}selected{{ end }}>💻 Ngành Điện tử - Máy tính - Điện thoại</option>
+                                    </select>
+                                    <div class="mt-4 flex items-start gap-2 text-sm text-amber-800 bg-amber-100/50 p-3 rounded-lg">
+                                        <svg class="w-5 h-5 shrink-0 mt-0.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <p>Hệ thống sẽ <b>tự động kiểm tra</b> xem Sheet dữ liệu gốc đã được khởi tạo theo chuẩn ngành hàng này chưa. Nếu chưa, hệ thống sẽ <b>tự động tạo Sheet</b> (VD: MAY_TINH) cho bạn ngay khi bấm Lưu.</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="pt-6 flex justify-end border-t border-slate-200">
                                 <button type="button" id="btnSaveHaTang" onclick="luuHaTang()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                    Lưu Toàn Bộ Cấu Hình
+                                    Kiểm tra & Lưu Cấu Hình
                                 </button>
                             </div>
                         </form>
