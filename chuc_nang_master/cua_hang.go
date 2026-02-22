@@ -47,15 +47,23 @@ func API_CapNhatHaTang(c *gin.Context) {
 		return
 	}
 
-	// 2. [QUAN TRỌNG] GỌI GOOGLE API ĐỂ KIỂM TRA ĐỒNG BỘ TRƯỚC KHI LƯU
+	// 2. [KIỂM TRA SPREADSHEET]
 	err := core.KiemTraVaKhoiTaoSheetNganh(masterShopID, sheetID, authJson, chuyenNganh)
 	if err != nil {
-		// Trả thẳng lỗi về giao diện nếu sai ID hoặc quên Share quyền
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return 
 	}
 
-	// 3. NẾU VƯỢ QUA BƯỚC CHECK -> CẬP NHẬT RAM
+	// 2.5 [KIỂM TRA THÊM DRIVE NẾU CÓ NHẬP]
+	if folderDrive != "" {
+		errDrive := core.KiemTraFolderDrive(folderDrive, authJson)
+		if errDrive != nil {
+			c.JSON(200, gin.H{"status": "error", "msg": errDrive.Error()})
+			return
+		}
+	}
+
+	// 3. NẾU VƯỢ QUA 2 LỚP BẢO VỆ -> CẬP NHẬT RAM
 	core.KhoaHeThong.Lock()
 	chuShop.DataSheets.SpreadsheetID = sheetID
 	chuShop.DataSheets.FolderDriveID = folderDrive
@@ -65,7 +73,7 @@ func API_CapNhatHaTang(c *gin.Context) {
 	chuShop.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
-	// 4. ĐẨY XUỐNG HÀNG ĐỢI (GHI NHANH KHÔNG BLOCK UI)
+	// 4. ĐẨY XUỐNG HÀNG ĐỢI GHI SHEET
 	ghi := core.ThemVaoHangCho
 	r := chuShop.DongTrongSheet
 	sh := "KHACH_HANG"
@@ -77,6 +85,5 @@ func API_CapNhatHaTang(c *gin.Context) {
 	ghi(masterShopID, sh, r, core.CotKH_CauHinhJson, jsonCH)
 	ghi(masterShopID, sh, r, core.CotKH_NgayCapNhat, chuShop.NgayCapNhat)
 
-	// Phản hồi siêu tốc độ
-	c.JSON(200, gin.H{"status": "ok", "msg": "Tuyệt vời! Kết nối Database thành công và đã cấu hình chuyên ngành."})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Tuyệt vời! Kết nối Database và Google Drive thành công."})
 }
