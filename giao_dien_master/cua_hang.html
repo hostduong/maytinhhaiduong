@@ -1,4 +1,4 @@
-{{ define "cua_hang_master" }}
+ {{ define "cua_hang_master" }}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -87,6 +87,18 @@
 
         <main class="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8">
             <div class="max-w-4xl mx-auto pb-10">
+                {{ if eq (len .ChuShop.GoiDichVu) 0 }}
+                <div class="mb-6 lg:mb-8 bg-amber-50 border border-amber-300 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 hidden sm:flex">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-base sm:text-lg font-bold text-amber-900">Xác thực Email để Mở khóa Tên miền!</h3>
+                        <p class="mt-1 text-sm text-amber-800 leading-relaxed">Bạn cần nhập mã OTP (đã gửi vào hộp thư <b>{{ .ChuShop.Email }}</b>) để hệ thống tạo Tên miền phụ và kích hoạt Gói Dùng Thử.</p>
+                    </div>
+                    <button onclick="toggleModal('modalVerifyEmail')" class="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition whitespace-nowrap shadow-md">Xác thực ngay</button>
+                </div>
+                {{ end }}
                 
                 {{ if eq .ChuShop.DataSheets.SpreadsheetID "" }}
                 <div class="mb-6 lg:mb-8 bg-red-50 border border-red-200 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -294,6 +306,38 @@
             <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 flex gap-3"><button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 bg-white border border-slate-300 rounded-xl font-bold">Hủy</button><button id="btnSaveInfo" onclick="capNhatThongTin()" class="flex-1 sm:flex-none sm:w-40 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div>
         </div>
     </div>
+    <div id="modalVerifyEmail" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Xác thực Email</h3><button onclick="toggleModal('modalVerifyEmail')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="dinh_danh_otp" value="{{ .ChuShop.TenDangNhap }}">
+                <div class="text-center text-sm text-slate-500 mb-2">Nhập mã 6 số gửi về {{ .ChuShop.Email }}</div>
+                <div>
+                    <input type="text" id="otpKichHoat" maxlength="6" placeholder="••••••" class="input-premium tracking-[0.5em] text-center text-2xl font-black focus:ring-amber-500">
+                </div>
+                <div class="text-center">
+                    <button id="btnResendSoftGate" onclick="guiLaiOTPSoftGate()" class="text-xs font-bold text-blue-600 hover:underline">Gửi lại mã OTP</button>
+                </div>
+            </div>
+            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalVerifyEmail')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnVerifySoftGate" onclick="xacThucKichHoat()" class="flex-1 bg-amber-500 text-white px-4 py-2.5 rounded-xl font-bold shadow-md hover:bg-amber-600">Kích Hoạt</button></div>
+        </div>
+    </div>
+
+    <script>
+        async function xacThucKichHoat() {
+            const btn = document.getElementById('btnVerifySoftGate'); btn.disabled = true; btn.innerText = "Đang kiểm tra...";
+            const res = await postData('/api/user/verify-softgate', { otp: document.getElementById('otpKichHoat').value });
+            if(res.status === 'ok') Swal.fire({icon:'success', title:'Tuyệt vời!', text:res.msg, showConfirmButton:false, timer:2000}).then(()=>location.reload());
+            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
+        }
+
+        async function guiLaiOTPSoftGate() {
+            const btn = document.getElementById('btnResendSoftGate'); btn.disabled = true; btn.innerText = "Đang gửi...";
+            const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
+            if(res.status === 'ok') { Swal.fire({icon:'info', title:'Đã gửi lại', text:'Vui lòng kiểm tra hộp thư', toast:true, position:'top-end', showConfirmButton:false, timer:3000}); btn.innerText = "Gửi lại mã OTP"; btn.disabled = false; }
+            else { Swal.fire('Lỗi', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
+        }
+    </script>
     
     <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mật Khẩu</h3><button onclick="toggleModal('modalPass')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu hiện tại</label><div class="relative"><input type="password" id="oldPass" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu mới</label><div class="relative"><input type="password" id="newPass" class="input-premium pr-10"><button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPass" class="error-text">8-30 ký tự.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPass')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePass" onclick="doiPass()" class="flex-1 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
     
