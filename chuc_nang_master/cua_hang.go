@@ -30,12 +30,12 @@ func API_CapNhatHaTang(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 
 	sheetID := strings.TrimSpace(c.PostForm("spreadsheet_id"))
-	chuyenNganh := strings.TrimSpace(c.PostForm("chuyen_nganh")) // <--- Hứng thêm trường mới
+	chuyenNganh := strings.TrimSpace(c.PostForm("chuyen_nganh"))
 	domain := strings.TrimSpace(c.PostForm("custom_domain"))
 	folderDrive := strings.TrimSpace(c.PostForm("folder_drive_id"))
 	authJson := strings.TrimSpace(c.PostForm("google_auth_json"))
 
-	// Validate Bắt buộc
+	// 1. Validate Bắt buộc
 	if sheetID == "" || chuyenNganh == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập Spreadsheet ID và chọn Chuyên ngành kinh doanh!"})
 		return
@@ -47,20 +47,25 @@ func API_CapNhatHaTang(c *gin.Context) {
 		return
 	}
 
+	// 2. [QUAN TRỌNG] GỌI GOOGLE API ĐỂ KIỂM TRA ĐỒNG BỘ TRƯỚC KHI LƯU
+	err := core.KiemTraVaKhoiTaoSheetNganh(masterShopID, sheetID, authJson, chuyenNganh)
+	if err != nil {
+		// Trả thẳng lỗi về giao diện nếu sai ID hoặc quên Share quyền
+		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
+		return 
+	}
+
+	// 3. NẾU VƯỢ QUA BƯỚC CHECK -> CẬP NHẬT RAM
 	core.KhoaHeThong.Lock()
 	chuShop.DataSheets.SpreadsheetID = sheetID
 	chuShop.DataSheets.FolderDriveID = folderDrive
 	chuShop.DataSheets.GoogleAuthJson = authJson
 	chuShop.CauHinh.CustomDomain = domain
-	chuShop.CauHinh.ChuyenNganh = chuyenNganh // <--- Cập nhật vào RAM
+	chuShop.CauHinh.ChuyenNganh = chuyenNganh
 	chuShop.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
-	
-	// Nếu có cấp JSON Riêng -> Kích hoạt API riêng ngay lập tức
-	if authJson != "" && sheetID != "" {
-		core.KetNoiGoogleSheetRieng(sheetID, authJson)
-	}
 	core.KhoaHeThong.Unlock()
 
+	// 4. ĐẨY XUỐNG HÀNG ĐỢI (GHI NHANH KHÔNG BLOCK UI)
 	ghi := core.ThemVaoHangCho
 	r := chuShop.DongTrongSheet
 	sh := "KHACH_HANG"
@@ -72,5 +77,6 @@ func API_CapNhatHaTang(c *gin.Context) {
 	ghi(masterShopID, sh, r, core.CotKH_CauHinhJson, jsonCH)
 	ghi(masterShopID, sh, r, core.CotKH_NgayCapNhat, chuShop.NgayCapNhat)
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã cập nhật hệ thống Cửa hàng thành công!"})
+	// Phản hồi siêu tốc độ
+	c.JSON(200, gin.H{"status": "ok", "msg": "Tuyệt vời! Kết nối Database thành công và đã cấu hình chuyên ngành."})
 }
