@@ -167,55 +167,69 @@
 
                 <div id="tab_hatang" class="tab-content space-y-6">
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt Database & API</h1>
-                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Kết nối Nền tảng với hệ sinh thái Google của bạn để làm nơi lưu trữ dữ liệu an toàn 100%.</p>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt Hạ Tầng</h1>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Định cấu hình máy chủ dữ liệu (Google Workspace) và tên miền thương hiệu của bạn.</p>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
-                        <form id="formHaTang" class="space-y-8">
+                        <form id="formHaTang" class="space-y-10">
                             
                             <div>
-                                <h3 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4">1. Kết nối CSDL Cơ Bản</h3>
-                                <div>
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
-                                    <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
-                                    <div class="mt-3 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-100 text-xs sm:text-sm text-blue-800 leading-relaxed">
-                                        <b>Cách lấy ID:</b> Là dải ký tự nằm giữa <code>/d/</code> và <code>/edit</code> trong link Google Sheet.<br>
-                                        <div class="mt-2 pt-2 border-t border-blue-200">
-                                            <span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Share (Chia sẻ) file Sheet và cấp quyền <b>Editor</b> cho Email hệ thống: 
-                                            <code class="block mt-1 p-2 bg-white rounded border border-blue-200 select-all font-bold text-blue-600 break-all">data@99k.vn</code>
+                                <h3 class="font-bold text-lg text-blue-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                                    1. Kết nối dữ liệu lưu trữ
+                                </h3>
+                                <div class="space-y-5">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
+                                        <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Folder Drive ID (Nơi chứa ảnh, file)</label>
+                                        <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
+                                    </div>
+                                    <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 text-sm text-blue-800 leading-relaxed shadow-inner">
+                                        <b class="text-blue-900 flex items-center gap-1 mb-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Hướng dẫn thiết lập:</b>
+                                        <ul class="list-disc list-inside ml-4 space-y-1 text-blue-700">
+                                            <li><b>Cách lấy ID:</b> Là dải ký tự nằm giữa <code class="bg-white px-1 rounded text-blue-600">/d/</code> và <code class="bg-white px-1 rounded text-blue-600">/edit</code> (hoặc <code>/folders/</code>) trong link trình duyệt.</li>
+                                            <li><span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Share (Chia sẻ) cả File Sheet và Thư mục Drive, sau đó cấp quyền <b>Editor (Người chỉnh sửa)</b> cho Email hệ thống dưới đây:</li>
+                                        </ul>
+                                        <div class="mt-3">
+                                            <code class="block p-3 bg-white rounded-lg border border-blue-200 select-all font-bold text-blue-700 text-center shadow-sm">data@99k.vn</code>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mt-5">
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Tên miền riêng (Custom Domain)</label>
-                                    <input type="text" name="custom_domain" value="{{ .ChuShop.CauHinh.CustomDomain }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: www.shopcuaban.com">
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-lg text-purple-700 border-b border-slate-100 pb-3 mb-3 flex items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 
+                                    2. Kết nối API Tốc độ cao
+                                </h3>
+                                <p class="text-sm text-slate-500 mb-4 leading-relaxed">Dành cho Shop muốn sử dụng đường truyền API riêng biệt (Không bị nghẽn lệnh cùng hệ thống) và tự động upload ảnh vào Google Drive cá nhân.</p>
+                                
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Google Auth JSON (Mã khóa Service Account)</label>
+                                    <textarea name="google_auth_json" rows="5" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-purple-500 outline-none transition placeholder-slate-400" placeholder='{&#10;  "type": "service_account",&#10;  "project_id": "your-project",&#10;  ...&#10;}'>{{ .ChuShop.DataSheets.GoogleAuthJson }}</textarea>
                                 </div>
                             </div>
 
                             <div>
-                                <h3 class="font-bold text-lg text-purple-700 border-b pb-2 mb-4 flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 
-                                    2. Kết nối API Tốc độ cao (Chuyên gia)
+                                <h3 class="font-bold text-lg text-emerald-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                                    3. Tên miền riêng (Custom Domain)
                                 </h3>
-                                <p class="text-xs text-slate-500 mb-4">Dành cho Shop lớn muốn sử dụng đường truyền API riêng biệt (Không bị nghẽn lệnh) và tự động upload ảnh vào Google Drive cá nhân.</p>
-                                
-                                <div class="space-y-5">
-                                    <div>
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">Folder Drive ID (Nơi chứa ảnh)</label>
-                                        <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">Google Auth JSON (Mã khóa Service Account)</label>
-                                        <textarea name="google_auth_json" rows="4" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-purple-500 outline-none transition placeholder-slate-300" placeholder='{&#10;  "type": "service_account",&#10;  "project_id": "your-project",&#10;  ...&#10;}'>{{ .ChuShop.DataSheets.GoogleAuthJson }}</textarea>
-                                    </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Tên miền đã mua</label>
+                                    <input type="text" name="custom_domain" value="{{ .ChuShop.CauHinh.CustomDomain }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="VD: www.shopcuaban.com">
+                                    <p class="text-xs text-slate-500 mt-2">Hãy chắc chắn bạn đã trỏ bản ghi CNAME về hệ thống trước khi lưu.</p>
                                 </div>
                             </div>
 
-                            <div class="pt-4 flex justify-end border-t border-slate-100">
-                                <button type="button" id="btnSaveHaTang" onclick="luuHaTang()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <div class="pt-6 flex justify-end border-t border-slate-200">
+                                <button type="button" id="btnSaveHaTang" onclick="luuHaTang()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                    Lưu Cấu Hình
+                                    Lưu Toàn Bộ Cấu Hình
                                 </button>
                             </div>
                         </form>
