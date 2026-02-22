@@ -30,9 +30,16 @@ func API_CapNhatHaTang(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 
 	sheetID := strings.TrimSpace(c.PostForm("spreadsheet_id"))
+	chuyenNganh := strings.TrimSpace(c.PostForm("chuyen_nganh")) // <--- Hứng thêm trường mới
 	domain := strings.TrimSpace(c.PostForm("custom_domain"))
 	folderDrive := strings.TrimSpace(c.PostForm("folder_drive_id"))
 	authJson := strings.TrimSpace(c.PostForm("google_auth_json"))
+
+	// Validate Bắt buộc
+	if sheetID == "" || chuyenNganh == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập Spreadsheet ID và chọn Chuyên ngành kinh doanh!"})
+		return
+	}
 
 	chuShop, ok := core.LayKhachHang(masterShopID, userID)
 	if !ok {
@@ -45,6 +52,7 @@ func API_CapNhatHaTang(c *gin.Context) {
 	chuShop.DataSheets.FolderDriveID = folderDrive
 	chuShop.DataSheets.GoogleAuthJson = authJson
 	chuShop.CauHinh.CustomDomain = domain
+	chuShop.CauHinh.ChuyenNganh = chuyenNganh // <--- Cập nhật vào RAM
 	chuShop.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	
 	// Nếu có cấp JSON Riêng -> Kích hoạt API riêng ngay lập tức
