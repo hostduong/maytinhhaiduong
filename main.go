@@ -58,9 +58,7 @@ func main() {
 	router.GET("/logout", chuc_nang.DangXuat)
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau
 	router.GET("/xac-thuc", chuc_nang.TrangXacThuc)
-	router.POST("/api/auth/verify-register", chuc_nang.XuLyXacThucOTP)		   
-			  
-	
+	router.POST("/api/auth/verify-register", chuc_nang.XuLyXacThucOTP)
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
 	// --- [MỚI] CỔNG MERCHANT PORTAL (QUẢN LÝ HẠ TẦNG CỬA HÀNG) ---
