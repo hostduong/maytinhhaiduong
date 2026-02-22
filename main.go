@@ -80,7 +80,7 @@ func main() {
 		api.POST("/auth/reset-by-otp", chuc_nang.XuLyQuenPassBangOTP)
 	}
 
-	// API User
+// API User
 	userApi := router.Group("/api/user")
 	userApi.Use(chuc_nang.KiemTraDangNhap)
 	{
@@ -88,6 +88,7 @@ func main() {
 		userApi.POST("/change-pass", chuc_nang.API_DoiMatKhau)
 		userApi.POST("/change-pin", chuc_nang.API_DoiMaPin)
 		userApi.POST("/send-otp-pin", chuc_nang.API_GuiOTPPin)
+		userApi.POST("/verify-softgate", chuc_nang.API_XacThucKichHoat) // <--- THÊM DÒNG NÀY
 	}
 
 	// Admin Area (Dùng chung)
