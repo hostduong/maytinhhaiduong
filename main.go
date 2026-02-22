@@ -56,8 +56,6 @@ func main() {
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) // <-- Đã thêm dấu đóng ngoặc
-	router.GET("/xac-thuc", chuc_nang.TrangXacThuc)
-	router.POST("/api/auth/verify-register", chuc_nang.XuLyXacThucOTP)
 	
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
