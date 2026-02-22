@@ -47,7 +47,6 @@ func main() {
 	router.SetHTMLTemplate(templ)
 
 	// --- ĐỊNH NGHĨA ROUTER ---
-	
 	// Public & Auth
 	router.GET("/", chuc_nang.TrangChu)
 	router.GET("/san-pham/:id", chuc_nang.ChiTietSanPham)
@@ -56,9 +55,10 @@ func main() {
 	router.GET("/register", chuc_nang.TrangDangKy)
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
-	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau
+	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) // <-- Đã thêm dấu đóng ngoặc
 	router.GET("/xac-thuc", chuc_nang.TrangXacThuc)
 	router.POST("/api/auth/verify-register", chuc_nang.XuLyXacThucOTP)
+	
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
 	// --- [MỚI] CỔNG MERCHANT PORTAL (QUẢN LÝ HẠ TẦNG CỬA HÀNG) ---
