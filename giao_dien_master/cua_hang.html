@@ -7,14 +7,28 @@
     <title>{{ .TieuDe }} - 99K.vn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f4f4f5; }
+        .tab-btn { transition: all 0.2s; }
         .tab-btn.active { background-color: #e0e7ff; color: #2563eb; font-weight: 700; }
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #e4e4e7; }
+        
+        /* CSS cho form Hồ sơ */
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2; }
+        .input-success { border-color: #22c55e !important; background-color: #f0fdf4; }
+        .input-normal { border-color: #d1d5db !important; background-color: #fff; }
+        .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .error-text.show { display: block; }
+        .iti { width: 100%; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex flex-col overflow-hidden">
@@ -36,20 +50,20 @@
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Quản lý Cửa Hàng</div>
             </div>
             <nav class="space-y-1">
-                <button onclick="switchTab('tab_tongquan', this)" class="tab-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+                <button onclick="switchTab('tab_tongquan', this)" class="tab-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> Tổng quan
                 </button>
-                <button onclick="switchTab('tab_hatang', this)" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+                <button onclick="switchTab('tab_hatang', this)" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg> Cài đặt Database
                 </button>
-                <button onclick="switchTab('tab_goicuoc', this)" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+                <button onclick="switchTab('tab_goicuoc', this)" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Gói Dịch Vụ
                 </button>
             </nav>
             <div class="mt-auto pt-6 border-t border-slate-100">
-                <a href="/tai-khoan" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+                <button onclick="switchTab('tab_hoso', this)" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Hồ sơ cá nhân
-                </a>
+                </button>
             </div>
         </aside>
 
@@ -59,7 +73,7 @@
                 {{ if eq .ChuShop.DataSheets.SpreadsheetID "" }}
                 <div class="mb-8 bg-red-50 border-l-4 border-red-500 p-6 rounded-r-2xl shadow-sm">
                     <div class="flex items-start">
-                        <div class="flex-shrink-0"><svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+                        <div class="flex-shrink-0"><svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
                         <div class="ml-4">
                             <h3 class="text-lg font-bold text-red-800">Cửa hàng chưa thể hoạt động!</h3>
                             <p class="mt-1 text-sm text-red-700">Bạn cần kết nối Database (Google Sheets) để hệ thống khởi tạo cửa hàng. Vui lòng chuyển sang tab <b>Cài đặt Database</b> để nhập ID.</p>
@@ -75,11 +89,8 @@
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
                             <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">🌐</div>
                             <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Tên miền hệ thống</h3>
-                            <div class="text-2xl font-bold text-blue-600 mb-1">
-                                {{ .ChuShop.TenDangNhap }}.99k.vn
-                            </div>
+                            <div class="text-2xl font-bold text-blue-600 mb-1">{{ .ChuShop.TenDangNhap }}.99k.vn</div>
                             <p class="text-sm text-slate-500 mb-6">Tên miền phụ được cấp phát miễn phí.</p>
-                            
                             {{ if ne .ChuShop.DataSheets.SpreadsheetID "" }}
                                 <a href="http://{{ .ChuShop.TenDangNhap }}.99k.vn/admin/tong-quan" target="_blank" class="inline-flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-black text-white px-5 py-3 rounded-xl font-bold transition shadow-md">
                                     Vào Quản Trị Cửa Hàng <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -92,7 +103,7 @@
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                             <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Gói Dịch Vụ Đang Dùng</h3>
                             <div class="flex items-center gap-3 mb-2">
-                                <span class="text-2xl font-bold text-emerald-600">Gói Dùng Thử (Trial)</span>
+                                <span class="text-2xl font-bold text-emerald-600">Gói Dùng Thử</span>
                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded-md">Active</span>
                             </div>
                             <p class="text-sm text-slate-600 font-medium mb-6">Hết hạn vào: <b>Chưa xác định</b></p>
@@ -119,15 +130,12 @@
                                     <i>Lưu ý:</i> Hãy nhớ Share quyền Editor (Chỉnh sửa) cho Email hệ thống: <b class="text-blue-600">system-bot@99k-project.iam.gserviceaccount.com</b>
                                 </p>
                             </div>
-
                             <hr class="border-slate-100">
-
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Tên miền riêng (Custom Domain)</label>
                                 <input type="text" name="custom_domain" value="{{ .ChuShop.CauHinh.CustomDomain }}" class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: www.shopcuaban.com">
                                 <p class="text-xs text-slate-500 mt-2">Chỉ điền nếu bạn đã mua tên miền riêng và trỏ CNAME về hệ thống.</p>
                             </div>
-
                             <div class="pt-4 flex justify-end">
                                 <button type="button" id="btnSaveHaTang" onclick="luuHaTang()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
@@ -174,11 +182,109 @@
                     </div>
                 </div>
 
+                <div id="tab_hoso" class="tab-content space-y-6">
+                    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Hồ Sơ Chủ Shop</h1>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 h-32 relative"></div>
+                        <div class="text-center -mt-16 relative px-6">
+                            <div class="inline-block p-1 bg-white rounded-full shadow-md">
+                                <div class="w-28 h-28 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .ChuShop.TenDangNhap }}" alt="Avatar" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <h2 class="mt-3 text-3xl font-bold text-gray-800" id="lblHoTen">{{ .ChuShop.TenKhachHang }}</h2>
+                            <div class="text-blue-600 font-bold bg-blue-50 inline-block px-4 py-1 rounded-full text-xs mt-2 tracking-widest border border-blue-100">
+                                {{ .ChuShop.ChucVu }}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-3 py-8 px-6">
+                            <button onclick="toggleModal('modalInfo')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm transition">Cập nhật hồ sơ</button>
+                            <button onclick="toggleModal('modalPass')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md transition">Đổi mật khẩu</button>
+                            <button onclick="toggleModal('modalPin')" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md transition">Đổi mã PIN</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">
+                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin liên hệ</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Số điện thoại</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DienThoai }} {{ .ChuShop.DienThoai }} {{ else }} -- {{ end }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Email</label><div class="text-gray-900 font-semibold truncate">{{ .ChuShop.Email }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Ngày sinh</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.NgaySinh }} {{ .ChuShop.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
+                                <div class="md:col-span-2"><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Địa chỉ</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DiaChi }} {{ .ChuShop.DiaChi }} {{ else }} <span class="text-gray-400 italic">Chưa cập nhật</span> {{ end }}</div></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">
+                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Định danh Nền tảng</h3>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập (Domain)</label><div class="text-gray-900 font-semibold italic">{{ .ChuShop.TenDangNhap }}</div></div>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-blue-600 font-medium">{{ if .ChuShop.MangXaHoi.Zalo }} {{ .ChuShop.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
+    <div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">✏️ Cập nhật hồ sơ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .ChuShop.TenKhachHang }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .ChuShop.DienThoai }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Ngày sinh</label><input type="date" id="newDob" value="{{ .ChuShop.NgaySinh }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="w-full p-3 border border-gray-300 rounded-xl outline-none"><option value="Nam" {{ if eq .ChuShop.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .ChuShop.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .ChuShop.GioiTinh -1 }}selected{{ end }}>Khác</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .ChuShop.MaSoThue }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newTax" class="error-text">Chỉ nhập số.</p></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Địa chỉ</label><input type="text" id="newAddress" value="{{ .ChuShop.DiaChi }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none"></div>
+                    <div class="md:col-span-2 border-t pt-4 mt-2"><h4 class="text-sm font-bold text-blue-600 mb-3">Mạng xã hội</h4></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" class="w-full p-3 border border-gray-300 rounded-xl outline-none input-normal"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3 pt-5 border-t">
+                    <button onclick="toggleModal('modalInfo')" class="text-gray-500 hover:bg-gray-100 px-6 py-2.5 rounded-xl font-semibold">Hủy</button>
+                    <button id="btnSaveInfo" onclick="capNhatThongTin()" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800">🔐 Đổi mật khẩu</h3>
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="password" id="oldPass" placeholder="Mật khẩu hiện tại" class="w-full p-3.5 pr-10 border border-gray-300 rounded-xl outline-none">
+                    <button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">👁️</button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="newPass" placeholder="Mật khẩu mới (8-30 ký tự)" class="w-full p-3.5 pr-10 border border-gray-300 rounded-xl outline-none input-normal">
+                    <button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">👁️</button>
+                    <p id="err_newPass" class="error-text">8-30 ký tự. Chữ, số, ký tự đặc biệt.</p>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end gap-3 border-t pt-5">
+                <button onclick="toggleModal('modalPass')" class="text-gray-500 px-5 py-2.5 rounded-xl font-semibold">Hủy</button>
+                <button id="btnSavePass" onclick="doiPass()" disabled class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-2 text-gray-800">🔢 Đổi mã PIN</h3>
+            <div id="viewChangePin" class="space-y-4 pt-4">
+                <div class="relative"><input type="password" id="oldPin" maxlength="8" placeholder="Mã PIN hiện tại" class="w-full p-3.5 pr-10 border border-gray-300 rounded-xl outline-none"><button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">👁️</button></div>
+                <div class="relative"><input type="password" id="newPin" maxlength="8" placeholder="Mã PIN mới (8 số)" class="w-full p-3.5 pr-10 border border-gray-300 rounded-xl outline-none input-normal"><button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">👁️</button><p id="err_newPin" class="error-text">Mã PIN phải đúng 8 chữ số.</p></div>
+                <div class="mt-6 flex justify-end gap-3 border-t pt-5"><button onclick="toggleModal('modalPin')" class="text-gray-500 px-4 py-2.5 rounded-xl font-semibold">Hủy</button><button id="btnSavePin" onclick="doiPin()" disabled class="bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold">Lưu PIN</button></div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Tab UI Logic
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -186,6 +292,7 @@
             document.getElementById(tabId).classList.add('active');
         }
 
+        // Logic Hạ Tầng
         async function luuHaTang() {
             const btn = document.getElementById('btnSaveHaTang');
             const originTxt = btn.innerHTML;
@@ -197,14 +304,69 @@
                 const data = await res.json();
                 if(data.status === 'ok') {
                     Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500}).then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi', data.msg, 'error');
-                }
-            } catch (e) {
-                Swal.fire('Lỗi', 'Không kết nối được với server', 'error');
-            } finally {
-                btn.disabled = false; btn.innerHTML = originTxt;
-            }
+                } else { Swal.fire('Lỗi', data.msg, 'error'); }
+            } catch (e) { Swal.fire('Lỗi', 'Không kết nối được với server', 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = originTxt; }
+        }
+
+        // Logic Hồ Sơ (Kế thừa từ file cũ)
+        const inputPhone = document.querySelector("#newPhone");
+        let iti;
+        if(inputPhone) {
+            iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+        }
+
+        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        function togglePass(id) { const input = document.getElementById(id); input.type = input.type === "password" ? "text" : "password"; }
+        
+        function setError(id, errId, isError) {
+            const input = document.getElementById(id); const msg = document.getElementById(errId);
+            if(isError) { input.classList.add('input-error'); input.classList.remove('input-success'); msg.classList.add('show'); } 
+            else { input.classList.remove('input-error'); if(input.value.trim()!=="") input.classList.add('input-success'); msg.classList.remove('show'); }
+            if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn();
+        }
+
+        const regexPass = /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/;
+        const regexPin  = /^\d{8}$/;
+
+        document.getElementById('newPass').addEventListener('input', function() { setError(this.id, 'err_newPass', !regexPass.test(this.value)); });
+        document.getElementById('newPin').addEventListener('input', function() { setError(this.id, 'err_newPin', !regexPin.test(this.value)); });
+        document.getElementById('oldPass').addEventListener('input', checkPassBtn);
+        document.getElementById('oldPin').addEventListener('input', checkPinBtn);
+
+        function checkPassBtn() { document.getElementById('btnSavePass').disabled = !(document.getElementById('newPass').classList.contains('input-success') && document.getElementById('oldPass').value.length > 0); }
+        function checkPinBtn() { document.getElementById('btnSavePin').disabled = !(document.getElementById('newPin').classList.contains('input-success') && document.getElementById('oldPin').value.length > 0); }
+
+        async function postData(url, data) {
+            const fd = new FormData(); for(const k in data) fd.append(k, data[k]);
+            try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; }
+        }
+
+        async function capNhatThongTin() {
+            const btn = document.getElementById('btnSaveInfo'); btn.disabled = true; btn.innerText = "Đang lưu...";
+            const data = {
+                ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value,
+                ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value,
+                dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value,
+                zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value
+            };
+            const res = await postData('/api/user/update-info', data);
+            if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload());
+            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu thay đổi"; }
+        }
+
+        async function doiPass() {
+            const btn = document.getElementById('btnSavePass'); btn.disabled = true; btn.innerText = "Đang lưu...";
+            const res = await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value });
+            if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload());
+            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu thay đổi"; }
+        }
+
+        async function doiPin() {
+            const btn = document.getElementById('btnSavePin'); btn.disabled = true; btn.innerText = "Đang lưu...";
+            const res = await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value });
+            if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload());
+            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu PIN"; }
         }
     </script>
 </body>
