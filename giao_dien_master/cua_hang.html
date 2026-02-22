@@ -1,4 +1,4 @@
- {{ define "cua_hang_master" }}
+{{ define "cua_hang_master" }}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -306,6 +306,7 @@
             <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 flex gap-3"><button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 bg-white border border-slate-300 rounded-xl font-bold">Hủy</button><button id="btnSaveInfo" onclick="capNhatThongTin()" class="flex-1 sm:flex-none sm:w-40 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div>
         </div>
     </div>
+    
     <div id="modalVerifyEmail" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
         <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Xác thực Email</h3><button onclick="toggleModal('modalVerifyEmail')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div>
@@ -323,22 +324,6 @@
         </div>
     </div>
 
-    <script>
-        async function xacThucKichHoat() {
-            const btn = document.getElementById('btnVerifySoftGate'); btn.disabled = true; btn.innerText = "Đang kiểm tra...";
-            const res = await postData('/api/user/verify-softgate', { otp: document.getElementById('otpKichHoat').value });
-            if(res.status === 'ok') Swal.fire({icon:'success', title:'Tuyệt vời!', text:res.msg, showConfirmButton:false, timer:2000}).then(()=>location.reload());
-            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
-        }
-
-        async function guiLaiOTPSoftGate() {
-            const btn = document.getElementById('btnResendSoftGate'); btn.disabled = true; btn.innerText = "Đang gửi...";
-            const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
-            if(res.status === 'ok') { Swal.fire({icon:'info', title:'Đã gửi lại', text:'Vui lòng kiểm tra hộp thư', toast:true, position:'top-end', showConfirmButton:false, timer:3000}); btn.innerText = "Gửi lại mã OTP"; btn.disabled = false; }
-            else { Swal.fire('Lỗi', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
-        }
-    </script>
-    
     <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mật Khẩu</h3><button onclick="toggleModal('modalPass')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu hiện tại</label><div class="relative"><input type="password" id="oldPass" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu mới</label><div class="relative"><input type="password" id="newPass" class="input-premium pr-10"><button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPass" class="error-text">8-30 ký tự.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPass')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePass" onclick="doiPass()" class="flex-1 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
     
     <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mã PIN</h3><button onclick="toggleModal('modalPin')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN hiện tại</label><div class="relative"><input type="password" id="oldPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN mới (8 số)</label><div class="relative"><input type="password" id="newPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPin" class="error-text">Đúng 8 số.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPin')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePin" onclick="doiPin()" class="flex-1 bg-purple-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
@@ -362,6 +347,21 @@
         async function capNhatThongTin() { const btn = document.getElementById('btnSaveInfo'); btn.disabled = true; btn.innerText = "Đang lưu..."; const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value }; const res = await postData('/api/user/update-info', data); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
         async function doiPass() { const btn = document.getElementById('btnSavePass'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
         async function doiPin() { const btn = document.getElementById('btnSavePin'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
+
+        // CÁC HÀM XỬ LÝ KHÓA MỀM (SOFT GATE)
+        async function xacThucKichHoat() {
+            const btn = document.getElementById('btnVerifySoftGate'); btn.disabled = true; btn.innerText = "Đang kiểm tra...";
+            const res = await postData('/api/user/verify-softgate', { otp: document.getElementById('otpKichHoat').value });
+            if(res.status === 'ok') Swal.fire({icon:'success', title:'Tuyệt vời!', text:res.msg, showConfirmButton:false, timer:2000}).then(()=>location.reload());
+            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
+        }
+
+        async function guiLaiOTPSoftGate() {
+            const btn = document.getElementById('btnResendSoftGate'); btn.disabled = true; btn.innerText = "Đang gửi...";
+            const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
+            if(res.status === 'ok') { Swal.fire({icon:'info', title:'Đã gửi lại', text:'Vui lòng kiểm tra hộp thư', toast:true, position:'top-end', showConfirmButton:false, timer:3000}); btn.innerText = "Gửi lại mã OTP"; btn.disabled = false; }
+            else { Swal.fire('Lỗi', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
+        }
     </script>
 </body>
 </html>
