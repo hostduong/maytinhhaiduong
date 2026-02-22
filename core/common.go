@@ -14,6 +14,7 @@ import (
 
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
+	"google.golang.org/api/drive/v3"
 )
 
 // =============================================================
@@ -230,4 +231,41 @@ func KiemTraVaKhoiTaoSheetNganh(shopID, spreadsheetID, authJson, chuyenNganh str
 	}
 
 	return nil // Mọi thứ ĐỀU XANH!
+}
+
+// KiemTraFolderDrive: Kiểm tra quyền truy cập và tính hợp lệ của Folder ID
+func KiemTraFolderDrive(folderID string, jsonKey string) error {
+	if folderID == "" {
+		return nil // Không nhập thì không kiểm tra
+	}
+
+	ctx := context.Background()
+	var srv *drive.Service
+	var err error
+
+	// Khởi tạo kết nối Drive
+	if jsonKey != "" {
+		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	} else if cau_hinh.BienCauHinh.GoogleAuthJson != "" {
+		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(cau_hinh.BienCauHinh.GoogleAuthJson)))
+	} else {
+		srv, err = drive.NewService(ctx, option.WithScopes(drive.DriveReadonlyScope))
+	}
+
+	if err != nil {
+		return fmt.Errorf("Lỗi cấu hình Google API, không thể kiểm tra Drive.")
+	}
+
+	// Chọc thử vào Google Drive để lấy thông tin
+	f, err := srv.Files.Get(folderID).Fields("id, mimeType").Do()
+	if err != nil {
+		return fmt.Errorf("Không thể truy cập Thư mục Drive. Vui lòng kiểm tra lại ID hoặc đảm bảo đã Share quyền Editor cho www.99k.vn@gmail.com.")
+	}
+
+	// Đảm bảo ID cung cấp là một Thư mục chứ không phải ID của một File ảnh/File doc
+	if f.MimeType != "application/vnd.google-apps.folder" {
+		return fmt.Errorf("ID bạn nhập không phải là một Thư mục (Folder). Vui lòng copy đúng ID của Thư mục gốc.")
+	}
+
+	return nil // Xanh mượt!
 }
