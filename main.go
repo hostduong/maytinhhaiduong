@@ -11,15 +11,16 @@ import (
 
 	"app/cau_hinh"
 	"app/chuc_nang"
-	"app/chuc_nang_admin" 
-	admin_may_tinh "app/chuc_nang_admin/may_tinh" // [MỚI] Import Controller riêng cho Máy tính
+	"app/chuc_nang_admin"
+	admin_may_tinh "app/chuc_nang_admin/may_tinh"
+	"app/chuc_nang_master" // [MỚI] Import Controller quản lý Cửa hàng
 	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// [SỬA QUAN TRỌNG] Nạp cả file ở gốc (*.html) và file trong thư mục con (*/*.html)
-//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_admin/*.html giao_dien_admin/*/*.html
+// [SỬA QUAN TRỌNG] Nạp thêm thư mục giao_dien_master
+//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_admin/*.html giao_dien_admin/*/*.html giao_dien_master/*.html
 var f embed.FS
 
 func main() {
@@ -35,15 +36,14 @@ func main() {
 	core.NapThuongHieu("")
 	core.NapBienLoiNhuan("")	
 	core.NapKhachHang("")
-	// Ghi chú: Dữ liệu sản phẩm sẽ được nạp động theo Shop, hoặc nạp trong package ngành hàng sau.
 
 	router := gin.Default()
 	router.Use(chuc_nang.GatewaySaaS, chuc_nang.KiemTraGoiDichVu)
 
 	funcMap := chuc_nang.LayBoHamHTML()
 
-	// [SỬA QUAN TRỌNG] Quét tất cả các cấp thư mục
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html", "giao_dien_admin/*.html", "giao_dien_admin/*/*.html"))
+	// [SỬA QUAN TRỌNG] Parse thêm các file HTML của Cổng Master
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html", "giao_dien_admin/*.html", "giao_dien_admin/*/*.html", "giao_dien_master/*.html"))
 	router.SetHTMLTemplate(templ)
 
 	// --- ĐỊNH NGHĨA ROUTER ---
@@ -59,6 +59,14 @@ func main() {
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau)
 	
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
+
+	// --- [MỚI] CỔNG MERCHANT PORTAL (QUẢN LÝ HẠ TẦNG CỬA HÀNG) ---
+	merchant := router.Group("/cua-hang")
+	merchant.Use(chuc_nang.KiemTraDangNhap)
+	{
+		merchant.GET("/", chuc_nang_master.TrangQuanLyCuaHang)
+		merchant.POST("/api/cap-nhat-id", chuc_nang_master.API_CapNhatHaTang)
+	}
 
 	// API Public
 	api := router.Group("/api")
@@ -83,7 +91,7 @@ func main() {
 
 	// Admin Area (Dùng chung)
 	admin := router.Group("/admin")
-	admin.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan) 
+	admin.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan)
 	{
 		admin.GET("/tong-quan", chuc_nang_admin.TrangTongQuan)
 		admin.GET("/reload", chuc_nang_admin.API_NapLaiDuLieu)
@@ -98,7 +106,7 @@ func main() {
 		admin.POST("/api/margin/save", chuc_nang_admin.API_LuuBienLoiNhuan)
 		admin.POST("/api/category/sync-slots", chuc_nang_admin.API_DongBoSlotDanhMuc)
 
-		// --- [MỚI] ĐỊNH TUYẾN RIÊNG CHO NGÀNH MÁY TÍNH ---
+		// --- ĐỊNH TUYẾN RIÊNG CHO NGÀNH MÁY TÍNH ---
 		pc := admin.Group("/pc")
 		{
 			pc.GET("/san-pham", admin_may_tinh.TrangQuanLySanPham)
