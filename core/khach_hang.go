@@ -66,10 +66,11 @@ type DataSheetInfo struct {
 }
 
 // Cột K: Mảng gói dịch vụ
-type PlanInfo struct { 
-	MaGoi      string `json:"ma_goi"`
-	TrangThai  string `json:"trang_thai"`
-	NgayHetHan string `json:"ngay_het_han"`
+type PlanInfo struct {
+	MaGoi         string `json:"ma_goi"`
+	TenGiGiDo     string `json:"ten_goi"` // TÔI ĐANG CẦN TÌM CÁI TÊN NÀY
+	NgayHetHan    string `json:"ngay_het_han"`
+	TrangThai     string `json:"trang_thai"`
 }
 
 // Cột L: Cấu hình giao diện shop / người dùng
