@@ -265,7 +265,7 @@
 
                             <div>
                                 <h3 class="font-bold text-lg text-amber-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                     4. Chuyên ngành kinh doanh
                                 </h3>
                                 <div class="bg-amber-50/40 p-4 sm:p-6 rounded-2xl border border-amber-200">
@@ -274,9 +274,9 @@
                                         <option value="" disabled {{ if eq .ChuShop.CauHinh.ChuyenNganh "" }}selected{{ end }}>-- Vui lòng chọn ngành nghề --</option>
                                         <option value="may_tinh" {{ if eq .ChuShop.CauHinh.ChuyenNganh "may_tinh" }}selected{{ end }}>💻 Ngành Điện tử - Máy tính - Điện thoại</option>
                                     </select>
-                                    <div class="mt-4 flex items-start gap-2 text-sm text-amber-800 bg-amber-100/50 p-3 rounded-lg">
-                                        <svg class="w-5 h-5 shrink-0 mt-0.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <p>Hệ thống sẽ <b>tự động kiểm tra</b> xem Sheet dữ liệu gốc đã được khởi tạo theo chuẩn ngành hàng này chưa. Nếu chưa, hệ thống sẽ <b>tự động tạo Sheet</b> (VD: MAY_TINH) cho bạn ngay khi bấm Lưu.</p>
+                                    <div class="mt-4 flex items-start gap-2 text-sm text-amber-800 bg-amber-100/50 p-3 rounded-lg border border-amber-100">
+                                        <svg class="w-5 h-5 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <p>Hệ thống sẽ <b>kiểm tra trực tiếp kết nối</b> đến Google Sheet. Nếu chưa có Tab dữ liệu của ngành này (VD: Tab 'MAY_TINH'), hệ thống sẽ tự động khởi tạo.</p>
                                     </div>
                                 </div>
                             </div>
