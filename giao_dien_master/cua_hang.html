@@ -131,7 +131,7 @@
                                 {{ end }}
                                 
                                 {{ if .ChuShop.MangXaHoi.Tiktok }}
-                                <a href="{{ .ChuShop.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.12-8.84 0-20.29 0-31.48.04 4.5 1.44 9.04 4.14 12.74 3.08 4.21 6.27 6.4 9.53 5.37 2.84-.92 4.79-5.28 4.37-7.82.02-2.55 2.08-4.71 4.75-4.8 2.37.07 4.28 2.04 4.3 4.41.02 2.4-1.9 4.37-4.29 4.4-2.42.03-4.42-1.92-4.4-4.32-.01-2.4 1.93-4.33 4.33-4.31z"/></svg></a>
+                                <a href="{{ .ChuShop.MangXaHoi.Tiktok }}" target="_blank" class="p-2 bg-gray-100 text-gray-800 rounded-full hover:bg-black hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 448 512"><path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg></a>
                                 {{ end }}
                                 
                                 {{ if .ChuShop.MangXaHoi.Zalo }}
@@ -153,6 +153,7 @@
                                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Họ và tên</label><div class="text-gray-900 font-semibold">{{ .ChuShop.TenKhachHang }}</div></div>
                                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Số điện thoại</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DienThoai }} {{ .ChuShop.DienThoai }} {{ else }} -- {{ end }}</div></div>
                                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Email</label><div class="text-gray-900 font-semibold">{{ .ChuShop.Email }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-blue-600 font-medium">{{ if .ChuShop.MangXaHoi.Zalo }} {{ .ChuShop.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
                                 <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Ngày sinh</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.NgaySinh }} {{ .ChuShop.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
                                 <div class="md:col-span-2"><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Địa chỉ</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DiaChi }} {{ .ChuShop.DiaChi }} {{ else }} <span class="text-gray-400 italic">Chưa cập nhật</span> {{ end }}</div></div>
                             </div>
@@ -161,7 +162,6 @@
                             <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin khác</h3>
                             <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập (Domain)</label><div class="text-blue-600 font-semibold italic">{{ .ChuShop.TenDangNhap }}</div></div>
                             <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
-                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-gray-900 font-medium">{{ if .ChuShop.MangXaHoi.Zalo }} {{ .ChuShop.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
                         </div>
                     </div>
                 </div>
@@ -344,7 +344,8 @@
                     
                     <div class="md:col-span-2 border-t pt-4 mt-2"><h4 class="text-sm font-bold text-blue-600 mb-3">Mạng xã hội</h4></div>
                     
-                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" placeholder="09xxxx..." class="input-premium"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" class="input-premium"></div>
+                    
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Link TikTok</label><input type="text" id="newTiktok" value="{{ .ChuShop.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                 </div>
@@ -444,7 +445,7 @@
         function toggleModal(id) { 
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden'); 
-            if(!modal.classList.contains('hidden')) checkInfoBtn();
+            if(!modal.classList.contains('hidden') && id === 'modalInfo') checkInfoBtn();
         }
         function togglePass(id) { const input = document.getElementById(id); const eyeSlash = document.getElementById('eye_slash_' + id); const eyeOpen = document.getElementById('eye_open_' + id); if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); } }
         function switchPinView(mode) { const vChange = document.getElementById('viewChangePin'); const vForgot = document.getElementById('viewForgotPin'); if(mode === 'forgot') { vChange.classList.add('hidden'); vForgot.classList.remove('hidden'); } else { vForgot.classList.add('hidden'); vChange.classList.remove('hidden'); } }
@@ -456,9 +457,12 @@
         async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
         function handleRes(res, modalId, btnId) { setBtnNormal(btnId); if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload()); else Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); }
 
-        // Phone Input Init
+        // Phone & Zalo Input Init
         const inputPhone = document.querySelector("#newPhone");
         let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        const inputZalo = document.querySelector("#newZalo");
+        let itiZalo; if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
         // --- VALIDATION LOGIC ---
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
@@ -469,15 +473,15 @@
 
         function setError(id, errId, isError) {
             const input = document.getElementById(id); const msg = document.getElementById(errId);
-            if (isError) { input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal'); msg.classList.add('show'); } 
-            else { input.classList.remove('input-error'); if(input.value.trim() !== "") input.classList.add('input-success'); else input.classList.add('input-normal'); msg.classList.remove('show'); }
+            if (isError) { input.classList.add('input-error'); input.classList.remove('input-success', 'input-normal'); if(msg) msg.classList.add('show'); } 
+            else { input.classList.remove('input-error'); if(input.value.trim() !== "") input.classList.add('input-success'); else input.classList.add('input-normal'); if(msg) msg.classList.remove('show'); }
             if(id.startsWith("new")) checkInfoBtn(); if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn();
         }
 
         function handleInput(id, rules, errId) {
             const val = document.getElementById(id).value;
             if (val !== "" && rules.char.test(val)) setError(id, errId, true);
-            else { document.getElementById(id).classList.remove('input-error'); document.getElementById(errId).classList.remove('show'); if(id.startsWith("new")) checkInfoBtn(); if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn(); }
+            else { document.getElementById(id).classList.remove('input-error'); if(document.getElementById(errId)) document.getElementById(errId).classList.remove('show'); if(id.startsWith("new")) checkInfoBtn(); if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn(); }
         }
         function handleBlur(id, rules, errId) {
             const val = document.getElementById(id).value.trim();
@@ -517,7 +521,17 @@
 
         async function capNhatThongTin() {
             setBtnLoading('btnSaveInfo', 'Lưu...');
-            const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value, url_tiktok: document.getElementById('newTiktok').value };
+            const data = { 
+                ho_ten: document.getElementById('newName').value, 
+                dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, 
+                ngay_sinh: document.getElementById('newDob').value, 
+                gioi_tinh: document.getElementById('newGender').value, 
+                dia_chi: document.getElementById('newAddress').value, 
+                ma_so_thue: document.getElementById('newTax').value, 
+                zalo: itiZalo ? itiZalo.getNumber() : document.getElementById('newZalo').value, 
+                url_fb: document.getElementById('newFb').value, 
+                url_tiktok: document.getElementById('newTiktok').value 
+            };
             handleRes(await postData('/api/user/update-info', data), 'modalInfo', 'btnSaveInfo');
         }
 
@@ -527,7 +541,6 @@
 
         // --- CÁC HÀM XỬ LÝ KHÓA MỀM (SOFT GATE) ---
         
-        // 1. Giới hạn nhập số cho input OTP & Ấn Enter để submit
         document.getElementById('otpKichHoat').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
         document.getElementById('otpKichHoat').addEventListener('keypress', function(e) { if (e.key === 'Enter' && this.value.length === 6) { e.preventDefault(); xacThucKichHoat(); } });
 
@@ -538,9 +551,7 @@
             else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
         }
 
-        // 2. Gửi lại OTP có xác nhận, hiển thị MSG từ API và đếm ngược 60s
         async function guiLaiOTPSoftGate() {
-            // Popup Hỏi xác nhận
             const confirm = await Swal.fire({
                 title: 'Xác nhận gửi lại mã',
                 text: 'Hệ thống sẽ gửi một mã OTP mới đến email của bạn.',
@@ -557,31 +568,19 @@
             const btn = document.getElementById('btnResendSoftGate'); 
             btn.disabled = true; btn.innerText = "Đang gửi...";
             
-            // Gọi API
             const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
             
             if(res.status === 'ok') { 
-                // Hiển thị thông điệp chính xác từ Backend (Apps Script) trả về
                 Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, toast:true, position:'top-end', showConfirmButton:false, timer:4000}); 
-                
-                // Khóa đếm ngược 60s
                 let timeLeft = 60;
                 btn.innerText = `Gửi lại sau ${timeLeft}s`;
                 const timerId = setInterval(() => {
                     timeLeft--;
                     btn.innerText = `Gửi lại sau ${timeLeft}s`;
-                    if(timeLeft <= 0) {
-                        clearInterval(timerId);
-                        btn.disabled = false;
-                        btn.innerText = "Gửi lại mã OTP";
-                    }
+                    if(timeLeft <= 0) { clearInterval(timerId); btn.disabled = false; btn.innerText = "Gửi lại mã OTP"; }
                 }, 1000);
             }
-            else { 
-                Swal.fire('Lỗi hệ thống', res.msg, 'error'); 
-                btn.innerText = "Thử lại"; 
-                btn.disabled = false; 
-            }
+            else { Swal.fire('Lỗi hệ thống', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
         }
     </script>
 </body>
