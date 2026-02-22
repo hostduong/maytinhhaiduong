@@ -9,12 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TrangQuanLyCuaHang: Render giao diện Dashboard quản lý hạ tầng
 func TrangQuanLyCuaHang(c *gin.Context) {
-	masterShopID := c.GetString("SHOP_ID") // ID của File Master 99k.vn
+	masterShopID := c.GetString("SHOP_ID") 
 	userID := c.GetString("USER_ID")
 
-	// Lấy thông tin Chủ shop từ DB Master
 	chuShop, ok := core.LayKhachHang(masterShopID, userID)
 	if !ok {
 		c.Redirect(http.StatusFound, "/login")
@@ -27,13 +25,14 @@ func TrangQuanLyCuaHang(c *gin.Context) {
 	})
 }
 
-// API_CapNhatHaTang: Lưu SpreadsheetID và Domain riêng
 func API_CapNhatHaTang(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
 	sheetID := strings.TrimSpace(c.PostForm("spreadsheet_id"))
 	domain := strings.TrimSpace(c.PostForm("custom_domain"))
+	folderDrive := strings.TrimSpace(c.PostForm("folder_drive_id"))
+	authJson := strings.TrimSpace(c.PostForm("google_auth_json"))
 
 	chuShop, ok := core.LayKhachHang(masterShopID, userID)
 	if !ok {
@@ -41,14 +40,19 @@ func API_CapNhatHaTang(c *gin.Context) {
 		return
 	}
 
-	// Khóa RAM để cập nhật
 	core.KhoaHeThong.Lock()
 	chuShop.DataSheets.SpreadsheetID = sheetID
+	chuShop.DataSheets.FolderDriveID = folderDrive
+	chuShop.DataSheets.GoogleAuthJson = authJson
 	chuShop.CauHinh.CustomDomain = domain
 	chuShop.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
+	
+	// Nếu có cấp JSON Riêng -> Kích hoạt API riêng ngay lập tức
+	if authJson != "" && sheetID != "" {
+		core.KetNoiGoogleSheetRieng(sheetID, authJson)
+	}
 	core.KhoaHeThong.Unlock()
 
-	// Ghi đè JSON xuống Sheet MASTER
 	ghi := core.ThemVaoHangCho
 	r := chuShop.DongTrongSheet
 	sh := "KHACH_HANG"
@@ -60,5 +64,5 @@ func API_CapNhatHaTang(c *gin.Context) {
 	ghi(masterShopID, sh, r, core.CotKH_CauHinhJson, jsonCH)
 	ghi(masterShopID, sh, r, core.CotKH_NgayCapNhat, chuShop.NgayCapNhat)
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã cập nhật hệ thống máy chủ Cửa hàng thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã cập nhật hệ thống Cửa hàng thành công!"})
 }
