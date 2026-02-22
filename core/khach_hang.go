@@ -65,12 +65,12 @@ type DataSheetInfo struct {
 	FolderDriveID  string `json:"folder_drive_id"` 
 }
 
-// Cột K: Mảng gói dịch vụ
+// Định nghĩa cấu trúc Gói Dịch Vụ
 type PlanInfo struct {
-	MaGoi         string `json:"ma_goi"`
-	TenGiGiDo     string `json:"ten_goi"` // TÔI ĐANG CẦN TÌM CÁI TÊN NÀY
-	NgayHetHan    string `json:"ngay_het_han"`
-	TrangThai     string `json:"trang_thai"`
+	MaGoi      string `json:"ma_goi"`       // Mã gói: TRIAL_3DAYS, BASIC_1M, VIP_12M...
+	TenGoi     string `json:"ten_goi"`      // Tên hiển thị: Dùng thử 3 ngày, Gói 1 tháng...
+	NgayHetHan string `json:"ngay_het_han"` // Thời gian hết hạn
+	TrangThai  string `json:"trang_thai"`   // Trạng thái: "active", "expired"
 }
 
 // Cột L: Cấu hình giao diện shop / người dùng
