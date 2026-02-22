@@ -14,18 +14,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        
-        /* Cấu hình Tab */
         .tab-btn { transition: all 0.2s ease; border-left: 3px solid transparent; }
         .tab-btn.active { background-color: #eff6ff; color: #2563eb; font-weight: 700; border-left-color: #2563eb; }
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Kính mờ Header */
         .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
         
-        /* Input & Form */
         .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; font-size: 0.95rem; padding: 0.75rem 1rem; transition: 0.2s; outline: none; }
         .input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); background-color: #fff; }
         .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
@@ -34,7 +29,6 @@
         .error-text.show { display: block; }
         .iti { width: 100%; }
         
-        /* Thanh cuộn siêu nhỏ cho Desktop */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -45,9 +39,7 @@
 
     <header class="glass-header h-16 flex items-center justify-between px-4 sm:px-6 shrink-0 z-30 relative">
         <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
+            <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
             <a href="/" class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-black shadow-lg">99</a>
             <span class="font-extrabold text-lg tracking-tight hidden sm:block">Merchant Portal</span>
         </div>
@@ -56,16 +48,13 @@
                 <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Chủ Cửa Hàng</span>
                 <span class="text-sm font-bold text-slate-700 leading-none">{{ .ChuShop.TenKhachHang }}</span>
             </div>
-            <div class="w-9 h-9 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden shrink-0">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .ChuShop.TenDangNhap }}" alt="Avatar" class="w-full h-full object-cover">
-            </div>
+            <div class="w-9 h-9 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden shrink-0"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .ChuShop.TenDangNhap }}" class="w-full h-full object-cover"></div>
             <a href="/logout" class="p-2 sm:px-4 sm:py-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition font-bold text-sm hidden sm:block">Đăng xuất</a>
             <a href="/logout" class="sm:hidden p-2 text-red-500 bg-red-50 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></a>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        
         <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col p-4 shrink-0 overflow-y-auto transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
@@ -73,12 +62,18 @@
                 <span class="font-extrabold text-lg text-slate-800">Menu Quản Lý</span>
                 <button onclick="toggleSidebar()" class="p-2 bg-slate-100 text-slate-500 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            <div class="mb-4 px-3 hidden md:block">
-                <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Hệ thống của bạn</div>
-            </div>
+            
             <nav class="space-y-1.5">
-                <button onclick="switchTab('tab_tongquan', this)" class="tab-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> Tổng quan
+                <button onclick="switchTab('tab_hoso', this)" class="tab-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Hồ sơ Chủ Shop
+                </button>
+                
+                <div class="mt-4 mb-2 px-3 pt-4 border-t border-slate-100 hidden md:block">
+                    <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Hệ thống của bạn</div>
+                </div>
+
+                <button onclick="switchTab('tab_tongquan', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> Tổng quan Cửa Hàng
                 </button>
                 <button onclick="switchTab('tab_hatang', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg> Cài đặt Database
@@ -88,11 +83,6 @@
                     <span class="absolute right-3 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase">HOT</span>
                 </button>
             </nav>
-            <div class="mt-auto pt-6 border-t border-slate-100">
-                <button onclick="switchTab('tab_hoso', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Hồ sơ Chủ Shop
-                </button>
-            </div>
         </aside>
 
         <main class="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8">
@@ -100,88 +90,129 @@
                 
                 {{ if eq .ChuShop.DataSheets.SpreadsheetID "" }}
                 <div class="mb-6 lg:mb-8 bg-red-50 border border-red-200 p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 hidden sm:flex">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    </div>
+                    <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-500 hidden sm:flex"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
                     <div class="flex-1">
-                        <h3 class="text-base sm:text-lg font-bold text-red-800 flex items-center gap-2">
-                            <svg class="h-5 w-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                            Cửa hàng chưa thể hoạt động!
-                        </h3>
+                        <h3 class="text-base sm:text-lg font-bold text-red-800">Cửa hàng chưa thể hoạt động!</h3>
                         <p class="mt-1 text-sm text-red-700 leading-relaxed">Kết nối Database (Google Sheets) để hệ thống khởi tạo cơ sở dữ liệu. Chuyển sang tab <b>Cài đặt Database</b> để thao tác.</p>
                     </div>
-                    <button onclick="switchTab('tab_hatang', document.querySelectorAll('.tab-btn')[1])" class="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition whitespace-nowrap">Kết nối ngay</button>
+                    <button onclick="switchTab('tab_hatang', document.querySelectorAll('.tab-btn')[2])" class="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition whitespace-nowrap">Kết nối ngay</button>
                 </div>
                 {{ end }}
 
-                <div id="tab_tongquan" class="tab-content active space-y-6">
-                    <div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Tổng Quan Trạng Thái</h1>
-                        <p class="text-slate-500 text-sm mt-1">Nơi theo dõi tình trạng hoạt động của Cửa hàng.</p>
+                <div id="tab_hoso" class="tab-content active space-y-6">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-6">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 h-32 relative"></div>
+                        <div class="text-center -mt-16 relative px-6">
+                            <div class="inline-block p-1 bg-white rounded-full shadow-md">
+                                <div class="w-28 h-28 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .ChuShop.TenDangNhap }}" alt="Avatar" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <h2 class="mt-3 text-3xl font-bold text-gray-800">{{ .ChuShop.TenKhachHang }}</h2>
+                            <div class="text-blue-600 font-bold bg-blue-50 inline-block px-4 py-1 rounded-full text-xs mt-2 tracking-widest border border-blue-100 uppercase">{{ .ChuShop.ChucVu }}</div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-3 py-8 px-6">
+                            <button onclick="toggleModal('modalInfo')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-xl font-semibold shadow-sm transition transform hover:-translate-y-0.5 active:scale-95">Cập nhật hồ sơ</button>
+                            <button onclick="toggleModal('modalPass')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md transition transform hover:-translate-y-0.5 active:scale-95">Đổi mật khẩu</button>
+                            <button onclick="toggleModal('modalPin')" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md transition transform hover:-translate-y-0.5 active:scale-95">Đổi mã PIN</button>
+                        </div>
                     </div>
-                    
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6">
+                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Thông tin liên hệ</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Họ và tên</label><div class="text-gray-900 font-semibold">{{ .ChuShop.TenKhachHang }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Số điện thoại</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DienThoai }} {{ .ChuShop.DienThoai }} {{ else }} -- {{ end }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Email</label><div class="text-gray-900 font-semibold">{{ .ChuShop.Email }}</div></div>
+                                <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Ngày sinh</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.NgaySinh }} {{ .ChuShop.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
+                                <div class="md:col-span-2"><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Địa chỉ</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.DiaChi }} {{ .ChuShop.DiaChi }} {{ else }} <span class="text-gray-400 italic">Chưa cập nhật</span> {{ end }}</div></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6">
+                            <h3 class="text-xl font-bold text-gray-800 border-b pb-4 mb-2">Định danh Nền tảng</h3>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Tên đăng nhập (Domain)</label><div class="text-blue-600 font-semibold italic">{{ .ChuShop.TenDangNhap }}</div></div>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Mã số thuế / CCCD</label><div class="text-gray-900 font-semibold">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
+                            <div><label class="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Zalo Hỗ Trợ</label><div class="text-gray-900 font-medium">{{ if .ChuShop.MangXaHoi.Zalo }} {{ .ChuShop.MangXaHoi.Zalo }} {{ else }} -- {{ end }}</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab_tongquan" class="tab-content space-y-6">
+                    <div><h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Tổng Quan Cửa Hàng</h1></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 relative overflow-hidden flex flex-col">
                             <div class="absolute top-0 right-0 p-4 opacity-[0.03] text-7xl pointer-events-none">🌐</div>
                             <h3 class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Tên miền hệ thống</h3>
                             <div class="text-xl sm:text-2xl font-bold text-blue-600 mb-2 break-all">{{ .ChuShop.TenDangNhap }}.99k.vn</div>
-                            <p class="text-xs sm:text-sm text-slate-500 mb-6 flex-1">Tên miền phụ được cấp phát miễn phí. Hệ thống sẽ tự động điều hướng khách hàng đến đây.</p>
-                            
+                            <p class="text-xs sm:text-sm text-slate-500 mb-6 flex-1">Tên miền phụ được cấp phát miễn phí. Hệ thống tự động điều hướng khách hàng đến đây.</p>
                             {{ if ne .ChuShop.DataSheets.SpreadsheetID "" }}
-                                <a href="http://{{ .ChuShop.TenDangNhap }}.99k.vn/admin/tong-quan" target="_blank" class="flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-black text-white px-5 py-3 sm:py-3.5 rounded-xl font-bold transition shadow-md text-sm sm:text-base">
-                                    Vào Quản Trị Cửa Hàng <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                <a href="http://{{ .ChuShop.TenDangNhap }}.99k.vn/admin/tong-quan" target="_blank" class="flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-black text-white px-5 py-3 sm:py-3.5 rounded-xl font-bold transition shadow-md">
+                                    Vào Quản Trị Bán Hàng <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                 </a>
                             {{ else }}
                                 <button disabled class="w-full bg-slate-100 text-slate-400 px-5 py-3 rounded-xl font-bold cursor-not-allowed text-sm">Chưa có Database</button>
                             {{ end }}
                         </div>
-
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col">
                             <h3 class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Gói Dịch Vụ Đang Dùng</h3>
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
-                                <span class="text-xl sm:text-2xl font-bold text-emerald-600">Gói Dùng Thử</span>
-                                <span class="bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Đang hoạt động</span>
-                            </div>
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3"><span class="text-xl sm:text-2xl font-bold text-emerald-600">Gói Dùng Thử</span><span class="bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Đang hoạt động</span></div>
                             <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-6 flex-1">
                                 <p class="text-xs sm:text-sm text-slate-600 font-medium flex justify-between"><span>Ngày hết hạn:</span> <b class="text-slate-800">Chưa xác định</b></p>
-                                <p class="text-xs sm:text-sm text-slate-600 font-medium flex justify-between mt-2 pt-2 border-t border-slate-200"><span>Dung lượng:</span> <b class="text-slate-800">5GB / Không giới hạn</b></p>
                             </div>
-                            <button onclick="switchTab('tab_goicuoc', document.querySelectorAll('.tab-btn')[2])" class="w-full bg-white border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 px-5 py-3 rounded-xl font-bold transition text-sm sm:text-base">
-                                Nâng cấp gói ngay
-                            </button>
+                            <button onclick="switchTab('tab_goicuoc', document.querySelectorAll('.tab-btn')[3])" class="w-full bg-white border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 px-5 py-3 rounded-xl font-bold transition text-sm sm:text-base">Nâng cấp gói ngay</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab_hatang" class="tab-content space-y-6">
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt Database</h1>
-                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Kết nối Nền tảng với Google Sheet của bạn để làm nơi lưu trữ dữ liệu an toàn 100%. Không lo mất mát dữ liệu.</p>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt Database & API</h1>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Kết nối Nền tảng với hệ sinh thái Google của bạn để làm nơi lưu trữ dữ liệu an toàn 100%.</p>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
-                        <form id="formHaTang" class="space-y-6">
+                        <form id="formHaTang" class="space-y-8">
+                            
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
-                                <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
-                                <div class="mt-3 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-100 text-xs sm:text-sm text-blue-800 leading-relaxed">
-                                    <b>Cách lấy ID:</b> ID là dải ký tự nằm giữa <code>/d/</code> và <code>/edit</code> trong đường link trình duyệt Google Sheet của bạn.<br>
-                                    <div class="mt-2 pt-2 border-t border-blue-200">
-                                        <span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải bấm Share (Chia sẻ) file Sheet và cấp quyền <b>Editor (Người chỉnh sửa)</b> cho Email Robot hệ thống: 
-                                        <br><code class="block mt-1 p-2 bg-white rounded border border-blue-200 select-all font-bold text-blue-600 break-all">system-bot@99k-project.iam.gserviceaccount.com</code>
+                                <h3 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4">1. Kết nối CSDL Cơ Bản</h3>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
+                                    <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
+                                    <div class="mt-3 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-100 text-xs sm:text-sm text-blue-800 leading-relaxed">
+                                        <b>Cách lấy ID:</b> Là dải ký tự nằm giữa <code>/d/</code> và <code>/edit</code> trong link Google Sheet.<br>
+                                        <div class="mt-2 pt-2 border-t border-blue-200">
+                                            <span class="text-red-600 font-bold">Quan trọng:</span> Bạn phải Share (Chia sẻ) file Sheet và cấp quyền <b>Editor</b> cho Email hệ thống: 
+                                            <code class="block mt-1 p-2 bg-white rounded border border-blue-200 select-all font-bold text-blue-600 break-all">data@99k.vn</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-5">
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Tên miền riêng (Custom Domain)</label>
+                                    <input type="text" name="custom_domain" value="{{ .ChuShop.CauHinh.CustomDomain }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: www.shopcuaban.com">
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-lg text-purple-700 border-b pb-2 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 
+                                    2. Kết nối API Tốc độ cao (Chuyên gia)
+                                </h3>
+                                <p class="text-xs text-slate-500 mb-4">Dành cho Shop lớn muốn sử dụng đường truyền API riêng biệt (Không bị nghẽn lệnh) và tự động upload ảnh vào Google Drive cá nhân.</p>
+                                
+                                <div class="space-y-5">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Folder Drive ID (Nơi chứa ảnh)</label>
+                                        <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Google Auth JSON (Mã khóa Service Account)</label>
+                                        <textarea name="google_auth_json" rows="4" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-purple-500 outline-none transition placeholder-slate-300" placeholder='{&#10;  "type": "service_account",&#10;  "project_id": "your-project",&#10;  ...&#10;}'>{{ .ChuShop.DataSheets.GoogleAuthJson }}</textarea>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr class="border-slate-100">
-
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Tên miền riêng (Custom Domain)</label>
-                                <input type="text" name="custom_domain" value="{{ .ChuShop.CauHinh.CustomDomain }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: www.shopcuaban.com">
-                                <p class="text-xs text-slate-500 mt-2">Chỉ điền nếu bạn đã mua tên miền riêng và trỏ CNAME về hệ thống.</p>
-                            </div>
-
-                            <div class="pt-2 flex justify-end">
+                            <div class="pt-4 flex justify-end border-t border-slate-100">
                                 <button type="button" id="btnSaveHaTang" onclick="luuHaTang()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                                     Lưu Cấu Hình
@@ -193,13 +224,9 @@
 
                 <div id="tab_goicuoc" class="tab-content space-y-6">
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gói Dịch Vụ & Thanh Toán</h1>
-                    
                     <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-blue-500 opacity-20 blur-3xl pointer-events-none"></div>
                         <div class="relative z-10">
-                            <h2 class="text-xl sm:text-2xl font-bold mb-2">Bảng giá nền tảng</h2>
-                            <p class="text-sm text-slate-300 mb-8 max-w-xl leading-relaxed">Nâng cấp để mở khóa toàn bộ sức mạnh của nền tảng. Hỗ trợ thanh toán tự động qua mã QR Momo/ZaloPay/Banking.</p>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                                 <div class="bg-white/10 border border-white/20 p-6 rounded-2xl backdrop-blur-sm hover:bg-white/15 transition cursor-pointer flex flex-col">
                                     <h3 class="text-lg font-bold mb-1 text-slate-200">Gói Cơ Bản (Tháng)</h3>
@@ -212,7 +239,6 @@
                                     </ul>
                                     <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition shadow-md">Mua Gói Này</button>
                                 </div>
-                                
                                 <div class="bg-gradient-to-b from-blue-600 to-blue-800 border-2 border-blue-400 p-6 rounded-2xl shadow-2xl relative transform md:-translate-y-2 flex flex-col">
                                     <div class="absolute -top-3 -right-3 sm:-right-4 bg-red-500 text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full uppercase shadow-lg transform rotate-3 border-2 border-slate-900">Khuyên dùng</div>
                                     <h3 class="text-lg font-bold mb-1 text-blue-100">Gói Chuyên Nghiệp (Năm)</h3>
@@ -222,62 +248,8 @@
                                         <li class="flex gap-2"><span class="text-white">✓</span> Website bán hàng chuẩn SEO</li>
                                         <li class="flex gap-2"><span class="text-white">✓</span> Quản lý sản phẩm không giới hạn</li>
                                         <li class="flex gap-2"><span class="text-white">✓</span> <b>Hỗ trợ Tên miền riêng độc lập</b></li>
-                                        <li class="flex gap-2"><span class="text-white">✓</span> Hỗ trợ kỹ thuật ưu tiên 24/7</li>
                                     </ul>
-                                    <button class="w-full bg-white text-blue-800 hover:bg-blue-50 font-black py-3 rounded-xl transition shadow-xl">Mua Gói Năm (Best Value)</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tab_hoso" class="tab-content space-y-6">
-                    <div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Hồ Sơ Của Bạn</h1>
-                        <p class="text-slate-500 text-sm mt-1">Quản lý thông tin liên hệ và bảo mật tài khoản.</p>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                        <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden shrink-0">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .ChuShop.TenDangNhap }}" alt="Avatar" class="w-full h-full object-cover">
-                        </div>
-                        <div class="text-center sm:text-left flex-1">
-                            <h2 class="text-2xl font-bold text-slate-800" id="lblHoTen">{{ .ChuShop.TenKhachHang }}</h2>
-                            <div class="text-blue-600 font-bold bg-blue-50 inline-block px-3 py-1 rounded text-xs mt-2 uppercase tracking-widest">
-                                {{ .ChuShop.ChucVu }}
-                            </div>
-                            <div class="text-sm text-slate-500 font-mono mt-2 bg-slate-50 inline-block px-2 py-1 rounded border border-slate-100">ID: {{ .ChuShop.MaKhachHang }}</div>
-                            
-                            <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-5">
-                                <button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">✏️ Sửa hồ sơ</button>
-                                <button onclick="toggleModal('modalPass')" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">🔐 Đổi Mật Khẩu</button>
-                                <button onclick="toggleModal('modalPin')" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">🔢 Đổi Mã PIN</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-4">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Thông tin cá nhân</h3>
-                            <div class="space-y-3">
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Số điện thoại</span><div class="font-semibold text-slate-800">{{ if .ChuShop.DienThoai }} {{ .ChuShop.DienThoai }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Email</span><div class="font-semibold text-slate-800 break-all">{{ .ChuShop.Email }}</div></div>
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Ngày sinh</span><div class="font-semibold text-slate-800">{{ if .ChuShop.NgaySinh }} {{ .ChuShop.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Địa chỉ</span><div class="font-semibold text-slate-800 leading-snug">{{ if .ChuShop.DiaChi }} {{ .ChuShop.DiaChi }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-4">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Kinh doanh & Mạng xã hội</h3>
-                            <div class="space-y-3">
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Tên đăng nhập (Hệ thống)</span><div class="font-semibold text-blue-600 font-mono">{{ .ChuShop.TenDangNhap }}</div></div>
-                                <div><span class="text-xs text-slate-400 block mb-0.5">Mã số thuế / CCCD</span><div class="font-semibold text-slate-800">{{ if .ChuShop.MaSoThue }} {{ .ChuShop.MaSoThue }} {{ else }} -- {{ end }}</div></div>
-                                <div>
-                                    <span class="text-xs text-slate-400 block mb-1">Kết nối</span>
-                                    <div class="flex gap-2">
-                                        {{ if .ChuShop.MangXaHoi.Zalo }}<a href="https://zalo.me/{{ .ChuShop.MangXaHoi.Zalo }}" target="_blank" class="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold border border-blue-100">Zalo</a>{{ end }}
-                                        {{ if .ChuShop.MangXaHoi.Facebook }}<a href="{{ .ChuShop.MangXaHoi.Facebook }}" target="_blank" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded text-xs font-bold border border-indigo-100">Facebook</a>{{ end }}
-                                        {{ if not .ChuShop.MangXaHoi.Zalo }}{{ if not .ChuShop.MangXaHoi.Facebook }}<span class="text-sm text-slate-300 italic">Chưa có liên kết nào</span>{{ end }}{{ end }}
-                                    </div>
+                                    <button class="w-full bg-white text-blue-800 hover:bg-blue-50 font-black py-3 rounded-xl transition shadow-xl">Mua Gói Năm</button>
                                 </div>
                             </div>
                         </div>
@@ -290,143 +262,48 @@
 
     <div id="modalInfo" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
         <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl transform transition-transform duration-300 translate-y-0 max-h-[90vh] flex flex-col">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl shrink-0">
-                <h3 class="text-lg font-bold text-slate-800">Cập nhật hồ sơ</h3>
-                <button onclick="toggleModal('modalInfo')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button>
-            </div>
-            <div class="p-5 overflow-y-auto form-scroll">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl shrink-0"><h3 class="text-lg font-bold text-slate-800">Cập nhật hồ sơ</h3><button onclick="toggleModal('modalInfo')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200">✕</button></div>
+            <div class="p-5 overflow-y-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Họ và tên</label><input type="text" id="newName" value="{{ .ChuShop.TenKhachHang }}" class="input-premium"><p id="err_newName" class="error-text">Họ tên không hợp lệ.</p></div>
-                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .ChuShop.DienThoai }}" class="input-premium"><p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p></div>
+                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Số điện thoại</label><input type="tel" id="newPhone" value="{{ .ChuShop.DienThoai }}" class="input-premium"></div>
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Giới tính</label><select id="newGender" class="input-premium bg-white px-2"><option value="Nam" {{ if eq .ChuShop.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .ChuShop.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .ChuShop.GioiTinh -1 }}selected{{ end }}>Khác</option></select></div>
                         <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Ngày sinh</label><input type="date" id="newDob" value="{{ .ChuShop.NgaySinh }}" class="input-premium px-2"></div>
                     </div>
-                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .ChuShop.MaSoThue }}" class="input-premium"><p id="err_newTax" class="error-text">Chỉ nhập số.</p></div>
+                    <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mã số thuế</label><input type="text" id="newTax" value="{{ .ChuShop.MaSoThue }}" class="input-premium"></div>
                     <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Zalo (SĐT)</label><input type="text" id="newZalo" value="{{ .ChuShop.MangXaHoi.Zalo }}" class="input-premium" placeholder="09..."></div>
                     <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Địa chỉ đầy đủ</label><input type="text" id="newAddress" value="{{ .ChuShop.DiaChi }}" class="input-premium"></div>
-                    <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" class="input-premium" placeholder="https://..."><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                    <div class="sm:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Link Facebook</label><input type="text" id="newFb" value="{{ .ChuShop.MangXaHoi.Facebook }}" class="input-premium" placeholder="https://..."></div>
                 </div>
             </div>
-            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 flex gap-3">
-                <button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 bg-white border border-slate-300 rounded-xl font-bold">Hủy</button>
-                <button id="btnSaveInfo" onclick="capNhatThongTin()" class="flex-1 sm:flex-none sm:w-40 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button>
-            </div>
+            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 flex gap-3"><button onclick="toggleModal('modalInfo')" class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 bg-white border border-slate-300 rounded-xl font-bold">Hủy</button><button id="btnSaveInfo" onclick="capNhatThongTin()" class="flex-1 sm:flex-none sm:w-40 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div>
         </div>
     </div>
-
-    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mật Khẩu</h3><button onclick="toggleModal('modalPass')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div>
-            <div class="p-5 space-y-4">
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu hiện tại</label><div class="relative"><input type="password" id="oldPass" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu mới</label><div class="relative"><input type="password" id="newPass" class="input-premium pr-10"><button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPass" class="error-text">8-30 ký tự. Chữ, số, ký tự đặc biệt.</p></div>
-            </div>
-            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPass')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePass" onclick="doiPass()" disabled class="flex-1 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold shadow-md disabled:opacity-50">Lưu</button></div>
-        </div>
-    </div>
-
-    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mã PIN</h3><button onclick="toggleModal('modalPin')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div>
-            <div class="p-5 space-y-4">
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN hiện tại</label><div class="relative"><input type="password" id="oldPin" maxlength="8" class="input-premium pr-10 tracking-widest font-mono"><button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN mới (8 số)</label><div class="relative"><input type="password" id="newPin" maxlength="8" class="input-premium pr-10 tracking-widest font-mono"><button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPin" class="error-text">Phải đúng 8 chữ số.</p></div>
-            </div>
-            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPin')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePin" onclick="doiPin()" disabled class="flex-1 bg-purple-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md disabled:opacity-50">Đổi PIN</button></div>
-        </div>
-    </div>
+    
+    <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mật Khẩu</h3><button onclick="toggleModal('modalPass')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu hiện tại</label><div class="relative"><input type="password" id="oldPass" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Mật khẩu mới</label><div class="relative"><input type="password" id="newPass" class="input-premium pr-10"><button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPass" class="error-text">8-30 ký tự.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPass')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePass" onclick="doiPass()" class="flex-1 bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
+    
+    <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/60 flex items-end sm:items-center justify-center z-50 backdrop-blur-sm sm:p-4"><div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Đổi Mã PIN</h3><button onclick="toggleModal('modalPin')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500">✕</button></div><div class="p-5 space-y-4"><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN hiện tại</label><div class="relative"><input type="password" id="oldPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div></div><div><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">PIN mới (8 số)</label><div class="relative"><input type="password" id="newPin" maxlength="8" class="input-premium pr-10"><button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">👁️</button></div><p id="err_newPin" class="error-text">Đúng 8 số.</p></div></div><div class="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex gap-3"><button onclick="toggleModal('modalPin')" class="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">Hủy</button><button id="btnSavePin" onclick="doiPin()" class="flex-1 bg-purple-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-md">Lưu</button></div></div></div>
 
     <script>
-        // Xử lý Mobile Sidebar
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebarBackdrop');
-        function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
-        }
-
-        // Tab UI Logic
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-            // Tự đóng menu trên mobile khi chọn xong
-            if(window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
-                toggleSidebar();
-            }
-        }
-
-        // Logic Hạ Tầng
-        async function luuHaTang() {
-            const btn = document.getElementById('btnSaveHaTang'); const originTxt = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
-            const fd = new FormData(document.getElementById('formHaTang'));
-            try {
-                const res = await fetch('/cua-hang/api/cap-nhat-id', { method: 'POST', body: fd });
-                const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch (e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); } 
-            finally { btn.disabled = false; btn.innerHTML = originTxt; }
-        }
-
-        // Khởi tạo SĐT Quốc tế
-        const inputPhone = document.querySelector("#newPhone"); let iti;
-        if(inputPhone) { iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" }); }
-
-        // Logic Modal & Form Validation (Hồ sơ)
+        function toggleSidebar() { sidebar.classList.toggle('-translate-x-full'); backdrop.classList.toggle('hidden'); }
+        function switchTab(tabId, btn) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(tabId).classList.add('active'); if(window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) toggleSidebar(); }
         function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
         function togglePass(id) { const input = document.getElementById(id); input.type = input.type === "password" ? "text" : "password"; }
         
-        function setError(id, errId, isError) {
-            const input = document.getElementById(id); const msg = document.getElementById(errId);
-            if(isError) { input.classList.add('input-error'); input.classList.remove('input-success'); msg.classList.add('show'); } 
-            else { input.classList.remove('input-error'); if(input.value.trim()!=="") input.classList.add('input-success'); msg.classList.remove('show'); }
-            if(id.includes("Pass")) checkPassBtn(); if(id.includes("Pin")) checkPinBtn();
+        async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
+
+        async function luuHaTang() {
+            const btn = document.getElementById('btnSaveHaTang'); const originTxt = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
+            try { const res = await fetch('/cua-hang/api/cap-nhat-id', { method: 'POST', body: new FormData(document.getElementById('formHaTang')) }); const data = await res.json(); if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500}).then(() => location.reload()); else Swal.fire('Lỗi', data.msg, 'error'); } catch (e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); } finally { btn.disabled = false; btn.innerHTML = originTxt; }
         }
 
-        const regexPass = /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/; const regexPin  = /^\d{8}$/;
-        document.getElementById('newPass').addEventListener('input', function() { setError(this.id, 'err_newPass', !regexPass.test(this.value)); });
-        document.getElementById('newPin').addEventListener('input', function() { setError(this.id, 'err_newPin', !regexPin.test(this.value)); });
-        document.getElementById('oldPass').addEventListener('input', checkPassBtn);
-        document.getElementById('oldPin').addEventListener('input', checkPinBtn);
-
-        function checkPassBtn() { document.getElementById('btnSavePass').disabled = !(document.getElementById('newPass').classList.contains('input-success') && document.getElementById('oldPass').value.length > 0); }
-        function checkPinBtn() { document.getElementById('btnSavePin').disabled = !(document.getElementById('newPin').classList.contains('input-success') && document.getElementById('oldPin').value.length > 0); }
-
-        async function postData(url, data) {
-            const fd = new FormData(); for(const k in data) fd.append(k, data[k]);
-            try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; }
-        }
-
-        async function capNhatThongTin() {
-            const btn = document.getElementById('btnSaveInfo'); btn.disabled = true; btn.innerText = "Đang lưu...";
-            const data = {
-                ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value,
-                ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value,
-                dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value,
-                zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value
-            };
-            const res = await postData('/api/user/update-info', data);
-            if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload());
-            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; }
-        }
-
-        async function doiPass() {
-            const btn = document.getElementById('btnSavePass'); btn.disabled = true; btn.innerText = "Đang lưu...";
-            const res = await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value });
-            if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload());
-            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; }
-        }
-
-        async function doiPin() {
-            const btn = document.getElementById('btnSavePin'); btn.disabled = true; btn.innerText = "Đang lưu...";
-            const res = await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value });
-            if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload());
-            else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Đổi PIN"; }
-        }
+        const inputPhone = document.querySelector("#newPhone"); let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+        async function capNhatThongTin() { const btn = document.getElementById('btnSaveInfo'); btn.disabled = true; btn.innerText = "Đang lưu..."; const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value }; const res = await postData('/api/user/update-info', data); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
+        async function doiPass() { const btn = document.getElementById('btnSavePass'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pass', { pass_cu: document.getElementById('oldPass').value, pass_moi: document.getElementById('newPass').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
+        async function doiPin() { const btn = document.getElementById('btnSavePin'); btn.disabled = true; btn.innerText = "Đang lưu..."; const res = await postData('/api/user/change-pin', { pin_cu: document.getElementById('oldPin').value, pin_moi: document.getElementById('newPin').value }); if(res.status === 'ok') Swal.fire({icon:'success', title:'Xong', text:res.msg, showConfirmButton:false, timer:1000}).then(()=>location.reload()); else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Lưu"; } }
     </script>
 </body>
 </html>
