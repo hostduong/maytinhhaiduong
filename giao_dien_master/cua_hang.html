@@ -314,7 +314,7 @@
                 <input type="hidden" id="dinh_danh_otp" value="{{ .ChuShop.TenDangNhap }}">
                 <div class="text-center text-sm text-slate-500 mb-2">Nhập mã 6 số gửi về {{ .ChuShop.Email }}</div>
                 <div>
-                    <input type="text" id="otpKichHoat" maxlength="6" placeholder="••••••" class="input-premium tracking-[0.5em] text-center text-2xl font-black focus:ring-amber-500">
+                    <input type="text" id="otpKichHoat" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="••••••" class="input-premium tracking-[0.5em] text-center text-2xl font-black focus:ring-amber-500">
                 </div>
                 <div class="text-center">
                     <button id="btnResendSoftGate" onclick="guiLaiOTPSoftGate()" class="text-xs font-bold text-blue-600 hover:underline">Gửi lại mã OTP</button>
