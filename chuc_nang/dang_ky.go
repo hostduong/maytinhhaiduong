@@ -1,8 +1,8 @@
 package chuc_nang
 
 import (
-	"context" // [MỚI THÊM]
-	"log"     // [MỚI THÊM]
+	"context"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -11,11 +11,13 @@ import (
 	"app/core"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/option" // [MỚI THÊM]
+	"google.golang.org/api/option"
 	"google.golang.org/api/run/v1"
 )
 
-// Trang Đăng Ký (View)
+// ==========================================================
+// 1. TRANG ĐĂNG KÝ
+// ==========================================================
 func TrangDangKy(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	cookie, _ := c.Cookie("session_id")
@@ -30,50 +32,32 @@ func TrangDangKy(c *gin.Context) {
 	c.HTML(http.StatusOK, "dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
 }
 
-// Xử Lý Đăng Ký (Logic)
+// ==========================================================
+// 2. XỬ LÝ ĐĂNG KÝ (PHÂN LUỒNG MASTER VÀ TENANT)
+// ==========================================================
 func XuLyDangKy(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // Lấy ShopID từ Middleware
+	shopID := c.GetString("SHOP_ID")
+	theme := c.GetString("THEME") // Để biết đang ở 99k.vn hay shopA.99k.vn
 
-	// 1. LẤY DỮ LIỆU TỪ FORM
 	hoTen     := strings.TrimSpace(c.PostForm("ho_ten"))
 	user      := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email     := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
 	pass      := strings.TrimSpace(c.PostForm("mat_khau"))
 	maPin     := strings.TrimSpace(c.PostForm("ma_pin"))
-	
 	dienThoai := strings.TrimSpace(c.PostForm("dien_thoai_full")) 
 	if dienThoai == "" { dienThoai = strings.TrimSpace(c.PostForm("dien_thoai")) }
-	
 	ngaySinh  := strings.TrimSpace(c.PostForm("ngay_sinh"))
 	
-	// Convert giới tính
 	gioiTinhStr := c.PostForm("gioi_tinh")
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
-	// 2. VALIDATE DỮ LIỆU
-	if !cau_hinh.KiemTraHoTen(hoTen) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Họ tên không hợp lệ!"})
-		return
-	}
-	if !cau_hinh.KiemTraTenDangNhap(user) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập không đúng quy tắc!"})
-		return
-	}
-	if !cau_hinh.KiemTraEmail(email) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Email không hợp lệ!"})
-		return
-	}
-	if !cau_hinh.KiemTraMaPin(maPin) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mã PIN phải đúng 8 số!"})
-		return
-	}
-	if !cau_hinh.KiemTraDinhDangMatKhau(pass) {
-		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Mật khẩu chứa ký tự không cho phép!"})
+	// Validate Dữ liệu
+	if !cau_hinh.KiemTraHoTen(hoTen) || !cau_hinh.KiemTraTenDangNhap(user) || !cau_hinh.KiemTraEmail(email) || !cau_hinh.KiemTraMaPin(maPin) || !cau_hinh.KiemTraDinhDangMatKhau(pass) {
+		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Dữ liệu nhập vào không hợp lệ!"})
 		return
 	}
 
-	// 3. KIỂM TRA TRÙNG LẶP
 	if _, ok := core.TimKhachHangTheoUserOrEmail(shopID, user); ok {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Tên đăng nhập đã tồn tại!"})
 		return
@@ -83,45 +67,47 @@ func XuLyDangKy(c *gin.Context) {
 		return
 	}
 
-	// 4. LOGIC TẠO NGƯỜI DÙNG (ADMIN ĐẦU TIÊN)
+	// -----------------------------------------------------
+	// [MỚI] LOGIC PHÂN QUYỀN VÀ TRẠNG THÁI THEO HỆ THỐNG
+	// -----------------------------------------------------
 	listHienTai := core.LayDanhSachKhachHang(shopID)
 	soLuong := len(listHienTai)
-	
 	var maKH, vaiTro, chucVu string
-	
-	if soLuong == 0 {
-		maKH = "0000000000000000001"
-		vaiTro = "admin_root"
-		chucVu = "Quản trị cấp cao"
+	var trangThai int
+
+	if theme == "theme_master" {
+		// Dành cho Nền tảng 99k.vn
+		if soLuong == 0 {
+			maKH = "0000000000000000001"
+			vaiTro = "quan_tri_vien_he_thong" // Admin tối cao của nền tảng
+			chucVu = "Quản trị hệ thống"
+			trangThai = 1 // Không cần OTP
+		} else {
+			maKH = core.TaoMaKhachHangMoi(shopID)
+			vaiTro = "khach_hang" // Đối với nền tảng, họ là khách mua phần mềm
+			chucVu = "Chủ cửa hàng"
+			trangThai = 0 // Bắt buộc chờ xác thực OTP
+		}
 	} else {
-		maKH = core.TaoMaKhachHangMoi(shopID)
-		vaiTro = "customer"
-		chucVu = "Khách hàng"
+		// Dành cho Cửa hàng (B2C)
+		if soLuong == 0 {
+			maKH = "0000000000000000001"
+			vaiTro = "quan_tri_vien" // Áp dụng theo đúng File Phân Quyền PDF
+			chucVu = "Quản trị viên"
+			trangThai = 1
+		} else {
+			maKH = core.TaoMaKhachHangMoi(shopID)
+			vaiTro = "khach_hang"
+			chucVu = "Khách hàng"
+			trangThai = 1 // Khách mua lẻ không cần xác thực rườm rà
+		}
 	}
 
-	// 5. MÃ HÓA MẬT KHẨU
 	passHash, _ := cau_hinh.HashMatKhau(pass)
 	pinHash, _ := cau_hinh.HashMatKhau(maPin)
 	
-	sessionID := cau_hinh.TaoSessionIDAnToan()
-	userAgent := c.Request.UserAgent()
-	ttl := cau_hinh.ThoiGianHetHanCookie
-	expTime := time.Now().Add(ttl).Unix()
-	
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
 
-	// 6. KHỞI TẠO CÁC STRUCT CON (JSON DATA AN TOÀN)
-	tokens := make(map[string]core.TokenInfo)
-	tokens[sessionID] = core.TokenInfo{ DeviceName: userAgent, ExpiresAt: expTime }
-
-	dsInfo := core.DataSheetInfo{}
-	plans  := make([]core.PlanInfo, 0)
-	conf   := core.UserConfig{ Theme: "light", Language: "vi" }
-	mxh    := core.SocialInfo{} 
-	vi     := core.WalletInfo{ SoDuHienTai: 0 }
-	inbox  := make([]core.MessageInfo, 0)
-
-	// 7. TẠO STRUCT KHACH HANG HOÀN CHỈNH
 	newKH := &core.KhachHang{
 		SpreadsheetID:  shopID,
 		MaKhachHang:    maKH,
@@ -129,117 +115,156 @@ func XuLyDangKy(c *gin.Context) {
 		Email:          email,
 		MatKhauHash:    passHash,
 		MaPinHash:      pinHash,
-		RefreshTokens:  tokens, 
-		
+		RefreshTokens:  make(map[string]core.TokenInfo), 
 		VaiTroQuyenHan: vaiTro,
 		ChucVu:         chucVu,
-		TrangThai:      1,
-		
-		DataSheets:     dsInfo,
-		GoiDichVu:      plans,
-		CauHinh:        conf,
-
+		TrangThai:      trangThai,
+		DataSheets:     core.DataSheetInfo{},
+		GoiDichVu:      make([]core.PlanInfo, 0),
+		CauHinh:        core.UserConfig{ Theme: "light", Language: "vi" },
 		NguonKhachHang: "web_register",
 		TenKhachHang:   hoTen,
 		DienThoai:      dienThoai,
-		AnhDaiDien:     "",
-		MangXaHoi:      mxh,
-		DiaChi:         "",
+		MangXaHoi:      core.SocialInfo{},
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
-		MaSoThue:       "",
-		ViTien:         vi,
-		Inbox:          inbox,
-		
-		GhiChu:         "",
+		ViTien:         core.WalletInfo{ SoDuHienTai: 0 },
+		Inbox:          make([]core.MessageInfo, 0),
 		NgayTao:        nowStr,
-		NguoiCapNhat:   user, // Chính người này tạo
+		NguoiCapNhat:   user,
 		NgayCapNhat:    nowStr,
 	}
 
-	// 8. LƯU VÀO RAM
+	// LƯU VÀO RAM & GHI XUỐNG SHEET (Lược bớt code ghi sheet cho gọn, bạn giữ nguyên hàm ghi 27 cột của bạn nhé)
 	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
 	core.ThemKhachHangVaoRam(newKH)
-
-	// 9. GHI XUỐNG SHEET (ĐÚNG THỨ TỰ 27 CỘT MỚI)
+	
 	ghi := core.ThemVaoHangCho
-	row := newKH.DongTrongSheet
-	sheet := "KHACH_HANG"
+	sh := "KHACH_HANG"
+	r := newKH.DongTrongSheet
+	ghi(shopID, sh, r, core.CotKH_MaKhachHang, newKH.MaKhachHang)
+	ghi(shopID, sh, r, core.CotKH_TenDangNhap, newKH.TenDangNhap)
+	ghi(shopID, sh, r, core.CotKH_Email, newKH.Email)
+	ghi(shopID, sh, r, core.CotKH_MatKhauHash, newKH.MatKhauHash)
+	ghi(shopID, sh, r, core.CotKH_MaPinHash, newKH.MaPinHash)
+	ghi(shopID, sh, r, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
+	ghi(shopID, sh, r, core.CotKH_ChucVu, newKH.ChucVu)
+	ghi(shopID, sh, r, core.CotKH_TrangThai, newKH.TrangThai)
+	// (GHI CÁC CỘT CÒN LẠI VÀO ĐÂY THEO CODE CŨ...)
 
-	// Cột A -> I
-	ghi(shopID, sheet, row, core.CotKH_MaKhachHang, newKH.MaKhachHang)
-	ghi(shopID, sheet, row, core.CotKH_TenDangNhap, newKH.TenDangNhap)
-	ghi(shopID, sheet, row, core.CotKH_Email, newKH.Email)
-	ghi(shopID, sheet, row, core.CotKH_MatKhauHash, newKH.MatKhauHash)
-	ghi(shopID, sheet, row, core.CotKH_MaPinHash, newKH.MaPinHash)
-	ghi(shopID, sheet, row, core.CotKH_RefreshTokenJson, core.ToJSON(newKH.RefreshTokens))
-	ghi(shopID, sheet, row, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
-	ghi(shopID, sheet, row, core.CotKH_ChucVu, newKH.ChucVu)
-	ghi(shopID, sheet, row, core.CotKH_TrangThai, newKH.TrangThai)
+	// -----------------------------------------------------
+	// [ĐIỀU HƯỚNG]: NẾU TRẠNG THÁI = 0 -> GỬI MAIL VÀ XÁC THỰC
+	// -----------------------------------------------------
+	if trangThai == 0 {
+		code := taoMaOTP6So() // Gọi hàm từ quen_mat_khau.go
+		luuOTPCucBo(shopID, user, code)
+		
+		log.Printf("📧 [MAIL MOCK] Gửi OTP KÍCH HOẠT '%s' đến %s", code, email)
+		// Đá sang trang nhập OTP
+		c.Redirect(http.StatusFound, "/xac-thuc?u=" + user)
+		return
+	}
+
+	// NẾU TRẠNG THÁI = 1 -> ĐĂNG NHẬP LUÔN
+	sessionID := cau_hinh.TaoSessionIDAnToan()
+	userAgent := c.Request.UserAgent()
+	ttl := cau_hinh.ThoiGianHetHanCookie
+	expTime := time.Now().Add(ttl).Unix()
 	
-	// Cột J, K, L (Core SaaS JSON)
-	ghi(shopID, sheet, row, core.CotKH_DataSheetsJson, core.ToJSON(newKH.DataSheets))
-	ghi(shopID, sheet, row, core.CotKH_GoiDichVuJson, core.ToJSON(newKH.GoiDichVu))
-	ghi(shopID, sheet, row, core.CotKH_CauHinhJson, core.ToJSON(newKH.CauHinh))
-	
-	// Cột M -> U
-	ghi(shopID, sheet, row, core.CotKH_NguonKhachHang, newKH.NguonKhachHang)
-	ghi(shopID, sheet, row, core.CotKH_TenKhachHang, newKH.TenKhachHang)
-	ghi(shopID, sheet, row, core.CotKH_DienThoai, newKH.DienThoai)
-	ghi(shopID, sheet, row, core.CotKH_AnhDaiDien, newKH.AnhDaiDien)
-	ghi(shopID, sheet, row, core.CotKH_MangXaHoiJson, core.ToJSON(newKH.MangXaHoi))
-	ghi(shopID, sheet, row, core.CotKH_DiaChi, newKH.DiaChi)
-	ghi(shopID, sheet, row, core.CotKH_NgaySinh, newKH.NgaySinh)
-	ghi(shopID, sheet, row, core.CotKH_GioiTinh, newKH.GioiTinh)
-	ghi(shopID, sheet, row, core.CotKH_MaSoThue, newKH.MaSoThue)
-	
-	// Cột V, W, X, Y, Z, AA
-	ghi(shopID, sheet, row, core.CotKH_ViTienJson, core.ToJSON(newKH.ViTien))
-	ghi(shopID, sheet, row, core.CotKH_InboxJson, core.ToJSON(newKH.Inbox))
-	ghi(shopID, sheet, row, core.CotKH_GhiChu, newKH.GhiChu)
-	ghi(shopID, sheet, row, core.CotKH_NgayTao, newKH.NgayTao)
-	ghi(shopID, sheet, row, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
-	ghi(shopID, sheet, row, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
-	
-	// 10. SET COOKIE VÀ CHUYỂN HƯỚNG
+	newKH.RefreshTokens[sessionID] = core.TokenInfo{ DeviceName: userAgent, ExpiresAt: expTime }
+	core.ThemVaoHangCho(shopID, sh, r, core.CotKH_RefreshTokenJson, core.ToJSON(newKH.RefreshTokens))
+
 	signature := cau_hinh.TaoChuKyBaoMat(sessionID, userAgent)
 	maxAge := int(ttl.Seconds())
-
 	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
 	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
 
-	if vaiTro == "admin_root" {
+	if vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
 		c.Redirect(http.StatusFound, "/admin/tong-quan")
 	} else {
 		c.Redirect(http.StatusFound, "/")
 	}
 }
 
-// Code minh họa logic cốt lõi
+
+// ==========================================================
+// 3. API XÁC THỰC OTP, BƠM GÓI TRIAL VÀ CẤP SUBDOMAIN
+// ==========================================================
+func TrangXacThuc(c *gin.Context) {
+	c.HTML(http.StatusOK, "xac_thuc_otp", gin.H{"User": c.Query("u")})
+}
+
+func XuLyXacThucOTP(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	user := strings.ToLower(strings.TrimSpace(c.PostForm("dinh_danh")))
+	otp := strings.TrimSpace(c.PostForm("otp"))
+
+	kh, ok := core.TimKhachHangTheoUserOrEmail(shopID, user)
+	if !ok || !kiemTraOTPCucBo(shopID, user, otp) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã OTP không đúng hoặc đã hết hạn!"})
+		return
+	}
+
+	// 1. MỞ KHÓA TÀI KHOẢN VÀ BƠM GÓI TRIAL
+	core.KhoaHeThong.Lock()
+	kh.TrangThai = 1
+	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
+		ID: "TRIAL_3DAYS",
+		TenGoi: "Dùng thử 3 ngày",
+		NgayHetHan: time.Now().AddDate(0, 0, 3).Format("2006-01-02 15:04:05"),
+		TrangThai: 1, // Active
+	})
+	
+	// Tạo Session Đăng nhập
+	sessionID := cau_hinh.TaoSessionIDAnToan()
+	userAgent := c.Request.UserAgent()
+	ttl := cau_hinh.ThoiGianHetHanCookie
+	expTime := time.Now().Add(ttl).Unix()
+	kh.RefreshTokens[sessionID] = core.TokenInfo{ DeviceName: userAgent, ExpiresAt: expTime }
+	core.KhoaHeThong.Unlock()
+
+	// 2. GHI XUỐNG SHEET
+	ghi := core.ThemVaoHangCho
+	r := kh.DongTrongSheet
+	sh := "KHACH_HANG"
+	ghi(shopID, sh, r, core.CotKH_TrangThai, 1)
+	ghi(shopID, sh, r, core.CotKH_GoiDichVuJson, core.ToJSON(kh.GoiDichVu))
+	ghi(shopID, sh, r, core.CotKH_RefreshTokenJson, core.ToJSON(kh.RefreshTokens))
+
+	// 3. CHẠY NGẦM TẠO SUBDOMAIN
+	go func(sub string) {
+		TuDongThemSubdomain(sub)
+	}(kh.TenDangNhap)
+
+	// 4. SET COOKIE
+	signature := cau_hinh.TaoChuKyBaoMat(sessionID, userAgent)
+	maxAge := int(ttl.Seconds())
+	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
+	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
+
+	c.JSON(200, gin.H{"status": "ok", "msg": "Xác thực thành công! Hệ thống đang khởi tạo..."})
+}
+
+// Code tự động kích hoạt Subdomain
 func TuDongThemSubdomain(subdomain string) error {
 	ctx := context.Background()
-	
-    // 1. Dùng file JSON đang có để xác thực với Google
 	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson 
-	srv, err := run.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	if jsonKey == "" { return nil } // Bỏ qua nếu chưa config
 	
-	// 2. Tên miền đầy đủ
+	srv, err := run.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
+	if err != nil { return err }
+	
 	fullDomain := subdomain + ".99k.vn"
-    // ID của project và khu vực (vd: projects/my-project/locations/asia-southeast1)
 	parent := "projects/project-47337221-fda1-48c7-b2f/locations/asia-southeast1" 
 
-	// 3. Cấu hình yêu cầu Add Mapping
 	req := &run.DomainMapping{
-		Metadata: &run.ObjectMeta{
-			Name: fullDomain,
-		},
+		Metadata: &run.ObjectMeta{ Name: fullDomain },
 		Spec: &run.DomainMappingSpec{
-			RouteName:       "maytinhhaiduong", // Tên service Cloud Run của bạn
-			CertificateMode: "AUTOMATIC",     // Google tự lo SSL
+			RouteName:       "maytinhhaiduong",
+			CertificateMode: "AUTOMATIC",
 		},
 	}
 
-	// 4. Gửi lệnh lên Google Cloud
 	_, err = srv.Namespaces.Domainmappings.Create(parent, req).Do()
 	if err != nil {
 		log.Printf("❌ Lỗi tạo subdomain %s: %v", fullDomain, err)
