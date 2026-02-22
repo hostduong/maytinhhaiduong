@@ -178,3 +178,56 @@ func LayChuoiSoNgauNhien(doDai int) string {
 	}
 	return string(b)
 }
+
+// KiemTraVaKhoiTaoSheetNganh: Kiểm tra quyền truy cập và tự động tạo Tab theo chuyên ngành
+func KiemTraVaKhoiTaoSheetNganh(shopID, spreadsheetID, authJson, chuyenNganh string) error {
+	// 1. Nạp API Riêng nếu có (Để đảm bảo dùng đúng thông tin vừa nhập)
+	if authJson != "" && spreadsheetID != "" {
+		KetNoiGoogleSheetRieng(shopID, authJson)
+	}
+
+	srv := LayDichVuSheet(shopID)
+	if srv == nil {
+		return fmt.Errorf("Không thể khởi tạo kết nối Google API. Vui lòng kiểm tra lại JSON Auth.")
+	}
+
+	// 2. Chọc thử vào Google Sheet để lấy MetaData (Kiểm tra quyền)
+	resp, err := srv.Spreadsheets.Get(spreadsheetID).Fields("sheets(properties(title))").Do()
+	if err != nil {
+		return fmt.Errorf("Không thể truy cập Spreadsheet. Sai ID hoặc chưa cấp quyền Editor cho www.99k.vn@gmail.com.")
+	}
+
+	// 3. Quy chuẩn tên Sheet (VD: may_tinh -> MAY_TINH)
+	tenTabCanTao := strings.ToUpper(chuyenNganh)
+	tabDaTonTai := false
+
+	for _, sheet := range resp.Sheets {
+		if sheet.Properties.Title == tenTabCanTao {
+			tabDaTonTai = true
+			break
+		}
+	}
+
+	// 4. Nếu chưa có Tab -> Ra lệnh tạo ngay lập tức (Sync)
+	if !tabDaTonTai {
+		req := &sheets.BatchUpdateSpreadsheetRequest{
+			Requests: []*sheets.Request{
+				{
+					AddSheet: &sheets.AddSheetRequest{
+						Properties: &sheets.SheetProperties{
+							Title: tenTabCanTao,
+						},
+					},
+				},
+			},
+		}
+
+		_, err := srv.Spreadsheets.BatchUpdate(spreadsheetID, req).Do()
+		if err != nil {
+			return fmt.Errorf("Đã kết nối thành công nhưng hệ thống không thể tự tạo Tab '%s'. Lỗi: %v", tenTabCanTao, err)
+		}
+		log.Printf("✨ [AUTO-SETUP] Đã tự động tạo Tab '%s' cho Shop [%s]", tenTabCanTao, shopID)
+	}
+
+	return nil // Mọi thứ ĐỀU XANH!
+}
