@@ -76,6 +76,7 @@ type PlanInfo struct {
 // Cột L: Cấu hình giao diện shop / người dùng
 type UserConfig struct { 
 	Theme        string `json:"theme"`
+	ChuyenNganh  string `json:"chuyen_nganh"`
 	CustomDomain string `json:"custom_domain"`
 	DarkMode     bool   `json:"dark_mode"`
 	Language     string `json:"lang"` 
