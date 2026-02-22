@@ -215,15 +215,26 @@
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                                     1. Kết nối dữ liệu lưu trữ
                                 </h3>
-                                <div class="space-y-5">
+                                <div class="space-y-6">
                                     <div>
                                         <label class="block text-sm font-bold text-slate-700 mb-2">Spreadsheet ID (Bắt buộc) <span class="text-red-500">*</span></label>
                                         <input type="text" name="spreadsheet_id" value="{{ .ChuShop.DataSheets.SpreadsheetID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1BxiMVs0XRX5m...">
                                     </div>
+                                    
+                                    <div class="bg-blue-50/50 p-4 sm:p-5 rounded-xl border border-blue-100">
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Chuyên ngành kinh doanh <span class="text-red-500">*</span></label>
+                                        <select name="chuyen_nganh" class="w-full p-3.5 sm:p-4 bg-white border border-slate-300 rounded-xl font-medium text-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition cursor-pointer shadow-sm">
+                                            <option value="" disabled {{ if eq .ChuShop.CauHinh.ChuyenNganh "" }}selected{{ end }}>-- Chọn lĩnh vực kinh doanh của bạn --</option>
+                                            <option value="may_tinh" {{ if eq .ChuShop.CauHinh.ChuyenNganh "may_tinh" }}selected{{ end }}>💻 Ngành Điện tử - Máy tính - Điện thoại</option>
+                                            </select>
+                                        <p class="text-xs text-slate-500 mt-2">Hệ thống sẽ tự động cấu hình giao diện Admin và tính năng chuyên biệt phù hợp với ngành hàng này.</p>
+                                    </div>
+
                                     <div>
                                         <label class="block text-sm font-bold text-slate-700 mb-2">Folder Drive ID (Nơi chứa ảnh, file)</label>
                                         <input type="text" name="folder_drive_id" value="{{ .ChuShop.DataSheets.FolderDriveID }}" class="w-full p-3.5 sm:p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="VD: 1ABCXYZ...">
                                     </div>
+                                    
                                     <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 text-sm text-blue-800 leading-relaxed shadow-inner">
                                         <b class="text-blue-900 flex items-center gap-1 mb-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Hướng dẫn thiết lập:</b>
                                         <ul class="list-disc list-inside ml-4 space-y-1 text-blue-700">
