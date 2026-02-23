@@ -43,8 +43,9 @@ func API_NapLaiDuLieu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") // [SAAS]
 	vaiTro := c.GetString("USER_ROLE")
 	
-	if vaiTro != "admin_root" && vaiTro != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"trang_thai": "loi", "thong_diep": "Không có quyền!"})
+	// Đã cập nhật đúng tên Role của hệ thống mới
+	if vaiTro != "quan_tri_vien_he_thong" && vaiTro != "quan_tri_vien" {
+		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Không có quyền!"})
 		return
 	}
 
@@ -56,15 +57,16 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		core.NapDanhMuc(shopID)   
 		core.NapThuongHieu(shopID)
 		core.NapBienLoiNhuan(shopID)
-		data_pc.NapDuLieu(shopID)
+		data_pc.NapDuLieu(shopID) // Nạp dữ liệu ngành máy tính
 		core.NapKhachHang(shopID)
 		
 		core.HeThongDangBan = false
 	}()
 
+	// Đã cập nhật chuẩn Form JSON status/msg
 	c.JSON(http.StatusOK, gin.H{
-		"trang_thai": "thanh_cong", 
-		"thong_diep": "Đang tiến hành đồng bộ toàn bộ dữ liệu...",
+		"status": "ok", 
+		"msg": "Đang tiến hành đồng bộ toàn bộ dữ liệu ngầm...",
 	})
 }
 
