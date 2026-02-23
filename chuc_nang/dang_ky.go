@@ -141,7 +141,7 @@ func XuLyDangKy(c *gin.Context) {
 	if theme == "theme_master" && vaiTro != "quan_tri_vien_he_thong" {
 		code := core.TaoMaOTP6So() 
 		core.LuuOTP(shopID + "_" + user, code) // Lưu vào RAM
-		go core.GuiMailXacMinhAPI(email, code) // Chạy ngầm gửi Email thật để không block giao diện
+		// go core.GuiMailXacMinhAPI(email, code) // Chạy ngầm gửi Email thật để không block giao diện <--- TẮT DÒNG NÀY ĐI
 	}
 
 	// TẠO COOKIE ĐĂNG NHẬP
