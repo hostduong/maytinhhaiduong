@@ -80,13 +80,10 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
 		
-		// [ĐÃ SỬA]: Logic ưu tiên Chức vụ tùy chỉnh
 		chucVuTuY := strings.TrimSpace(c.PostForm("chuc_vu"))
-		
 		if chucVuTuY != "" {
-			kh.ChucVu = chucVuTuY // Nếu nhập tay "Bảo vệ" thì lấy luôn
+			kh.ChucVu = chucVuTuY 
 		} else {
-			// Nếu để trống thì lấy tự động theo file Sheet Phân Quyền
 			kh.ChucVu = newRole 
 			for _, v := range core.CacheDanhSachVaiTro[shopID] {
 				if v.MaVaiTro == newRole {
@@ -113,11 +110,20 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("tiktok"))
 
+	// Xử lý đổi Mật khẩu
 	passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
 	if passMoi != "" {
 		hash, _ := cau_hinh.HashMatKhau(passMoi)
 		kh.MatKhauHash = hash
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
+	}
+
+	// [MỚI]: Xử lý đổi Mã PIN
+	pinMoi := strings.TrimSpace(c.PostForm("pin_moi"))
+	if pinMoi != "" {
+		hashPin, _ := cau_hinh.HashMatKhau(pinMoi)
+		kh.MaPinHash = hashPin
+		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
 	}
 
 	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
@@ -142,7 +148,7 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	jsonMXH := core.ToJSON(kh.MangXaHoi)
 	ghi(shopID, sh, r, core.CotKH_MangXaHoiJson, jsonMXH)
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật toàn diện thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật thông tin thành công!"})
 }
 
 // ==============================================================
