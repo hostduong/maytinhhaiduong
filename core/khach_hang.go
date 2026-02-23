@@ -85,8 +85,15 @@ type UserConfig struct {
 // Các cột Q, V, W
 type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
 type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
-type MessageInfo struct { ID string `json:"id"`; TieuDe string `json:"title"`; NoiDung string `json:"content"`; DaDoc bool `json:"is_read"`; NgayTao string `json:"date"` }
-
+type MessageInfo struct { 
+	ID             string `json:"id"`
+	TieuDe         string `json:"title"`
+	NoiDung        string `json:"content"`
+	DaDoc          bool   `json:"is_read"`
+	NgayTao        string `json:"date"`
+	NguoiGuiID     string `json:"sender_id"`    // [MỚI] ID người gửi
+	NguoiGuiChucVu string `json:"sender_title"` // [MỚI] Chức vụ người gửi
+}
 // =============================================================
 // 3. STRUCT CHÍNH (ĐỐI TƯỢNG KHÁCH HÀNG / CHỦ SHOP)
 // =============================================================
