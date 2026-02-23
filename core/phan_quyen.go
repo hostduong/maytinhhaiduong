@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DongBatDau_PhanQuyen = 11
+	DongBatDau_PhanQuyen = 11 // Vẫn giữ cho các logic cũ nếu có
 	
 	CotPQ_MaChucNang = 0
 	CotPQ_Nhom       = 1
@@ -15,20 +15,14 @@ const (
 	CotPQ_StartRole  = 3
 )
 
-// Struct mới chứa trọn bộ thông tin Chức vụ
 type VaiTroInfo struct {
 	MaVaiTro  string
 	TenVaiTro string
 }
 
 var (
-	// CachePhanQuyen: Map[ShopID] -> Map[MaVaiTro] -> Map[MaChucNang] -> true/false
 	CachePhanQuyen = make(map[string]map[string]map[string]bool)
-	
-	// [MỚI] Lưu danh sách chức vụ để đổ ra Giao diện Dropdown
-	// Map[ShopID] -> []VaiTroInfo
 	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)
-	
 	mtxQuyen sync.RWMutex
 )
 
@@ -37,35 +31,42 @@ func NapPhanQuyen(shopID string) {
 
 	raw, err := LoadSheetData(shopID, "PHAN_QUYEN")
 	if err != nil { return }
-	if len(raw) < DongBatDau_PhanQuyen { return }
+
+	// [THUẬT TOÁN MỚI]: Tự động dò tìm dòng Header thay vì gán cứng
+	headerIndex := -1
+	for i, row := range raw {
+		if len(row) > 0 && strings.TrimSpace(strings.ToLower(row[0])) == "ma_chuc_nang" {
+			headerIndex = i
+			break
+		}
+	}
+
+	if headerIndex == -1 { return } // Bảo vệ: Không tìm thấy Header thì dừng
 
 	tempMap := make(map[string]map[string]bool)
-	var danhSachVaiTroCuaShop []VaiTroInfo // Mảng chứa list chức vụ
+	var danhSachVaiTroCuaShop []VaiTroInfo 
 
-	// A. QUÉT HEADER (Dòng số 0 trong mảng raw)
-	header := raw[0]
+	// A. QUÉT HEADER
+	header := raw[headerIndex]
 	var listMaVaiTro []string 
 
 	for i := CotPQ_StartRole; i < len(header); i++ {
 		headerText := strings.TrimSpace(LayString(header, i))
 		if headerText == "" { continue }
 
-		// Tách chuỗi theo dấu "|" (Ví dụ: "giam_doc | Giám đốc")
 		parts := strings.Split(headerText, "|")
-		
 		roleID := strings.ToLower(strings.TrimSpace(parts[0]))
 		roleID = strings.ReplaceAll(roleID, " ", "_") 
 
-		roleName := roleID // Mặc định tên = mã
+		roleName := roleID 
 		if len(parts) > 1 {
-			roleName = strings.TrimSpace(parts[1]) // Nếu có dấu | thì lấy vế sau làm tên
+			roleName = strings.TrimSpace(parts[1]) 
 		}
 
 		if roleID != "" {
 			listMaVaiTro = append(listMaVaiTro, roleID)
 			tempMap[roleID] = make(map[string]bool)
 			
-			// Thêm vào mảng giao diện
 			danhSachVaiTroCuaShop = append(danhSachVaiTroCuaShop, VaiTroInfo{
 				MaVaiTro:  roleID,
 				TenVaiTro: roleName,
@@ -73,9 +74,9 @@ func NapPhanQuyen(shopID string) {
 		}
 	}
 
-	// B. DUYỆT DỮ LIỆU CÁC DÒNG QUYỀN (Từ dòng 11)
+	// B. DUYỆT DỮ LIỆU (Bắt đầu từ dòng ngay dưới Header)
 	for i, row := range raw {
-		if i < DongBatDau_PhanQuyen-1 { continue }
+		if i <= headerIndex { continue }
 
 		maChucNang := strings.TrimSpace(LayString(row, CotPQ_MaChucNang))
 		if maChucNang == "" { continue }
@@ -91,7 +92,6 @@ func NapPhanQuyen(shopID string) {
 		}
 	}
 
-	// LƯU VÀO RAM
 	mtxQuyen.Lock()
 	CachePhanQuyen[shopID] = tempMap
 	CacheDanhSachVaiTro[shopID] = danhSachVaiTroCuaShop
@@ -99,7 +99,7 @@ func NapPhanQuyen(shopID string) {
 }
 
 func KiemTraQuyen(shopID string, vaiTro string, maChucNang string) bool {
-	if vaiTro == "quan_tri_vien_he_thong" { return true } // Quyền tối cao
+	if vaiTro == "quan_tri_vien_he_thong" { return true } 
 
 	mtxQuyen.RLock()
 	defer mtxQuyen.RUnlock()
