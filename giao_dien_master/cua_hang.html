@@ -716,26 +716,38 @@
         // --- LOGIC LÀM MỚI DỮ LIỆU ĐỒNG BỘ ---
         function kiemTraCooldownReload() {
             const btn = document.getElementById('btnActionReload');
-            const txt = document.getElementById('txtActionReload');
+            const txtSub = document.getElementById('txtCooldown');
+            const alertBox = document.getElementById('alertSyncSuccess');
             if(!btn) return false;
 
             const lastReload = localStorage.getItem('last_reload_time');
             if (lastReload) {
                 const elapsed = Math.floor((Date.now() - parseInt(lastReload)) / 1000);
                 if (elapsed < 60) {
+                    // Khóa nút
                     btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.classList.add('opacity-60', 'cursor-not-allowed');
+                    btn.classList.remove('hover:-translate-y-0.5', 'hover:bg-blue-700');
+                    
+                    // Hiển thị text phụ và Khung báo thành công
+                    txtSub.classList.remove('hidden');
+                    alertBox.classList.remove('hidden');
+                    
                     let timeLeft = 60 - elapsed;
-                    txt.innerText = `Vui lòng chờ ${timeLeft}s...`;
+                    txtSub.innerText = `(Vui lòng chờ ${timeLeft}s để thực hiện lại)`;
                     
                     const timer = setInterval(() => {
                         timeLeft--;
-                        txt.innerText = `Vui lòng chờ ${timeLeft}s...`;
+                        txtSub.innerText = `(Vui lòng chờ ${timeLeft}s để thực hiện lại)`;
                         if (timeLeft <= 0) {
                             clearInterval(timer);
+                            // Mở khóa nút
                             btn.disabled = false;
-                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                            txt.innerText = "Tiến hành Đồng bộ ngay";
+                            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+                            btn.classList.add('hover:-translate-y-0.5', 'hover:bg-blue-700');
+                            // Ẩn text phụ và Khung báo
+                            txtSub.classList.add('hidden');
+                            alertBox.classList.add('hidden');
                         }
                     }, 1000);
                     return true;
@@ -769,8 +781,11 @@
                     const res = await r.json();
                     if (res.status === 'ok') {
                         localStorage.setItem('last_reload_time', Date.now().toString());
-                        Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 2000, showConfirmButton: false});
-                        kiemTraCooldownReload(); // Kích hoạt lại đếm ngược 60s trên nút bấm
+                        // Đóng thông báo xoay vòng và báo Success 1.5s
+                        Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 1500, showConfirmButton: false});
+                        
+                        // Kích hoạt giao diện tĩnh (Nút mờ đi, bật đếm ngược, bật khung xanh)
+                        kiemTraCooldownReload(); 
                     } else {
                         Swal.fire('Lỗi', res.msg, 'error');
                     }
