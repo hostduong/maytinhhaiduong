@@ -74,7 +74,8 @@
     <div id="data_members" class="hidden">
         {{ range .DanhSach }}
         <div class="m-data" 
-            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-role="{{ .VaiTroQuyenHan }}" 
+            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" 
+            data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
             data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
             data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
             data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
@@ -144,13 +145,16 @@
                             
                             <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 relative">
                                 <label class="form-lbl text-purple-800">Vai trò (Role) <span class="text-red-500">*</span></label>
-                                
-                                <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold" required>
+                                <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold mb-3" required>
                                     {{ range .DanhSachVaiTro }}
                                         <option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>
                                     {{ end }}
                                 </select>
-                                <p class="text-[10px] text-purple-600 mt-1">Lưu ý: Không thể tước quyền của Quản trị viên hệ thống.</p>
+                                
+                                <label class="form-lbl text-purple-800">Chức vụ hiển thị (Tùy chỉnh)</label>
+                                <input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200 text-sm" placeholder="VD: Bảo vệ (Để trống sẽ tự sinh theo Vai trò)...">
+
+                                <p class="text-[10px] text-purple-600 mt-2">Lưu ý: Không thể tước quyền của Quản trị viên hệ thống.</p>
                             </div>
 
                             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 relative">
@@ -232,11 +236,18 @@
         document.querySelectorAll('.m-data').forEach(el => {
             let id = el.getAttribute('data-id');
             mapData[id] = {
-                ten: el.getAttribute('data-name'), role: el.getAttribute('data-role'),
+                ten: el.getAttribute('data-name'), 
+                role: el.getAttribute('data-role'), 
+                title: el.getAttribute('data-title'), // Lấy Chức vụ hiển thị
                 sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
                 address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
                 zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note')
             };
+        });
+
+        // Event listener: Tự động xóa Chức vụ nếu người dùng đổi Vai trò
+        document.getElementById('f_role').addEventListener('change', function() {
+            document.getElementById('f_title').value = '';
         });
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -256,6 +267,9 @@
             document.getElementById('f_fb').value = data.fb;
             document.getElementById('f_tiktok').value = data.tiktok;
             document.getElementById('f_note').value = data.note;
+            
+            // Đổ Chức vụ (Tùy chỉnh) vào Form
+            document.getElementById('f_title').value = data.title;
 
             let roleSelect = document.getElementById('f_role');
             roleSelect.value = data.role;
