@@ -37,9 +37,9 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 // ==============================================================
 func API_Admin_LuuThanhVien(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID") // Cần biến này để check tự khóa
 	myRole := c.GetString("USER_ROLE")
 	
-	// [ĐÃ SỬA] Cập nhật điều kiện check quyền chuẩn SaaS mới
 	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
@@ -52,15 +52,22 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	// [ĐÃ SỬA] Chặn: Chỉ admin hệ thống mới sửa được tài khoản hệ thống
+	// [BẢO VỆ 1]: Chặn sửa quyền của SUPER ADMIN
 	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && myRole != "quan_tri_vien_he_thong" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không thể chỉnh sửa thông tin của SUPER ADMIN!"})
 		return
 	}
 
+	// [BẢO VỆ 2]: Chặn tự khóa tài khoản chính mình
+	trangThaiMoi := c.PostForm("trang_thai")
+	if maKH == userID && trangThaiMoi == "0" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
+		return
+	}
+
 	core.KhoaHeThong.Lock()
 	
-	// Cập nhật Quyền & Chức vụ [ĐÃ SỬA CHUẨN TÊN QUYỀN MỚI]
+	// Cập nhật Quyền & Chức vụ
 	newRole := c.PostForm("vai_tro")
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
@@ -84,9 +91,8 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	gioiTinh := c.PostForm("gioi_tinh")
 	if gioiTinh == "1" { kh.GioiTinh = 1 } else if gioiTinh == "0" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
 
-	// Tình trạng khóa nick (1: Bật, 0: Tắt)
-	trangThai := c.PostForm("trang_thai")
-	if trangThai == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
+	// Tình trạng khóa nick (Đã qua lớp bảo vệ)
+	if trangThaiMoi == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
 
 	// Cập nhật Mạng xã hội
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
@@ -134,7 +140,6 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	// [ĐÃ SỬA] Cập nhật điều kiện check quyền
 	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
@@ -162,7 +167,6 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	core.KhoaHeThong.Lock()
 	for _, maKH := range listMaKH {
 		if kh, ok := core.CacheMapKhachHang[core.TaoCompositeKey(shopID, maKH)]; ok {
-			// Bổ sung tin nhắn vào hộp thư
 			newMsg := core.MessageInfo{
 				ID:      msgID,
 				TieuDe:  tieuDe,
@@ -172,7 +176,6 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 			}
 			kh.Inbox = append(kh.Inbox, newMsg)
 			
-			// Ghi Json mới xuống Sheet
 			jsonInbox := core.ToJSON(kh.Inbox)
 			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_InboxJson, jsonInbox)
 			count++
