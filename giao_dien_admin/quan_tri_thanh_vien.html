@@ -52,8 +52,12 @@
                             <td class="px-6 py-4">
                                 {{ if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-200">SUPER ADMIN</span>
                                 {{ else if eq .VaiTroQuyenHan "quan_tri_vien" }}<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md border border-blue-200">QUẢN TRỊ VIÊN</span>
-                                {{ else if eq .VaiTroQuyenHan "nhan_vien_sale" }}<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md border border-amber-200">SALE</span>
-                                {{ else if eq .VaiTroQuyenHan "nhan_vien_kho" }}<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md border border-purple-200">KHO</span>
+                                {{ else if eq .VaiTroQuyenHan "giam_doc" }}<span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-md border border-indigo-200">GIÁM ĐỐC</span>
+                                {{ else if eq .VaiTroQuyenHan "quan_ly" }}<span class="bg-cyan-100 text-cyan-700 text-xs font-bold px-2.5 py-1 rounded-md border border-cyan-200">QUẢN LÝ</span>
+                                {{ else if eq .VaiTroQuyenHan "kinh_doanh" }}<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md border border-amber-200">KINH DOANH</span>
+                                {{ else if eq .VaiTroQuyenHan "ke_toan" }}<span class="bg-pink-100 text-pink-700 text-xs font-bold px-2.5 py-1 rounded-md border border-pink-200">KẾ TOÁN</span>
+                                {{ else if eq .VaiTroQuyenHan "thu_kho" }}<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md border border-purple-200">THỦ KHO</span>
+                                {{ else if eq .VaiTroQuyenHan "thu_quy" }}<span class="bg-teal-100 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-md border border-teal-200">THỦ QUỸ</span>
                                 {{ else }}<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md border border-slate-200">KHÁCH HÀNG</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
@@ -84,7 +88,8 @@
             {{ if eq (len .Inbox) 0 }}
                 <div class="text-sm text-slate-400 italic text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200">Chưa có thông báo nào được gửi đến thành viên này.</div>
             {{ else }}
-                <div class="flex flex-col-reverse gap-2"> {{ range .Inbox }}
+                <div class="flex flex-col-reverse gap-2"> 
+                    {{ range .Inbox }}
                     <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}"></div>
                         <div class="flex justify-between items-start text-xs mb-1.5 pl-2 gap-2">
@@ -144,9 +149,13 @@
                             <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 relative">
                                 <label class="form-lbl text-purple-800">Vai trò (Role) <span class="text-red-500">*</span></label>
                                 <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold" required>
-                                    <option value="khach_hang">Khách hàng (Customer)</option>
-                                    <option value="nhan_vien_sale">Nhân viên kinh doanh (Sale)</option>
-                                    <option value="nhan_vien_kho">Thủ kho (Stock)</option>
+                                    <option value="khach_hang">Khách hàng</option>
+                                    <option value="kinh_doanh">Nhân viên kinh doanh</option>
+                                    <option value="ke_toan">Kế toán</option>
+                                    <option value="thu_kho">Thủ kho</option>
+                                    <option value="thu_quy">Thủ quỹ</option>
+                                    <option value="quan_ly">Quản lý</option>
+                                    <option value="giam_doc">Giám đốc</option>
                                     <option value="quan_tri_vien">Quản trị viên (Admin)</option>
                                     <option value="quan_tri_vien_he_thong" disabled>SUPER ADMIN (Hệ thống)</option>
                                 </select>
@@ -179,7 +188,7 @@
                                 Lịch sử thông báo đã gửi
                             </h4>
                             <div id="inbox_render_container" class="max-h-56 overflow-y-auto pr-2 bg-slate-50/50 p-2 rounded-xl">
-                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -225,8 +234,7 @@
     </div>
 
     <script>
-        // Data Parser
-        const currentUserID = "{{ .NhanVien.MaKhachHang }}"; // Mã của người đang đăng nhập
+        const currentUserID = "{{ .NhanVien.MaKhachHang }}"; 
         const currentUserRole = "{{ .NhanVien.VaiTroQuyenHan }}";
 
         const mapData = {};
@@ -258,7 +266,6 @@
             document.getElementById('f_tiktok').value = data.tiktok;
             document.getElementById('f_note').value = data.note;
 
-            // Xử lý Role: Không ai được tước quyền của Super Admin
             let roleSelect = document.getElementById('f_role');
             roleSelect.value = data.role;
             if(data.role === "quan_tri_vien_he_thong") {
@@ -267,7 +274,6 @@
                 roleSelect.disabled = false;
             }
 
-            // Xử lý Status: Không được tự khóa mình, hoặc khóa người có quyền cao nhất
             let statusSelect = document.getElementById('f_status');
             let statusNote = document.getElementById('f_status_note');
             statusSelect.value = data.status;
@@ -280,7 +286,6 @@
                 statusNote.classList.add('hidden');
             }
 
-            // Load Inbox: Sao chép cục HTML đã sinh sẵn đổ vào modal
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
             document.getElementById('inbox_render_container').innerHTML = inboxHtml;
 
@@ -293,7 +298,6 @@
             
             const fd = new FormData(document.getElementById('formEdit'));
             
-            // Nếu role hoặc status bị disabled, FormData sẽ không gửi đi, ta phải nhét thủ công vào
             if(document.getElementById('f_role').disabled) {
                 fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role);
             }
