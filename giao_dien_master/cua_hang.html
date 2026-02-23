@@ -82,11 +82,11 @@
                 </button>
 
                 {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
-                <button id="btnReloadData" onclick="xacNhanLamMoiDuLieu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-blue-600 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 mt-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 
-                    <span id="txtReloadData">Đồng bộ Sheet</span>
+                <button onclick="switchTab('tab_dongbo', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Đồng bộ Sheet
                 </button>
                 {{ end }}
+
                 <button onclick="switchTab('tab_goicuoc', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 relative">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Gói Dịch Vụ
                     <span class="absolute right-3 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase">HOT</span>
@@ -204,7 +204,7 @@
                                     </b>
                                 </p>
                             </div>
-                            <button onclick="switchTab('tab_goicuoc', document.querySelectorAll('.tab-btn')[3])" class="w-full bg-white border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 px-5 py-3 rounded-xl font-bold transition text-sm sm:text-base">Nâng cấp gói ngay</button>
+                            <button onclick="switchTab('tab_goicuoc', document.querySelectorAll('.tab-btn')[4])" class="w-full bg-white border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 px-5 py-3 rounded-xl font-bold transition text-sm sm:text-base">Nâng cấp gói ngay</button>
                         </div>
                     </div>
                 </div>
@@ -217,7 +217,6 @@
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
                         <form id="formHaTang" class="space-y-10">
-                            
                             <div>
                                 <h3 class="font-bold text-lg text-blue-700 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
@@ -306,6 +305,38 @@
                         </form>
                     </div>
                 </div>
+
+                {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
+                <div id="tab_dongbo" class="tab-content space-y-6">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Đồng bộ Dữ liệu</h1>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Cập nhật hệ thống với những thay đổi mới nhất từ Google Sheets của bạn.</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                        <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl flex items-start gap-4 mb-8">
+                            <div class="bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-amber-900 text-base mb-2">Lưu ý quan trọng trước khi đồng bộ!</h3>
+                                <ul class="list-disc list-inside text-sm text-amber-800 space-y-2 leading-relaxed">
+                                    <li>Tính năng này sẽ <b>xóa bộ nhớ đệm (RAM) hiện tại</b> và tải lại toàn bộ dữ liệu mới nhất từ Google Sheets.</li>
+                                    <li>Chỉ nên sử dụng tính năng này khi bạn vừa <b>chỉnh sửa thủ công</b> trực tiếp trên file Excel (như thêm, sửa, hoặc xóa dòng).</li>
+                                    <li>Quá trình này có thể mất vài giây. Vui lòng không đóng trình duyệt trong lúc hệ thống đang xử lý.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center border-t border-slate-100 pt-8">
+                            <button id="btnActionReload" onclick="xacNhanLamMoiDuLieu()" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span id="txtActionReload">Tiến hành Đồng bộ ngay</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
 
                 <div id="tab_goicuoc" class="tab-content space-y-6">
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gói Dịch Vụ & Thanh Toán</h1>
@@ -471,34 +502,71 @@
     </div>
 
     <script>
+        // Init Phone Input
+        const inputPhone = document.querySelector("#newPhone");
+        let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        // Init Zalo Input
+        const inputZalo = document.querySelector("#newZalo");
+        let itiZalo; if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        function setBtnLoading(id, text) {
+            const btn = document.getElementById(id);
+            btn.disabled = true;
+            btn.dataset.oldText = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${text}`;
+        }
+        function setBtnNormal(id) {
+            const btn = document.getElementById(id);
+            btn.disabled = false;
+            if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText;
+        }
+
+        // Logic ẩn hiện 2 icon mắt
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id);
+            const eyeOpen = document.getElementById('eye_open_' + id);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                eyeSlash.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else {
+                input.type = "password";
+                eyeOpen.classList.add('hidden');
+                eyeSlash.classList.remove('hidden');
+            }
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden') && id === 'modalInfo') checkInfoBtn();
+        }
+
+        function switchPinView(mode) {
+            const vChange = document.getElementById('viewChangePin');
+            const vForgot = document.getElementById('viewForgotPin');
+            if(mode === 'forgot') {
+                vChange.classList.add('hidden'); vForgot.classList.remove('hidden');
+            } else {
+                vForgot.classList.add('hidden'); vChange.classList.remove('hidden');
+            }
+        }
+
+        function copyEmailToClipboard() {
+            navigator.clipboard.writeText("www.99k.vn@gmail.com").then(() => {
+                Swal.fire({icon: 'success', title: 'Đã copy!', text: 'Đã lưu Email vào khay nhớ tạm.', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000});
+            });
+        }
+
         // UI & Tab Navigation
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebarBackdrop');
         function toggleSidebar() { sidebar.classList.toggle('-translate-x-full'); backdrop.classList.toggle('hidden'); }
         function switchTab(tabId, btn) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(tabId).classList.add('active'); if(window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) toggleSidebar(); }
         
-        function toggleModal(id) { 
-            const modal = document.getElementById(id);
-            modal.classList.toggle('hidden'); 
-            if(!modal.classList.contains('hidden') && id === 'modalInfo') checkInfoBtn();
-        }
-        function togglePass(id) { const input = document.getElementById(id); const eyeSlash = document.getElementById('eye_slash_' + id); const eyeOpen = document.getElementById('eye_open_' + id); if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); } }
-        function switchPinView(mode) { const vChange = document.getElementById('viewChangePin'); const vForgot = document.getElementById('viewForgotPin'); if(mode === 'forgot') { vChange.classList.add('hidden'); vForgot.classList.remove('hidden'); } else { vForgot.classList.add('hidden'); vChange.classList.remove('hidden'); } }
-
-        function setBtnLoading(id, text) { const btn = document.getElementById(id); btn.disabled = true; btn.dataset.oldText = btn.innerHTML; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${text}`; }
-        function setBtnNormal(id) { const btn = document.getElementById(id); btn.disabled = false; if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText; }
-
-        // Core API function
-        async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
-        function handleRes(res, modalId, btnId) { setBtnNormal(btnId); if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload()); else Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); }
-
-        // Phone & Zalo Input Init
-        const inputPhone = document.querySelector("#newPhone");
-        let iti; if(inputPhone) iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
-
-        const inputZalo = document.querySelector("#newZalo");
-        let itiZalo; if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
-
         // --- VALIDATION LOGIC ---
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
         const regexUrl  = { char: /[\s]/, full: /^https?:\/\/.+/ };
@@ -549,6 +617,9 @@
         function checkPinBtn() { const ok = document.getElementById('newPin').classList.contains('input-success') && document.getElementById('oldPin').value.length > 0; document.getElementById('btnSavePin').disabled = !ok; }
 
         // --- CÁC HÀM GỌI API ---
+        async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
+        function handleRes(res, modalId, btnId) { setBtnNormal(btnId); if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg}).then(()=>location.reload()); else Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); }
+
         async function luuHaTang() {
             const btn = document.getElementById('btnSaveHaTang'); const originTxt = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
             try { const res = await fetch('/cua-hang/api/cap-nhat-id', { method: 'POST', body: new FormData(document.getElementById('formHaTang')) }); const data = await res.json(); if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500}).then(() => location.reload()); else Swal.fire('Lỗi', data.msg, 'error'); } catch (e) { Swal.fire('Lỗi', 'Không kết nối được server', 'error'); } finally { btn.disabled = false; btn.innerHTML = originTxt; }
@@ -556,17 +627,7 @@
 
         async function capNhatThongTin() {
             setBtnLoading('btnSaveInfo', 'Lưu...');
-            const data = { 
-                ho_ten: document.getElementById('newName').value, 
-                dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, 
-                ngay_sinh: document.getElementById('newDob').value, 
-                gioi_tinh: document.getElementById('newGender').value, 
-                dia_chi: document.getElementById('newAddress').value, 
-                ma_so_thue: document.getElementById('newTax').value, 
-                zalo: itiZalo ? itiZalo.getNumber() : document.getElementById('newZalo').value, 
-                url_fb: document.getElementById('newFb').value, 
-                url_tiktok: document.getElementById('newTiktok').value 
-            };
+            const data = { ho_ten: document.getElementById('newName').value, dien_thoai: iti ? iti.getNumber() : document.getElementById('newPhone').value, ngay_sinh: document.getElementById('newDob').value, gioi_tinh: document.getElementById('newGender').value, dia_chi: document.getElementById('newAddress').value, ma_so_thue: document.getElementById('newTax').value, zalo: itiZalo ? itiZalo.getNumber() : document.getElementById('newZalo').value, url_fb: document.getElementById('newFb').value, url_tiktok: document.getElementById('newTiktok').value };
             handleRes(await postData('/api/user/update-info', data), 'modalInfo', 'btnSaveInfo');
         }
 
@@ -575,7 +636,6 @@
         async function guiYeuCauResetPin() { setBtnLoading('btnConfirmForgot', 'Gửi...'); try { const r = await fetch('/api/user/send-otp-pin', {method:'POST'}); handleRes(await r.json(), 'modalPin', 'btnConfirmForgot'); } catch(e){ setBtnNormal('btnConfirmForgot'); } }
 
         // --- CÁC HÀM XỬ LÝ KHÓA MỀM (SOFT GATE) ---
-        
         document.getElementById('otpKichHoat').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
         document.getElementById('otpKichHoat').addEventListener('keypress', function(e) { if (e.key === 'Enter' && this.value.length === 6) { e.preventDefault(); xacThucKichHoat(); } });
 
@@ -586,57 +646,7 @@
             else { Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); btn.disabled = false; btn.innerText = "Kích Hoạt"; }
         }
 
-        async function guiLaiOTPSoftGate() {
-            const confirm = await Swal.fire({
-                title: 'Xác nhận gửi lại mã',
-                text: 'Hệ thống sẽ gửi một mã OTP mới đến email của bạn.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#9ca3af',
-                confirmButtonText: 'Gửi mã',
-                cancelButtonText: 'Hủy'
-            });
-            
-            if (!confirm.isConfirmed) return;
-
-            const btn = document.getElementById('btnResendSoftGate'); 
-            btn.disabled = true; btn.innerText = "Đang gửi...";
-            
-            const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
-            
-            if(res.status === 'ok') { 
-                Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, toast:true, position:'top-end', showConfirmButton:false, timer:4000}); 
-                let timeLeft = 60;
-                btn.innerText = `Gửi lại sau ${timeLeft}s`;
-                const timerId = setInterval(() => {
-                    timeLeft--;
-                    btn.innerText = `Gửi lại sau ${timeLeft}s`;
-                    if(timeLeft <= 0) { clearInterval(timerId); btn.disabled = false; btn.innerText = "Gửi lại mã OTP"; }
-                }, 1000);
-            }
-            else { Swal.fire('Lỗi hệ thống', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
-        }
-
-        // Hàm Copy Email
-        function copyEmailToClipboard() {
-            navigator.clipboard.writeText("www.99k.vn@gmail.com").then(() => {
-                Swal.fire({
-                    icon: 'success', 
-                    title: 'Đã copy!', 
-                    text: 'Đã lưu Email vào khay nhớ tạm.', 
-                    toast: true, 
-                    position: 'top-end', 
-                    showConfirmButton: false, 
-                    timer: 2000
-                });
-            }).catch(err => {
-                console.error('Không thể copy', err);
-            });
-        }
-
         async function batDauXacThuc() {
-            // 1. Hiện hộp thoại hỏi xác nhận & cho phép chọn "Đã có mã"
             const result = await Swal.fire({
                 title: 'Gửi mã Xác thực?',
                 text: 'Hệ thống sẽ gửi một mã OTP gồm 6 chữ số đến hộp thư {{ .ChuShop.Email }}.',
@@ -651,20 +661,15 @@
                 cancelButtonText: 'Hủy'
             });
 
-            // 2. Nếu khách chọn "Gửi mã cho tôi" -> Gọi API gửi Mail
             if (result.isConfirmed) {
                 Swal.fire({title: 'Đang kết nối trạm Mail...', text: 'Vui lòng chờ giây lát', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
-                
                 const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
                 
                 if(res.status === 'ok') { 
-                    // Báo thành công bằng thông điệp chuẩn từ Apps Script
                     Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, confirmButtonText: 'Nhập mã ngay'}).then(() => {
-                        // Bật bảng nhập mã
                         document.getElementById('modalVerifyEmail').classList.remove('hidden');
                     });
                     
-                    // Khóa nút Gửi lại & Đếm ngược 60s
                     const btn = document.getElementById('btnResendSoftGate'); 
                     btn.disabled = true;
                     let timeLeft = 60;
@@ -674,20 +679,31 @@
                         btn.innerText = `Gửi lại sau ${timeLeft}s`;
                         if(timeLeft <= 0) { clearInterval(timerId); btn.disabled = false; btn.innerText = "Gửi lại mã OTP"; }
                     }, 1000);
-                } else { 
-                    Swal.fire('Lỗi hệ thống', res.msg, 'error'); 
-                }
-            } 
-            // 3. Nếu khách báo "Tôi đã có mã" (Nhận từ lúc đăng ký) -> Bật bảng nhập mã luôn
-            else if (result.isDenied) {
+                } else { Swal.fire('Lỗi hệ thống', res.msg, 'error'); }
+            } else if (result.isDenied) {
                 document.getElementById('modalVerifyEmail').classList.remove('hidden');
             }
         }
 
+        async function guiLaiOTPSoftGate() {
+            const btn = document.getElementById('btnResendSoftGate'); btn.disabled = true; btn.innerText = "Đang gửi...";
+            const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
+            if(res.status === 'ok') { 
+                Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, toast:true, position:'top-end', showConfirmButton:false, timer:4000}); 
+                let timeLeft = 60;
+                btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                const timerId = setInterval(() => {
+                    timeLeft--;
+                    btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                    if(timeLeft <= 0) { clearInterval(timerId); btn.disabled = false; btn.innerText = "Gửi lại mã OTP"; }
+                }, 1000);
+            } else { Swal.fire('Lỗi hệ thống', res.msg, 'error'); btn.innerText = "Thử lại"; btn.disabled = false; }
+        }
+
         // --- LOGIC LÀM MỚI DỮ LIỆU ĐỒNG BỘ ---
         function kiemTraCooldownReload() {
-            const btn = document.getElementById('btnReloadData');
-            const txt = document.getElementById('txtReloadData');
+            const btn = document.getElementById('btnActionReload');
+            const txt = document.getElementById('txtActionReload');
             if(!btn) return false;
 
             const lastReload = localStorage.getItem('last_reload_time');
@@ -695,20 +711,18 @@
                 const elapsed = Math.floor((Date.now() - parseInt(lastReload)) / 1000);
                 if (elapsed < 60) {
                     btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-100');
-                    btn.classList.remove('hover:bg-blue-50');
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
                     let timeLeft = 60 - elapsed;
-                    txt.innerText = `Chờ ${timeLeft}s...`;
+                    txt.innerText = `Vui lòng chờ ${timeLeft}s...`;
                     
                     const timer = setInterval(() => {
                         timeLeft--;
-                        txt.innerText = `Chờ ${timeLeft}s...`;
+                        txt.innerText = `Vui lòng chờ ${timeLeft}s...`;
                         if (timeLeft <= 0) {
                             clearInterval(timer);
                             btn.disabled = false;
-                            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-100');
-                            btn.classList.add('hover:bg-blue-50');
-                            txt.innerText = "Đồng bộ Sheet";
+                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            txt.innerText = "Tiến hành Đồng bộ ngay";
                         }
                     }, 1000);
                     return true;
@@ -717,15 +731,15 @@
             return false;
         }
 
-        // Chạy kiểm tra ngay khi load trang
+        // Chạy kiểm tra đếm ngược của nút Đồng bộ ngay khi vừa load web
         kiemTraCooldownReload();
 
         async function xacNhanLamMoiDuLieu() {
             if (kiemTraCooldownReload()) return;
 
             const confirm = await Swal.fire({
-                title: 'Đồng bộ dữ liệu?',
-                text: 'Hệ thống sẽ tải lại toàn bộ dữ liệu mới nhất từ Google Sheets vào máy chủ (RAM).',
+                title: 'Xác nhận Đồng bộ?',
+                text: 'Hệ thống sẽ lấy dữ liệu mới nhất từ file Google Sheets của bạn. Quá trình này không thể hoàn tác.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563eb',
@@ -738,12 +752,12 @@
                 Swal.fire({title: 'Đang tải dữ liệu...', text: 'Vui lòng không đóng trang.', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                 
                 try {
-                    const r = await fetch('/admin/reload', {method: 'POST'});
+                    const r = await fetch('/admin/reload', {method: 'GET'});
                     const res = await r.json();
                     if (res.status === 'ok') {
                         localStorage.setItem('last_reload_time', Date.now().toString());
                         Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 2000, showConfirmButton: false});
-                        kiemTraCooldownReload(); // Bật đếm ngược
+                        kiemTraCooldownReload(); // Kích hoạt lại đếm ngược 60s trên nút bấm
                     } else {
                         Swal.fire('Lỗi', res.msg, 'error');
                     }
@@ -752,7 +766,6 @@
                 }
             }
         }
-        
     </script>
 </body>
 </html>
