@@ -99,7 +99,7 @@
                         <h3 class="text-base sm:text-lg font-bold text-amber-900">Xác thực Email để Mở khóa Tên miền!</h3>
                         <p class="mt-1 text-sm text-amber-800 leading-relaxed">Bạn cần nhập mã OTP (đã gửi vào hộp thư <b>{{ .ChuShop.Email }}</b>) để hệ thống tạo Tên miền phụ và kích hoạt Gói Dùng Thử.</p>
                     </div>
-                    <button onclick="toggleModal('modalVerifyEmail')" class="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition whitespace-nowrap shadow-md">Xác thực ngay</button>
+                    <button onclick="batDauXacThuc()" class="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition whitespace-nowrap shadow-md">Xác thực ngay</button>
                 </div>
                 {{ end }}
                 
@@ -627,6 +627,56 @@
                 console.error('Không thể copy', err);
             });
         }
+
+        async function batDauXacThuc() {
+            // 1. Hiện hộp thoại hỏi xác nhận & cho phép chọn "Đã có mã"
+            const result = await Swal.fire({
+                title: 'Gửi mã Xác thực?',
+                text: 'Hệ thống sẽ gửi một mã OTP gồm 6 chữ số đến hộp thư {{ .ChuShop.Email }}.',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonColor: '#f59e0b',
+                denyButtonColor: '#3b82f6',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Gửi mã cho tôi',
+                denyButtonText: 'Tôi đã có mã',
+                cancelButtonText: 'Hủy'
+            });
+
+            // 2. Nếu khách chọn "Gửi mã cho tôi" -> Gọi API gửi Mail
+            if (result.isConfirmed) {
+                Swal.fire({title: 'Đang kết nối trạm Mail...', text: 'Vui lòng chờ giây lát', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+                
+                const res = await postData('/api/auth/send-otp', { dinh_danh: document.getElementById('dinh_danh_otp').value });
+                
+                if(res.status === 'ok') { 
+                    // Báo thành công bằng thông điệp chuẩn từ Apps Script
+                    Swal.fire({icon:'success', title:'Đã gửi thành công', text: res.msg, confirmButtonText: 'Nhập mã ngay'}).then(() => {
+                        // Bật bảng nhập mã
+                        document.getElementById('modalVerifyEmail').classList.remove('hidden');
+                    });
+                    
+                    // Khóa nút Gửi lại & Đếm ngược 60s
+                    const btn = document.getElementById('btnResendSoftGate'); 
+                    btn.disabled = true;
+                    let timeLeft = 60;
+                    btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                    const timerId = setInterval(() => {
+                        timeLeft--;
+                        btn.innerText = `Gửi lại sau ${timeLeft}s`;
+                        if(timeLeft <= 0) { clearInterval(timerId); btn.disabled = false; btn.innerText = "Gửi lại mã OTP"; }
+                    }, 1000);
+                } else { 
+                    Swal.fire('Lỗi hệ thống', res.msg, 'error'); 
+                }
+            } 
+            // 3. Nếu khách báo "Tôi đã có mã" (Nhận từ lúc đăng ký) -> Bật bảng nhập mã luôn
+            else if (result.isDenied) {
+                document.getElementById('modalVerifyEmail').classList.remove('hidden');
+            }
+        }
+        
     </script>
 </body>
 </html>
