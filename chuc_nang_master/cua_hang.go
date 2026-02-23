@@ -19,9 +19,18 @@ func TrangQuanLyCuaHang(c *gin.Context) {
 		return
 	}
 
+	// Đếm số tin chưa đọc
+	soTinChuaDoc := 0
+	for _, msg := range chuShop.Inbox {
+		if !msg.DaDoc {
+			soTinChuaDoc++
+		}
+	}
+
 	c.HTML(http.StatusOK, "cua_hang_master", gin.H{
-		"TieuDe":   "Quản trị Hạ tầng Cửa hàng",
-		"ChuShop":  chuShop,
+		"TieuDe":       "Quản trị Hạ tầng Cửa hàng",
+		"ChuShop":      chuShop,
+		"SoTinChuaDoc": soTinChuaDoc, // <--- Truyền biến này ra giao diện
 	})
 }
 
@@ -86,4 +95,37 @@ func API_CapNhatHaTang(c *gin.Context) {
 	ghi(masterShopID, sh, r, core.CotKH_NgayCapNhat, chuShop.NgayCapNhat)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Tuyệt vời! Kết nối Database và Google Drive thành công."})
+}
+
+// API: Đánh dấu tin nhắn đã đọc
+func API_DanhDauDaDoc(c *gin.Context) {
+	masterShopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
+	msgID := strings.TrimSpace(c.PostForm("msg_id"))
+
+	chuShop, ok := core.LayKhachHang(masterShopID, userID)
+	if !ok {
+		c.JSON(200, gin.H{"status": "error"})
+		return
+	}
+
+	found := false
+	core.KhoaHeThong.Lock()
+	for i := range chuShop.Inbox {
+		if chuShop.Inbox[i].ID == msgID && !chuShop.Inbox[i].DaDoc {
+			chuShop.Inbox[i].DaDoc = true // Đánh dấu đã đọc
+			found = true
+			break
+		}
+	}
+	// Đóng gói JSON mới
+	jsonInbox := core.ToJSON(chuShop.Inbox)
+	core.KhoaHeThong.Unlock()
+
+	// Ghi đè vào Sheet nếu có sự thay đổi
+	if found {
+		core.ThemVaoHangCho(masterShopID, "KHACH_HANG", chuShop.DongTrongSheet, core.CotKH_InboxJson, jsonInbox)
+	}
+
+	c.JSON(200, gin.H{"status": "ok"})
 }
