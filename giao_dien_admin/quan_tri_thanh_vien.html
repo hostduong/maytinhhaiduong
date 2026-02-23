@@ -80,6 +80,23 @@
             data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
             data-note="{{ .GhiChu }}">
         </div>
+        <div id="inbox_data_{{ .MaKhachHang }}">
+            {{ if eq (len .Inbox) 0 }}
+                <div class="text-sm text-slate-400 italic text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200">Chưa có thông báo nào được gửi đến thành viên này.</div>
+            {{ else }}
+                <div class="flex flex-col-reverse gap-2"> {{ range .Inbox }}
+                    <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}"></div>
+                        <div class="flex justify-between items-start text-xs mb-1.5 pl-2 gap-2">
+                            <span class="font-bold text-slate-800">{{ .TieuDe }}</span>
+                            <span class="text-slate-400 whitespace-nowrap">{{ .NgayTao }}</span>
+                        </div>
+                        <div class="text-sm text-slate-600 pl-2 whitespace-pre-wrap">{{ .NoiDung }}</div>
+                    </div>
+                    {{ end }}
+                </div>
+            {{ end }}
+        </div>
         {{ end }}
     </div>
 
@@ -90,7 +107,7 @@
                 <button onclick="closeModal('modalEdit')" class="text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
             
-            <div class="p-6 overflow-y-auto bg-white">
+            <div class="p-6 overflow-y-auto bg-white custom-scroll">
                 <form id="formEdit" class="space-y-6">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
@@ -124,7 +141,7 @@
                         <div class="space-y-4">
                             <h4 class="font-bold text-purple-600 border-b pb-2">Hệ thống & Quyền hạn</h4>
                             
-                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 relative">
                                 <label class="form-lbl text-purple-800">Vai trò (Role) <span class="text-red-500">*</span></label>
                                 <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold" required>
                                     <option value="khach_hang">Khách hàng (Customer)</option>
@@ -136,12 +153,13 @@
                                 <p class="text-[10px] text-purple-600 mt-1">Lưu ý: Không thể tước quyền của Super Admin.</p>
                             </div>
 
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 relative">
                                 <label class="form-lbl">Trạng thái tài khoản</label>
                                 <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold">
                                     <option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option>
                                     <option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option>
                                 </select>
+                                <p id="f_status_note" class="text-[10px] text-red-500 mt-1 hidden">🔒 Bạn không thể tự khóa tài khoản của mình hoặc cấp cao hơn.</p>
                             </div>
 
                             <div>
@@ -151,15 +169,25 @@
 
                             <div>
                                 <label class="form-lbl">Ghi chú nội bộ</label>
-                                <textarea name="ghi_chu" id="f_note" rows="3" class="input-premium" placeholder="Ghi chú về khách/nhân viên này..."></textarea>
+                                <textarea name="ghi_chu" id="f_note" rows="2" class="input-premium" placeholder="Ghi chú về khách/nhân viên này..."></textarea>
                             </div>
                         </div>
+
+                        <div class="md:col-span-2 border-t pt-4 mt-2">
+                            <h4 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                Lịch sử thông báo đã gửi
+                            </h4>
+                            <div id="inbox_render_container" class="max-h-56 overflow-y-auto pr-2 bg-slate-50/50 p-2 rounded-xl">
+                                </div>
+                        </div>
+
                     </div>
                 </form>
             </div>
 
             <div class="px-6 py-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3 shrink-0">
-                <button onclick="closeModal('modalEdit')" class="px-5 py-2 text-slate-600 hover:bg-slate-200 rounded-lg font-bold transition">Hủy</button>
+                <button onclick="closeModal('modalEdit')" class="px-5 py-2 text-slate-600 hover:bg-slate-200 rounded-lg font-bold transition">Đóng</button>
                 <button onclick="saveMember()" id="btnSaveMem" class="px-8 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition transform active:scale-95">Lưu Thay Đổi</button>
             </div>
         </div>
@@ -198,6 +226,9 @@
 
     <script>
         // Data Parser
+        const currentUserID = "{{ .NhanVien.MaKhachHang }}"; // Mã của người đang đăng nhập
+        const currentUserRole = "{{ .NhanVien.VaiTroQuyenHan }}";
+
         const mapData = {};
         document.querySelectorAll('.m-data').forEach(el => {
             let id = el.getAttribute('data-id');
@@ -209,10 +240,8 @@
             };
         });
 
-        // UI Toggles
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
-        // EDIT LOGIC
         function editMember(ma) {
             let data = mapData[ma]; if(!data) return;
             document.getElementById('formEdit').reset();
@@ -228,17 +257,32 @@
             document.getElementById('f_fb').value = data.fb;
             document.getElementById('f_tiktok').value = data.tiktok;
             document.getElementById('f_note').value = data.note;
-            document.getElementById('f_status').value = data.status;
 
+            // Xử lý Role: Không ai được tước quyền của Super Admin
             let roleSelect = document.getElementById('f_role');
             roleSelect.value = data.role;
-            
-            // [ĐÃ SỬA] So sánh với khóa quyền mới
             if(data.role === "quan_tri_vien_he_thong") {
                 roleSelect.disabled = true; 
             } else {
                 roleSelect.disabled = false;
             }
+
+            // Xử lý Status: Không được tự khóa mình, hoặc khóa người có quyền cao nhất
+            let statusSelect = document.getElementById('f_status');
+            let statusNote = document.getElementById('f_status_note');
+            statusSelect.value = data.status;
+            
+            if(ma === currentUserID || data.role === "quan_tri_vien_he_thong") {
+                statusSelect.disabled = true;
+                statusNote.classList.remove('hidden');
+            } else {
+                statusSelect.disabled = false;
+                statusNote.classList.add('hidden');
+            }
+
+            // Load Inbox: Sao chép cục HTML đã sinh sẵn đổ vào modal
+            let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
+            document.getElementById('inbox_render_container').innerHTML = inboxHtml;
 
             document.getElementById('modalEdit').classList.remove('hidden');
         }
@@ -248,8 +292,14 @@
             btn.disabled = true; btn.innerHTML = 'Đang lưu...';
             
             const fd = new FormData(document.getElementById('formEdit'));
-            // [ĐÃ SỬA] Bổ sung role bị khóa bằng khóa quyền mới
-            if(document.getElementById('f_role').disabled) fd.append('vai_tro', 'quan_tri_vien_he_thong');
+            
+            // Nếu role hoặc status bị disabled, FormData sẽ không gửi đi, ta phải nhét thủ công vào
+            if(document.getElementById('f_role').disabled) {
+                fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role);
+            }
+            if(document.getElementById('f_status').disabled) {
+                fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status);
+            }
 
             try {
                 const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
@@ -306,11 +356,7 @@
                 const res = await fetch('/admin/api/member/send-msg', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false});
-                    closeModal('modalMsg');
-                    document.querySelectorAll('.chk-member').forEach(cb => cb.checked = false);
-                    document.getElementById('checkAll').checked = false;
-                    updateCount();
+                    Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false}).then(() => location.reload());
                 } else Swal.fire('Lỗi', data.msg, 'error');
             } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
             finally { btn.disabled = false; btn.innerHTML = old; }
