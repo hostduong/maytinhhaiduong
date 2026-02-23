@@ -80,6 +80,13 @@
                 <button onclick="switchTab('tab_hatang', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg> Cài đặt Database
                 </button>
+
+                {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
+                <button id="btnReloadData" onclick="xacNhanLamMoiDuLieu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-blue-600 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 mt-2">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 
+                    <span id="txtReloadData">Đồng bộ Sheet</span>
+                </button>
+                {{ end }}
                 <button onclick="switchTab('tab_goicuoc', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 relative">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Gói Dịch Vụ
                     <span class="absolute right-3 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase">HOT</span>
@@ -674,6 +681,75 @@
             // 3. Nếu khách báo "Tôi đã có mã" (Nhận từ lúc đăng ký) -> Bật bảng nhập mã luôn
             else if (result.isDenied) {
                 document.getElementById('modalVerifyEmail').classList.remove('hidden');
+            }
+        }
+
+        // --- LOGIC LÀM MỚI DỮ LIỆU ĐỒNG BỘ ---
+        function kiemTraCooldownReload() {
+            const btn = document.getElementById('btnReloadData');
+            const txt = document.getElementById('txtReloadData');
+            if(!btn) return false;
+
+            const lastReload = localStorage.getItem('last_reload_time');
+            if (lastReload) {
+                const elapsed = Math.floor((Date.now() - parseInt(lastReload)) / 1000);
+                if (elapsed < 60) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-100');
+                    btn.classList.remove('hover:bg-blue-50');
+                    let timeLeft = 60 - elapsed;
+                    txt.innerText = `Chờ ${timeLeft}s...`;
+                    
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        txt.innerText = `Chờ ${timeLeft}s...`;
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-100');
+                            btn.classList.add('hover:bg-blue-50');
+                            txt.innerText = "Đồng bộ Sheet";
+                        }
+                    }, 1000);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Chạy kiểm tra ngay khi load trang
+        kiemTraCooldownReload();
+
+        async function xacNhanLamMoiDuLieu() {
+            if (kiemTraCooldownReload()) return;
+
+            const confirm = await Swal.fire({
+                title: 'Đồng bộ dữ liệu?',
+                text: 'Hệ thống sẽ tải lại toàn bộ dữ liệu mới nhất từ Google Sheets vào máy chủ (RAM).',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Đồng ý, Làm mới!',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (confirm.isConfirmed) {
+                Swal.fire({title: 'Đang tải dữ liệu...', text: 'Vui lòng không đóng trang.', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                
+                try {
+                    const r = await fetch('/admin/reload', {method: 'POST'});
+                    const res = await r.json();
+                    if (res.status === 'ok') {
+                        localStorage.setItem('last_reload_time', Date.now().toString());
+                        Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 2000, showConfirmButton: false});
+                        kiemTraCooldownReload(); // Bật đếm ngược
+                    } else {
+                        Swal.fire('Lỗi', res.msg, 'error');
+                    }
+                } catch(e) {
+                    Swal.fire('Lỗi mạng', 'Không thể kết nối đến máy chủ.', 'error');
+                }
             }
         }
         
