@@ -314,7 +314,7 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                        <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl flex items-start gap-4 mb-8">
+                        <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl flex items-start gap-4 mb-6">
                             <div class="bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </div>
@@ -328,10 +328,23 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-center border-t border-slate-100 pt-8">
-                            <button id="btnActionReload" onclick="xacNhanLamMoiDuLieu()" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-3">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                <span id="txtActionReload">Tiến hành Đồng bộ ngay</span>
+                        <div id="alertSyncSuccess" class="hidden mb-6 bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center gap-4 text-emerald-800 animate-[fadeIn_0.5s_ease-out]">
+                            <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-emerald-900">Đồng bộ dữ liệu thành công!</p>
+                                <p class="text-sm mt-0.5">Hệ thống đã nạp dữ liệu mới nhất. Bạn có thể sử dụng bình thường.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center border-t border-slate-100 pt-6">
+                            <button id="btnActionReload" onclick="xacNhanLamMoiDuLieu()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-3 min-w-[280px] justify-center">
+                                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <div class="flex flex-col items-center">
+                                    <span class="font-bold text-base leading-tight">Tiến hành Đồng bộ ngay</span>
+                                    <span id="txtCooldown" class="text-xs font-medium text-blue-200 hidden leading-tight mt-0.5"></span>
+                                </div>
                             </button>
                         </div>
                     </div>
