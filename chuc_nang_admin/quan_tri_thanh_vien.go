@@ -22,13 +22,17 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	
 	me, _ := core.LayKhachHang(shopID, userID)
 	listAll := core.LayDanhSachKhachHang(shopID)
+	
+	// Lấy mảng chức vụ động từ RAM để ném ra Giao diện Dropdown
+	core.KhoaHeThong.RLock()
+	listVaiTro := core.CacheDanhSachVaiTro[shopID]
+	core.KhoaHeThong.RUnlock()
 
 	c.HTML(http.StatusOK, "quan_tri_thanh_vien", gin.H{
-		"TieuDe":       "Quản lý thành viên",
-		"NhanVien":     me,
-		"DanhSach":     listAll,
-		"TenNguoiDung": me.TenKhachHang,
-		"QuyenHan":     me.VaiTroQuyenHan,
+		"TieuDe":         "Quản lý thành viên",
+		"NhanVien":       me,
+		"DanhSach":       listAll,
+		"DanhSachVaiTro": listVaiTro, // <--- BIẾN QUAN TRỌNG ĐỂ RENDER HTML
 	})
 }
 
@@ -40,9 +44,8 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	userID := c.GetString("USER_ID") 
 	myRole := c.GetString("USER_ROLE")
 	
-	// Quyền nhân sự: Hệ thống, Quản trị viên, Giám đốc, Quản lý đều có thể sửa nhân sự cấp dưới
-	// (Tùy logic phân quyền chi tiết, tạm thời cho 2 role cao nhất)
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" && myRole != "giam_doc" {
+	// Quyền nhân sự: Tạm thời cho phép hệ thống và quản trị viên cửa hàng thao tác
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
 	}
@@ -54,13 +57,11 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	// [BẢO VỆ 1]: Chặn sửa quyền của SUPER ADMIN
 	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && myRole != "quan_tri_vien_he_thong" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không thể chỉnh sửa thông tin của SUPER ADMIN!"})
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không thể chỉnh sửa thông tin của Quản trị viên hệ thống!"})
 		return
 	}
 
-	// [BẢO VỆ 2]: Chặn tự khóa tài khoản chính mình
 	trangThaiMoi := c.PostForm("trang_thai")
 	if maKH == userID && trangThaiMoi == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
@@ -69,24 +70,20 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 
 	core.KhoaHeThong.Lock()
 	
-	// [ĐÃ CẬP NHẬT] Map quyền chuẩn 100% theo file Phân Quyền.pdf
 	newRole := c.PostForm("vai_tro")
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
-		switch newRole {
-		case "quan_tri_vien_he_thong": kh.ChucVu = "Quản trị hệ thống" // Dành cho 99k.vn
-		case "quan_tri_vien": kh.ChucVu = "Quản trị viên"
-		case "giam_doc": kh.ChucVu = "Giám đốc"
-		case "quan_ly": kh.ChucVu = "Quản lý"
-		case "kinh_doanh": kh.ChucVu = "Kinh doanh"
-		case "ke_toan": kh.ChucVu = "Kế toán"
-		case "thu_kho": kh.ChucVu = "Thủ kho"
-		case "thu_quy": kh.ChucVu = "Thủ quỹ"
-		case "khach_hang": kh.ChucVu = "Khách hàng"
+		
+		// [TRỌNG TÂM] TỰ ĐỘNG MAP TÊN CHỨC VỤ ĐỘNG TỪ SHEET MÀ KHÔNG CẦN SWITCH
+		kh.ChucVu = newRole // Giá trị fallback
+		for _, v := range core.CacheDanhSachVaiTro[shopID] {
+			if v.MaVaiTro == newRole {
+				kh.ChucVu = v.TenVaiTro
+				break
+			}
 		}
 	}
 	
-	// Cập nhật Thông tin cá nhân
 	kh.TenKhachHang = strings.TrimSpace(c.PostForm("ten_khach_hang"))
 	kh.DienThoai = strings.TrimSpace(c.PostForm("dien_thoai"))
 	kh.NgaySinh = strings.TrimSpace(c.PostForm("ngay_sinh"))
@@ -99,12 +96,10 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 
 	if trangThaiMoi == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
 
-	// Cập nhật Mạng xã hội
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("tiktok"))
 
-	// Đổi mật khẩu nếu có
 	passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
 	if passMoi != "" {
 		hash, _ := cau_hinh.HashMatKhau(passMoi)
@@ -115,7 +110,7 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
-	// GHI XUỐNG SHEET (Hàng đợi)
+	// GHI XUỐNG SHEET 
 	ghi := core.ThemVaoHangCho
 	r := kh.DongTrongSheet
 	sh := "KHACH_HANG"
@@ -145,7 +140,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" && myRole != "giam_doc" {
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
