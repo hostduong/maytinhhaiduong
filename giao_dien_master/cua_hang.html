@@ -81,6 +81,16 @@
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg> Cài đặt Database
                 </button>
 
+                <button onclick="switchTab('tab_tinnhan', this)" class="tab-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 relative">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Tin nhắn
+                    </div>
+                    {{ if gt .SoTinChuaDoc 0 }}
+                    <span id="badgeInboxSidebar" class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ .SoTinChuaDoc }}</span>
+                    {{ end }}
+                </button>
+
                 {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
                 <button onclick="switchTab('tab_dongbo', this)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Đồng bộ Sheet
@@ -327,6 +337,40 @@
                                 </ul>
                             </div>
                         </div>
+
+                        <div id="tab_tinnhan" class="tab-content space-y-6">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Hộp thư hệ thống</h1>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Thông báo và cập nhật mới nhất từ Nền tảng 99k.vn.</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        {{ if eq (len .ChuShop.Inbox) 0 }}
+                            <div class="p-10 text-center text-slate-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <p>Bạn chưa có tin nhắn nào.</p>
+                            </div>
+                        {{ else }}
+                            <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100">
+                                {{ range .ChuShop.Inbox }}
+                                <div id="msg_item_{{ .ID }}" class="p-4 sm:p-5 hover:bg-slate-50 transition cursor-pointer flex gap-4 {{ if not .DaDoc }}bg-blue-50/40{{ end }}" onclick="toggleMessage('{{ .ID }}')">
+                                    <div class="mt-1">
+                                        <div id="msg_dot_{{ .ID }}" class="w-2.5 h-2.5 rounded-full {{ if not .DaDoc }}bg-blue-600{{ else }}bg-transparent{{ end }}"></div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                                            <h4 id="msg_title_{{ .ID }}" class="text-sm font-semibold {{ if not .DaDoc }}text-slate-900{{ else }}text-slate-600{{ end }}">{{ .TieuDe }}</h4>
+                                            <span class="text-xs text-slate-400 font-medium whitespace-nowrap">{{ .NgayTao }}</span>
+                                        </div>
+                                        <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .ID }}">{{ .NoiDung }}</div>
+                                        <div class="text-sm text-slate-700 mt-3 hidden whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" id="msg_full_{{ .ID }}">{{ .NoiDung }}</div>
+                                    </div>
+                                </div>
+                                {{ end }}
+                            </div>
+                        {{ end }}
+                    </div>
+                </div>
 
                         <div id="alertSyncSuccess" class="hidden mb-6 bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center gap-4 text-emerald-800 animate-[fadeIn_0.5s_ease-out]">
                             <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
@@ -792,6 +836,49 @@
                 } catch(e) {
                     Swal.fire('Lỗi mạng', 'Không thể kết nối đến máy chủ.', 'error');
                 }
+            }
+        }
+
+        // --- LOGIC XỬ LÝ ĐỌC TIN NHẮN (REALTIME UX) ---
+        function toggleMessage(id) {
+            const full = document.getElementById('msg_full_' + id);
+            const preview = document.getElementById('msg_preview_' + id);
+            const dot = document.getElementById('msg_dot_' + id);
+            const title = document.getElementById('msg_title_' + id);
+            const item = document.getElementById('msg_item_' + id);
+            
+            // 1. Ẩn / Hiện nội dung (Accordion)
+            if (full.classList.contains('hidden')) {
+                full.classList.remove('hidden');
+                preview.classList.add('hidden');
+            } else {
+                full.classList.add('hidden');
+                preview.classList.remove('hidden');
+            }
+
+            // 2. Nếu tin nhắn chưa đọc -> Đổi sang trạng thái Đã đọc
+            if (dot.classList.contains('bg-blue-600')) {
+                // Cập nhật UI ngay lập tức để tạo cảm giác mượt mà
+                dot.classList.remove('bg-blue-600');
+                dot.classList.add('bg-transparent');
+                item.classList.remove('bg-blue-50/40');
+                title.classList.remove('text-slate-900');
+                title.classList.add('text-slate-600');
+                
+                // Trừ số lượng thẻ Badge ở Sidebar đi 1
+                const badge = document.getElementById('badgeInboxSidebar');
+                if (badge) {
+                    let count = parseInt(badge.innerText);
+                    count--;
+                    if (count > 0) {
+                        badge.innerText = count;
+                    } else {
+                        badge.remove(); // Xóa cục đỏ nếu hết tin chưa đọc
+                    }
+                }
+
+                // 3. Gọi API ngầm báo Server lưu trạng thái "DaDoc = true" vào RAM và ghi Sheet
+                postData('/cua-hang/api/doc-tin-nhan', { msg_id: id });
             }
         }
     </script>
