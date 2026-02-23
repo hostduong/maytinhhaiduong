@@ -65,6 +65,7 @@ func main() {
 	{
 		merchant.GET("/", chuc_nang_master.TrangQuanLyCuaHang)
 		merchant.POST("/api/cap-nhat-id", chuc_nang_master.API_CapNhatHaTang)
+		merchant.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDoc)
 	}
 
 	// API Public
