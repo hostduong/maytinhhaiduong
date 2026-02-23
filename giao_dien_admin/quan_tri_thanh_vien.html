@@ -50,11 +50,11 @@
                                 <div>📧 {{ if .Email }}{{ .Email }}{{ else }}---{{ end }}</div>
                             </td>
                             <td class="px-6 py-4">
-                                {{ if eq .VaiTroQuyenHan "admin_root" }}<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-200">SUPER ADMIN</span>
-                                {{ else if eq .VaiTroQuyenHan "admin" }}<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md border border-blue-200">ADMIN</span>
-                                {{ else if eq .VaiTroQuyenHan "sale" }}<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md border border-amber-200">SALE</span>
-                                {{ else if eq .VaiTroQuyenHan "kho" }}<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md border border-purple-200">KHO</span>
-                                {{ else }}<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md border border-slate-200">CUSTOMER</span>{{ end }}
+                                {{ if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-200">SUPER ADMIN</span>
+                                {{ else if eq .VaiTroQuyenHan "quan_tri_vien" }}<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md border border-blue-200">QUẢN TRỊ VIÊN</span>
+                                {{ else if eq .VaiTroQuyenHan "nhan_vien_sale" }}<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-md border border-amber-200">SALE</span>
+                                {{ else if eq .VaiTroQuyenHan "nhan_vien_kho" }}<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md border border-purple-200">KHO</span>
+                                {{ else }}<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md border border-slate-200">KHÁCH HÀNG</span>{{ end }}
                             </td>
                             <td class="px-6 py-4 text-center">
                                 {{ if eq .TrangThai 1 }}<span class="w-3 h-3 bg-emerald-500 rounded-full inline-block shadow-sm" title="Hoạt động"></span>
@@ -127,11 +127,11 @@
                             <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
                                 <label class="form-lbl text-purple-800">Vai trò (Role) <span class="text-red-500">*</span></label>
                                 <select name="vai_tro" id="f_role" class="input-premium bg-white border-purple-200 text-purple-900 font-bold" required>
-                                    <option value="customer">Khách hàng (Customer)</option>
-                                    <option value="sale">Nhân viên kinh doanh (Sale)</option>
-                                    <option value="kho">Thủ kho (Stock)</option>
-                                    <option value="admin">Quản trị viên (Admin)</option>
-                                    <option value="admin_root" disabled>SUPER ADMIN (Hệ thống)</option>
+                                    <option value="khach_hang">Khách hàng (Customer)</option>
+                                    <option value="nhan_vien_sale">Nhân viên kinh doanh (Sale)</option>
+                                    <option value="nhan_vien_kho">Thủ kho (Stock)</option>
+                                    <option value="quan_tri_vien">Quản trị viên (Admin)</option>
+                                    <option value="quan_tri_vien_he_thong" disabled>SUPER ADMIN (Hệ thống)</option>
                                 </select>
                                 <p class="text-[10px] text-purple-600 mt-1">Lưu ý: Không thể tước quyền của Super Admin.</p>
                             </div>
@@ -232,8 +232,10 @@
 
             let roleSelect = document.getElementById('f_role');
             roleSelect.value = data.role;
-            if(data.role === "admin_root") {
-                roleSelect.disabled = true; // Khóa dropdown nếu là Super Admin
+            
+            // [ĐÃ SỬA] So sánh với khóa quyền mới
+            if(data.role === "quan_tri_vien_he_thong") {
+                roleSelect.disabled = true; 
             } else {
                 roleSelect.disabled = false;
             }
@@ -246,8 +248,8 @@
             btn.disabled = true; btn.innerHTML = 'Đang lưu...';
             
             const fd = new FormData(document.getElementById('formEdit'));
-            // Bổ sung role bị khóa
-            if(document.getElementById('f_role').disabled) fd.append('vai_tro', 'admin_root');
+            // [ĐÃ SỬA] Bổ sung role bị khóa bằng khóa quyền mới
+            if(document.getElementById('f_role').disabled) fd.append('vai_tro', 'quan_tri_vien_he_thong');
 
             try {
                 const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
