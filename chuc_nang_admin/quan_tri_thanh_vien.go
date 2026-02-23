@@ -56,6 +56,37 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
+	// =====================================================
+	// [BẢO MẬT KÉP]: KIỂM TRA MÃ PIN CỦA ADMIN ĐANG THAO TÁC
+	// =====================================================
+	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
+	if pinXacNhan == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập mã PIN xác nhận!"})
+		return
+	}
+	if !cau_hinh.KiemTraMaPin(pinXacNhan) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không hợp lệ (Phải đúng 8 số)!"})
+		return
+	}
+
+	admin, okAdmin := core.LayKhachHang(shopID, userID)
+	if !okAdmin {
+		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi phiên đăng nhập!"})
+		return
+	}
+
+	if admin.MaPinHash == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN! Vui lòng vào Hồ sơ cá nhân để cài đặt Mã PIN trước."})
+		return
+	}
+
+	// Gọi hàm KiemTraMatKhau giống hệt bên quen_mat_khau.go
+	if !cau_hinh.KiemTraMatKhau(pinXacNhan, admin.MaPinHash) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không chính xác!"})
+		return
+	}
+	// =====================================================
+
 	maKH := c.PostForm("ma_khach_hang")
 	kh, ok := core.LayKhachHang(shopID, maKH)
 	if !ok {
@@ -110,7 +141,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("tiktok"))
 
-	// Xử lý đổi Mật khẩu
 	passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
 	if passMoi != "" {
 		hash, _ := cau_hinh.HashMatKhau(passMoi)
@@ -118,7 +148,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
 	}
 
-	// [MỚI]: Xử lý đổi Mã PIN
 	pinMoi := strings.TrimSpace(c.PostForm("pin_moi"))
 	if pinMoi != "" {
 		hashPin, _ := cau_hinh.HashMatKhau(pinMoi)
