@@ -10,7 +10,6 @@
         .input-premium:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background-color: #fff; }
         .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
         label.form-lbl { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 0.35rem; display: block; }
-        /* Fix layout cho thư viện Số điện thoại */
         .iti { width: 100%; } 
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -288,27 +287,16 @@
         const currentUserID = "{{ .NhanVien.MaKhachHang }}"; 
         const currentUserRole = "{{ .NhanVien.VaiTroQuyenHan }}";
 
-        // Khởi tạo đối tượng intl-tel-input Toàn cục
         let itiPhone, itiZalo;
 
-        // Xử lý Ẩn/Hiện Pass và PIN
         function togglePass(id) {
             const input = document.getElementById(id);
             const eyeSlash = document.getElementById('eye_slash_' + id);
             const eyeOpen = document.getElementById('eye_open_' + id);
-            
-            if (input.type === "password") {
-                input.type = "text";
-                eyeSlash.classList.add('hidden');
-                eyeOpen.classList.remove('hidden');
-            } else {
-                input.type = "password";
-                eyeOpen.classList.add('hidden');
-                eyeSlash.classList.remove('hidden');
-            }
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
-        // Fix gõ PIN chỉ cho nhập số
         document.getElementById('f_pin').addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
@@ -336,18 +324,12 @@
             let data = mapData[ma]; if(!data) return;
             document.getElementById('formEdit').reset();
             
-            // Khởi tạo intl-tel-input nếu chưa có
             const inputPhone = document.querySelector("#f_sdt_fake");
             const inputZalo = document.querySelector("#f_zalo_fake");
             
-            if (!itiPhone) {
-                itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
-            }
-            if (!itiZalo) {
-                itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
-            }
+            if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+            if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
             
-            // Đổ dữ liệu
             document.getElementById('f_ma').value = ma;
             document.getElementById('f_ten').value = data.ten;
             itiPhone.setNumber(data.sdt || "");
@@ -364,22 +346,16 @@
 
             let roleSelect = document.getElementById('f_role');
             roleSelect.value = data.role;
-            if(data.role === "quan_tri_vien_he_thong") {
-                roleSelect.disabled = true; 
-            } else {
-                roleSelect.disabled = false;
-            }
+            if(data.role === "quan_tri_vien_he_thong") { roleSelect.disabled = true; } else { roleSelect.disabled = false; }
 
             let statusSelect = document.getElementById('f_status');
             let statusNote = document.getElementById('f_status_note');
             statusSelect.value = data.status;
             
             if(ma === currentUserID || data.role === "quan_tri_vien_he_thong") {
-                statusSelect.disabled = true;
-                statusNote.classList.remove('hidden');
+                statusSelect.disabled = true; statusNote.classList.remove('hidden');
             } else {
-                statusSelect.disabled = false;
-                statusNote.classList.add('hidden');
+                statusSelect.disabled = false; statusNote.classList.add('hidden');
             }
 
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
@@ -389,27 +365,51 @@
         }
 
         async function saveMember() {
+            // [MỚI] Yêu cầu nhập Mã PIN của Quản trị viên trước khi tiến hành lưu
+            const { value: pinXacNhan } = await Swal.fire({
+                title: 'Bảo mật 2 lớp',
+                html: 'Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận lưu các thay đổi này.',
+                input: 'password',
+                inputAttributes: {
+                    maxlength: 8,
+                    autocapitalize: 'off',
+                    autocorrect: 'off',
+                    style: 'text-align: center; letter-spacing: 0.5em; font-size: 1.25rem; font-weight: bold;'
+                },
+                inputPlaceholder: '••••••••',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Xác nhận & Lưu',
+                cancelButtonText: 'Hủy thao tác',
+                inputValidator: (value) => {
+                    if (!value) return 'Bạn cần nhập mã PIN để tiếp tục!';
+                    if (!/^\d{8}$/.test(value)) return 'Mã PIN phải đúng 8 chữ số!';
+                }
+            });
+
+            // Nếu người dùng bấm Hủy hoặc ESC popup
+            if (!pinXacNhan) { return; }
+
             const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang lưu...';
+            btn.disabled = true; btn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang kiểm tra...';
             
             const fd = new FormData(document.getElementById('formEdit'));
             
-            // Lấy SĐT chuẩn quốc tế đẩy vào FormData
-            fd.set('dien_thoai', itiPhone.getNumber());
-            fd.set('zalo', itiZalo.getNumber());
+            // Gắn Mã PIN xác nhận vào form để gửi lên Server kiểm tra
+            fd.append('pin_xac_nhan', pinXacNhan);
+
+            if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
+            if (itiZalo) fd.set('zalo', itiZalo.getNumber());
             
-            if(document.getElementById('f_role').disabled) {
-                fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role);
-            }
-            if(document.getElementById('f_status').disabled) {
-                fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status);
-            }
+            if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
+            if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
             try {
                 const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
-                else Swal.fire('Lỗi', data.msg, 'error');
+                else Swal.fire('Lỗi bảo mật', data.msg, 'error'); // Hiển thị lỗi đỏ nếu nhập sai mã PIN
             } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
             finally { btn.disabled = false; btn.innerHTML = old; }
         }
