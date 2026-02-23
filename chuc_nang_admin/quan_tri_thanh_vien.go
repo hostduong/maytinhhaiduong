@@ -39,7 +39,8 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "admin_root" && myRole != "admin" {
+	// [ĐÃ SỬA] Cập nhật điều kiện check quyền chuẩn SaaS mới
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
 	}
@@ -51,23 +52,24 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	// Chặn: Chỉ admin_root mới sửa được admin_root
-	if kh.VaiTroQuyenHan == "admin_root" && myRole != "admin_root" {
+	// [ĐÃ SỬA] Chặn: Chỉ admin hệ thống mới sửa được tài khoản hệ thống
+	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && myRole != "quan_tri_vien_he_thong" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không thể chỉnh sửa thông tin của SUPER ADMIN!"})
 		return
 	}
 
 	core.KhoaHeThong.Lock()
 	
-	// Cập nhật Quyền & Chức vụ
+	// Cập nhật Quyền & Chức vụ [ĐÃ SỬA CHUẨN TÊN QUYỀN MỚI]
 	newRole := c.PostForm("vai_tro")
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
 		switch newRole {
-		case "admin": kh.ChucVu = "Quản trị viên"
-		case "sale": kh.ChucVu = "Nhân viên kinh doanh"
-		case "kho": kh.ChucVu = "Thủ kho"
-		case "customer": kh.ChucVu = "Khách hàng"
+		case "quan_tri_vien_he_thong": kh.ChucVu = "Quản trị hệ thống"
+		case "quan_tri_vien": kh.ChucVu = "Quản trị viên"
+		case "nhan_vien_sale": kh.ChucVu = "Nhân viên kinh doanh"
+		case "nhan_vien_kho": kh.ChucVu = "Thủ kho"
+		case "khach_hang": kh.ChucVu = "Khách hàng"
 		}
 	}
 	
@@ -132,7 +134,8 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "admin_root" && myRole != "admin" {
+	// [ĐÃ SỬA] Cập nhật điều kiện check quyền
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
