@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DongBatDau_PhanQuyen = 11 // Vẫn giữ cho các logic cũ nếu có
+	DongBatDau_PhanQuyen = 11
 	
 	CotPQ_MaChucNang = 0
 	CotPQ_Nhom       = 1
@@ -32,16 +32,19 @@ func NapPhanQuyen(shopID string) {
 	raw, err := LoadSheetData(shopID, "PHAN_QUYEN")
 	if err != nil { return }
 
-	// [THUẬT TOÁN MỚI]: Tự động dò tìm dòng Header thay vì gán cứng
+	// [ĐÃ FIX LỖI TYPE]: Sử dụng hàm LayString để ép kiểu an toàn từ interface{} sang string
 	headerIndex := -1
 	for i, row := range raw {
-		if len(row) > 0 && strings.TrimSpace(strings.ToLower(row[0])) == "ma_chuc_nang" {
-			headerIndex = i
-			break
+		if len(row) > 0 {
+			firstCell := LayString(row, 0)
+			if strings.TrimSpace(strings.ToLower(firstCell)) == "ma_chuc_nang" {
+				headerIndex = i
+				break
+			}
 		}
 	}
 
-	if headerIndex == -1 { return } // Bảo vệ: Không tìm thấy Header thì dừng
+	if headerIndex == -1 { return } 
 
 	tempMap := make(map[string]map[string]bool)
 	var danhSachVaiTroCuaShop []VaiTroInfo 
@@ -74,7 +77,7 @@ func NapPhanQuyen(shopID string) {
 		}
 	}
 
-	// B. DUYỆT DỮ LIỆU (Bắt đầu từ dòng ngay dưới Header)
+	// B. DUYỆT DỮ LIỆU
 	for i, row := range raw {
 		if i <= headerIndex { continue }
 
