@@ -13,9 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ==============================================================
-// 1. TRANG HIỂN THỊ DANH SÁCH
-// ==============================================================
 func TrangQuanLyThanhVien(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -29,9 +26,9 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
-			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị hệ thống (Chưa đồng bộ)"},
-			{MaVaiTro: "quan_tri_vien", TenVaiTro: "Quản trị viên (Chưa đồng bộ)"},
-			{MaVaiTro: "khach_hang", TenVaiTro: "Khách hàng (Chưa đồng bộ)"},
+			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị hệ thống"},
+			{MaVaiTro: "quan_tri_vien", TenVaiTro: "Quản trị viên"},
+			{MaVaiTro: "khach_hang", TenVaiTro: "Khách hàng"},
 		}
 	}
 
@@ -43,9 +40,6 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	})
 }
 
-// ==============================================================
-// 2. API: CẬP NHẬT FULL THÔNG TIN THÀNH VIÊN
-// ==============================================================
 func API_Admin_LuuThanhVien(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID") 
@@ -56,16 +50,10 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	// =====================================================
-	// [BẢO MẬT KÉP]: KIỂM TRA MÃ PIN CỦA ADMIN ĐANG THAO TÁC
-	// =====================================================
+	// 1. KIỂM TRA MÃ PIN XÁC NHẬN
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
 	if pinXacNhan == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập mã PIN xác nhận!"})
-		return
-	}
-	if !cau_hinh.KiemTraMaPin(pinXacNhan) {
-		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không hợp lệ (Phải đúng 8 số)!"})
 		return
 	}
 
@@ -76,16 +64,14 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	}
 
 	if admin.MaPinHash == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN! Vui lòng vào Hồ sơ cá nhân để cài đặt Mã PIN trước."})
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN! Vui lòng cài đặt trước."})
 		return
 	}
 
-	// Gọi hàm KiemTraMatKhau giống hệt bên quen_mat_khau.go
 	if !cau_hinh.KiemTraMatKhau(pinXacNhan, admin.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không chính xác!"})
 		return
 	}
-	// =====================================================
 
 	maKH := c.PostForm("ma_khach_hang")
 	kh, ok := core.LayKhachHang(shopID, maKH)
@@ -94,23 +80,49 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && myRole != "quan_tri_vien_he_thong" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không thể chỉnh sửa thông tin của Quản trị viên hệ thống!"})
+	// ==============================================================
+	// [ĐẠI CÔNG TRÌNH BẢO MẬT]: LUẬT LỆ DÀNH CHO ROOT (000...1)
+	// ==============================================================
+	isTargetRoot := (maKH == "0000000000000000001")
+	isMeRoot := (userID == "0000000000000000001")
+	newRole := c.PostForm("vai_tro")
+
+	// Luật 1: Kẻ khác không được đụng vào Root
+	if isTargetRoot && !isMeRoot {
+		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Người sáng lập!"})
 		return
 	}
 
+	// Luật 2: Root không được tự tước quyền của mình
+	if isTargetRoot && isMeRoot && newRole != "" && newRole != "quan_tri_vien_he_thong" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn là Người sáng lập, không thể tự giáng chức chính mình!"})
+		return
+	}
+
+	// Luật 3: Quản trị hệ thống thông thường KHÔNG được sửa quyền của Quản trị hệ thống khác (Chỉ Root mới được)
+	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && !isMeRoot && userID != maKH {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có thẩm quyền chỉnh sửa một Quản trị viên hệ thống khác! Chỉ Người sáng lập mới làm được việc này."})
+		return
+	}
+
+	// Luật 4: Chỉ Root mới được cấp quyền "quan_tri_vien_he_thong" cho người khác
+	if newRole == "quan_tri_vien_he_thong" && !isMeRoot && kh.VaiTroQuyenHan != "quan_tri_vien_he_thong" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Người sáng lập mới có quyền bổ nhiệm Quản trị viên hệ thống!"})
+		return
+	}
+
+	// Luật 5: Không ai được tự khóa chính mình
 	trangThaiMoi := c.PostForm("trang_thai")
 	if maKH == userID && trangThaiMoi == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
 		return
 	}
+	// ==============================================================
 
 	core.KhoaHeThong.Lock()
 	
-	newRole := c.PostForm("vai_tro")
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
-		
 		chucVuTuY := strings.TrimSpace(c.PostForm("chuc_vu"))
 		if chucVuTuY != "" {
 			kh.ChucVu = chucVuTuY 
@@ -180,9 +192,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật thông tin thành công!"})
 }
 
-// ==============================================================
-// 3. API: GỬI TIN NHẮN (BULK & SINGLE)
-// ==============================================================
 func API_Admin_GuiTinNhan(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
