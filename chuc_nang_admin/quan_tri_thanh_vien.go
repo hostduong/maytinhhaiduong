@@ -27,7 +27,6 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	listVaiTro := core.CacheDanhSachVaiTro[shopID]
 	core.KhoaHeThong.RUnlock()
 
-	// [LƯỚI AN TOÀN]: Nếu chưa kịp đồng bộ Data, sinh tạm ra để Dropdown không bị trắng
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
 			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị hệ thống (Chưa đồng bộ)"},
@@ -40,7 +39,7 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 		"TieuDe":         "Quản lý thành viên",
 		"NhanVien":       me,
 		"DanhSach":       listAll,
-		"DanhSachVaiTro": listVaiTro,
+		"DanhSachVaiTro": listVaiTro, 
 	})
 }
 
@@ -52,7 +51,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	userID := c.GetString("USER_ID") 
 	myRole := c.GetString("USER_ROLE")
 	
-	// Quyền nhân sự: Tạm thời cho phép hệ thống và quản trị viên cửa hàng thao tác
 	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
@@ -82,12 +80,19 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
 		
-		// [TRỌNG TÂM] TỰ ĐỘNG MAP TÊN CHỨC VỤ ĐỘNG TỪ SHEET MÀ KHÔNG CẦN SWITCH
-		kh.ChucVu = newRole // Giá trị fallback
-		for _, v := range core.CacheDanhSachVaiTro[shopID] {
-			if v.MaVaiTro == newRole {
-				kh.ChucVu = v.TenVaiTro
-				break
+		// [ĐÃ SỬA]: Logic ưu tiên Chức vụ tùy chỉnh
+		chucVuTuY := strings.TrimSpace(c.PostForm("chuc_vu"))
+		
+		if chucVuTuY != "" {
+			kh.ChucVu = chucVuTuY // Nếu nhập tay "Bảo vệ" thì lấy luôn
+		} else {
+			// Nếu để trống thì lấy tự động theo file Sheet Phân Quyền
+			kh.ChucVu = newRole 
+			for _, v := range core.CacheDanhSachVaiTro[shopID] {
+				if v.MaVaiTro == newRole {
+					kh.ChucVu = v.TenVaiTro
+					break
+				}
 			}
 		}
 	}
@@ -118,7 +123,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
-	// GHI XUỐNG SHEET 
 	ghi := core.ThemVaoHangCho
 	r := kh.DongTrongSheet
 	sh := "KHACH_HANG"
