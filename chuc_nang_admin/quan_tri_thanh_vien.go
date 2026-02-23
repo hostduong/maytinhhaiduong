@@ -37,10 +37,12 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 // ==============================================================
 func API_Admin_LuuThanhVien(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	userID := c.GetString("USER_ID") // Cần biến này để check tự khóa
+	userID := c.GetString("USER_ID") 
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
+	// Quyền nhân sự: Hệ thống, Quản trị viên, Giám đốc, Quản lý đều có thể sửa nhân sự cấp dưới
+	// (Tùy logic phân quyền chi tiết, tạm thời cho 2 role cao nhất)
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" && myRole != "giam_doc" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
 	}
@@ -67,15 +69,19 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 
 	core.KhoaHeThong.Lock()
 	
-	// Cập nhật Quyền & Chức vụ
+	// [ĐÃ CẬP NHẬT] Map quyền chuẩn 100% theo file Phân Quyền.pdf
 	newRole := c.PostForm("vai_tro")
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
 		switch newRole {
-		case "quan_tri_vien_he_thong": kh.ChucVu = "Quản trị hệ thống"
+		case "quan_tri_vien_he_thong": kh.ChucVu = "Quản trị hệ thống" // Dành cho 99k.vn
 		case "quan_tri_vien": kh.ChucVu = "Quản trị viên"
-		case "nhan_vien_sale": kh.ChucVu = "Nhân viên kinh doanh"
-		case "nhan_vien_kho": kh.ChucVu = "Thủ kho"
+		case "giam_doc": kh.ChucVu = "Giám đốc"
+		case "quan_ly": kh.ChucVu = "Quản lý"
+		case "kinh_doanh": kh.ChucVu = "Kinh doanh"
+		case "ke_toan": kh.ChucVu = "Kế toán"
+		case "thu_kho": kh.ChucVu = "Thủ kho"
+		case "thu_quy": kh.ChucVu = "Thủ quỹ"
 		case "khach_hang": kh.ChucVu = "Khách hàng"
 		}
 	}
@@ -91,7 +97,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	gioiTinh := c.PostForm("gioi_tinh")
 	if gioiTinh == "1" { kh.GioiTinh = 1 } else if gioiTinh == "0" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
 
-	// Tình trạng khóa nick (Đã qua lớp bảo vệ)
 	if trangThaiMoi == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
 
 	// Cập nhật Mạng xã hội
@@ -140,14 +145,14 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
+	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" && myRole != "giam_doc" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
 
 	tieuDe := strings.TrimSpace(c.PostForm("tieu_de"))
 	noiDung := strings.TrimSpace(c.PostForm("noi_dung"))
-	jsonIDs := c.PostForm("danh_sach_id") // Nhận mảng ID dạng JSON
+	jsonIDs := c.PostForm("danh_sach_id")
 
 	if tieuDe == "" || noiDung == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Tiêu đề và Nội dung không được để trống!"})
@@ -161,7 +166,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	}
 
 	nowStr := time.Now().Format("2006-01-02 15:04:05")
-	msgID := fmt.Sprintf("MSG_%d", time.Now().Unix()) // ID tin nhắn duy nhất
+	msgID := fmt.Sprintf("MSG_%d", time.Now().Unix()) 
 
 	count := 0
 	core.KhoaHeThong.Lock()
