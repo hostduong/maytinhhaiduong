@@ -23,16 +23,24 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	me, _ := core.LayKhachHang(shopID, userID)
 	listAll := core.LayDanhSachKhachHang(shopID)
 	
-	// Lấy mảng chức vụ động từ RAM để ném ra Giao diện Dropdown
 	core.KhoaHeThong.RLock()
 	listVaiTro := core.CacheDanhSachVaiTro[shopID]
 	core.KhoaHeThong.RUnlock()
+
+	// [LƯỚI AN TOÀN]: Nếu chưa kịp đồng bộ Data, sinh tạm ra để Dropdown không bị trắng
+	if len(listVaiTro) == 0 {
+		listVaiTro = []core.VaiTroInfo{
+			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị hệ thống (Chưa đồng bộ)"},
+			{MaVaiTro: "quan_tri_vien", TenVaiTro: "Quản trị viên (Chưa đồng bộ)"},
+			{MaVaiTro: "khach_hang", TenVaiTro: "Khách hàng (Chưa đồng bộ)"},
+		}
+	}
 
 	c.HTML(http.StatusOK, "quan_tri_thanh_vien", gin.H{
 		"TieuDe":         "Quản lý thành viên",
 		"NhanVien":       me,
 		"DanhSach":       listAll,
-		"DanhSachVaiTro": listVaiTro, // <--- BIẾN QUAN TRỌNG ĐỂ RENDER HTML
+		"DanhSachVaiTro": listVaiTro,
 	})
 }
 
