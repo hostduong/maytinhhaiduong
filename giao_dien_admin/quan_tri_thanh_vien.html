@@ -122,32 +122,32 @@
             </div>
             
             <div class="p-6 sm:p-8 overflow-y-auto bg-slate-50/50 custom-scroll">
-                <form id="formEdit" class="space-y-8" autocomplete="off">
+                <form id="formEdit" class="space-y-8" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
                         <div class="space-y-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
                                 <h4 class="font-black text-blue-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Thông tin cơ bản</h4>
-                                <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
+                                <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required autocomplete="off" spellcheck="false" autocorrect="off"></div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                    <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
-                                    <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
+                                    <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium" autocomplete="off"></div>
+                                    <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white" autocomplete="off"></div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-5">
-                                    <div><label class="form-lbl">Giới tính</label><select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select></div>
-                                    <div><label class="form-lbl">Mã số thuế</label><input type="text" name="ma_so_thue" id="f_tax" class="input-premium"></div>
+                                    <div><label class="form-lbl">Giới tính</label><select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer" autocomplete="off"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select></div>
+                                    <div><label class="form-lbl">Mã số thuế</label><input type="text" name="ma_so_thue" id="f_tax" class="input-premium" autocomplete="off" spellcheck="false"></div>
                                 </div>
-                                <div><label class="form-lbl">Địa chỉ</label><input type="text" name="dia_chi" id="f_address" class="input-premium" placeholder="Số nhà, đường, phường xã..."></div>
+                                <div><label class="form-lbl">Địa chỉ</label><input type="text" name="dia_chi" id="f_address" class="input-premium" placeholder="Số nhà, đường, phường xã..." autocomplete="off" spellcheck="false" autocorrect="off"></div>
                             </div>
                             
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
                                 <h4 class="font-black text-indigo-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> Mạng xã hội</h4>
                                 <div class="space-y-4">
-                                    <div><label class="form-lbl">Zalo (Số điện thoại)</label><input type="tel" id="f_zalo_fake" class="input-premium"></div>
+                                    <div><label class="form-lbl">Zalo (Số điện thoại)</label><input type="tel" id="f_zalo_fake" class="input-premium" autocomplete="off"></div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div><label class="form-lbl">Facebook</label><input type="url" name="facebook" id="f_fb" class="input-premium" placeholder="https://facebook.com/..."></div>
-                                        <div><label class="form-lbl">Tiktok</label><input type="url" name="tiktok" id="f_tiktok" class="input-premium" placeholder="https://tiktok.com/@..."></div>
+                                        <div><label class="form-lbl">Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium" placeholder="https://facebook.com/..." autocomplete="off" spellcheck="false"></div>
+                                        <div><label class="form-lbl">Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium" placeholder="https://tiktok.com/@..." autocomplete="off" spellcheck="false"></div>
                                     </div>
                                 </div>
                             </div>
@@ -160,16 +160,16 @@
                                 <div class="space-y-5 relative z-10">
                                     <div>
                                         <label class="form-lbl text-purple-900">Vai trò / Phân quyền <span class="text-red-500">*</span></label>
-                                        <select name="vai_tro" id="f_role" class="input-premium bg-purple-50 border-purple-200 text-purple-900 font-bold focus:ring-purple-500 cursor-pointer" required>
+                                        <select name="vai_tro" id="f_role" class="input-premium bg-purple-50 border-purple-200 text-purple-900 font-bold focus:ring-purple-500 cursor-pointer" required autocomplete="off">
                                             {{ range .DanhSachVaiTro }}
                                                 <option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>
                                             {{ end }}
                                         </select>
                                     </div>
-                                    <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ tự động lấy theo Vai trò..."></div>
+                                    <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ tự động lấy theo Vai trò..." autocomplete="off" spellcheck="false"></div>
                                     <div class="pt-2">
                                         <label class="form-lbl">Trạng thái tài khoản</label>
-                                        <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer"><option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option><option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option></select>
+                                        <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer" autocomplete="off"><option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option><option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option></select>
                                     </div>
                                 </div>
                             </div>
@@ -195,7 +195,10 @@
                             </div>
                         </div>
 
-                        <div class="lg:col-span-2"><label class="form-lbl">Ghi chú nội bộ</label><textarea name="ghi_chu" id="f_note" rows="2" class="input-premium bg-white" placeholder="Ghi chú về khách/nhân viên này (Chỉ quản trị viên mới thấy)..."></textarea></div>
+                        <div class="lg:col-span-2">
+                            <label class="form-lbl">Ghi chú nội bộ</label>
+                            <textarea name="ghi_chu" id="f_note" rows="2" class="input-premium bg-white" placeholder="Ghi chú về khách/nhân viên này (Chỉ quản trị viên mới thấy)..." autocomplete="off" spellcheck="false"></textarea>
+                        </div>
 
                         <div class="lg:col-span-2 border-t pt-6 mt-2">
                             <h4 class="font-black text-slate-700 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm"><svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg> Lịch sử thông báo đã gửi</h4>
@@ -220,8 +223,8 @@
             </div>
             <div class="p-6 sm:p-8 space-y-5">
                 <div class="bg-blue-50 text-blue-700 p-4 rounded-xl text-sm font-medium border border-blue-100 flex items-center justify-between"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-blue-700 text-xl bg-blue-200 px-3 py-1 rounded-lg">0</span></div>
-                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo..." required></div>
-                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung..." required></textarea></div>
+                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo..." required autocomplete="off" spellcheck="false"></div>
+                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung..." required autocomplete="off" spellcheck="false"></textarea></div>
             </div>
             <div class="px-6 py-5 border-t bg-slate-50 rounded-b-3xl flex justify-end gap-3">
                 <button onclick="closeModal('modalMsg')" class="px-6 py-2.5 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl font-bold transition">Hủy</button>
@@ -244,7 +247,6 @@
             else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
-        // JS Toàn cục cho Nút mắt trong SweetAlert2
         window.toggleSwalPin = function() {
             const input = document.getElementById('swal-pin-input');
             const eyeSlash = document.getElementById('eye_slash_swal');
@@ -274,6 +276,10 @@
             let data = mapData[ma]; if(!data) return;
             document.getElementById('formEdit').reset();
             
+            // Xóa readonly nếu đã focus trước đó để mở form lại nó sạch sẽ
+            document.getElementById('f_pass').setAttribute('readonly', 'true');
+            document.getElementById('f_pin').setAttribute('readonly', 'true');
+            
             const inputPhone = document.querySelector("#f_sdt_fake"); const inputZalo = document.querySelector("#f_zalo_fake");
             if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
             if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
@@ -289,8 +295,6 @@
             let roleSelect = document.getElementById('f_role');
             let statusSelect = document.getElementById('f_status');
 
-            // --- XỬ LÝ DROPDOWN "QUẢN TRỊ VIÊN HỆ THỐNG" ---
-            // Chỉ Root mới thấy/được chọn tùy chọn này trong danh sách
             Array.from(roleSelect.options).forEach(opt => {
                 if (opt.value === "quan_tri_vien_he_thong") {
                     opt.disabled = !isMeRoot; 
@@ -300,20 +304,18 @@
             roleSelect.value = data.role;
             statusSelect.value = data.status;
 
-            // Reset trạng thái
             roleSelect.disabled = false;
             statusSelect.disabled = false;
 
-            // --- LUẬT BẢO VỆ GIAO DIỆN ---
             if (isTargetRoot) {
-                roleSelect.disabled = true; // Xem Root: Không thể sửa quyền của Root
-                if (!isMeRoot) statusSelect.disabled = true; // Ko phải Root thì ko thể khóa Root
+                roleSelect.disabled = true; 
+                if (!isMeRoot) statusSelect.disabled = true; 
             } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
-                roleSelect.disabled = true; // Xem SysAdmin khác: Nếu tôi không phải Root, tôi không được sửa quyền họ
+                roleSelect.disabled = true; 
             }
 
             if (ma === currentUserID) {
-                statusSelect.disabled = true; // Không ai được tự khóa chính mình
+                statusSelect.disabled = true; 
             }
 
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
@@ -322,7 +324,6 @@
         }
 
         async function saveMember() {
-            // [THIẾT KẾ LẠI Ô NHẬP PIN] Chống Autofill và có nút Mắt
             const { value: pinXacNhan } = await Swal.fire({
                 title: 'Bảo mật 2 lớp',
                 html: `
