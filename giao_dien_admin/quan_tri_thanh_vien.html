@@ -13,6 +13,9 @@
         .iti { width: 100%; } 
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Custom UI for SweetAlert PIN */
+        .swal2-pin-input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important; background-color: white !important;}
     </style>
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -31,9 +34,7 @@
                 <table class="w-full text-sm text-left text-slate-600 min-w-[800px]">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-5 py-4 text-center w-12">
-                                <input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                            </th>
+                            <th class="px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"></th>
                             <th class="px-6 py-4 font-bold tracking-wider">Thành Viên</th>
                             <th class="px-6 py-4 font-bold tracking-wider">Liên hệ</th>
                             <th class="px-6 py-4 font-bold tracking-wider">Chức Vụ</th>
@@ -44,9 +45,7 @@
                     <tbody class="divide-y divide-slate-100">
                         {{ range .DanhSach }}
                         <tr class="bg-white hover:bg-slate-50 transition group">
-                            <td class="px-5 py-4 text-center">
-                                <input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="updateCount()">
-                            </td>
+                            <td class="px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="updateCount()"></td>
                             <td class="px-6 py-4">
                                 <div class="font-bold text-slate-800 text-base group-hover:text-blue-600 transition">{{ .TenKhachHang }}</div>
                                 <div class="text-xs text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
@@ -123,36 +122,27 @@
             </div>
             
             <div class="p-6 sm:p-8 overflow-y-auto bg-slate-50/50 custom-scroll">
-                <form id="formEdit" class="space-y-8">
+                <form id="formEdit" class="space-y-8" autocomplete="off">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
                         <div class="space-y-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
-                                <h4 class="font-black text-blue-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Thông tin cơ bản
-                                </h4>
+                                <h4 class="font-black text-blue-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Thông tin cơ bản</h4>
                                 <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
                                     <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-5">
-                                    <div>
-                                        <label class="form-lbl">Giới tính</label>
-                                        <select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer">
-                                            <option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option>
-                                        </select>
-                                    </div>
+                                    <div><label class="form-lbl">Giới tính</label><select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select></div>
                                     <div><label class="form-lbl">Mã số thuế</label><input type="text" name="ma_so_thue" id="f_tax" class="input-premium"></div>
                                 </div>
                                 <div><label class="form-lbl">Địa chỉ</label><input type="text" name="dia_chi" id="f_address" class="input-premium" placeholder="Số nhà, đường, phường xã..."></div>
                             </div>
                             
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
-                                <h4 class="font-black text-indigo-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> Mạng xã hội
-                                </h4>
+                                <h4 class="font-black text-indigo-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> Mạng xã hội</h4>
                                 <div class="space-y-4">
                                     <div><label class="form-lbl">Zalo (Số điện thoại)</label><input type="tel" id="f_zalo_fake" class="input-premium"></div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -166,10 +156,7 @@
                         <div class="space-y-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-purple-200 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-24 h-24 bg-purple-100 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                                <h4 class="font-black text-purple-700 border-b border-purple-100 pb-3 uppercase tracking-wider text-sm flex items-center gap-2 mb-5 relative z-10">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hệ thống & Quyền hạn
-                                </h4>
-                                
+                                <h4 class="font-black text-purple-700 border-b border-purple-100 pb-3 uppercase tracking-wider text-sm flex items-center gap-2 mb-5 relative z-10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hệ thống & Quyền hạn</h4>
                                 <div class="space-y-5 relative z-10">
                                     <div>
                                         <label class="form-lbl text-purple-900">Vai trò / Phân quyền <span class="text-red-500">*</span></label>
@@ -179,64 +166,40 @@
                                             {{ end }}
                                         </select>
                                     </div>
-                                    
-                                    <div>
-                                        <label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label>
-                                        <input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ tự động lấy theo Vai trò...">
-                                    </div>
-
+                                    <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ tự động lấy theo Vai trò..."></div>
                                     <div class="pt-2">
                                         <label class="form-lbl">Trạng thái tài khoản</label>
-                                        <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer">
-                                            <option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option>
-                                            <option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option>
-                                        </select>
-                                        <p id="f_status_note" class="text-xs text-red-500 mt-2 hidden font-medium bg-red-50 p-2 rounded border border-red-100">🔒 Bạn không thể tự khóa tài khoản của chính mình hoặc cấp cao hơn.</p>
+                                        <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer"><option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option><option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option></select>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
-                                <h4 class="font-black text-slate-700 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật
-                                </h4>
+                                <h4 class="font-black text-slate-700 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật</h4>
                                 <div class="space-y-4">
                                     <div>
                                         <label class="form-lbl">Mật khẩu mới</label>
                                         <div class="relative">
-                                            <input type="password" name="mat_khau_moi" id="f_pass" class="input-premium font-mono pr-10" placeholder="Để trống nếu không đổi...">
-                                            <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600">
-                                                <svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                                                <svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                            </button>
+                                            <input type="password" name="mat_khau_moi" id="f_pass" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono pr-10" placeholder="Để trống nếu không đổi...">
+                                            <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600"><svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                                         </div>
                                     </div>
                                     <div>
                                         <label class="form-lbl">Mã PIN mới (8 số)</label>
                                         <div class="relative">
-                                            <input type="password" name="pin_moi" id="f_pin" maxlength="8" class="input-premium font-mono tracking-widest pr-10" placeholder="Để trống nếu không đổi...">
-                                            <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600">
-                                                <svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                                                <svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                            </button>
+                                            <input type="password" name="pin_moi" id="f_pin" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono tracking-widest pr-10" placeholder="Để trống nếu không đổi...">
+                                            <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600"><svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-2">
-                            <label class="form-lbl">Ghi chú nội bộ</label>
-                            <textarea name="ghi_chu" id="f_note" rows="2" class="input-premium bg-white" placeholder="Ghi chú về khách/nhân viên này (Chỉ quản trị viên mới thấy)..."></textarea>
-                        </div>
+                        <div class="lg:col-span-2"><label class="form-lbl">Ghi chú nội bộ</label><textarea name="ghi_chu" id="f_note" rows="2" class="input-premium bg-white" placeholder="Ghi chú về khách/nhân viên này (Chỉ quản trị viên mới thấy)..."></textarea></div>
 
                         <div class="lg:col-span-2 border-t pt-6 mt-2">
-                            <h4 class="font-black text-slate-700 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm">
-                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                                Lịch sử thông báo đã gửi
-                            </h4>
-                            <div id="inbox_render_container" class="max-h-64 overflow-y-auto pr-2 bg-slate-100/50 p-4 rounded-2xl border border-slate-100 custom-scroll">
-                            </div>
+                            <h4 class="font-black text-slate-700 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm"><svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg> Lịch sử thông báo đã gửi</h4>
+                            <div id="inbox_render_container" class="max-h-64 overflow-y-auto pr-2 bg-slate-100/50 p-4 rounded-2xl border border-slate-100 custom-scroll"></div>
                         </div>
                     </div>
                 </form>
@@ -244,9 +207,7 @@
 
             <div class="px-6 sm:px-8 py-5 border-t bg-white rounded-b-3xl flex justify-end gap-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 relative">
                 <button onclick="closeModal('modalEdit')" class="px-6 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng</button>
-                <button onclick="saveMember()" id="btnSaveMem" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lưu Thay Đổi
-                </button>
+                <button onclick="saveMember()" id="btnSaveMem" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lưu Thay Đổi</button>
             </div>
         </div>
     </div>
@@ -257,35 +218,21 @@
                 <h3 class="text-xl font-bold text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
                 <button onclick="closeModal('modalMsg')" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500/50 text-white hover:bg-red-500 transition text-xl font-bold">&times;</button>
             </div>
-            
             <div class="p-6 sm:p-8 space-y-5">
-                <div class="bg-blue-50 text-blue-700 p-4 rounded-xl text-sm font-medium border border-blue-100 flex items-center justify-between">
-                    <span>Chuẩn bị gửi đến:</span>
-                    <span id="lblMsgCount" class="font-black text-blue-700 text-xl bg-blue-200 px-3 py-1 rounded-lg">0</span>
-                </div>
-                <div>
-                    <label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label>
-                    <input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật hệ thống..." required>
-                </div>
-                <div>
-                    <label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label>
-                    <textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung thông báo (hỗ trợ văn bản thuần)..." required></textarea>
-                </div>
+                <div class="bg-blue-50 text-blue-700 p-4 rounded-xl text-sm font-medium border border-blue-100 flex items-center justify-between"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-blue-700 text-xl bg-blue-200 px-3 py-1 rounded-lg">0</span></div>
+                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo..." required></div>
+                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung..." required></textarea></div>
             </div>
-
             <div class="px-6 py-5 border-t bg-slate-50 rounded-b-3xl flex justify-end gap-3">
                 <button onclick="closeModal('modalMsg')" class="px-6 py-2.5 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl font-bold transition">Hủy</button>
-                <button onclick="sendMessages()" id="btnSendMsg" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    Phát sóng
-                </button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md transition transform active:scale-95 flex items-center gap-2">Phát sóng</button>
             </div>
         </div>
     </div>
 
     <script>
         const currentUserID = "{{ .NhanVien.MaKhachHang }}"; 
-        const currentUserRole = "{{ .NhanVien.VaiTroQuyenHan }}";
+        const isMeRoot = (currentUserID === "0000000000000000001");
 
         let itiPhone, itiZalo;
 
@@ -297,26 +244,29 @@
             else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
-        document.getElementById('f_pin').addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
+        // JS Toàn cục cho Nút mắt trong SweetAlert2
+        window.toggleSwalPin = function() {
+            const input = document.getElementById('swal-pin-input');
+            const eyeSlash = document.getElementById('eye_slash_swal');
+            const eyeOpen = document.getElementById('eye_open_swal');
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        };
+
+        document.getElementById('f_pin').addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
 
         const mapData = {};
         document.querySelectorAll('.m-data').forEach(el => {
             let id = el.getAttribute('data-id');
             mapData[id] = {
-                ten: el.getAttribute('data-name'), 
-                role: el.getAttribute('data-role'), 
-                title: el.getAttribute('data-title'),
+                ten: el.getAttribute('data-name'), role: el.getAttribute('data-role'), title: el.getAttribute('data-title'),
                 sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
                 address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
                 zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note')
             };
         });
 
-        document.getElementById('f_role').addEventListener('change', function() {
-            document.getElementById('f_title').value = '';
-        });
+        document.getElementById('f_role').addEventListener('change', function() { document.getElementById('f_title').value = ''; });
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
@@ -324,79 +274,92 @@
             let data = mapData[ma]; if(!data) return;
             document.getElementById('formEdit').reset();
             
-            const inputPhone = document.querySelector("#f_sdt_fake");
-            const inputZalo = document.querySelector("#f_zalo_fake");
-            
+            const inputPhone = document.querySelector("#f_sdt_fake"); const inputZalo = document.querySelector("#f_zalo_fake");
             if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
             if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
             
-            document.getElementById('f_ma').value = ma;
-            document.getElementById('f_ten').value = data.ten;
-            itiPhone.setNumber(data.sdt || "");
-            itiZalo.setNumber(data.zalo || "");
-            
-            document.getElementById('f_dob').value = data.dob;
-            document.getElementById('f_gender').value = data.gender;
-            document.getElementById('f_tax').value = data.tax;
-            document.getElementById('f_address').value = data.address;
-            document.getElementById('f_fb').value = data.fb;
-            document.getElementById('f_tiktok').value = data.tiktok;
-            document.getElementById('f_note').value = data.note;
-            document.getElementById('f_title').value = data.title;
+            document.getElementById('f_ma').value = ma; document.getElementById('f_ten').value = data.ten;
+            itiPhone.setNumber(data.sdt || ""); itiZalo.setNumber(data.zalo || "");
+            document.getElementById('f_dob').value = data.dob; document.getElementById('f_gender').value = data.gender;
+            document.getElementById('f_tax').value = data.tax; document.getElementById('f_address').value = data.address;
+            document.getElementById('f_fb').value = data.fb; document.getElementById('f_tiktok').value = data.tiktok;
+            document.getElementById('f_note').value = data.note; document.getElementById('f_title').value = data.title;
 
+            const isTargetRoot = (ma === "0000000000000000001");
             let roleSelect = document.getElementById('f_role');
-            roleSelect.value = data.role;
-            if(data.role === "quan_tri_vien_he_thong") { roleSelect.disabled = true; } else { roleSelect.disabled = false; }
-
             let statusSelect = document.getElementById('f_status');
-            let statusNote = document.getElementById('f_status_note');
+
+            // --- XỬ LÝ DROPDOWN "QUẢN TRỊ VIÊN HỆ THỐNG" ---
+            // Chỉ Root mới thấy/được chọn tùy chọn này trong danh sách
+            Array.from(roleSelect.options).forEach(opt => {
+                if (opt.value === "quan_tri_vien_he_thong") {
+                    opt.disabled = !isMeRoot; 
+                }
+            });
+
+            roleSelect.value = data.role;
             statusSelect.value = data.status;
-            
-            if(ma === currentUserID || data.role === "quan_tri_vien_he_thong") {
-                statusSelect.disabled = true; statusNote.classList.remove('hidden');
-            } else {
-                statusSelect.disabled = false; statusNote.classList.add('hidden');
+
+            // Reset trạng thái
+            roleSelect.disabled = false;
+            statusSelect.disabled = false;
+
+            // --- LUẬT BẢO VỆ GIAO DIỆN ---
+            if (isTargetRoot) {
+                roleSelect.disabled = true; // Xem Root: Không thể sửa quyền của Root
+                if (!isMeRoot) statusSelect.disabled = true; // Ko phải Root thì ko thể khóa Root
+            } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
+                roleSelect.disabled = true; // Xem SysAdmin khác: Nếu tôi không phải Root, tôi không được sửa quyền họ
+            }
+
+            if (ma === currentUserID) {
+                statusSelect.disabled = true; // Không ai được tự khóa chính mình
             }
 
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
             document.getElementById('inbox_render_container').innerHTML = inboxHtml;
-
             document.getElementById('modalEdit').classList.remove('hidden');
         }
 
         async function saveMember() {
-            // [MỚI] Yêu cầu nhập Mã PIN của Quản trị viên trước khi tiến hành lưu
+            // [THIẾT KẾ LẠI Ô NHẬP PIN] Chống Autofill và có nút Mắt
             const { value: pinXacNhan } = await Swal.fire({
                 title: 'Bảo mật 2 lớp',
-                html: 'Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận lưu các thay đổi này.',
-                input: 'password',
-                inputAttributes: {
-                    maxlength: 8,
-                    autocapitalize: 'off',
-                    autocorrect: 'off',
-                    style: 'text-align: center; letter-spacing: 0.5em; font-size: 1.25rem; font-weight: bold;'
-                },
-                inputPlaceholder: '••••••••',
+                html: `
+                    <div class="text-sm text-slate-600 mb-5">Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận.</div>
+                    <div class="relative w-4/5 mx-auto">
+                        <input type="password" id="swal-pin-input" class="swal2-pin-input w-full box-border bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-center tracking-[0.5em] font-bold text-xl outline-none transition" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-600">
+                            <svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Xác nhận & Lưu',
-                cancelButtonText: 'Hủy thao tác',
-                inputValidator: (value) => {
-                    if (!value) return 'Bạn cần nhập mã PIN để tiếp tục!';
-                    if (!/^\d{8}$/.test(value)) return 'Mã PIN phải đúng 8 chữ số!';
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+                didOpen: () => {
+                    setTimeout(() => {
+                        const input = document.getElementById('swal-pin-input');
+                        input.removeAttribute('readonly'); input.focus();
+                    }, 100);
+                },
+                preConfirm: () => {
+                    const val = document.getElementById('swal-pin-input').value;
+                    if (!val) { Swal.showValidationMessage('Bạn cần nhập mã PIN!'); return false; }
+                    if (!/^\d{8}$/.test(val)) { Swal.showValidationMessage('Mã PIN phải đúng 8 chữ số!'); return false; }
+                    return val;
                 }
             });
 
-            // Nếu người dùng bấm Hủy hoặc ESC popup
             if (!pinXacNhan) { return; }
 
             const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang kiểm tra...';
             
             const fd = new FormData(document.getElementById('formEdit'));
-            
-            // Gắn Mã PIN xác nhận vào form để gửi lên Server kiểm tra
             fd.append('pin_xac_nhan', pinXacNhan);
 
             if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
@@ -409,12 +372,11 @@
                 const res = await fetch('/admin/api/member/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
-                else Swal.fire('Lỗi bảo mật', data.msg, 'error'); // Hiển thị lỗi đỏ nếu nhập sai mã PIN
+                else Swal.fire('Lỗi bảo mật', data.msg, 'error'); 
             } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
             finally { btn.disabled = false; btn.innerHTML = old; }
         }
 
-        // LOGIC GỬI TIN NHẮN (Giữ nguyên không đổi)
         function getSelectedIDs() { let ids = []; document.querySelectorAll('.chk-member:checked').forEach(cb => ids.push(cb.value)); return ids; }
         function toggleAllCheckboxes() { let isChecked = document.getElementById('checkAll').checked; document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked); updateCount(); }
         function updateCount() { let count = document.querySelectorAll('.chk-member:checked').length; document.getElementById('countSelected').innerText = count; document.getElementById('lblMsgCount').innerText = count; }
