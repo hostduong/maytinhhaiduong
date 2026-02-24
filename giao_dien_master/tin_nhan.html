@@ -1,0 +1,98 @@
+{{ define "master_tin_nhan" }}
+    {{ template "header_master" . }}
+
+    <div class="max-w-4xl mx-auto py-8">
+        <div class="mb-6">
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Hộp thư hệ thống</h1>
+            <p class="text-slate-500 text-sm mt-2 font-medium">Thông báo và cập nhật mới nhất từ Nền tảng 99k.vn.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            {{ if eq (len .NhanVien.Inbox) 0 }}
+                <div class="p-16 text-center text-slate-400">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <p class="text-lg font-bold">Hộp thư trống</p>
+                    <p class="text-sm mt-1">Bạn chưa có tin nhắn nào được gửi tới.</p>
+                </div>
+            {{ else }}
+                <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100">
+                    {{ range .NhanVien.Inbox }}
+                    <div id="msg_item_{{ .MaTinNhan }}" class="p-5 sm:p-6 hover:bg-slate-50 transition cursor-pointer flex gap-4 {{ if not .DaDoc }}bg-purple-50/40{{ end }}" onclick="toggleMessage('{{ .MaTinNhan }}')">
+                        
+                        <div class="mt-1 flex-shrink-0">
+                            <div id="msg_dot_{{ .MaTinNhan }}" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm transition-colors {{ if not .DaDoc }}bg-purple-600{{ else }}bg-slate-300{{ end }}">
+                                {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
+                            </div>
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center flex-wrap gap-2 mb-1.5">
+                                <span class="font-bold text-slate-800 text-[13px] sm:text-sm truncate">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-bold uppercase tracking-wider">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
+                                
+                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
+                                    <span class="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
+                                {{ end }}
+                                
+                                <span class="text-[11px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
+                            </div>
+                            
+                            <h4 id="msg_title_{{ .MaTinNhan }}" class="text-sm font-bold {{ if not .DaDoc }}text-purple-700{{ else }}text-slate-700{{ end }} mb-1 transition-colors">{{ .TieuDe }}</h4>
+                            
+                            <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .MaTinNhan }}">{{ .NoiDung }}</div>
+                            
+                            <div class="hidden mt-3" id="msg_full_{{ .MaTinNhan }}">
+                                <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white shadow-sm p-4 rounded-2xl rounded-tl-sm border border-slate-200 relative">
+                                    {{ .NoiDung }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <script>
+        async function postData(url, data) {
+            const fd = new FormData(); 
+            for(const k in data) fd.append(k, data[k]);
+            try { 
+                const r = await fetch(url, {method:'POST', body:fd}); 
+                return await r.json(); 
+            } catch(e){ 
+                return {status:'error', msg:'Lỗi mạng'}; 
+            }
+        }
+
+        function toggleMessage(id) {
+            const full = document.getElementById('msg_full_' + id);
+            const preview = document.getElementById('msg_preview_' + id);
+            const dot = document.getElementById('msg_dot_' + id);
+            const title = document.getElementById('msg_title_' + id);
+            const item = document.getElementById('msg_item_' + id);
+            
+            if (full.classList.contains('hidden')) {
+                full.classList.remove('hidden');
+                preview.classList.add('hidden');
+            } else {
+                full.classList.add('hidden');
+                preview.classList.remove('hidden');
+            }
+
+            if (dot.classList.contains('bg-purple-600')) {
+                dot.classList.remove('bg-purple-600');
+                dot.classList.add('bg-slate-300');
+                item.classList.remove('bg-purple-50/40');
+                title.classList.remove('text-purple-700');
+                title.classList.add('text-slate-700');
+                
+                // Gọi API nhánh Master
+                postData('/master/api/doc-tin-nhan', { msg_id: id });
+            }
+        }
+    </script>
+
+    {{ template "footer_master" . }}
+{{ end }}
