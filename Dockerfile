@@ -14,9 +14,10 @@ RUN apk add --no-cache ca-certificates
 # Copy file chạy
 COPY --from=builder /app/server .
 
-# --- COPY CẢ 2 THƯ MỤC GIAO DIỆN ---
+# --- COPY ĐẦY ĐỦ 3 THƯ MỤC GIAO DIỆN ---
 COPY --from=builder /app/giao_dien ./giao_dien
 COPY --from=builder /app/giao_dien_admin ./giao_dien_admin
+COPY --from=builder /app/giao_dien_master ./giao_dien_master
 # ------------------------------------------
 
 EXPOSE 8080
