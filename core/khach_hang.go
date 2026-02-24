@@ -91,8 +91,9 @@ type MessageInfo struct {
 	NoiDung        string `json:"content"`
 	DaDoc          bool   `json:"is_read"`
 	NgayTao        string `json:"date"`
-	NguoiGuiID     string `json:"sender_id"`    // [MỚI] ID người gửi
-	NguoiGuiChucVu string `json:"sender_title"` // [MỚI] Chức vụ người gửi
+	NguoiGuiID     string `json:"sender_id"`
+	NguoiGuiTen    string `json:"sender_name"`
+	NguoiGuiChucVu string `json:"sender_title"`
 }
 // =============================================================
 // 3. STRUCT CHÍNH (ĐỐI TƯỢNG KHÁCH HÀNG / CHỦ SHOP)
