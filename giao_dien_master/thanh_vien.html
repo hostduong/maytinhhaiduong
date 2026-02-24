@@ -6,21 +6,22 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
-        .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; padding: 0.5rem 0.75rem; transition: 0.2s; outline: none; }
+        .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; padding: 0.6rem 1rem; transition: 0.2s; outline: none; }
         .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.1); background-color: #fff; }
         .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
-        label.form-lbl { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 0.35rem; display: block; }
+        label.form-lbl { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 0.35rem; display: block; tracking-wide: 0.05em; }
         .iti { width: 100%; } 
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .swal2-pin-input:focus { border-color: #9333ea !important; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1) !important; background-color: white !important;}
     </style>
 
     <div class="max-w-7xl mx-auto mb-10">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 class="text-2xl font-black text-slate-800 tracking-tight">🛡️ Quản Lý Core Team</h1>
-            <div class="flex gap-2">
-                <button onclick="openMessageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center gap-2 transition transform hover:-translate-y-0.5 text-sm">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="relative flex-1 md:w-72">
+                    <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm tên, SĐT, Email..." class="w-full pl-10 pr-4 py-2.5 text-sm font-medium border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <button onclick="openMessageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center gap-2 transition transform hover:-translate-y-0.5 text-sm whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     Gửi Thông Báo (<span id="countSelected">0</span>)
                 </button>
@@ -40,19 +41,18 @@
                             <th class="px-6 py-4 font-bold text-center tracking-wider w-28">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody id="tbodyMembers" class="divide-y divide-slate-100">
                         {{ range .DanhSach }}
                         <tr class="bg-white hover:bg-slate-50 transition group">
                             <td class="px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
                             <td class="px-6 py-4">
-                                <div class="font-bold text-slate-800 text-base group-hover:text-purple-600 transition">{{ .TenKhachHang }}</div>
+                                <div class="font-bold text-slate-800 text-base group-hover:text-purple-600 transition search-target">{{ .TenKhachHang }}</div>
                                 <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
-                                <div class="text-[11px] text-purple-500 font-medium">User: {{ .TenDangNhap }}</div>
-                                <div class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">Tham gia: {{ .NgayTao }}</div>
+                                <div class="text-[11px] text-purple-500 font-medium search-target">User: {{ .TenDangNhap }}</div>
                             </td>
                             <td class="px-6 py-4 text-xs space-y-1">
-                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-medium text-slate-700">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
-                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-medium text-slate-700">{{ .Email }}</span>{{ else }}---{{ end }}</div>
+                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-medium text-slate-700 search-target">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
+                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-medium text-slate-700 search-target">{{ .Email }}</span>{{ else }}---{{ end }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
@@ -91,45 +91,11 @@
             data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
             data-note="{{ .GhiChu }}" data-avatar="{{ .AnhDaiDien }}" data-source="{{ .NguonKhachHang }}">
         </div>
-        <div id="inbox_data_{{ .MaKhachHang }}">
-            {{ if eq (len .Inbox) 0 }}
-                <div class="text-sm text-slate-400 italic text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200">Chưa có thông báo nào được gửi đến thành viên này.</div>
-            {{ else }}
-                <div class="flex flex-col-reverse gap-4"> 
-                    {{ range .Inbox }}
-                    <div class="p-4 bg-white rounded-xl border {{ if not .DaDoc }}border-purple-300 shadow-md{{ else }}border-slate-200 shadow-sm{{ end }} relative overflow-hidden transition flex gap-3">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-purple-500{{ else }}bg-slate-300{{ end }}"></div>
-                        
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 {{ if not .DaDoc }}bg-purple-500{{ else }}bg-slate-300{{ end }}">
-                            {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
-                        </div>
-                        
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center flex-wrap gap-1.5 mb-1">
-                                <span class="font-bold text-slate-800 text-xs">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
-                                <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
-                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
-                                    <span class="text-[9px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
-                                {{ end }}
-                                <span class="text-[10px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
-                            </div>
-
-                            <h5 class="font-bold {{ if not .DaDoc }}text-purple-700{{ else }}text-slate-700{{ end }} text-sm mb-1.5">{{ .TieuDe }}</h5>
-                            
-                            <div class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed bg-slate-50 p-3 rounded-2xl rounded-tl-sm border border-slate-100">
-                                {{ .NoiDung }}
-                            </div>
-                        </div>
-                    </div>
-                    {{ end }}
-                </div>
-            {{ end }}
-        </div>
         {{ end }}
     </div>
 
     <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4 sm:p-6">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl transform transition-all flex flex-col max-h-[95vh]">
             <div class="px-6 py-5 border-b flex justify-between items-center bg-white rounded-t-3xl shrink-0">
                 <h3 class="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-3" id="modalTitle">
                     <span class="bg-purple-100 p-2 rounded-xl text-purple-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></span>
@@ -202,10 +168,7 @@
                             </div>
                         </div>
 
-                        <div class="lg:col-span-2 border-t pt-6 mt-2">
-                            <h4 class="font-black text-slate-700 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm"><svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg> Lịch sử thông báo đã nhận</h4>
-                            <div id="inbox_render_container" class="max-h-64 overflow-y-auto pr-2 bg-slate-100/50 p-4 rounded-2xl border border-slate-100 custom-scroll"></div>
-                        </div>
+                        <div class="lg:col-span-2"><label class="form-lbl">Ghi chú nội bộ</label><textarea name="ghi_chu" id="f_note" rows="2" class="input-premium bg-white" placeholder="Ghi chú về khách/nhân viên này..." autocomplete="off" spellcheck="false"></textarea></div>
                     </div>
                 </form>
             </div>
@@ -268,6 +231,17 @@
             };
         });
 
+        function filterTable(inputId, tbodyId) { 
+            const query = document.getElementById(inputId).value.toLowerCase(); 
+            document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { 
+                // Tìm trong các thẻ có class search-target
+                const targets = row.querySelectorAll('.search-target');
+                let found = false;
+                targets.forEach(t => { if(t.innerText.toLowerCase().includes(query)) found = true; });
+                row.style.display = found ? '' : 'none'; 
+            }); 
+        }
+
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         
         function editMember(ma) {
@@ -292,32 +266,18 @@
             let statusSelect = document.getElementById('f_status');
 
             Array.from(roleSelect.options).forEach(opt => {
-                if (opt.value === "quan_tri_he_thong" || opt.value === "quan_tri_vien_he_thong") {
-                    opt.disabled = !isMeRoot; 
-                } else {
-                    opt.disabled = false;
-                }
+                if (opt.value === "quan_tri_he_thong" || opt.value === "quan_tri_vien_he_thong") { opt.disabled = !isMeRoot; } else { opt.disabled = false; }
             });
 
             roleSelect.value = data.role;
             statusSelect.value = data.status;
-
             roleSelect.disabled = false;
             statusSelect.disabled = false;
 
-            if (isTargetRoot) {
-                roleSelect.disabled = true; 
-                if (!isMeRoot) statusSelect.disabled = true; 
-            } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
-                roleSelect.disabled = true; 
-            }
+            if (isTargetRoot) { roleSelect.disabled = true; if (!isMeRoot) statusSelect.disabled = true; } 
+            else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) { roleSelect.disabled = true; }
+            if (ma === currentUserID) { statusSelect.disabled = true; }
 
-            if (ma === currentUserID) {
-                statusSelect.disabled = true; 
-            }
-
-            let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
-            document.getElementById('inbox_render_container').innerHTML = inboxHtml;
             document.getElementById('modalEdit').classList.remove('hidden');
         }
 
@@ -339,30 +299,22 @@
                 cancelButtonColor: '#cbd5e1',
                 confirmButtonText: 'Xác nhận',
                 cancelButtonText: 'Hủy',
-                didOpen: () => {
-                    setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100);
-                },
-                preConfirm: () => {
-                    const val = document.getElementById('swal-pin-input').value;
-                    if (!val) { Swal.showValidationMessage('Bạn cần nhập mã PIN!'); return false; }
-                    return val;
-                }
+                didOpen: () => { setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100); },
+                preConfirm: () => { const val = document.getElementById('swal-pin-input').value; if (!val) { Swal.showValidationMessage('Bạn cần nhập mã PIN!'); return false; } return val; }
             });
 
             if (!pinXacNhan) { return; }
 
             const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = 'Đang kiểm tra...';
+            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
             
             const fd = new FormData(document.getElementById('formEdit'));
             fd.append('pin_xac_nhan', pinXacNhan);
             if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
-            
             if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
             if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
             try {
-                // [API CỦA MASTER]
                 const res = await fetch('/master/api/thanh-vien/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
@@ -387,7 +339,6 @@
             const fd = new FormData(); fd.append('tieu_de', title); fd.append('noi_dung', content); fd.append('danh_sach_id', JSON.stringify(ids));
             
             try {
-                // [API CỦA MASTER]
                 const res = await fetch('/master/api/thanh-vien/send-msg', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false}).then(() => location.reload()); } 
