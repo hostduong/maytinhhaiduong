@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DongBatDau_TinNhan = 2 // Dữ liệu bắt đầu từ dòng số 2 (Dòng 1 là Tiêu đề cột)
+	DongBatDau_TinNhan = 11 // Dữ liệu bắt đầu từ dòng số 11 (Dòng 10 là Tiêu đề cột)
 
 	CotTN_MaTinNhan    = 0  // A
 	CotTN_LoaiTinNhan  = 1  // B
