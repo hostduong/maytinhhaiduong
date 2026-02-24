@@ -13,14 +13,14 @@ import (
 	"app/chuc_nang"
 	"app/chuc_nang_admin"
 	admin_may_tinh "app/chuc_nang_admin/may_tinh"
-	"app/chuc_nang_master" // [MỚI] Import Controller quản lý Cửa hàng
+	"app/chuc_nang_master" 
 	"app/core"
 
 	"github.com/gin-gonic/gin"
 )
 
-// [SỬA QUAN TRỌNG] Nạp thêm thư mục giao_dien_master
-//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_admin/*.html giao_dien_admin/*/*.html giao_dien_master/*.html
+// [ĐÃ SỬA QUAN TRỌNG]: Bổ sung giao_dien_master/*/*.html để nạp được thư mục _layouts
+//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_admin/*.html giao_dien_admin/*/*.html giao_dien_master/*.html giao_dien_master/*/*.html
 var f embed.FS
 
 func main() {
@@ -42,9 +42,10 @@ func main() {
 
 	funcMap := chuc_nang.LayBoHamHTML()
 
-	// [SỬA QUAN TRỌNG] Parse thêm các file HTML của Cổng Master
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html", "giao_dien_admin/*.html", "giao_dien_admin/*/*.html", "giao_dien_master/*.html"))
+	// [ĐÃ SỬA QUAN TRỌNG]: Bổ sung giao_dien_master/*/*.html vào hàm ParseFS
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html", "giao_dien_admin/*.html", "giao_dien_admin/*/*.html", "giao_dien_master/*.html", "giao_dien_master/*/*.html"))
 	router.SetHTMLTemplate(templ)
+
 
 	// --- ĐỊNH NGHĨA ROUTER ---
 	// Public & Auth
