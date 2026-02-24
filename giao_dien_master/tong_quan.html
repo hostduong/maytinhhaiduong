@@ -1,0 +1,56 @@
+{{ define "master_tong_quan" }}
+    {{ template "header_master" . }}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-5">
+            <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+                🏬
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Tổng Cửa Hàng</p>
+                <h3 class="text-3xl font-black text-slate-800 mt-1">Đang Load</h3>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-5">
+            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+                💰
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Doanh thu SaaS</p>
+                <h3 class="text-3xl font-black text-slate-800 mt-1">Đang Load</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-5">
+            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+                🎟️
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Ticket Hỗ Trợ</p>
+                <h3 class="text-3xl font-black text-slate-800 mt-1">0</h3>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-5">
+            <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+                ⚡
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Hiệu suất RAM</p>
+                <h3 class="text-3xl font-black text-slate-800 mt-1">Tối ưu</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center h-64 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#9333ea 2px, transparent 2px); background-size: 30px 30px;"></div>
+        <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4 relative z-10 shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 relative z-10">Khu vực điều khiển Đang xây dựng</h3>
+        <p class="text-slate-500 mt-2 font-medium relative z-10">Dữ liệu thực tế sẽ được đấu nối ở các bước tiếp theo.</p>
+    </div>
+
+    {{ template "footer_master" . }}
+{{ end }}
