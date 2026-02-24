@@ -232,8 +232,14 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 
 	sender, _ := core.LayKhachHang(shopID, userID)
 	chucVuNguoiGui := "Hệ Thống"
-	if sender != nil && sender.ChucVu != "" {
-		chucVuNguoiGui = sender.ChucVu
+	tenNguoiGui := "Nền tảng 99k.vn" // Mặc định nếu không tìm thấy
+	if sender != nil {
+		if sender.ChucVu != "" {
+			chucVuNguoiGui = sender.ChucVu
+		}
+		if sender.TenKhachHang != "" {
+			tenNguoiGui = sender.TenKhachHang
+		}
 	}
 
 	loc := time.FixedZone("ICT", 7*3600)
@@ -251,6 +257,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 				DaDoc:          false,
 				NgayTao:        nowStr,
 				NguoiGuiID:     userID,         
+				NguoiGuiTen:    tenNguoiGui,    // [MỚI] Ghi tên vào DB
 				NguoiGuiChucVu: chucVuNguoiGui, 
 			}
 			kh.Inbox = append(kh.Inbox, newMsg)
