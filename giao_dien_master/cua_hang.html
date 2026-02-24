@@ -331,18 +331,18 @@
                         {{ else }}
                             <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100">
                                 {{ range .ChuShop.Inbox }}
-                                <div id="msg_item_{{ .ID }}" class="p-4 sm:p-5 hover:bg-slate-50 transition cursor-pointer flex gap-3 sm:gap-4 {{ if not .DaDoc }}bg-blue-50/40{{ end }}" onclick="toggleMessage('{{ .ID }}')">
+                                <div id="msg_item_{{ .MaTinNhan }}" class="p-4 sm:p-5 hover:bg-slate-50 transition cursor-pointer flex gap-3 sm:gap-4 {{ if not .DaDoc }}bg-blue-50/40{{ end }}" onclick="toggleMessage('{{ .MaTinNhan }}')">
                                     
                                     <div class="mt-1 flex-shrink-0">
-                                        <div id="msg_dot_{{ .ID }}" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm transition-colors {{ if not .DaDoc }}bg-blue-600{{ else }}bg-slate-300{{ end }}">
-                                            {{ if .NguoiGuiTen }}{{ printf "%.1s" .NguoiGuiTen }}{{ else }}99{{ end }}
+                                        <div id="msg_dot_{{ .MaTinNhan }}" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm transition-colors {{ if not .DaDoc }}bg-blue-600{{ else }}bg-slate-300{{ end }}">
+                                            {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
                                         </div>
                                     </div>
 
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center flex-wrap gap-1.5 mb-1.5">
-                                            <span class="font-bold text-slate-800 text-[13px] sm:text-sm truncate">{{ if .NguoiGuiTen }}{{ .NguoiGuiTen }}{{ else }}Hệ Thống{{ end }}</span>
-                                            <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-medium">{{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Tự động{{ end }}</span>
+                                            <span class="font-bold text-slate-800 text-[13px] sm:text-sm truncate">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
+                                            <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-medium">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
                                             
                                             {{ if eq $.ChuShop.MaKhachHang "0000000000000000001" }}
                                                 <span class="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
@@ -351,11 +351,11 @@
                                             <span class="text-[11px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
                                         </div>
                                         
-                                        <h4 id="msg_title_{{ .ID }}" class="text-sm font-bold {{ if not .DaDoc }}text-blue-700{{ else }}text-slate-700{{ end }} mb-1 transition-colors">{{ .TieuDe }}</h4>
+                                        <h4 id="msg_title_{{ .MaTinNhan }}" class="text-sm font-bold {{ if not .DaDoc }}text-blue-700{{ else }}text-slate-700{{ end }} mb-1 transition-colors">{{ .TieuDe }}</h4>
                                         
-                                        <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .ID }}">{{ .NoiDung }}</div>
+                                        <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .MaTinNhan }}">{{ .NoiDung }}</div>
                                         
-                                        <div class="hidden mt-2.5" id="msg_full_{{ .ID }}">
+                                        <div class="hidden mt-2.5" id="msg_full_{{ .MaTinNhan }}">
                                             <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white shadow-sm p-4 rounded-2xl rounded-tl-sm border border-slate-200 relative">
                                                 {{ .NoiDung }}
                                             </div>
