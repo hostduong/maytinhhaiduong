@@ -42,13 +42,16 @@ func TaoChuKyBaoMat(sessionID string, userAgent string) string {
 // --- PHẦN KIỂM TRA ĐẦU VÀO ---
 func KiemTraTenDangNhap(user string) bool {
 	if len(user) < 6 || len(user) > 30 { return false }
-	match, _ := regexp.MatchString(`^[a-z0-9._]+$`, user)
+	
+	// Chỉ cho phép chữ thường, số và dấu gạch ngang
+	match, _ := regexp.MatchString(`^[a-z0-9\-]+$`, user)
 	if !match { return false }
-	// (Giữ nguyên logic cũ của bạn)...
-	forbiddenPairs := []string{"..", "__", "._", "_."}
-	for _, pair := range forbiddenPairs {
-		if strings.Contains(user, pair) { return false }
+	
+	// Không được bắt đầu, kết thúc bằng dấu gạch ngang, hoặc chứa 2 dấu gạch ngang liên tiếp
+	if strings.HasPrefix(user, "-") || strings.HasSuffix(user, "-") || strings.Contains(user, "--") { 
+		return false 
 	}
+	
 	return true
 }
 
