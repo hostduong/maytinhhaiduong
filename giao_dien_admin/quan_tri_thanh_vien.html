@@ -55,7 +55,9 @@
                                 <div class="flex items-center gap-1.5"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-medium text-slate-700">{{ .Email }}</span>{{ else }}---{{ end }}</div>
                             </td>
                             <td class="px-6 py-4">
-                                {{ if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
+                                {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
+                                    <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
+                                {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
                                     <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
                                 {{ else }}
                                     <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 uppercase">{{ .ChucVu }}</span>
