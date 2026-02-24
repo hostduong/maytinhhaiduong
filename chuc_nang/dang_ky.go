@@ -51,7 +51,8 @@ func XuLyDangKy(c *gin.Context) {
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
-	if !cau_hinh.KiemTraHoTen(hoTen) || !cau_hinh.KiemTraTenDangNhap(user) || !cau_hinh.KiemTraEmail(email) || !cau_hinh.KiemTraMaPin(maPin) || !cau_hinh.KiemTraDinhDangMatKhau(pass) {
+	// [ĐÃ SỬA]: Kiểm tra bắt buộc nhập Số điện thoại
+	if dienThoai == "" || !cau_hinh.KiemTraHoTen(hoTen) || !cau_hinh.KiemTraTenDangNhap(user) || !cau_hinh.KiemTraEmail(email) || !cau_hinh.KiemTraMaPin(maPin) || !cau_hinh.KiemTraDinhDangMatKhau(pass) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Dữ liệu nhập vào không hợp lệ!"})
 		return
 	}
@@ -125,9 +126,13 @@ func XuLyDangKy(c *gin.Context) {
 	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
 	core.ThemKhachHangVaoRam(newKH)
 	
+	// ========================================================
+	// [ĐÃ SỬA]: GHI ĐẦY ĐỦ CÁC TRƯỜNG XUỐNG GOOGLE SHEET
+	// ========================================================
 	ghi := core.ThemVaoHangCho
 	sh := "KHACH_HANG"
 	r := newKH.DongTrongSheet
+	
 	ghi(shopID, sh, r, core.CotKH_MaKhachHang, newKH.MaKhachHang)
 	ghi(shopID, sh, r, core.CotKH_TenDangNhap, newKH.TenDangNhap)
 	ghi(shopID, sh, r, core.CotKH_Email, newKH.Email)
@@ -136,6 +141,16 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
 	ghi(shopID, sh, r, core.CotKH_ChucVu, newKH.ChucVu)
 	ghi(shopID, sh, r, core.CotKH_TrangThai, newKH.TrangThai)
+	
+	// Các trường được bổ sung
+	ghi(shopID, sh, r, core.CotKH_TenKhachHang, newKH.TenKhachHang)
+	ghi(shopID, sh, r, core.CotKH_DienThoai, newKH.DienThoai)
+	ghi(shopID, sh, r, core.CotKH_NgaySinh, newKH.NgaySinh)
+	ghi(shopID, sh, r, core.CotKH_GioiTinh, newKH.GioiTinh)
+	ghi(shopID, sh, r, core.CotKH_NguonKhachHang, newKH.NguonKhachHang)
+	ghi(shopID, sh, r, core.CotKH_NgayTao, newKH.NgayTao)
+	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
+	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
 
 	// CHẠY NGẦM GỬI OTP (Gửi thật qua Google Apps Script)
 	if theme == "theme_master" && vaiTro != "quan_tri_vien_he_thong" {
@@ -182,7 +197,7 @@ func API_XacThucKichHoat(c *gin.Context) {
 		return
 	}
 
-	// 1. BƠM GÓI TRIAL VÀO TÀI KHOẢN (Đã sửa đúng TenGoi)
+	// 1. BƠM GÓI TRIAL VÀO TÀI KHOẢN
 	core.KhoaHeThong.Lock()
 	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
 		MaGoi:      "TRIAL_3DAYS",
