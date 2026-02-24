@@ -1,49 +1,58 @@
 {{ define "master_tin_nhan" }}
     {{ template "header_master" . }}
 
-    <div class="max-w-4xl mx-auto py-8">
-        <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Hộp thư hệ thống</h1>
-            <p class="text-slate-500 text-sm mt-2 font-medium">Thông báo và cập nhật mới nhất từ Nền tảng 99k.vn.</p>
+    <div class="max-w-5xl mx-auto py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Hộp thư hệ thống</h1>
+                <p class="text-slate-500 text-sm mt-1 font-medium">Trung tâm thông báo và cập nhật mới nhất từ Nền tảng.</p>
+            </div>
+            <div class="relative w-full md:w-80">
+                <input type="text" id="searchMsg" onkeyup="filterMessages()" placeholder="Tìm theo tiêu đề, nội dung, người gửi..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition bg-white shadow-sm">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-hidden">
             {{ if eq (len .NhanVien.Inbox) 0 }}
-                <div class="p-16 text-center text-slate-400">
-                    <svg class="w-16 h-16 mx-auto mb-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    <p class="text-lg font-bold">Hộp thư trống</p>
-                    <p class="text-sm mt-1">Bạn chưa có tin nhắn nào được gửi tới.</p>
+                <div class="p-20 text-center text-slate-400">
+                    <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <p class="text-xl font-bold text-slate-600">Hộp thư trống</p>
+                    <p class="text-sm mt-2">Bạn chưa có tin nhắn nào được gửi tới lúc này.</p>
                 </div>
             {{ else }}
-                <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100">
+                <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100/80" id="msgListContainer">
                     {{ range .NhanVien.Inbox }}
-                    <div id="msg_item_{{ .MaTinNhan }}" class="p-5 sm:p-6 hover:bg-slate-50 transition cursor-pointer flex gap-4 {{ if not .DaDoc }}bg-purple-50/40{{ end }}" onclick="toggleMessage('{{ .MaTinNhan }}')">
+                    <div id="msg_item_{{ .MaTinNhan }}" class="msg-row p-6 hover:bg-slate-50/80 transition cursor-pointer flex gap-5 {{ if not .DaDoc }}bg-purple-50/30{{ end }}" onclick="toggleMessage('{{ .MaTinNhan }}')">
                         
-                        <div class="mt-1 flex-shrink-0">
-                            <div id="msg_dot_{{ .MaTinNhan }}" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm transition-colors {{ if not .DaDoc }}bg-purple-600{{ else }}bg-slate-300{{ end }}">
-                                {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
+                        <div class="mt-1 flex-shrink-0 relative">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md transition-colors {{ if not .DaDoc }}bg-gradient-to-br from-purple-500 to-indigo-600{{ else }}bg-slate-200 text-slate-500 shadow-none{{ end }}">
+                                <span class="text-lg">{{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}</span>
                             </div>
+                            <div id="msg_dot_{{ .MaTinNhan }}" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white {{ if not .DaDoc }}bg-red-500{{ else }}hidden{{ end }}"></div>
                         </div>
 
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center flex-wrap gap-2 mb-1.5">
-                                <span class="font-bold text-slate-800 text-[13px] sm:text-sm truncate">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
-                                <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-bold uppercase tracking-wider">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
-                                
-                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
-                                    <span class="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
-                                {{ end }}
-                                
-                                <span class="text-[11px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                <div class="flex items-center gap-2 flex-wrap flex-1">
+                                    <span class="font-black text-slate-800 text-[15px] truncate msg-sender">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
+                                    <span class="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded border border-slate-200 font-bold uppercase tracking-wider">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-medium whitespace-nowrap bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ .NgayTao }}</span>
                             </div>
                             
-                            <h4 id="msg_title_{{ .MaTinNhan }}" class="text-sm font-bold {{ if not .DaDoc }}text-purple-700{{ else }}text-slate-700{{ end }} mb-1 transition-colors">{{ .TieuDe }}</h4>
+                            <h4 id="msg_title_{{ .MaTinNhan }}" class="text-[15px] font-bold {{ if not .DaDoc }}text-purple-700{{ else }}text-slate-700{{ end }} mb-1.5 transition-colors msg-title">{{ .TieuDe }}</h4>
                             
-                            <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .MaTinNhan }}">{{ .NoiDung }}</div>
+                            <div class="text-sm text-slate-500 line-clamp-1 leading-relaxed msg-preview" id="msg_preview_{{ .MaTinNhan }}">{{ .NoiDung }}</div>
                             
-                            <div class="hidden mt-3" id="msg_full_{{ .MaTinNhan }}">
-                                <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white shadow-sm p-4 rounded-2xl rounded-tl-sm border border-slate-200 relative">
+                            <div class="hidden mt-4" id="msg_full_{{ .MaTinNhan }}">
+                                <div class="text-[15px] text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50/50 p-5 rounded-2xl rounded-tl-none border border-slate-200 relative shadow-sm">
                                     {{ .NoiDung }}
+                                </div>
+                                <div class="mt-4 flex gap-3">
+                                    <button onclick="event.stopPropagation(); Swal.fire('Sắp ra mắt','Tính năng Reply đang được phát triển','info')" class="text-xs font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-xl transition">↩ Trả lời</button>
                                 </div>
                             </div>
                         </div>
@@ -56,14 +65,24 @@
 
     <script>
         async function postData(url, data) {
-            const fd = new FormData(); 
-            for(const k in data) fd.append(k, data[k]);
-            try { 
-                const r = await fetch(url, {method:'POST', body:fd}); 
-                return await r.json(); 
-            } catch(e){ 
-                return {status:'error', msg:'Lỗi mạng'}; 
-            }
+            const fd = new FormData(); for(const k in data) fd.append(k, data[k]);
+            try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error'}; }
+        }
+
+        // TÌM KIẾM TIN NHẮN
+        function filterMessages() {
+            const query = document.getElementById('searchMsg').value.toLowerCase();
+            document.querySelectorAll('.msg-row').forEach(row => {
+                const title = row.querySelector('.msg-title').innerText.toLowerCase();
+                const sender = row.querySelector('.msg-sender').innerText.toLowerCase();
+                const content = row.querySelector('.msg-preview').innerText.toLowerCase();
+                
+                if (title.includes(query) || sender.includes(query) || content.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         function toggleMessage(id) {
@@ -81,18 +100,22 @@
                 preview.classList.remove('hidden');
             }
 
-            if (dot.classList.contains('bg-purple-600')) {
-                dot.classList.remove('bg-purple-600');
-                dot.classList.add('bg-slate-300');
-                item.classList.remove('bg-purple-50/40');
+            if (dot && !dot.classList.contains('hidden')) {
+                dot.classList.add('hidden');
+                
+                const avatarBox = item.querySelector('.bg-gradient-to-br');
+                if(avatarBox) {
+                    avatarBox.classList.remove('bg-gradient-to-br', 'from-purple-500', 'to-indigo-600', 'text-white', 'shadow-md');
+                    avatarBox.classList.add('bg-slate-200', 'text-slate-500');
+                }
+
+                item.classList.remove('bg-purple-50/30');
                 title.classList.remove('text-purple-700');
                 title.classList.add('text-slate-700');
                 
-                // Gọi API nhánh Master
                 postData('/master/api/doc-tin-nhan', { msg_id: id });
             }
         }
     </script>
-
     {{ template "footer_master" . }}
 {{ end }}
