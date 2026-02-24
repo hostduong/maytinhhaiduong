@@ -9,7 +9,7 @@
 
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
             
-            <div class="bg-amber-50/80 border border-amber-200 p-6 rounded-2xl flex items-start gap-5 mb-8">
+            <div id="boxWarning" class="bg-amber-50/80 border border-amber-200 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500">
                 <div class="bg-amber-100 p-3 rounded-full text-amber-600 shrink-0 shadow-inner">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
@@ -20,6 +20,16 @@
                         <li>Chỉ sử dụng khi bạn vừa can thiệp sửa/xóa dữ liệu trực tiếp trên file Excel.</li>
                         <li>Yêu cầu <b>Mã PIN Bảo mật 2 lớp</b> để thực thi.</li>
                     </ul>
+                </div>
+            </div>
+
+            <div id="boxSuccess" class="hidden bg-emerald-50 border border-emerald-200 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500">
+                <div class="bg-emerald-100 p-3 rounded-full text-emerald-600 shrink-0 shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-black text-emerald-900 text-lg mb-1 tracking-tight">Đồng bộ hoàn tất!</h3>
+                    <p class="text-sm text-emerald-800 leading-relaxed">Hệ thống đã nạp thành công dữ liệu mới nhất từ Google Sheets lên RAM. Nền tảng đang hoạt động với trạng thái tối ưu nhất.</p>
                 </div>
             </div>
 
@@ -43,25 +53,39 @@
             else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
+        // Kiểm tra xem có đang trong thời gian "Làm nguội" (Cooldown 60s) sau khi đồng bộ không
         function checkCooldown() {
             const btn = document.getElementById('btnActionReload');
             const txt = document.getElementById('txtCooldown');
+            const boxWarning = document.getElementById('boxWarning');
+            const boxSuccess = document.getElementById('boxSuccess');
+
             const last = localStorage.getItem('master_reload_time');
             if (last) {
                 const elapsed = Math.floor((Date.now() - parseInt(last)) / 1000);
                 if (elapsed < 60) {
+                    // Đang cooldown -> Hiện Box Thành Công, Khóa nút
+                    boxWarning.classList.add('hidden');
+                    boxSuccess.classList.remove('hidden');
+
                     btn.disabled = true;
                     btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+                    btn.classList.remove('hover:-translate-y-1', 'hover:bg-purple-700');
                     txt.classList.remove('hidden');
+                    
                     let timeLeft = 60 - elapsed;
                     const timer = setInterval(() => {
                         timeLeft--;
                         txt.innerText = `Vui lòng đợi ${timeLeft}s để thao tác tiếp`;
                         if (timeLeft <= 0) {
                             clearInterval(timer);
+                            // Hết cooldown -> Trả lại Box Cảnh Báo
                             btn.disabled = false;
                             btn.classList.remove('opacity-50', 'cursor-not-allowed', 'grayscale');
+                            btn.classList.add('hover:-translate-y-1', 'hover:bg-purple-700');
                             txt.classList.add('hidden');
+                            boxSuccess.classList.add('hidden');
+                            boxWarning.classList.remove('hidden');
                         }
                     }, 1000);
                     return true;
@@ -69,6 +93,8 @@
             }
             return false;
         }
+        
+        // Chạy ngay khi load trang
         checkCooldown();
 
         async function xacNhanDongBo() {
@@ -104,12 +130,15 @@
                 
                 const fd = new FormData(); fd.append('pin_xac_nhan', pinXacNhan);
                 try {
+                    // API chuẩn đã đổi tên
                     const r = await fetch('/master/api/dong-bo-sheets', {method: 'POST', body: fd});
                     const res = await r.json();
                     if (res.status === 'ok') {
+                        // Lưu thời gian để kích hoạt Cooldown
                         localStorage.setItem('master_reload_time', Date.now().toString());
-                        Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 1500, showConfirmButton: false});
-                        checkCooldown();
+                        Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 1000, showConfirmButton: false}).then(() => {
+                            location.reload(); // Tải lại trang sẽ tự động hiện Box Xanh nhờ checkCooldown()
+                        });
                     } else {
                         Swal.fire('Lỗi bảo mật', res.msg, 'error');
                     }
