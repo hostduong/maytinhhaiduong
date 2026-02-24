@@ -104,7 +104,7 @@
                 
                 const fd = new FormData(); fd.append('pin_xac_nhan', pinXacNhan);
                 try {
-                    const r = await fetch('/master/api/dong-bo', {method: 'POST', body: fd});
+                    const r = await fetch('/master/api/dong-bo-sheets', {method: 'POST', body: fd});
                     const res = await r.json();
                     if (res.status === 'ok') {
                         localStorage.setItem('master_reload_time', Date.now().toString());
