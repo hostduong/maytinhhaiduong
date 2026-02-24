@@ -102,7 +102,7 @@ func NapPhanQuyen(shopID string) {
 }
 
 func KiemTraQuyen(shopID string, vaiTro string, maChucNang string) bool {
-	if vaiTro == "quan_tri_vien_he_thong" { return true } 
+	if vaiTro == "quan_tri_he_thong" { return true } 
 
 	mtxQuyen.RLock()
 	defer mtxQuyen.RUnlock()
