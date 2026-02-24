@@ -79,32 +79,51 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	isTargetRoot := (maKH == "0000000000000000001")
-	isMeRoot := (userID == "0000000000000000001")
+	// ==============================================================
+	// [ĐẠI CÔNG TRÌNH BẢO MẬT]: MÔ HÌNH 2 TẦNG ROOT
+	// ==============================================================
+	isTargetRootLevel1 := (maKH == "0000000000000000001" || kh.VaiTroQuyenHan == "quan_tri_he_thong")
+	isMeRootLevel1 := (userID == "0000000000000000001" || myRole == "quan_tri_he_thong")
+	
+	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
+	isMeRootLevel2 := (myRole == "quan_tri_vien_he_thong")
+	
 	newRole := c.PostForm("vai_tro")
 
-	if isTargetRoot && !isMeRoot {
-		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Người sáng lập!"})
+	// Luật 1: Kẻ khác không được đụng vào Root Cấp 1
+	if isTargetRootLevel1 && !isMeRootLevel1 {
+		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Quản trị hệ thống (Người sáng lập)!"})
 		return
 	}
-	if isTargetRoot && isMeRoot && newRole != "" && newRole != "quan_tri_vien_he_thong" {
+
+	// Luật 2: Root Cấp 1 không được tự tước quyền của chính mình
+	if isTargetRootLevel1 && isMeRootLevel1 && newRole != "" && newRole != "quan_tri_he_thong" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn là Người sáng lập, không thể tự giáng chức chính mình!"})
 		return
 	}
-	if kh.VaiTroQuyenHan == "quan_tri_vien_he_thong" && !isMeRoot && userID != maKH {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có thẩm quyền chỉnh sửa một Quản trị viên hệ thống khác! Chỉ Người sáng lập mới làm được việc này."})
-		return
-	}
-	if newRole == "quan_tri_vien_he_thong" && !isMeRoot && kh.VaiTroQuyenHan != "quan_tri_vien_he_thong" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Người sáng lập mới có quyền bổ nhiệm Quản trị viên hệ thống!"})
+
+	// Luật 3: Root Cấp 2 không được phép sửa quyền của Root Cấp 2 khác (Chỉ Cấp 1 mới được quản lý Cấp 2)
+	if isTargetRootLevel2 && !isMeRootLevel1 && userID != maKH {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có thẩm quyền chỉnh sửa một Quản trị viên hệ thống khác! Chỉ Quản trị hệ thống (Cấp 1) mới làm được việc này."})
 		return
 	}
 
+	// Luật 4: Chỉ Root Cấp 1 mới được cấp quyền Cấp 1 hoặc Cấp 2 cho người khác
+	if (newRole == "quan_tri_he_thong" || newRole == "quan_tri_vien_he_thong") && !isMeRootLevel1 {
+		// Ngoại lệ: Nếu Root cấp 2 đang tự sửa Tên/SĐT của chính mình thì bỏ qua luật đổi Role này
+		if userID != maKH || (userID == maKH && kh.VaiTroQuyenHan != newRole) {
+			c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị hệ thống (Cấp 1) mới có quyền bổ nhiệm Quản trị viên hệ thống!"})
+			return
+		}
+	}
+
+	// Luật 5: Không ai được tự khóa chính mình
 	trangThaiMoi := c.PostForm("trang_thai")
 	if maKH == userID && trangThaiMoi == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
 		return
 	}
+	// ==============================================================
 
 	core.KhoaHeThong.Lock()
 	
