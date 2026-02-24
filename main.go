@@ -80,6 +80,15 @@ func main() {
 		master.POST("/api/ho-so", chuc_nang_master.API_LuuHoSoMaster)
 		master.POST("/api/change-pass", chuc_nang_master.API_DoiMatKhauMaster)
 		master.POST("/api/change-pin", chuc_nang_master.API_DoiMaPinMaster)
+
+		// 1. Route Quản lý Core Team
+		master.GET("/thanh-vien", chuc_nang_master.TrangQuanLyThanhVienMaster)
+		master.POST("/api/thanh-vien/save", chuc_nang_master.API_LuuThanhVienMaster)
+		master.POST("/api/thanh-vien/send-msg", chuc_nang_master.API_GuiTinNhanMaster)
+
+		// 2. Route Hộp thư
+		master.GET("/tin-nhan", chuc_nang_master.TrangTinNhanMaster)
+		master.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDocMaster)
 	}
 
 	// API Public
