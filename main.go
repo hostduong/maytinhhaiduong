@@ -68,6 +68,14 @@ func main() {
 		merchant.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDoc)
 	}
 
+	// Master Area (Quản trị hệ thống Lõi)
+	master := router.Group("/master")
+	master.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan)
+	{
+		master.GET("/tong-quan", chuc_nang_master.TrangTongQuanMaster)
+		master.GET("/api/reload", chuc_nang_master.API_NapLaiDuLieuMaster)
+	}
+
 	// API Public
 	api := router.Group("/api")
 	{
