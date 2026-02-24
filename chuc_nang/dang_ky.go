@@ -51,7 +51,6 @@ func XuLyDangKy(c *gin.Context) {
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
-	// [ĐÃ SỬA]: Kiểm tra bắt buộc nhập Số điện thoại
 	if dienThoai == "" || !cau_hinh.KiemTraHoTen(hoTen) || !cau_hinh.KiemTraTenDangNhap(user) || !cau_hinh.KiemTraEmail(email) || !cau_hinh.KiemTraMaPin(maPin) || !cau_hinh.KiemTraDinhDangMatKhau(pass) {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": "Dữ liệu nhập vào không hợp lệ!"})
 		return
@@ -94,7 +93,13 @@ func XuLyDangKy(c *gin.Context) {
 
 	passHash, _ := cau_hinh.HashMatKhau(pass)
 	pinHash, _ := cau_hinh.HashMatKhau(maPin)
-	nowStr := time.Now().Format("2006-01-02 15:04:05")
+	
+	// ========================================================
+	// [MỚI]: ÉP CỨNG LẤY GIỜ VIỆT NAM (UTC+7)
+	// ========================================================
+	loc := time.FixedZone("ICT", 7*3600) // Đảm bảo luôn lấy đúng giờ VN dù deploy ở Server nào
+	nowVN := time.Now().In(loc)
+	nowStr := nowVN.Format("2006-01-02 15:04:05")
 
 	newKH := &core.KhachHang{
 		SpreadsheetID:  shopID,
@@ -106,9 +111,9 @@ func XuLyDangKy(c *gin.Context) {
 		RefreshTokens:  make(map[string]core.TokenInfo), 
 		VaiTroQuyenHan: vaiTro,
 		ChucVu:         chucVu,
-		TrangThai:      1, // TẤT CẢ ĐỀU LÀ 1 (KÍCH HOẠT ĐỂ ĐĂNG NHẬP)
+		TrangThai:      1, 
 		DataSheets:     core.DataSheetInfo{},
-		GoiDichVu:      make([]core.PlanInfo, 0), // Mảng rỗng -> Sẽ hiện Banner cảnh báo
+		GoiDichVu:      make([]core.PlanInfo, 0), 
 		CauHinh:        core.UserConfig{ Theme: "light", Language: "vi" },
 		NguonKhachHang: "web_register",
 		TenKhachHang:   hoTen,
@@ -118,17 +123,14 @@ func XuLyDangKy(c *gin.Context) {
 		GioiTinh:       gioiTinh,
 		ViTien:         core.WalletInfo{ SoDuHienTai: 0 },
 		Inbox:          make([]core.MessageInfo, 0),
-		NgayTao:        nowStr,
+		NgayTao:        nowStr, // Ghi giờ VN
 		NguoiCapNhat:   user,
-		NgayCapNhat:    nowStr,
+		NgayCapNhat:    nowStr, // Ghi giờ VN
 	}
 
 	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
 	core.ThemKhachHangVaoRam(newKH)
 	
-	// ========================================================
-	// [ĐÃ SỬA]: GHI ĐẦY ĐỦ CÁC TRƯỜNG XUỐNG GOOGLE SHEET
-	// ========================================================
 	ghi := core.ThemVaoHangCho
 	sh := "KHACH_HANG"
 	r := newKH.DongTrongSheet
@@ -142,7 +144,6 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_ChucVu, newKH.ChucVu)
 	ghi(shopID, sh, r, core.CotKH_TrangThai, newKH.TrangThai)
 	
-	// Các trường được bổ sung
 	ghi(shopID, sh, r, core.CotKH_TenKhachHang, newKH.TenKhachHang)
 	ghi(shopID, sh, r, core.CotKH_DienThoai, newKH.DienThoai)
 	ghi(shopID, sh, r, core.CotKH_NgaySinh, newKH.NgaySinh)
@@ -152,18 +153,18 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
 
-	// CHẠY NGẦM GỬI OTP (Gửi thật qua Google Apps Script)
+	// CHẠY NGẦM GỬI OTP 
 	if theme == "theme_master" && vaiTro != "quan_tri_vien_he_thong" {
 		code := core.TaoMaOTP6So() 
-		core.LuuOTP(shopID + "_" + user, code) // Lưu vào RAM
-		// go core.GuiMailXacMinhAPI(email, code) // Chạy ngầm gửi Email thật để không block giao diện <--- TẮT DÒNG NÀY ĐI
+		core.LuuOTP(shopID + "_" + user, code) 
+		// go core.GuiMailXacMinhAPI(email, code) 
 	}
 
 	// TẠO COOKIE ĐĂNG NHẬP
 	sessionID := cau_hinh.TaoSessionIDAnToan()
 	userAgent := c.Request.UserAgent()
 	ttl := cau_hinh.ThoiGianHetHanCookie
-	expTime := time.Now().Add(ttl).Unix()
+	expTime := time.Now().Add(ttl).Unix() // Token Unix Time thì giữ nguyên (Nó là chuẩn Quốc tế)
 	
 	newKH.RefreshTokens[sessionID] = core.TokenInfo{ DeviceName: userAgent, ExpiresAt: expTime }
 	core.ThemVaoHangCho(shopID, sh, r, core.CotKH_RefreshTokenJson, core.ToJSON(newKH.RefreshTokens))
@@ -173,11 +174,10 @@ func XuLyDangKy(c *gin.Context) {
 	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
 	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
 
-	// ĐIỀU HƯỚNG MƯỢT MÀ
 	if vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
 		c.Redirect(http.StatusFound, "/admin/tong-quan")
 	} else if theme == "theme_master" {
-		c.Redirect(http.StatusFound, "/cua-hang") // CHƯA XÁC THỰC VẪN ĐÁ VÀO /CUA-HANG (SOFT GATE)
+		c.Redirect(http.StatusFound, "/cua-hang") 
 	} else {
 		c.Redirect(http.StatusFound, "/")
 	}
@@ -188,7 +188,7 @@ func XuLyDangKy(c *gin.Context) {
 // ==========================================================
 func API_XacThucKichHoat(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
-	userID := c.GetString("USER_ID") // Lấy từ Cookie đang đăng nhập
+	userID := c.GetString("USER_ID") 
 	otp := strings.TrimSpace(c.PostForm("otp"))
 
 	kh, ok := core.LayKhachHang(masterShopID, userID)
@@ -197,12 +197,16 @@ func API_XacThucKichHoat(c *gin.Context) {
 		return
 	}
 
+	// [MỚI]: Tính Ngày Hết Hạn Gói Dùng Thử theo Giờ Việt Nam
+	loc := time.FixedZone("ICT", 7*3600)
+	nowVN := time.Now().In(loc)
+
 	// 1. BƠM GÓI TRIAL VÀO TÀI KHOẢN
 	core.KhoaHeThong.Lock()
 	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
 		MaGoi:      "TRIAL_3DAYS",
 		TenGoi:     "Dùng thử 3 ngày",
-		NgayHetHan: time.Now().AddDate(0, 0, 3).Format("2006-01-02 15:04:05"),
+		NgayHetHan: nowVN.AddDate(0, 0, 3).Format("2006-01-02 15:04:05"), // Giờ VN + 3 Ngày
 		TrangThai:  "active",
 	})
 	core.KhoaHeThong.Unlock()
