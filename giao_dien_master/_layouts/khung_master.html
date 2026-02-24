@@ -3,25 +3,41 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ .TieuDe }} - Master 99K</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        
+        /* Tối ưu thanh cuộn mượt mà */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Chống lỗi giật màn hình của SweetAlert */
+        body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+            padding-right: 0 !important;
+        }
+
         .swal2-pin-input:focus { border-color: #9333ea !important; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1) !important; background-color: white !important;}
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-slate-800">
+<body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
 
-    <aside class="w-64 bg-slate-950 text-slate-300 flex-col hidden md:flex shrink-0 shadow-2xl z-20 transition-all border-r border-slate-800 relative">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 md:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="masterSidebar" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-950 text-slate-300 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:flex shrink-0 transition-transform duration-300 ease-in-out border-r border-slate-800 shadow-2xl md:shadow-none">
+        
         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10">
+        
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
             <a href="/master/tong-quan" class="text-xl font-black text-white tracking-widest flex items-center gap-3 group">
                 <div class="w-9 h-9 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-900/50 group-hover:scale-105 transition transform">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -30,70 +46,134 @@
             </a>
         </div>
         
-        <nav class="flex-1 overflow-y-auto py-8 px-4 space-y-1.5 relative z-10">
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 relative z-10 custom-scroll">
             <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
 
-            <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">📊</span> Tổng quan
             </a>
             
-            <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS
             </a>
 
-            <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ
             </a>
 
-            <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Hộp thư Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-3 rounded-xl transition {{if eq .TieuDe "Hộp thư hệ thống"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <div class="flex items-center gap-3">
                     <span class="text-lg w-6 text-center">💬</span> Hộp thư
                 </div>
+                {{ if gt .SoTinChuaDoc 0 }}
+                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>
+                {{ end }}
             </a>
 
             <p class="text-[10px] font-black text-slate-500 px-3 mt-8 mb-3 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
 
-            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Core Team"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Core Team (Admin)"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">🛡️</span> Core Team
             </a>
 
-            <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Đồng Bộ Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Đồng Bộ Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">🔄</span> Đồng bộ Data
             </a>
 
-            <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Hồ sơ cá nhân"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-3 rounded-xl transition {{if eq .TieuDe "Hồ sơ cá nhân"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">👤</span> Hồ sơ của tôi
             </a>
         </nav>
 
-        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10">
-            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ .NhanVien.TenDangNhap }}" class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600"> 
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10 shrink-0">
+            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+                
+                {{ $avatar := .NhanVien.AnhDaiDien }}
+                {{ if not $avatar }}
+                    {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}
+                {{ end }}
+                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
+                
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
-                    <p class="text-[9px] text-purple-400 font-black uppercase tracking-widest truncate">{{ .QuyenHan }}</p>
+                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
                 </div>
             </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 rounded-xl hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-transparent hover:border-red-500/20">
+
+            <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 Đăng xuất
-            </a>
+            </button>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header class="h-20 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 md:px-10 shrink-0 shadow-sm z-10">
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50">
+        
+        <header class="h-16 md:h-20 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 shadow-sm z-10">
             <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
                 <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight truncate">{{ .TieuDe }}</h2>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <a href="/" target="_blank" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    Xem Cửa Hàng
+                </a>
             </div>
         </header>
         
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scroll">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll relative">
 {{ end }}
 
 {{ define "footer_master" }}
         </main>
     </div>
+
+    <script>
+        // Điều khiển Sidebar Mobile
+        const sidebar = document.getElementById('masterSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // Chống cuộn nền khi mở menu
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        // Xác nhận Đăng xuất bằng SweetAlert
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Đăng xuất khỏi hệ thống?',
+                text: "Phiên làm việc hiện tại của bạn sẽ bị hủy.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Đăng xuất ngay',
+                cancelButtonText: 'Trở lại',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Đang đăng xuất...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                    window.location.href = '/logout';
+                }
+            });
+        }
+    </script>
 </body>
 </html>
 {{ end }}
