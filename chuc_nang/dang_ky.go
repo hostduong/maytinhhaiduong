@@ -72,12 +72,13 @@ func XuLyDangKy(c *gin.Context) {
 	if theme == "theme_master" {
 		if soLuong == 0 {
 			maKH = "0000000000000000001"
-			vaiTro = "quan_tri_vien_he_thong" 
+			// [ĐÃ SỬA]: Người đầu tiên của hệ thống sẽ là Cấp 1 tối cao
+			vaiTro = "quan_tri_he_thong" 
 			chucVu = "Quản trị hệ thống"
 		} else {
 			maKH = core.TaoMaKhachHangMoi(shopID)
 			vaiTro = "khach_hang" 
-			chucVu = "Chủ cửa hàng"
+			chucVu = "Khách hàng" // Đổi lại thành Khách hàng cho chuẩn luồng SaaS
 		}
 	} else {
 		if soLuong == 0 {
