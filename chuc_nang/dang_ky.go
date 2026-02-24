@@ -175,7 +175,7 @@ func XuLyDangKy(c *gin.Context) {
 	c.SetCookie("session_id", sessionID, maxAge, "/", "", false, true)
 	c.SetCookie("session_sign", signature, maxAge, "/", "", false, true)
 
-	if vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
+	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
 		c.Redirect(http.StatusFound, "/admin/tong-quan")
 	} else if theme == "theme_master" {
 		c.Redirect(http.StatusFound, "/cua-hang") 
