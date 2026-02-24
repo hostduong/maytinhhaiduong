@@ -19,7 +19,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// [ĐÃ SỬA QUAN TRỌNG]: Bổ sung giao_dien_master/*/*.html để nạp được thư mục _layouts
 //go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_admin/*.html giao_dien_admin/*/*.html giao_dien_master/*.html giao_dien_master/*/*.html
 var f embed.FS
 
@@ -42,10 +41,8 @@ func main() {
 
 	funcMap := chuc_nang.LayBoHamHTML()
 
-	// [ĐÃ SỬA QUAN TRỌNG]: Bổ sung giao_dien_master/*/*.html vào hàm ParseFS
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html", "giao_dien_admin/*.html", "giao_dien_admin/*/*.html", "giao_dien_master/*.html", "giao_dien_master/*/*.html"))
 	router.SetHTMLTemplate(templ)
-
 
 	// --- ĐỊNH NGHĨA ROUTER ---
 	// Public & Auth
@@ -56,20 +53,13 @@ func main() {
 	router.GET("/register", chuc_nang.TrangDangKy)
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
-	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) // <-- Đã thêm dấu đóng ngoặc
+	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) 
 	
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
-	// --- [MỚI] CỔNG MERCHANT PORTAL (QUẢN LÝ HẠ TẦNG CỬA HÀNG) ---
-	merchant := router.Group("/cua-hang")
-	merchant.Use(chuc_nang.KiemTraDangNhap)
-	{
-		merchant.GET("/", chuc_nang_master.TrangQuanLyCuaHang)
-		merchant.POST("/api/cap-nhat-id", chuc_nang_master.API_CapNhatHaTang)
-		merchant.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDoc)
-	}
+	// [ĐÃ XÓA BỎ BLOCK ROUTER /cua-hang CŨ Ở ĐÂY]
 
-// Master Area (Quản trị hệ thống Lõi)
+	// Master Area (Quản trị hệ thống Lõi)
 	master := router.Group("/master")
 	master.Use(chuc_nang.KiemTraDangNhap, chuc_nang.KiemTraQuyenHan)
 	{
@@ -103,7 +93,7 @@ func main() {
 		api.POST("/auth/reset-by-otp", chuc_nang.XuLyQuenPassBangOTP)
 	}
 
-// API User
+	// API User
 	userApi := router.Group("/api/user")
 	userApi.Use(chuc_nang.KiemTraDangNhap)
 	{
@@ -111,7 +101,7 @@ func main() {
 		userApi.POST("/change-pass", chuc_nang.API_DoiMatKhau)
 		userApi.POST("/change-pin", chuc_nang.API_DoiMaPin)
 		userApi.POST("/send-otp-pin", chuc_nang.API_GuiOTPPin)
-		userApi.POST("/verify-softgate", chuc_nang.API_XacThucKichHoat) // <--- THÊM DÒNG NÀY
+		userApi.POST("/verify-softgate", chuc_nang.API_XacThucKichHoat) 
 	}
 
 	// Admin Area (Dùng chung)
