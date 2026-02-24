@@ -26,7 +26,8 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
-			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị hệ thống"},
+			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Quản trị hệ thống"},
+			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống"},
 			{MaVaiTro: "quan_tri_vien", TenVaiTro: "Quản trị viên"},
 			{MaVaiTro: "khach_hang", TenVaiTro: "Khách hàng"},
 		}
@@ -45,7 +46,7 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	userID := c.GetString("USER_ID") 
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
+	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
 		return
 	}
@@ -86,7 +87,7 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	isMeRootLevel1 := (userID == "0000000000000000001" || myRole == "quan_tri_he_thong")
 	
 	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
-	isMeRootLevel2 := (myRole == "quan_tri_vien_he_thong")
+	// ĐÃ XÓA BIẾN THỪA isMeRootLevel2 ĐỂ SỬA LỖI GOLANG BUILD
 	
 	newRole := c.PostForm("vai_tro")
 
@@ -150,7 +151,6 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	kh.MaSoThue = strings.TrimSpace(c.PostForm("ma_so_thue"))
 	kh.GhiChu = strings.TrimSpace(c.PostForm("ghi_chu"))
 	
-	// [MỚI] Cập nhật Ảnh và Nguồn
 	kh.AnhDaiDien = strings.TrimSpace(c.PostForm("anh_dai_dien"))
 	kh.NguonKhachHang = strings.TrimSpace(c.PostForm("nguon_khach_hang"))
 	
@@ -177,7 +177,8 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
 	}
 
-	kh.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
+	loc := time.FixedZone("ICT", 7*3600)
+	kh.NgayCapNhat = time.Now().In(loc).Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
 	ghi := core.ThemVaoHangCho
@@ -194,8 +195,8 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_TrangThai, kh.TrangThai)
 	ghi(shopID, sh, r, core.CotKH_VaiTroQuyenHan, kh.VaiTroQuyenHan)
 	ghi(shopID, sh, r, core.CotKH_ChucVu, kh.ChucVu)
-	ghi(shopID, sh, r, core.CotKH_AnhDaiDien, kh.AnhDaiDien)         // Ghi Ảnh
-	ghi(shopID, sh, r, core.CotKH_NguonKhachHang, kh.NguonKhachHang) // Ghi Nguồn
+	ghi(shopID, sh, r, core.CotKH_AnhDaiDien, kh.AnhDaiDien)         
+	ghi(shopID, sh, r, core.CotKH_NguonKhachHang, kh.NguonKhachHang) 
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 	
 	jsonMXH := core.ToJSON(kh.MangXaHoi)
@@ -209,7 +210,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
+	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
@@ -229,14 +230,14 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 		return
 	}
 
-	// [MỚI] Lấy thông tin người gửi
 	sender, _ := core.LayKhachHang(shopID, userID)
 	chucVuNguoiGui := "Hệ Thống"
 	if sender != nil && sender.ChucVu != "" {
 		chucVuNguoiGui = sender.ChucVu
 	}
 
-	nowStr := time.Now().Format("2006-01-02 15:04:05")
+	loc := time.FixedZone("ICT", 7*3600)
+	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 	msgID := fmt.Sprintf("MSG_%d", time.Now().Unix()) 
 
 	count := 0
@@ -249,8 +250,8 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 				NoiDung:        noiDung,
 				DaDoc:          false,
 				NgayTao:        nowStr,
-				NguoiGuiID:     userID,         // Lưu ID
-				NguoiGuiChucVu: chucVuNguoiGui, // Lưu Chức vụ
+				NguoiGuiID:     userID,         
+				NguoiGuiChucVu: chucVuNguoiGui, 
 			}
 			kh.Inbox = append(kh.Inbox, newMsg)
 			
