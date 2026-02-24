@@ -316,27 +316,37 @@
             let roleSelect = document.getElementById('f_role');
             let statusSelect = document.getElementById('f_status');
 
+            // --- XỬ LÝ DROPDOWN QUYỀN HẠN 2 TẦNG ---
+            // isMeRoot là biến kiểm tra xem User hiện tại có phải là Cấp 1 (000...1) hay không
             Array.from(roleSelect.options).forEach(opt => {
-                if (opt.value === "quan_tri_vien_he_thong") {
+                // Mặc định mở khóa tất cả các quyền cấp thấp
+                opt.disabled = false;
+                
+                // Khóa 2 quyền Cấp cao nhất nếu người dùng hiện tại không phải Cấp 1
+                if (opt.value === "quan_tri_he_thong" || opt.value === "quan_tri_vien_he_thong") {
                     opt.disabled = !isMeRoot; 
                 }
             });
 
             roleSelect.value = data.role;
             statusSelect.value = data.status;
-
-            roleSelect.disabled = false;
             statusSelect.disabled = false;
 
-            if (isTargetRoot) {
-                roleSelect.disabled = true; 
-                if (!isMeRoot) statusSelect.disabled = true; 
-            } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
-                roleSelect.disabled = true; 
+            // --- LUẬT BẢO VỆ GIAO DIỆN (UI LOCK) ---
+            const isTargetRootL1 = (ma === "0000000000000000001" || data.role === "quan_tri_he_thong");
+            const isTargetRootL2 = (data.role === "quan_tri_vien_he_thong");
+
+            if (isTargetRootL1) {
+                // Đang xem hồ sơ Cấp 1
+                roleSelect.disabled = true; // Không ai (kể cả chính nó) được đổi thẻ select này
+                if (!isMeRoot) statusSelect.disabled = true; // Không phải Cấp 1 thì cấm đụng vào nút Khóa
+            } else if (isTargetRootL2 && !isMeRoot) {
+                // Đang xem hồ sơ Cấp 2, mà tôi lại không phải Cấp 1
+                roleSelect.disabled = true; // Cấm Cấp 2 tự bóp méo quyền của nhau
             }
 
             if (ma === currentUserID) {
-                statusSelect.disabled = true; 
+                statusSelect.disabled = true; // Không ai được tự khóa chính mình
             }
 
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
