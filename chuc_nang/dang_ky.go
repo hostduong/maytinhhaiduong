@@ -72,13 +72,12 @@ func XuLyDangKy(c *gin.Context) {
 	if theme == "theme_master" {
 		if soLuong == 0 {
 			maKH = "0000000000000000001"
-			// [ĐÃ SỬA]: Người đầu tiên của hệ thống sẽ là Cấp 1 tối cao
 			vaiTro = "quan_tri_he_thong" 
 			chucVu = "Quản trị hệ thống"
 		} else {
 			maKH = core.TaoMaKhachHangMoi(shopID)
 			vaiTro = "khach_hang" 
-			chucVu = "Khách hàng" // Đổi lại thành Khách hàng cho chuẩn luồng SaaS
+			chucVu = "Khách hàng" 
 		}
 	} else {
 		if soLuong == 0 {
@@ -95,10 +94,7 @@ func XuLyDangKy(c *gin.Context) {
 	passHash, _ := cau_hinh.HashMatKhau(pass)
 	pinHash, _ := cau_hinh.HashMatKhau(maPin)
 	
-	// ========================================================
-	// [MỚI]: ÉP CỨNG LẤY GIỜ VIỆT NAM (UTC+7)
-	// ========================================================
-	loc := time.FixedZone("ICT", 7*3600) // Đảm bảo luôn lấy đúng giờ VN dù deploy ở Server nào
+	loc := time.FixedZone("ICT", 7*3600) 
 	nowVN := time.Now().In(loc)
 	nowStr := nowVN.Format("2006-01-02 15:04:05")
 
@@ -123,10 +119,13 @@ func XuLyDangKy(c *gin.Context) {
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
 		ViTien:         core.WalletInfo{ SoDuHienTai: 0 },
-		Inbox:          make([]core.MessageInfo, 0),
-		NgayTao:        nowStr, // Ghi giờ VN
+		
+		// [ĐÃ SỬA CHỮA LỖI Ở ĐÂY]: Khởi tạo bằng struct TinNhan mới
+		Inbox:          make([]*core.TinNhan, 0), 
+		
+		NgayTao:        nowStr, 
 		NguoiCapNhat:   user,
-		NgayCapNhat:    nowStr, // Ghi giờ VN
+		NgayCapNhat:    nowStr, 
 	}
 
 	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
@@ -155,7 +154,7 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
 
 	// CHẠY NGẦM GỬI OTP 
-	if theme == "theme_master" && vaiTro != "quan_tri_vien_he_thong" {
+	if theme == "theme_master" && vaiTro != "quan_tri_he_thong" {
 		code := core.TaoMaOTP6So() 
 		core.LuuOTP(shopID + "_" + user, code) 
 		// go core.GuiMailXacMinhAPI(email, code) 
@@ -165,7 +164,7 @@ func XuLyDangKy(c *gin.Context) {
 	sessionID := cau_hinh.TaoSessionIDAnToan()
 	userAgent := c.Request.UserAgent()
 	ttl := cau_hinh.ThoiGianHetHanCookie
-	expTime := time.Now().Add(ttl).Unix() // Token Unix Time thì giữ nguyên (Nó là chuẩn Quốc tế)
+	expTime := time.Now().Add(ttl).Unix() 
 	
 	newKH.RefreshTokens[sessionID] = core.TokenInfo{ DeviceName: userAgent, ExpiresAt: expTime }
 	core.ThemVaoHangCho(shopID, sh, r, core.CotKH_RefreshTokenJson, core.ToJSON(newKH.RefreshTokens))
@@ -198,7 +197,6 @@ func API_XacThucKichHoat(c *gin.Context) {
 		return
 	}
 
-	// [MỚI]: Tính Ngày Hết Hạn Gói Dùng Thử theo Giờ Việt Nam
 	loc := time.FixedZone("ICT", 7*3600)
 	nowVN := time.Now().In(loc)
 
@@ -207,7 +205,7 @@ func API_XacThucKichHoat(c *gin.Context) {
 	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
 		MaGoi:      "TRIAL_3DAYS",
 		TenGoi:     "Dùng thử 3 ngày",
-		NgayHetHan: nowVN.AddDate(0, 0, 3).Format("2006-01-02 15:04:05"), // Giờ VN + 3 Ngày
+		NgayHetHan: nowVN.AddDate(0, 0, 3).Format("2006-01-02 15:04:05"), 
 		TrangThai:  "active",
 	})
 	core.KhoaHeThong.Unlock()
