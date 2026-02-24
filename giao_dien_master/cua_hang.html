@@ -331,29 +331,34 @@
                         {{ else }}
                             <div class="flex flex-col-reverse divide-y divide-y-reverse divide-slate-100">
                                 {{ range .ChuShop.Inbox }}
-                                <div id="msg_item_{{ .ID }}" class="p-4 sm:p-5 hover:bg-slate-50 transition cursor-pointer flex gap-4 {{ if not .DaDoc }}bg-blue-50/40{{ end }}" onclick="toggleMessage('{{ .ID }}')">
-                                    <div class="mt-1">
-                                        <div id="msg_dot_{{ .ID }}" class="w-2.5 h-2.5 rounded-full {{ if not .DaDoc }}bg-blue-600{{ else }}bg-transparent{{ end }}"></div>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
-                                            <div class="flex items-center gap-2">
-                                                <h4 id="msg_title_{{ .ID }}" class="text-sm font-semibold {{ if not .DaDoc }}text-slate-900{{ else }}text-slate-600{{ end }}">{{ .TieuDe }}</h4>
-                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border border-slate-200 flex items-center gap-1">
-                                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                                    {{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Hệ Thống{{ end }}
-                                                </span>
-                                            </div>
-                                            <span class="text-[11px] text-slate-400 font-medium whitespace-nowrap bg-slate-50 px-2 py-1 rounded">{{ .NgayTao }}</span>
+                                <div id="msg_item_{{ .ID }}" class="p-4 sm:p-5 hover:bg-slate-50 transition cursor-pointer flex gap-3 sm:gap-4 {{ if not .DaDoc }}bg-blue-50/40{{ end }}" onclick="toggleMessage('{{ .ID }}')">
+                                    
+                                    <div class="mt-1 flex-shrink-0">
+                                        <div id="msg_dot_{{ .ID }}" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm transition-colors {{ if not .DaDoc }}bg-blue-600{{ else }}bg-slate-300{{ end }}">
+                                            {{ if .NguoiGuiTen }}{{ printf "%.1s" .NguoiGuiTen }}{{ else }}99{{ end }}
                                         </div>
-                                        <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .ID }}">{{ .NoiDung }}</div>
-                                        <div class="text-sm text-slate-700 mt-3 hidden whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" id="msg_full_{{ .ID }}">
-                                            {{ .NoiDung }}
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center flex-wrap gap-1.5 mb-1.5">
+                                            <span class="font-bold text-slate-800 text-[13px] sm:text-sm truncate">{{ if .NguoiGuiTen }}{{ .NguoiGuiTen }}{{ else }}Hệ Thống{{ end }}</span>
+                                            <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-medium">{{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Tự động{{ end }}</span>
+                                            
                                             {{ if eq $.ChuShop.MaKhachHang "0000000000000000001" }}
-                                                <div class="mt-4 pt-3 border-t border-slate-200 text-[10px] text-red-500 font-mono font-bold uppercase">
-                                                    Dữ liệu mã nguồn (ROOT): Sender ID = {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}NULL{{ end }}
-                                                </div>
+                                                <span class="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
                                             {{ end }}
+                                            
+                                            <span class="text-[11px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
+                                        </div>
+                                        
+                                        <h4 id="msg_title_{{ .ID }}" class="text-sm font-bold {{ if not .DaDoc }}text-blue-700{{ else }}text-slate-700{{ end }} mb-1 transition-colors">{{ .TieuDe }}</h4>
+                                        
+                                        <div class="text-sm text-slate-500 line-clamp-1" id="msg_preview_{{ .ID }}">{{ .NoiDung }}</div>
+                                        
+                                        <div class="hidden mt-2.5" id="msg_full_{{ .ID }}">
+                                            <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-white shadow-sm p-4 rounded-2xl rounded-tl-sm border border-slate-200 relative">
+                                                {{ .NoiDung }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
