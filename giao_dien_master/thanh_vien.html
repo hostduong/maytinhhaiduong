@@ -1,0 +1,400 @@
+{{ define "master_thanh_vien" }}
+    {{ template "header_master" . }}
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+
+    <style>
+        .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; padding: 0.5rem 0.75rem; transition: 0.2s; outline: none; }
+        .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.1); background-color: #fff; }
+        .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
+        label.form-lbl { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 0.35rem; display: block; }
+        .iti { width: 100%; } 
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .swal2-pin-input:focus { border-color: #9333ea !important; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1) !important; background-color: white !important;}
+    </style>
+
+    <div class="max-w-7xl mx-auto mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">🛡️ Quản Lý Core Team</h1>
+            <div class="flex gap-2">
+                <button onclick="openMessageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center gap-2 transition transform hover:-translate-y-0.5 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Gửi Thông Báo (<span id="countSelected">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[800px]">
+                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
+                            <th class="px-6 py-4 font-bold tracking-wider">Thành Viên Master</th>
+                            <th class="px-6 py-4 font-bold tracking-wider">Liên hệ</th>
+                            <th class="px-6 py-4 font-bold tracking-wider">Chức Vụ</th>
+                            <th class="px-6 py-4 font-bold text-center tracking-wider">Trạng Thái</th>
+                            <th class="px-6 py-4 font-bold text-center tracking-wider w-28">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {{ range .DanhSach }}
+                        <tr class="bg-white hover:bg-slate-50 transition group">
+                            <td class="px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-800 text-base group-hover:text-purple-600 transition">{{ .TenKhachHang }}</div>
+                                <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
+                                <div class="text-[11px] text-purple-500 font-medium">User: {{ .TenDangNhap }}</div>
+                                <div class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">Tham gia: {{ .NgayTao }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-xs space-y-1">
+                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-medium text-slate-700">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
+                                <div class="flex items-center gap-1.5"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-medium text-slate-700">{{ .Email }}</span>{{ else }}---{{ end }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
+                                    <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
+                                {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
+                                    <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
+                                {{ else }}
+                                    <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 uppercase">{{ .ChucVu }}</span>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                {{ if eq .TrangThai 1 }}
+                                    <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Mở</span>
+                                {{ else }}
+                                    <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Khóa</span>
+                                {{ end }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 hover:border-purple-600 active:scale-95">Quản lý</button>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="data_members" class="hidden">
+        {{ range .DanhSach }}
+        <div class="m-data" 
+            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" 
+            data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
+            data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
+            data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
+            data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
+            data-note="{{ .GhiChu }}" data-avatar="{{ .AnhDaiDien }}" data-source="{{ .NguonKhachHang }}">
+        </div>
+        <div id="inbox_data_{{ .MaKhachHang }}">
+            {{ if eq (len .Inbox) 0 }}
+                <div class="text-sm text-slate-400 italic text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200">Chưa có thông báo nào được gửi đến thành viên này.</div>
+            {{ else }}
+                <div class="flex flex-col-reverse gap-4"> 
+                    {{ range .Inbox }}
+                    <div class="p-4 bg-white rounded-xl border {{ if not .DaDoc }}border-purple-300 shadow-md{{ else }}border-slate-200 shadow-sm{{ end }} relative overflow-hidden transition flex gap-3">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-purple-500{{ else }}bg-slate-300{{ end }}"></div>
+                        
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 {{ if not .DaDoc }}bg-purple-500{{ else }}bg-slate-300{{ end }}">
+                            {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center flex-wrap gap-1.5 mb-1">
+                                <span class="font-bold text-slate-800 text-xs">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
+                                <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
+                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
+                                    <span class="text-[9px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
+                                {{ end }}
+                                <span class="text-[10px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
+                            </div>
+
+                            <h5 class="font-bold {{ if not .DaDoc }}text-purple-700{{ else }}text-slate-700{{ end }} text-sm mb-1.5">{{ .TieuDe }}</h5>
+                            
+                            <div class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed bg-slate-50 p-3 rounded-2xl rounded-tl-sm border border-slate-100">
+                                {{ .NoiDung }}
+                            </div>
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh]">
+            <div class="px-6 py-5 border-b flex justify-between items-center bg-white rounded-t-3xl shrink-0">
+                <h3 class="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-3" id="modalTitle">
+                    <span class="bg-purple-100 p-2 rounded-xl text-purple-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></span>
+                    Hồ Sơ & Phân Quyền
+                </h3>
+                <button onclick="closeModal('modalEdit')" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 sm:p-8 overflow-y-auto bg-slate-50/50 custom-scroll">
+                <form id="formEdit" class="space-y-8" autocomplete="off" spellcheck="false">
+                    <input type="hidden" name="ma_khach_hang" id="f_ma">
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+                                <h4 class="font-black text-purple-600 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Thông tin cơ bản</h4>
+                                <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
+                                <div><label class="form-lbl">Link Ảnh đại diện</label><input type="url" name="anh_dai_dien" id="f_avatar" class="input-premium" placeholder="https://..."></div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
+                                    <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-5">
+                                    <div><label class="form-lbl">Giới tính</label><select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select></div>
+                                    <div><label class="form-lbl">Mã số thuế</label><input type="text" name="ma_so_thue" id="f_tax" class="input-premium"></div>
+                                </div>
+                                <div><label class="form-lbl">Địa chỉ</label><input type="text" name="dia_chi" id="f_address" class="input-premium" placeholder="Số nhà, đường, phường xã..."></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-purple-200 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-purple-100 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                                <h4 class="font-black text-purple-700 border-b border-purple-100 pb-3 uppercase tracking-wider text-sm flex items-center gap-2 mb-5 relative z-10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hệ thống & Quyền hạn</h4>
+                                <div class="space-y-5 relative z-10">
+                                    <div>
+                                        <label class="form-lbl text-purple-900">Vai trò / Phân quyền <span class="text-red-500">*</span></label>
+                                        <select name="vai_tro" id="f_role" class="input-premium bg-purple-50 border-purple-200 text-purple-900 font-bold focus:ring-purple-500 cursor-pointer" required>
+                                            {{ range .DanhSachVaiTro }}
+                                                <option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>
+                                            {{ end }}
+                                        </select>
+                                    </div>
+                                    <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ tự động lấy theo Vai trò..."></div>
+                                    <div class="pt-2">
+                                        <label class="form-lbl">Trạng thái tài khoản</label>
+                                        <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer"><option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option><option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+                                <h4 class="font-black text-slate-700 border-b pb-3 uppercase tracking-wider text-sm flex items-center gap-2"><svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="form-lbl">Mật khẩu mới</label>
+                                        <div class="relative">
+                                            <input type="password" name="mat_khau_moi" id="f_pass" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono pr-10" placeholder="Để trống nếu không đổi...">
+                                            <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600"><svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-lbl">Mã PIN mới (8 số)</label>
+                                        <div class="relative">
+                                            <input type="password" name="pin_moi" id="f_pin" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono tracking-widest pr-10" placeholder="Để trống nếu không đổi...">
+                                            <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600"><svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 border-t pt-6 mt-2">
+                            <h4 class="font-black text-slate-700 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm"><svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg> Lịch sử thông báo đã nhận</h4>
+                            <div id="inbox_render_container" class="max-h-64 overflow-y-auto pr-2 bg-slate-100/50 p-4 rounded-2xl border border-slate-100 custom-scroll"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="px-6 sm:px-8 py-5 border-t bg-white rounded-b-3xl flex justify-end gap-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 relative">
+                <button onclick="closeModal('modalEdit')" class="px-6 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng</button>
+                <button onclick="saveMember()" id="btnSaveMem" class="px-8 py-2.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform transition-all">
+            <div class="px-6 py-5 border-b flex justify-between items-center bg-purple-600 rounded-t-3xl">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
+                <button onclick="closeModal('modalMsg')" class="w-8 h-8 flex items-center justify-center rounded-full bg-purple-500/50 text-white hover:bg-red-500 transition text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 sm:p-8 space-y-5">
+                <div class="bg-purple-50 text-purple-700 p-4 rounded-xl text-sm font-medium border border-purple-100 flex items-center justify-between"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-purple-700 text-xl bg-purple-200 px-3 py-1 rounded-lg">0</span></div>
+                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo..." required></div>
+                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium" placeholder="Nhập nội dung..." required></textarea></div>
+            </div>
+            <div class="px-6 py-5 border-t bg-slate-50 rounded-b-3xl flex justify-end gap-3">
+                <button onclick="closeModal('modalMsg')" class="px-6 py-2.5 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl font-bold transition">Hủy</button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="px-8 py-2.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md transition transform active:scale-95 flex items-center gap-2">Phát sóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currentUserID = "{{ .NhanVien.MaKhachHang }}"; 
+        const isMeRoot = (currentUserID === "0000000000000000001");
+        let itiPhone;
+
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id);
+            const eyeOpen = document.getElementById('eye_open_' + id);
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        }
+
+        window.toggleSwalPin = function() {
+            const input = document.getElementById('swal-pin-input');
+            const eyeSlash = document.getElementById('eye_slash_swal');
+            const eyeOpen = document.getElementById('eye_open_swal');
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        };
+
+        const mapData = {};
+        document.querySelectorAll('.m-data').forEach(el => {
+            let id = el.getAttribute('data-id');
+            mapData[id] = {
+                ten: el.getAttribute('data-name'), role: el.getAttribute('data-role'), title: el.getAttribute('data-title'),
+                sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
+                address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
+                zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note'),
+                avatar: el.getAttribute('data-avatar'), source: el.getAttribute('data-source')
+            };
+        });
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function editMember(ma) {
+            let data = mapData[ma]; if(!data) return;
+            document.getElementById('formEdit').reset();
+            
+            document.getElementById('f_pass').setAttribute('readonly', 'true');
+            document.getElementById('f_pin').setAttribute('readonly', 'true');
+            
+            const inputPhone = document.querySelector("#f_sdt_fake"); 
+            if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+            
+            document.getElementById('f_ma').value = ma; document.getElementById('f_ten').value = data.ten;
+            itiPhone.setNumber(data.sdt || ""); 
+            document.getElementById('f_dob').value = data.dob; document.getElementById('f_gender').value = data.gender;
+            document.getElementById('f_tax').value = data.tax; document.getElementById('f_address').value = data.address;
+            document.getElementById('f_title').value = data.title;
+            document.getElementById('f_avatar').value = data.avatar; 
+
+            const isTargetRoot = (ma === "0000000000000000001");
+            let roleSelect = document.getElementById('f_role');
+            let statusSelect = document.getElementById('f_status');
+
+            Array.from(roleSelect.options).forEach(opt => {
+                if (opt.value === "quan_tri_he_thong" || opt.value === "quan_tri_vien_he_thong") {
+                    opt.disabled = !isMeRoot; 
+                } else {
+                    opt.disabled = false;
+                }
+            });
+
+            roleSelect.value = data.role;
+            statusSelect.value = data.status;
+
+            roleSelect.disabled = false;
+            statusSelect.disabled = false;
+
+            if (isTargetRoot) {
+                roleSelect.disabled = true; 
+                if (!isMeRoot) statusSelect.disabled = true; 
+            } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
+                roleSelect.disabled = true; 
+            }
+
+            if (ma === currentUserID) {
+                statusSelect.disabled = true; 
+            }
+
+            let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
+            document.getElementById('inbox_render_container').innerHTML = inboxHtml;
+            document.getElementById('modalEdit').classList.remove('hidden');
+        }
+
+        async function saveMember() {
+            const { value: pinXacNhan } = await Swal.fire({
+                title: 'Bảo mật 2 lớp',
+                html: `
+                    <div class="text-sm text-slate-600 mb-5">Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận.</div>
+                    <div class="relative w-4/5 mx-auto">
+                        <input type="password" id="swal-pin-input" class="swal2-pin-input w-full box-border bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-center tracking-[0.5em] font-bold text-xl outline-none transition" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-purple-600">
+                            <svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#9333ea',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+                didOpen: () => {
+                    setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100);
+                },
+                preConfirm: () => {
+                    const val = document.getElementById('swal-pin-input').value;
+                    if (!val) { Swal.showValidationMessage('Bạn cần nhập mã PIN!'); return false; }
+                    return val;
+                }
+            });
+
+            if (!pinXacNhan) { return; }
+
+            const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'Đang kiểm tra...';
+            
+            const fd = new FormData(document.getElementById('formEdit'));
+            fd.append('pin_xac_nhan', pinXacNhan);
+            if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
+            
+            if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
+            if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
+
+            try {
+                // [API CỦA MASTER]
+                const res = await fetch('/master/api/thanh-vien/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
+                else Swal.fire('Lỗi bảo mật', data.msg, 'error'); 
+            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = old; }
+        }
+
+        function getSelectedIDs() { let ids = []; document.querySelectorAll('.chk-member:checked').forEach(cb => ids.push(cb.value)); return ids; }
+        function toggleAllCheckboxes() { let isChecked = document.getElementById('checkAll').checked; document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked); updateCount(); }
+        function updateCount() { let count = document.querySelectorAll('.chk-member:checked').length; document.getElementById('countSelected').innerText = count; document.getElementById('lblMsgCount').innerText = count; }
+        function openMessageModal() { let count = getSelectedIDs().length; if (count === 0) { Swal.fire('Oops!', 'Vui lòng tích chọn ít nhất 1 người.', 'warning'); return; } document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); document.getElementById('modalMsg').classList.remove('hidden'); }
+
+        async function sendMessages() {
+            let title = document.getElementById('msgTitle').value.trim();
+            let content = document.getElementById('msgContent').value.trim();
+            let ids = getSelectedIDs();
+            if (!title || !content) { Swal.fire('Lỗi', 'Tiêu đề và nội dung không được trống!', 'error'); return; }
+            
+            const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'Đang gửi...';
+            const fd = new FormData(); fd.append('tieu_de', title); fd.append('noi_dung', content); fd.append('danh_sach_id', JSON.stringify(ids));
+            
+            try {
+                // [API CỦA MASTER]
+                const res = await fetch('/master/api/thanh-vien/send-msg', { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false}).then(() => location.reload()); } 
+                else Swal.fire('Lỗi', data.msg, 'error');
+            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = old; }
+        }
+    </script>
+    {{ template "footer_master" . }}
+{{ end }}
