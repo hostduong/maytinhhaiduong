@@ -20,6 +20,14 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	me, _ := core.LayKhachHang(shopID, userID)
 	listAll := core.LayDanhSachKhachHang(shopID)
 	
+	// [MỚI - SAFE COPY] Clone danh sách để nạp Inbox mà không làm hỏng Cache chung
+	var listView []*core.KhachHang
+	for _, kh := range listAll {
+		khCopy := *kh 
+		khCopy.Inbox = core.LayHopThuNguoiDung(shopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
+		listView = append(listView, &khCopy)
+	}
+	
 	core.KhoaHeThong.RLock()
 	listVaiTro := core.CacheDanhSachVaiTro[shopID]
 	core.KhoaHeThong.RUnlock()
@@ -36,7 +44,7 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	c.HTML(http.StatusOK, "quan_tri_thanh_vien", gin.H{
 		"TieuDe":         "Quản lý thành viên",
 		"NhanVien":       me,
-		"DanhSach":       listAll,
+		"DanhSach":       listView, // Truyền bản sao có Inbox ra giao diện
 		"DanhSachVaiTro": listVaiTro, 
 	})
 }
@@ -80,54 +88,37 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 		return
 	}
 
-	// ==============================================================
-	// [ĐẠI CÔNG TRÌNH BẢO MẬT]: MÔ HÌNH 2 TẦNG ROOT
-	// ==============================================================
 	isTargetRootLevel1 := (maKH == "0000000000000000001" || kh.VaiTroQuyenHan == "quan_tri_he_thong")
 	isMeRootLevel1 := (userID == "0000000000000000001" || myRole == "quan_tri_he_thong")
-	
 	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
-	// ĐÃ XÓA BIẾN THỪA isMeRootLevel2 ĐỂ SỬA LỖI GOLANG BUILD
-	
 	newRole := c.PostForm("vai_tro")
 
-	// Luật 1: Kẻ khác không được đụng vào Root Cấp 1
 	if isTargetRootLevel1 && !isMeRootLevel1 {
-		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Quản trị hệ thống (Người sáng lập)!"})
+		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Quản trị hệ thống!"})
 		return
 	}
-
-	// Luật 2: Root Cấp 1 không được tự tước quyền của chính mình
 	if isTargetRootLevel1 && isMeRootLevel1 && newRole != "" && newRole != "quan_tri_he_thong" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn là Người sáng lập, không thể tự giáng chức chính mình!"})
 		return
 	}
-
-	// Luật 3: Root Cấp 2 không được phép sửa quyền của Root Cấp 2 khác (Chỉ Cấp 1 mới được quản lý Cấp 2)
 	if isTargetRootLevel2 && !isMeRootLevel1 && userID != maKH {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có thẩm quyền chỉnh sửa một Quản trị viên hệ thống khác! Chỉ Quản trị hệ thống (Cấp 1) mới làm được việc này."})
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có thẩm quyền chỉnh sửa Quản trị viên hệ thống khác!"})
 		return
 	}
-
-	// Luật 4: Chỉ Root Cấp 1 mới được cấp quyền Cấp 1 hoặc Cấp 2 cho người khác
 	if (newRole == "quan_tri_he_thong" || newRole == "quan_tri_vien_he_thong") && !isMeRootLevel1 {
-		// Ngoại lệ: Nếu Root cấp 2 đang tự sửa Tên/SĐT của chính mình thì bỏ qua luật đổi Role này
 		if userID != maKH || (userID == maKH && kh.VaiTroQuyenHan != newRole) {
-			c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị hệ thống (Cấp 1) mới có quyền bổ nhiệm Quản trị viên hệ thống!"})
+			c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị hệ thống mới có quyền bổ nhiệm Quản trị viên hệ thống!"})
 			return
 		}
 	}
 
-	// Luật 5: Không ai được tự khóa chính mình
 	trangThaiMoi := c.PostForm("trang_thai")
 	if maKH == userID && trangThaiMoi == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
 		return
 	}
-	// ==============================================================
 
 	core.KhoaHeThong.Lock()
-	
 	if newRole != "" {
 		kh.VaiTroQuyenHan = newRole
 		chucVuTuY := strings.TrimSpace(c.PostForm("chuc_vu"))
@@ -143,20 +134,17 @@ func API_Admin_LuuThanhVien(c *gin.Context) {
 			}
 		}
 	}
-	
 	kh.TenKhachHang = strings.TrimSpace(c.PostForm("ten_khach_hang"))
 	kh.DienThoai = strings.TrimSpace(c.PostForm("dien_thoai"))
 	kh.NgaySinh = strings.TrimSpace(c.PostForm("ngay_sinh"))
 	kh.DiaChi = strings.TrimSpace(c.PostForm("dia_chi"))
 	kh.MaSoThue = strings.TrimSpace(c.PostForm("ma_so_thue"))
 	kh.GhiChu = strings.TrimSpace(c.PostForm("ghi_chu"))
-	
 	kh.AnhDaiDien = strings.TrimSpace(c.PostForm("anh_dai_dien"))
 	kh.NguonKhachHang = strings.TrimSpace(c.PostForm("nguon_khach_hang"))
 	
 	gioiTinh := c.PostForm("gioi_tinh")
 	if gioiTinh == "1" { kh.GioiTinh = 1 } else if gioiTinh == "0" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
-
 	if trangThaiMoi == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
 
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
@@ -230,44 +218,42 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 		return
 	}
 
+	// Lấy thông tin người gửi
 	sender, _ := core.LayKhachHang(shopID, userID)
 	chucVuNguoiGui := "Hệ Thống"
-	tenNguoiGui := "Nền tảng 99k.vn" // Mặc định nếu không tìm thấy
+	tenNguoiGui := "Nền tảng 99k.vn"
 	if sender != nil {
-		if sender.ChucVu != "" {
-			chucVuNguoiGui = sender.ChucVu
-		}
-		if sender.TenKhachHang != "" {
-			tenNguoiGui = sender.TenKhachHang
-		}
+		if sender.ChucVu != "" { chucVuNguoiGui = sender.ChucVu }
+		if sender.TenKhachHang != "" { tenNguoiGui = sender.TenKhachHang }
 	}
 
 	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
-	msgID := fmt.Sprintf("MSG_%d", time.Now().Unix()) 
 
 	count := 0
-	core.KhoaHeThong.Lock()
 	for _, maKH := range listMaKH {
-		if kh, ok := core.CacheMapKhachHang[core.TaoCompositeKey(shopID, maKH)]; ok {
-			newMsg := core.MessageInfo{
-				ID:             msgID,
+		if _, ok := core.LayKhachHang(shopID, maKH); ok {
+			
+			// Tạo ID độc nhất
+			msgID := fmt.Sprintf("MSG_%d_%s", time.Now().UnixNano(), maKH) 
+
+			// [BẮT BUỘC]: Gọi trực tiếp vào Lõi Sheet TIN_NHAN mới
+			newMsg := &core.TinNhan{
+				MaTinNhan:      msgID,
+				LoaiTinNhan:    "SYSTEM",
+				NguoiGuiID:     userID,         
+				NguoiNhanID:    maKH,           // Gửi đích danh cho người nhận
 				TieuDe:         tieuDe,
 				NoiDung:        noiDung,
-				DaDoc:          false,
 				NgayTao:        nowStr,
-				NguoiGuiID:     userID,         
-				NguoiGuiTen:    tenNguoiGui,    // [MỚI] Ghi tên vào DB
-				NguoiGuiChucVu: chucVuNguoiGui, 
+				TenNguoiGui:    tenNguoiGui,
+				ChucVuNguoiGui: chucVuNguoiGui,
 			}
-			kh.Inbox = append(kh.Inbox, newMsg)
 			
-			jsonInbox := core.ToJSON(kh.Inbox)
-			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_InboxJson, jsonInbox)
+			core.ThemMoiTinNhan(shopID, newMsg)
 			count++
 		}
 	}
-	core.KhoaHeThong.Unlock()
 
 	c.JSON(200, gin.H{"status": "ok", "msg": fmt.Sprintf("Đã gửi thông báo thành công cho %d người!", count)})
 }
