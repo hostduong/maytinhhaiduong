@@ -19,9 +19,13 @@ func TrangQuanLyCuaHang(c *gin.Context) {
 		return
 	}
 
+	// [MỚI] Clone object ra để nhét Inbox vào, tránh đụng RAM của nhau
+	chuShopCopy := *chuShop 
+	chuShopCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, userID, chuShopCopy.VaiTroQuyenHan)
+
 	// Đếm số tin chưa đọc
 	soTinChuaDoc := 0
-	for _, msg := range chuShop.Inbox {
+	for _, msg := range chuShopCopy.Inbox {
 		if !msg.DaDoc {
 			soTinChuaDoc++
 		}
@@ -29,8 +33,8 @@ func TrangQuanLyCuaHang(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "cua_hang_master", gin.H{
 		"TieuDe":       "Quản trị Hạ tầng Cửa hàng",
-		"ChuShop":      chuShop,
-		"SoTinChuaDoc": soTinChuaDoc, // <--- Truyền biến này ra giao diện
+		"ChuShop":      &chuShopCopy, // Đẩy bản copy ra giao diện
+		"SoTinChuaDoc": soTinChuaDoc, 
 	})
 }
 
@@ -44,7 +48,6 @@ func API_CapNhatHaTang(c *gin.Context) {
 	folderDrive := strings.TrimSpace(c.PostForm("folder_drive_id"))
 	authJson := strings.TrimSpace(c.PostForm("google_auth_json"))
 
-	// 1. Validate Bắt buộc
 	if sheetID == "" || chuyenNganh == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập Spreadsheet ID và chọn Chuyên ngành kinh doanh!"})
 		return
@@ -56,14 +59,12 @@ func API_CapNhatHaTang(c *gin.Context) {
 		return
 	}
 
-	// 2. [KIỂM TRA SPREADSHEET]
 	err := core.KiemTraVaKhoiTaoSheetNganh(masterShopID, sheetID, authJson, chuyenNganh)
 	if err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return 
 	}
 
-	// 2.5 [KIỂM TRA THÊM DRIVE NẾU CÓ NHẬP]
 	if folderDrive != "" {
 		errDrive := core.KiemTraFolderDrive(folderDrive, authJson)
 		if errDrive != nil {
@@ -72,7 +73,6 @@ func API_CapNhatHaTang(c *gin.Context) {
 		}
 	}
 
-	// 3. NẾU VƯỢ QUA 2 LỚP BẢO VỆ -> CẬP NHẬT RAM
 	core.KhoaHeThong.Lock()
 	chuShop.DataSheets.SpreadsheetID = sheetID
 	chuShop.DataSheets.FolderDriveID = folderDrive
@@ -82,7 +82,6 @@ func API_CapNhatHaTang(c *gin.Context) {
 	chuShop.NgayCapNhat = time.Now().Format("2006-01-02 15:04:05")
 	core.KhoaHeThong.Unlock()
 
-	// 4. ĐẨY XUỐNG HÀNG ĐỢI GHI SHEET
 	ghi := core.ThemVaoHangCho
 	r := chuShop.DongTrongSheet
 	sh := "KHACH_HANG"
@@ -103,29 +102,8 @@ func API_DanhDauDaDoc(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	msgID := strings.TrimSpace(c.PostForm("msg_id"))
 
-	chuShop, ok := core.LayKhachHang(masterShopID, userID)
-	if !ok {
-		c.JSON(200, gin.H{"status": "error"})
-		return
-	}
-
-	found := false
-	core.KhoaHeThong.Lock()
-	for i := range chuShop.Inbox {
-		if chuShop.Inbox[i].ID == msgID && !chuShop.Inbox[i].DaDoc {
-			chuShop.Inbox[i].DaDoc = true // Đánh dấu đã đọc
-			found = true
-			break
-		}
-	}
-	// Đóng gói JSON mới
-	jsonInbox := core.ToJSON(chuShop.Inbox)
-	core.KhoaHeThong.Unlock()
-
-	// Ghi đè vào Sheet nếu có sự thay đổi
-	if found {
-		core.ThemVaoHangCho(masterShopID, "KHACH_HANG", chuShop.DongTrongSheet, core.CotKH_InboxJson, jsonInbox)
-	}
+	// [MỚI]: Gọi thẳng lệnh đánh dấu đọc từ lõi TIN_NHAN mới (Không còn đụng vào JSON cũ)
+	core.DanhDauDocTinNhan(masterShopID, userID, msgID)
 
 	c.JSON(200, gin.H{"status": "ok"})
 }
