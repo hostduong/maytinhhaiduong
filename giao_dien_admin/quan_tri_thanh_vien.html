@@ -101,13 +101,13 @@
                         <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}"></div>
                         
                         <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}">
-                            {{ if .NguoiGuiTen }}{{ printf "%.1s" .NguoiGuiTen }}{{ else }}99{{ end }}
+                            {{ if .TenNguoiGui }}{{ printf "%.1s" .TenNguoiGui }}{{ else }}99{{ end }}
                         </div>
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center flex-wrap gap-1.5 mb-1">
-                                <span class="font-bold text-slate-800 text-xs">{{ if .NguoiGuiTen }}{{ .NguoiGuiTen }}{{ else }}Hệ Thống{{ end }}</span>
-                                <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Tự động{{ end }}</span>
+                                <span class="font-bold text-slate-800 text-xs">{{ if .TenNguoiGui }}{{ .TenNguoiGui }}{{ else }}Hệ Thống{{ end }}</span>
+                                <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{{ if .ChucVuNguoiGui }}{{ .ChucVuNguoiGui }}{{ else }}Tự động{{ end }}</span>
                                 {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
                                     <span class="text-[9px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
                                 {{ end }}
@@ -287,7 +287,7 @@
                 sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
                 address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
                 zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note'),
-                avatar: el.getAttribute('data-avatar'), source: el.getAttribute('data-source') // [MỚI] Lấy Avatar và Source
+                avatar: el.getAttribute('data-avatar'), source: el.getAttribute('data-source')
             };
         });
 
@@ -313,7 +313,6 @@
             document.getElementById('f_fb').value = data.fb; document.getElementById('f_tiktok').value = data.tiktok;
             document.getElementById('f_note').value = data.note; document.getElementById('f_title').value = data.title;
             
-            // [MỚI] Đổ dữ liệu Ảnh và Nguồn vào form
             document.getElementById('f_avatar').value = data.avatar; 
             document.getElementById('f_source').value = data.source; 
 
@@ -321,37 +320,29 @@
             let roleSelect = document.getElementById('f_role');
             let statusSelect = document.getElementById('f_status');
 
-            // --- XỬ LÝ DROPDOWN QUYỀN HẠN 2 TẦNG ---
-            // isMeRoot là biến kiểm tra xem User hiện tại có phải là Cấp 1 (000...1) hay không
             Array.from(roleSelect.options).forEach(opt => {
-                // Mặc định mở khóa tất cả các quyền cấp thấp
-                opt.disabled = false;
-                
-                // Khóa 2 quyền Cấp cao nhất nếu người dùng hiện tại không phải Cấp 1
                 if (opt.value === "quan_tri_he_thong" || opt.value === "quan_tri_vien_he_thong") {
                     opt.disabled = !isMeRoot; 
+                } else {
+                    opt.disabled = false;
                 }
             });
 
             roleSelect.value = data.role;
             statusSelect.value = data.status;
+
+            roleSelect.disabled = false;
             statusSelect.disabled = false;
 
-            // --- LUẬT BẢO VỆ GIAO DIỆN (UI LOCK) ---
-            const isTargetRootL1 = (ma === "0000000000000000001" || data.role === "quan_tri_he_thong");
-            const isTargetRootL2 = (data.role === "quan_tri_vien_he_thong");
-
-            if (isTargetRootL1) {
-                // Đang xem hồ sơ Cấp 1
-                roleSelect.disabled = true; // Không ai (kể cả chính nó) được đổi thẻ select này
-                if (!isMeRoot) statusSelect.disabled = true; // Không phải Cấp 1 thì cấm đụng vào nút Khóa
-            } else if (isTargetRootL2 && !isMeRoot) {
-                // Đang xem hồ sơ Cấp 2, mà tôi lại không phải Cấp 1
-                roleSelect.disabled = true; // Cấm Cấp 2 tự bóp méo quyền của nhau
+            if (isTargetRoot) {
+                roleSelect.disabled = true; 
+                if (!isMeRoot) statusSelect.disabled = true; 
+            } else if (data.role === "quan_tri_vien_he_thong" && !isMeRoot) {
+                roleSelect.disabled = true; 
             }
 
             if (ma === currentUserID) {
-                statusSelect.disabled = true; // Không ai được tự khóa chính mình
+                statusSelect.disabled = true; 
             }
 
             let inboxHtml = document.getElementById('inbox_data_' + ma).innerHTML;
