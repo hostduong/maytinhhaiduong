@@ -80,6 +80,10 @@ func main() {
 		// 2. Route Hộp thư
 		master.GET("/tin-nhan", chuc_nang_master.TrangTinNhanMaster)
 		master.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDocMaster)
+
+		// 3. Đồn bộ sheets
+		master.GET("/dong-bo-sheets", chuc_nang_master.TrangDongBoSheetsMaster)
+		master.POST("/api/dong-bo-sheets", chuc_nang_master.API_NapLaiDuLieuMasterCoPIN)
 	}
 
 	// API Public
