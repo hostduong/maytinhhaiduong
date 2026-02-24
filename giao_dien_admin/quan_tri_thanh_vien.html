@@ -95,27 +95,30 @@
             {{ if eq (len .Inbox) 0 }}
                 <div class="text-sm text-slate-400 italic text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-200">Chưa có thông báo nào được gửi đến thành viên này.</div>
             {{ else }}
-                <div class="flex flex-col-reverse gap-3"> 
+                <div class="flex flex-col-reverse gap-4"> 
                     {{ range .Inbox }}
-                    <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden transition hover:border-blue-300">
+                    <div class="p-4 bg-white rounded-xl border {{ if not .DaDoc }}border-blue-300 shadow-md{{ else }}border-slate-200 shadow-sm{{ end }} relative overflow-hidden transition flex gap-3">
                         <div class="absolute left-0 top-0 bottom-0 w-1 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}"></div>
                         
-                        <div class="flex flex-wrap justify-between items-center mb-3 pl-2 gap-2 border-b border-slate-50 pb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                    {{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Hệ Thống{{ end }}
-                                </span>
-                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
-                                    <span class="text-[10px] text-red-400 font-mono font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
-                                {{ end }}
-                            </div>
-                            <span class="text-slate-400 text-[10px] font-medium bg-slate-50 px-2 py-1 rounded">{{ .NgayTao }}</span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 {{ if not .DaDoc }}bg-blue-500{{ else }}bg-slate-300{{ end }}">
+                            {{ if .NguoiGuiTen }}{{ printf "%.1s" .NguoiGuiTen }}{{ else }}99{{ end }}
                         </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center flex-wrap gap-1.5 mb-1">
+                                <span class="font-bold text-slate-800 text-xs">{{ if .NguoiGuiTen }}{{ .NguoiGuiTen }}{{ else }}Hệ Thống{{ end }}</span>
+                                <span class="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200">{{ if .NguoiGuiChucVu }}{{ .NguoiGuiChucVu }}{{ else }}Tự động{{ end }}</span>
+                                {{ if eq $.NhanVien.MaKhachHang "0000000000000000001" }}
+                                    <span class="text-[9px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded font-mono border border-red-100">ID: {{ if .NguoiGuiID }}{{ .NguoiGuiID }}{{ else }}Auto{{ end }}</span>
+                                {{ end }}
+                                <span class="text-[10px] text-slate-400 ml-auto whitespace-nowrap">{{ .NgayTao }}</span>
+                            </div>
 
-                        <div class="pl-2">
-                            <h5 class="font-bold text-slate-800 text-sm mb-1">{{ .TieuDe }}</h5>
-                            <div class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{{ .NoiDung }}</div>
+                            <h5 class="font-bold {{ if not .DaDoc }}text-blue-700{{ else }}text-slate-700{{ end }} text-sm mb-1.5">{{ .TieuDe }}</h5>
+                            
+                            <div class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed bg-slate-50 p-3 rounded-2xl rounded-tl-sm border border-slate-100">
+                                {{ .NoiDung }}
+                            </div>
                         </div>
                     </div>
                     {{ end }}
