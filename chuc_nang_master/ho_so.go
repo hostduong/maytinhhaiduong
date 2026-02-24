@@ -61,6 +61,7 @@ func API_LuuHoSoMaster(c *gin.Context) {
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("url_fb"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("url_tiktok"))
+	kh.AnhDaiDien = strings.TrimSpace(c.PostForm("anh_dai_dien"))
 	
 	gioiTinh := c.PostForm("gioi_tinh")
 	if gioiTinh == "Nam" { kh.GioiTinh = 1 } else if gioiTinh == "Nữ" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
