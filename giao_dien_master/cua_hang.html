@@ -316,29 +316,7 @@
                     </div>
                 </div>
 
-                {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
-                <div id="tab_dongbo" class="tab-content space-y-6">
-                    <div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Đồng bộ Dữ liệu</h1>
-                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Cập nhật hệ thống với những thay đổi mới nhất từ Google Sheets của bạn.</p>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                        <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl flex items-start gap-4 mb-6">
-                            <div class="bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-amber-900 text-base mb-2">Lưu ý quan trọng trước khi đồng bộ!</h3>
-                                <ul class="list-disc list-inside text-sm text-amber-800 space-y-2 leading-relaxed">
-                                    <li>Tính năng này sẽ <b>xóa bộ nhớ đệm (RAM) hiện tại</b> và tải lại toàn bộ dữ liệu mới nhất từ Google Sheets.</li>
-                                    <li>Chỉ nên sử dụng tính năng này khi bạn vừa <b>chỉnh sửa thủ công</b> trực tiếp trên file Excel (như thêm, sửa, hoặc xóa dòng).</li>
-                                    <li>Quá trình này có thể mất vài giây. Vui lòng không đóng trình duyệt trong lúc hệ thống đang xử lý.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div id="tab_tinnhan" class="tab-content space-y-6">
+                <div id="tab_tinnhan" class="tab-content space-y-6">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Hộp thư hệ thống</h1>
                         <p class="text-slate-500 text-sm mt-2 leading-relaxed">Thông báo và cập nhật mới nhất từ Nền tảng 99k.vn.</p>
@@ -371,6 +349,28 @@
                         {{ end }}
                     </div>
                 </div>
+
+                {{ if or (eq .ChuShop.VaiTroQuyenHan "quan_tri_he_thong") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien") (eq .ChuShop.VaiTroQuyenHan "quan_tri_vien_he_thong") }}
+                <div id="tab_dongbo" class="tab-content space-y-6">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Đồng bộ Dữ liệu</h1>
+                        <p class="text-slate-500 text-sm mt-2 leading-relaxed">Cập nhật hệ thống với những thay đổi mới nhất từ Google Sheets của bạn.</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                        <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl flex items-start gap-4 mb-6">
+                            <div class="bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-amber-900 text-base mb-2">Lưu ý quan trọng trước khi đồng bộ!</h3>
+                                <ul class="list-disc list-inside text-sm text-amber-800 space-y-2 leading-relaxed">
+                                    <li>Tính năng này sẽ <b>xóa bộ nhớ đệm (RAM) hiện tại</b> và tải lại toàn bộ dữ liệu mới nhất từ Google Sheets.</li>
+                                    <li>Chỉ nên sử dụng tính năng này khi bạn vừa <b>chỉnh sửa thủ công</b> trực tiếp trên file Excel (như thêm, sửa, hoặc xóa dòng).</li>
+                                    <li>Quá trình này có thể mất vài giây. Vui lòng không đóng trình duyệt trong lúc hệ thống đang xử lý.</li>
+                                </ul>
+                            </div>
+                        </div>
 
                         <div id="alertSyncSuccess" class="hidden mb-6 bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center gap-4 text-emerald-800 animate-[fadeIn_0.5s_ease-out]">
                             <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
@@ -579,7 +579,6 @@
             if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText;
         }
 
-        // Logic ẩn hiện 2 icon mắt
         function togglePass(id) {
             const input = document.getElementById(id);
             const eyeSlash = document.getElementById('eye_slash_' + id);
@@ -768,12 +767,10 @@
             if (lastReload) {
                 const elapsed = Math.floor((Date.now() - parseInt(lastReload)) / 1000);
                 if (elapsed < 60) {
-                    // Khóa nút
                     btn.disabled = true;
                     btn.classList.add('opacity-60', 'cursor-not-allowed');
                     btn.classList.remove('hover:-translate-y-0.5', 'hover:bg-blue-700');
                     
-                    // Hiển thị text phụ và Khung báo thành công
                     txtSub.classList.remove('hidden');
                     alertBox.classList.remove('hidden');
                     
@@ -785,11 +782,9 @@
                         txtSub.innerText = `(Vui lòng chờ ${timeLeft}s để thực hiện lại)`;
                         if (timeLeft <= 0) {
                             clearInterval(timer);
-                            // Mở khóa nút
                             btn.disabled = false;
                             btn.classList.remove('opacity-60', 'cursor-not-allowed');
                             btn.classList.add('hover:-translate-y-0.5', 'hover:bg-blue-700');
-                            // Ẩn text phụ và Khung báo
                             txtSub.classList.add('hidden');
                             alertBox.classList.add('hidden');
                         }
@@ -800,7 +795,6 @@
             return false;
         }
 
-        // Chạy kiểm tra đếm ngược của nút Đồng bộ ngay khi vừa load web
         kiemTraCooldownReload();
 
         async function xacNhanLamMoiDuLieu() {
@@ -825,10 +819,7 @@
                     const res = await r.json();
                     if (res.status === 'ok') {
                         localStorage.setItem('last_reload_time', Date.now().toString());
-                        // Đóng thông báo xoay vòng và báo Success 1.5s
                         Swal.fire({icon: 'success', title: 'Hoàn tất!', text: res.msg, timer: 1500, showConfirmButton: false});
-                        
-                        // Kích hoạt giao diện tĩnh (Nút mờ đi, bật đếm ngược, bật khung xanh)
                         kiemTraCooldownReload(); 
                     } else {
                         Swal.fire('Lỗi', res.msg, 'error');
@@ -847,7 +838,6 @@
             const title = document.getElementById('msg_title_' + id);
             const item = document.getElementById('msg_item_' + id);
             
-            // 1. Ẩn / Hiện nội dung (Accordion)
             if (full.classList.contains('hidden')) {
                 full.classList.remove('hidden');
                 preview.classList.add('hidden');
@@ -856,16 +846,13 @@
                 preview.classList.remove('hidden');
             }
 
-            // 2. Nếu tin nhắn chưa đọc -> Đổi sang trạng thái Đã đọc
             if (dot.classList.contains('bg-blue-600')) {
-                // Cập nhật UI ngay lập tức để tạo cảm giác mượt mà
                 dot.classList.remove('bg-blue-600');
                 dot.classList.add('bg-transparent');
                 item.classList.remove('bg-blue-50/40');
                 title.classList.remove('text-slate-900');
                 title.classList.add('text-slate-600');
                 
-                // Trừ số lượng thẻ Badge ở Sidebar đi 1
                 const badge = document.getElementById('badgeInboxSidebar');
                 if (badge) {
                     let count = parseInt(badge.innerText);
@@ -873,11 +860,9 @@
                     if (count > 0) {
                         badge.innerText = count;
                     } else {
-                        badge.remove(); // Xóa cục đỏ nếu hết tin chưa đọc
+                        badge.remove(); 
                     }
                 }
-
-                // 3. Gọi API ngầm báo Server lưu trạng thái "DaDoc = true" vào RAM và ghi Sheet
                 postData('/cua-hang/api/doc-tin-nhan', { msg_id: id });
             }
         }
