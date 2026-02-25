@@ -151,18 +151,21 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("tiktok"))
 
-	passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
-	if passMoi != "" {
-		hash, _ := cau_hinh.HashMatKhau(passMoi)
-		kh.MatKhauHash = hash
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
-	}
+	// [MỚI BỔ SUNG BẢO MẬT]: Chỉ cho phép đổi Pass/PIN nếu KHÔNG PHẢI là Bot Hệ Thống
+	if maKH != "0000000000000000000" {
+		passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
+		if passMoi != "" {
+			hash, _ := cau_hinh.HashMatKhau(passMoi)
+			kh.MatKhauHash = hash
+			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
+		}
 
-	pinMoi := strings.TrimSpace(c.PostForm("pin_moi"))
-	if pinMoi != "" {
-		hashPin, _ := cau_hinh.HashMatKhau(pinMoi)
-		kh.MaPinHash = hashPin
-		core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
+		pinMoi := strings.TrimSpace(c.PostForm("pin_moi"))
+		if pinMoi != "" {
+			hashPin, _ := cau_hinh.HashMatKhau(pinMoi)
+			kh.MaPinHash = hashPin
+			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
+		}
 	}
 
 	loc := time.FixedZone("ICT", 7*3600)
