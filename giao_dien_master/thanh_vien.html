@@ -19,7 +19,7 @@
         .table-scroll::-webkit-scrollbar-thumb { background-color: #d8b4fe; border-radius: 8px; border: 2px solid #ffffff; }
         .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #a855f7; }
 
-        /* VIỀN LED CHẠY ANIMATION (PRO MAX) */
+        /* VIỀN LED CHẠY ANIMATION CHO BẢNG TỔNG */
         @keyframes spin-slow { 100% { transform: rotate(360deg); } }
         .animated-border-wrapper {
             position: relative;
@@ -45,20 +45,11 @@
             overflow: hidden;
         }
 
-        /* [THIẾT KẾ MỚI]: HIỆU ỨNG HOVER TỪNG DÒNG (NỀN ĐẬM + VIỀN LED CHẠY) */
-        .hover-led-row { transition: background-color 0.2s ease; }
-        .hover-led-row:hover td {
-            background-color: #f3e8ff !important; /* Nền tím đậm để dễ phân biệt */
-            box-shadow: inset 0 2px 0 rgba(147, 51, 234, 0.7), inset 0 -2px 0 rgba(147, 51, 234, 0.7);
-            animation: row-led-pulse 1.5s linear infinite alternate;
-        }
-        /* Fix góc để shadow không đè mất viền trái/phải */
-        .hover-led-row:hover td:first-child { box-shadow: inset 2px 2px 0 rgba(147, 51, 234, 0.7), inset 0 -2px 0 rgba(147, 51, 234, 0.7); }
-        .hover-led-row:hover td:last-child { box-shadow: inset -2px 2px 0 rgba(147, 51, 234, 0.7), inset 0 -2px 0 rgba(147, 51, 234, 0.7); }
-        
-        @keyframes row-led-pulse {
-            0% { border-color: #9333ea; }
-            100% { border-color: #6366f1; box-shadow: inset 0 2px 0 rgba(99, 102, 241, 0.9), inset 0 -2px 0 rgba(99, 102, 241, 0.9); }
+        /* [ĐÃ SỬA]: HOVER DÒNG TINH TẾ (NỀN TÍM NHẠT + VIỀN TIỆP MÀU NỀN) */
+        .hover-soft-row { transition: all 0.2s ease; }
+        .hover-soft-row:hover td {
+            background-color: #f3e8ff !important; 
+            border-color: #f3e8ff !important; 
         }
     </style>
 
@@ -102,7 +93,7 @@
                         </thead>
                         <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
                             {{ range .DanhSach }}
-                            <tr class="hover-led-row bg-white/60 transition-colors duration-200 group cursor-pointer" onclick="editMember('{{ .MaKhachHang }}')">
+                            <tr class="hover-soft-row bg-white/60 cursor-pointer" onclick="editMember('{{ .MaKhachHang }}')">
                                 <td class="px-4 sm:px-5 py-4 text-center" onclick="event.stopPropagation()"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
                                 <td class="px-4 sm:px-6 py-4 min-w-[220px]">
                                     <div class="flex items-center gap-4">
@@ -114,7 +105,7 @@
                                             <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-black text-slate-800 text-[15px] group-hover:text-purple-700 transition search-target truncate">{{ .TenKhachHang }}</div>
+                                            <div class="group-hover:text-purple-700 font-black text-slate-800 text-[15px] transition search-target truncate">{{ .TenKhachHang }}</div>
                                             <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate bg-slate-100/50 px-2 py-0.5 rounded border border-slate-100 inline-block">ID: {{ .MaKhachHang }}</div>
                                             <div class="text-[11px] text-purple-600 font-bold search-target truncate mt-1">User: {{ .TenDangNhap }}</div>
                                         </div>
@@ -165,8 +156,8 @@
                                 </td>
                                 
                                 <td class="px-4 sm:px-6 py-4 text-center">
-                                    <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="group inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 active:scale-95 whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 active:scale-95 whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         <span>Sửa Hồ Sơ</span>
                                     </button>
                                 </td>
@@ -431,7 +422,7 @@
             const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             const queryClean = removeAccents(query);
 
-            document.querySelectorAll(`#${tbodyId} tr.hover-led-row`).forEach(row => { 
+            document.querySelectorAll(`#${tbodyId} tr.hover-soft-row`).forEach(row => { 
                 const cb = row.querySelector('.chk-member');
                 if (!cb) return;
                 const id = cb.value;
