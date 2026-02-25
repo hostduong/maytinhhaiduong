@@ -46,9 +46,20 @@
                         <tr class="bg-white hover:bg-slate-50 transition group">
                             <td class="px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
                             <td class="px-6 py-4">
-                                <div class="font-bold text-slate-800 text-base group-hover:text-purple-600 transition search-target">{{ .TenKhachHang }}</div>
-                                <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
-                                <div class="text-[11px] text-purple-500 font-medium search-target">User: {{ .TenDangNhap }}</div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 shrink-0 rounded-full border border-slate-200 bg-white overflow-hidden shadow-sm">
+                                        {{ $avatar := .AnhDaiDien }}
+                                        {{ if not $avatar }}
+                                            {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=f3e8ff&color=7e22ce&bold=true" }}
+                                        {{ end }}
+                                        <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-800 text-base group-hover:text-purple-600 transition search-target">{{ .TenKhachHang }}</div>
+                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
+                                        <div class="text-[11px] text-purple-500 font-medium search-target">User: {{ .TenDangNhap }}</div>
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-6 py-4 text-xs space-y-1">
                                 <div class="flex items-center gap-1.5"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-medium text-slate-700 search-target">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
@@ -129,12 +140,12 @@
                                     
                                     <div>
                                         <label class="form-lbl">Link Ảnh đại diện</label>
-                                        <input type="url" name="anh_dai_dien" id="f_avatar" class="input-premium font-mono text-xs" placeholder="https://...">
+                                        <input type="url" name="anh_dai_dien" id="f_avatar" class="input-premium font-mono text-xs text-blue-600" placeholder="https://...">
                                     </div>
                                     
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
-                                        <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
+                                        <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white text-slate-600"></div>
                                     </div>
                                     
                                     <div class="grid grid-cols-2 gap-6">
@@ -151,8 +162,8 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="f_zalo_fake" class="input-premium"></div>
                                             <div><label class="form-lbl text-emerald-600">Nguồn khách hàng</label><input type="text" name="nguon_khach_hang" id="f_source" class="input-premium bg-emerald-50/50" placeholder="VD: Đăng ký Web..."></div>
-                                            <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-xs" placeholder="https://facebook.com/..."></div>
-                                            <div class="sm:col-span-2"><label class="form-lbl text-slate-800">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-xs" placeholder="https://tiktok.com/@..."></div>
+                                            <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-xs text-blue-600" placeholder="https://facebook.com/..."></div>
+                                            <div class="sm:col-span-2"><label class="form-lbl text-slate-800">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-xs text-slate-800" placeholder="https://tiktok.com/@..."></div>
                                         </div>
                                     </div>
                                 </div>
@@ -182,7 +193,7 @@
                                         <input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-200" placeholder="Để trống sẽ lấy theo Vai trò...">
                                     </div>
                                     
-                                    <div>
+                                    <div class="pt-2">
                                         <label class="form-lbl text-purple-900">Trạng thái tài khoản</label>
                                         <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer shadow-sm">
                                             <option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option>
@@ -215,19 +226,19 @@
                             </div>
 
                             <div class="bg-slate-50 p-8 rounded-[1.5rem] shadow-sm border border-slate-200">
-                                <h4 class="font-black text-slate-500 border-b border-slate-200 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2">
+                                <h4 class="font-black text-purple-600 border-b border-slate-200 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Dữ liệu quản trị
                                 </h4>
                                 
-                                <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-600">
-                                    <div class="flex justify-between items-center"><span class="text-slate-400">Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400">Bởi nhân viên:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
+                                <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-500">
+                                    <div class="flex justify-between items-center"><span>Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
+                                    <div class="flex justify-between items-center"><span>Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
+                                    <div class="flex justify-between items-center"><span>Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
                                 </div>
 
                                 <div class="pt-5 border-t border-slate-200">
                                     <label class="form-lbl text-slate-500">Ghi chú nội bộ (Chỉ Admin thấy)</label>
-                                    <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-700 focus:border-purple-500 outline-none transition shadow-sm" placeholder="Ghi chú về tài khoản này..."></textarea>
+                                    <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-700 focus:border-purple-500 outline-none transition shadow-sm leading-relaxed" placeholder="Ghi chú về tài khoản này..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -361,7 +372,7 @@
             const { value: pinXacNhan } = await Swal.fire({
                 title: 'Bảo mật 2 lớp',
                 html: `
-                    <div class="text-sm text-slate-600 mb-5">Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận.</div>
+                    <div class="text-sm text-slate-600 mb-5 font-medium">Vui lòng nhập <b>Mã PIN</b> của bạn để xác nhận.</div>
                     <div class="relative w-4/5 mx-auto">
                         <input type="password" id="swal-pin-input" class="swal2-pin-input w-full box-border bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-center tracking-[0.5em] font-bold text-xl outline-none transition" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                         <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-purple-600">
