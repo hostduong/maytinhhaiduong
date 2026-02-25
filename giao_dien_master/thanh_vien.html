@@ -11,11 +11,53 @@
         .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
         label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; display: block; letter-spacing: 0.05em; }
         .iti { width: 100%; } 
-        /* Tinh chỉnh thanh cuộn ngang cho bảng */
-        .table-scroll::-webkit-scrollbar { height: 8px; }
-        .table-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
-        .table-scroll::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 10px; }
-        .table-scroll::-webkit-scrollbar-thumb:hover { background: #9333ea; }
+        
+        /* Tinh chỉnh thanh cuộn ngang cực xịn cho Bảng */
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Mượt mà trên iOS */
+        }
+        .table-scroll::-webkit-scrollbar { 
+            height: 10px; /* Dày hơn để dễ vuốt */
+        }
+        .table-scroll::-webkit-scrollbar-track { 
+            background: #f1f5f9; 
+            border-radius: 8px; 
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.05); /* Chiều sâu nhẹ */
+            margin: 0 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb { 
+            background-color: #c084fc; 
+            background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 50%, transparent); /* Hiệu ứng bóng */
+            border-radius: 8px; 
+            border: 2px solid #f1f5f9; /* Viền để tạo khe hở với track */
+        }
+        .table-scroll::-webkit-scrollbar-thumb:hover { 
+            background-color: #9333ea; 
+        }
+        /* Mũi tên 2 đầu Scrollbar */
+        .table-scroll::-webkit-scrollbar-button:single-button {
+            display: block;
+            border-style: solid;
+            height: 10px;
+            width: 18px;
+        }
+        /* Mũi tên trái */
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement {
+            border-width: 5px 8px 5px 0;
+            border-color: transparent #cbd5e1 transparent transparent;
+        }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
+            border-color: transparent #9333ea transparent transparent;
+        }
+        /* Mũi tên phải */
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment {
+            border-width: 5px 0 5px 8px;
+            border-color: transparent transparent transparent #cbd5e1;
+        }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
+            border-color: transparent transparent transparent #9333ea;
+        }
     </style>
 
     <div class="max-w-7xl mx-auto mb-10">
@@ -43,21 +85,15 @@
         <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-200/40 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
             
-            <div class="overflow-x-auto w-full relative z-10 table-scroll pb-2">
-                <table class="w-full text-sm text-left text-slate-600 min-w-[700px] md:min-w-[900px]">
+            <div class="overflow-x-auto w-full relative z-10 table-scroll pb-1">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[700px]">
                     <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                         <tr>
                             <th class="px-4 sm:px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-purple-900 whitespace-nowrap">Thành Viên Master</th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Liên hệ</th>
-                            
-                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">
-                                Chức Vụ <span class="md:hidden">& Trạng Thái</span>
-                            </th>
-                            
-                            <th class="hidden md:table-cell px-4 sm:px-6 py-4 font-black text-center tracking-widest whitespace-nowrap">Trạng Thái</th>
-                            
-                            <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest w-28 whitespace-nowrap">Thao tác</th>
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Chức Vụ & Trạng Thái</th>
+                            <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest w-36 whitespace-nowrap">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyMembers" class="divide-y divide-slate-50">
@@ -86,7 +122,7 @@
                             </td>
                             
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col md:block gap-2">
+                                <div class="flex flex-col gap-2.5 items-start">
                                     <div>
                                         {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
                                             <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
@@ -97,26 +133,23 @@
                                         {{ end }}
                                     </div>
                                     
-                                    <div class="md:hidden mt-2">
+                                    <div>
                                         {{ if eq .TrangThai 1 }}
                                             <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-emerald-200"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
-                                        {{ else }}
-                                            <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-200"><span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Khóa</span>
+                                        {{ else if eq .TrangThai 0 }}
+                                            <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-amber-200"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Tạm khóa</span>
+                                        {{ else if eq .TrangThai -1 }}
+                                            <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-200"><span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Đợi xóa</span>
                                         {{ end }}
                                     </div>
                                 </div>
                             </td>
                             
-                            <td class="hidden md:table-cell px-4 sm:px-6 py-4 text-center whitespace-nowrap">
-                                {{ if eq .TrangThai 1 }}
-                                    <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Mở</span>
-                                {{ else }}
-                                    <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Khóa</span>
-                                {{ end }}
-                            </td>
-                            
                             <td class="px-4 sm:px-6 py-4 text-center">
-                                <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-purple-200 hover:border-purple-600 active:scale-95 whitespace-nowrap">Sửa Hồ Sơ</button>
+                                <button onclick="editMember('{{ .MaKhachHang }}')" class="group inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 hover:shadow-md active:scale-95 whitespace-nowrap">
+                                    <svg class="w-4 h-4 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    <span>Sửa Hồ Sơ</span>
+                                </button>
                             </td>
                         </tr>
                         {{ end }}
@@ -154,6 +187,7 @@
             </div>
             
             <div class="p-4 sm:p-8 overflow-y-auto custom-scroll relative">
+                
                 <form id="formEdit" class="space-y-6" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
@@ -245,8 +279,9 @@
                                     <div>
                                         <label class="form-lbl text-purple-900">Trạng thái tài khoản</label>
                                         <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer border-purple-100 shadow-sm">
-                                            <option value="1" class="text-emerald-600">✅ Hoạt động bình thường</option>
-                                            <option value="0" class="text-red-600">🚫 KHÓA TÀI KHOẢN</option>
+                                            <option value="1" class="text-emerald-600">🟢 Hoạt động bình thường</option>
+                                            <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
+                                            <option value="-1" class="text-red-600">🔴 Đợi xóa</option>
                                         </select>
                                     </div>
 
@@ -274,21 +309,20 @@
                                 </div>
                             </div>
 
-                            <div class="bg-white p-6 sm:p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                                <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                            <div class="bg-slate-50 p-6 sm:p-8 rounded-[1.5rem] shadow-sm border border-slate-200 relative overflow-hidden">
+                                <h4 class="font-black text-purple-600 border-b border-slate-200 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Dữ liệu quản trị
                                 </h4>
                                 
-                                <div class="space-y-4 mb-6 text-xs sm:text-[13px] font-medium font-mono text-slate-500 relative z-10">
-                                    <div class="flex justify-between items-center"><span>Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
-                                    <div class="flex justify-between items-center"><span>Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
-                                    <div class="flex justify-between items-center"><span>Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
+                                <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-500">
+                                    <div class="flex justify-between items-center"><span class="text-slate-400">Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
                                 </div>
 
-                                <div class="pt-5 border-t border-purple-50 relative z-10">
-                                    <label class="form-lbl text-purple-800">Ghi chú nội bộ (Chỉ Admin thấy)</label>
-                                    <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-purple-100 rounded-xl p-3 text-sm text-slate-800 focus:border-purple-500 outline-none transition shadow-sm leading-relaxed" placeholder="Ghi chú về tài khoản này..."></textarea>
+                                <div class="pt-5 border-t border-slate-200">
+                                    <label class="form-lbl text-slate-500">Ghi chú nội bộ (Chỉ Admin thấy)</label>
+                                    <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-700 focus:border-purple-500 outline-none transition shadow-sm leading-relaxed" placeholder="Ghi chú về tài khoản này..."></textarea>
                                 </div>
                             </div>
                         </div>
