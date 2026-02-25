@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DongBatDau_TinNhan = 11 // Dữ liệu bắt đầu từ dòng số 11 (Dòng 10 là Tiêu đề cột)
+	DongBatDau_TinNhan = 11
 
 	CotTN_MaTinNhan    = 0  // A
 	CotTN_LoaiTinNhan  = 1  // B
@@ -35,19 +35,18 @@ type TinNhan struct {
 	DongTrongSheet int    `json:"-"`
 
 	MaTinNhan    string        `json:"ma_tin_nhan"`
-	LoaiTinNhan  string        `json:"loai_tin_nhan"` // SYSTEM, CHAT, BROADCAST
+	LoaiTinNhan  string        `json:"loai_tin_nhan"` // ALL, AUTO, CHAT
 	NguoiGuiID   string        `json:"nguoi_gui_id"`
-	NguoiNhanID  string        `json:"nguoi_nhan_id"` // ALL hoặc ID Khách hàng
+	NguoiNhanID  string        `json:"nguoi_nhan_id"` // Chứa mảng JSON hoặc 1 ID
 	TieuDe       string        `json:"tieu_de"`
 	NoiDung      string        `json:"noi_dung"`
 	DinhKem      []FileDinhKem `json:"dinh_kem"`
 	ThamChieuID  string        `json:"tham_chieu_id"`
 	ReplyChoID   string        `json:"reply_cho_id"`
 	NgayTao      string        `json:"ngay_tao"`
-	NguoiDoc     []string      `json:"nguoi_doc"`      // Mảng chứa ID những người đã đọc
-	TrangThaiXoa []string      `json:"trang_thai_xoa"` // Mảng chứa ID những người đã xóa (thu hồi)
+	NguoiDoc     []string      `json:"nguoi_doc"`
+	TrangThaiXoa []string      `json:"trang_thai_xoa"`
 
-	// Biến phụ trợ bắn ra giao diện (Không lưu xuống DB)
 	TenNguoiGui    string `json:"ten_nguoi_gui,omitempty"`
 	ChucVuNguoiGui string `json:"chuc_vu_nguoi_gui,omitempty"`
 	AvatarNguoiGui string `json:"avatar_nguoi_gui,omitempty"`
@@ -59,9 +58,6 @@ var (
 	mtxTinNhan   sync.RWMutex
 )
 
-// ========================================================
-// 1. NẠP DỮ LIỆU TỪ SHEET LÊN RAM
-// ========================================================
 func NapTinNhan(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, "TIN_NHAN")
@@ -87,7 +83,6 @@ func NapTinNhan(shopID string) {
 			NgayTao:        LayString(r, CotTN_NgayTao),
 		}
 
-		// Giải mã JSON mảng siêu an toàn
 		_ = json.Unmarshal([]byte(LayString(r, CotTN_DinhKemJson)), &tn.DinhKem)
 		if tn.DinhKem == nil { tn.DinhKem = make([]FileDinhKem, 0) }
 
@@ -105,7 +100,6 @@ func NapTinNhan(shopID string) {
 	mtxTinNhan.Unlock()
 }
 
-// Hàm bổ trợ kiểm tra giá trị trong Mảng String
 func ContainsString(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val { return true }
@@ -113,9 +107,6 @@ func ContainsString(slice []string, val string) bool {
 	return false
 }
 
-// ========================================================
-// 2. LẤY HỘP THƯ CHO 1 NGƯỜI DÙNG CỤ THỂ (KÈM INFO NGƯỜI GỬI)
-// ========================================================
 func LayHopThuNguoiDung(shopID string, maKH string, vaiTro string) []*TinNhan {
 	mtxTinNhan.RLock()
 	defer mtxTinNhan.RUnlock()
@@ -124,12 +115,18 @@ func LayHopThuNguoiDung(shopID string, maKH string, vaiTro string) []*TinNhan {
 	var inbox []*TinNhan
 	
 	for _, m := range allMsgs {
-		// Bỏ qua nếu user này đã ấn Xóa tin nhắn
 		if ContainsString(m.TrangThaiXoa, maKH) { continue }
 
 		isReceiver := false
-		if m.NguoiNhanID == "ALL" {
-			isReceiver = true
+		
+		// [THUẬT TOÁN MỚI]: Đọc mảng JSON nếu là tin nhắn ALL
+		if m.LoaiTinNhan == "ALL" {
+			var listNhan []string
+			if err := json.Unmarshal([]byte(m.NguoiNhanID), &listNhan); err == nil {
+				if ContainsString(listNhan, maKH) {
+					isReceiver = true
+				}
+			}
 		} else if m.NguoiNhanID == maKH {
 			isReceiver = true
 		} else if strings.HasPrefix(m.NguoiNhanID, "ROLE_") {
@@ -138,14 +135,19 @@ func LayHopThuNguoiDung(shopID string, maKH string, vaiTro string) []*TinNhan {
 		}
 		
 		if isReceiver {
-			// Copy để biến đổi giao diện mà không hỏng Core RAM
 			msgCopy := *m 
 			msgCopy.DaDoc = ContainsString(m.NguoiDoc, maKH)
 			
-			// Định danh người gửi
-			if m.NguoiGuiID == "SYSTEM" {
-				msgCopy.TenNguoiGui = "Hệ Thống"
-				msgCopy.ChucVuNguoiGui = "Tự động"
+			if m.NguoiGuiID == "SYSTEM" || m.NguoiGuiID == "0000000000000000000" {
+				// Lấy info thực của Bot nếu có, nếu không thì Hardcode
+				bot, ok := LayKhachHang(shopID, "0000000000000000000")
+				if ok {
+					msgCopy.TenNguoiGui = bot.TenKhachHang
+					msgCopy.ChucVuNguoiGui = bot.ChucVu
+				} else {
+					msgCopy.TenNguoiGui = "Trợ lý ảo 99K"
+					msgCopy.ChucVuNguoiGui = "Hệ thống"
+				}
 				msgCopy.AvatarNguoiGui = "99"
 			} else {
 				sender, ok := LayKhachHang(shopID, m.NguoiGuiID)
@@ -165,9 +167,6 @@ func LayHopThuNguoiDung(shopID string, maKH string, vaiTro string) []*TinNhan {
 	return inbox
 }
 
-// ========================================================
-// 3. ĐÁNH DẤU ĐÃ ĐỌC
-// ========================================================
 func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 	mtxTinNhan.Lock()
 	defer mtxTinNhan.Unlock()
@@ -183,14 +182,10 @@ func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 	}
 }
 
-// ========================================================
-// 4. GỬI TIN NHẮN MỚI XUỐNG DB
-// ========================================================
 func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 	mtxTinNhan.Lock()
 	list := CacheTinNhan[shopID]
 	
-	// [THUẬT TOÁN MỚI]: Tìm dòng lớn nhất hiện tại để Append, tránh bị ghi đè
 	maxRow := DongBatDau_TinNhan - 1
 	for _, m := range list {
 		if m.DongTrongSheet > maxRow {
