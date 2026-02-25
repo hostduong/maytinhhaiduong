@@ -10,7 +10,6 @@
         .input-success { border-color: #22c55e !important; }
         .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-size: 0.9rem; padding: 0.75rem 1rem; transition: 0.2s; outline: none; }
         .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.1); background-color: #fff; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
         .error-text.show { display: block; }
         label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; display: block; letter-spacing: 0.05em; }
@@ -64,9 +63,18 @@
             </div>
             
             <div class="flex flex-wrap justify-center gap-4 py-6 px-6 border-t border-purple-50 bg-slate-50/50 relative z-10">
-                <button onclick="toggleModal('modalInfo')" class="bg-white border border-slate-300 hover:bg-purple-50 hover:border-purple-200 text-purple-700 px-6 py-3 rounded-xl font-bold shadow-sm transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">✏️ Cập nhật hồ sơ</button>
-                <button onclick="toggleModal('modalPass')" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-md shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">🔐 Đổi mật khẩu</button>
-                <button onclick="toggleModal('modalPin')" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold shadow-md shadow-slate-300 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">🔢 Đổi mã PIN</button>
+                <button onclick="toggleModal('modalInfo')" class="bg-white border border-purple-200 hover:bg-purple-50 text-purple-700 px-6 py-3 rounded-2xl font-bold shadow-sm transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Cập nhật hồ sơ
+                </button>
+                <button onclick="toggleModal('modalPass')" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-purple-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Đổi mật khẩu
+                </button>
+                <button onclick="toggleModal('modalPin')" class="bg-indigo-900 hover:bg-indigo-950 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-indigo-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
+                    Đổi mã PIN
+                </button>
             </div>
         </div>
 
@@ -170,7 +178,7 @@
                                     
                                     <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                     
-                                    <div class="sm:col-span-2"><label class="form-lbl text-slate-800">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                    <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                 </div>
                             </div>
                         </div>
@@ -180,7 +188,10 @@
             
             <div class="px-8 py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex justify-end gap-4 shrink-0 z-10 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
                 <button onclick="toggleModal('modalInfo')" class="px-8 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng lại</button>
-                <button id="btnSaveInfo" onclick="capNhatThongTin()" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2 text-[15px]">Lưu Thay Đổi</button>
+                <button id="btnSaveInfo" onclick="capNhatThongTin()" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2 text-[15px] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    Lưu Hồ Sơ
+                </button>
             </div>
         </div>
     </div>
@@ -216,7 +227,10 @@
             
             <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100 relative z-10">
                 <button onclick="toggleModal('modalPass')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
-                <button id="btnSavePass" onclick="doiPass()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-lg shadow-purple-200 w-full transition">Lưu Mật Khẩu</button>
+                <button id="btnSavePass" onclick="doiPass()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-purple-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    Lưu Mật Khẩu
+                </button>
             </div>
         </div>
     </div>
@@ -251,7 +265,10 @@
                 
                 <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100">
                     <button onclick="toggleModal('modalPin')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
-                    <button id="btnSavePin" onclick="doiPin()" disabled class="bg-slate-800 text-white px-6 py-3 rounded-xl font-black shadow-lg shadow-slate-300 hover:bg-slate-900 w-full transition">Lưu Mã PIN</button>
+                    <button id="btnSavePin" onclick="doiPin()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-purple-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Lưu Mã PIN
+                    </button>
                 </div>
             </div>
 
@@ -262,7 +279,7 @@
                 <button id="btnConfirmForgot" onclick="guiYeuCauResetPin()" class="w-full bg-amber-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 transition transform active:scale-95 flex items-center justify-center gap-2">
                     Xác Nhận & Gửi Email
                 </button>
-                <div class="mt-6 flex justify-center items-center pt-2">
+                <div class="mt-6 flex justify-center items-center pt-2 border-t border-slate-100">
                     <button onclick="switchPinView('change')" class="text-slate-400 text-sm font-bold hover:text-slate-600 transition flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg> Quay lại
                     </button>
@@ -272,7 +289,6 @@
     </div>
 
     <script>
-        // INIT 2 PLUGIN CHO SĐT VÀ ZALO
         const inputPhone = document.querySelector("#newPhone");
         const inputZalo = document.querySelector("#newZalo");
         
@@ -280,7 +296,6 @@
         if(inputPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
         if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
-        // LOGIC UI CHUNG
         function setBtnLoading(id, text) { const btn = document.getElementById(id); btn.disabled = true; btn.dataset.oldText = btn.innerHTML; btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${text}`; }
         function setBtnNormal(id) { const btn = document.getElementById(id); btn.disabled = false; if (btn.dataset.oldText) btn.innerHTML = btn.dataset.oldText; }
 
@@ -305,7 +320,6 @@
             else { vForgot.classList.add('hidden'); vChange.classList.remove('hidden'); }
         }
 
-        // VALIDATION
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
         const regexUrl  = { char: /[\s]/, full: /^https?:\/\/.+/ };
         const regexNum  = { char: /[^0-9]/, full: /^[0-9]+$/ };
@@ -354,7 +368,6 @@
         function checkPassBtn() { const ok = document.getElementById('newPass').classList.contains('input-success') && document.getElementById('oldPass').value.length > 0; document.getElementById('btnSavePass').disabled = !ok; }
         function checkPinBtn() { const ok = document.getElementById('newPin').classList.contains('input-success') && document.getElementById('oldPin').value.length > 0; document.getElementById('btnSavePin').disabled = !ok; }
 
-        // API CALLS
         async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Lỗi mạng'}; } }
         function handleRes(res, modalId, btnId) { setBtnNormal(btnId); if(res.status === 'ok') Swal.fire({icon:'success', title:'Thành công', text:res.msg, timer:1500, showConfirmButton:false}).then(()=>location.reload()); else Swal.fire({icon:'error', title:'Lỗi', text:res.msg}); }
 
