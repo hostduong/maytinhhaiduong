@@ -208,14 +208,15 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" {
+	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
 
 	tieuDe := strings.TrimSpace(c.PostForm("tieu_de"))
 	noiDung := strings.TrimSpace(c.PostForm("noi_dung"))
-	jsonIDs := c.PostForm("danh_sach_id")
+	jsonIDs := c.PostForm("danh_sach_id") // Đây là chuỗi JSON mảng ID
+	isSendAsBot := c.PostForm("send_as_bot") // "1" hoặc "0"
 
 	if tieuDe == "" || noiDung == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Tiêu đề và Nội dung không được để trống!"})
@@ -228,37 +229,51 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 		return
 	}
 
-	sender, _ := core.LayKhachHang(shopID, userID)
-	chucVuNguoiGui := "Hệ Thống Master"
-	tenNguoiGui := "Nền tảng 99k.vn"
-	if sender != nil {
-		if sender.ChucVu != "" { chucVuNguoiGui = sender.ChucVu }
-		if sender.TenKhachHang != "" { tenNguoiGui = sender.TenKhachHang }
-	}
+	// XÁC ĐỊNH NGƯỜI GỬI (Gửi ẩn danh hệ thống hay gửi bằng acc thật)
+	senderID := userID
+	chucVuNguoiGui := "Nội bộ"
+	tenNguoiGui := "Ẩn danh"
 
-	loc := time.FixedZone("ICT", 7*3600)
-	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
-
-	count := 0
-	for _, maKH := range listMaKH {
-		if _, ok := core.LayKhachHang(shopID, maKH); ok {
-			msgID := fmt.Sprintf("MSG_%d_%s", time.Now().UnixNano(), maKH) 
-
-			newMsg := &core.TinNhan{
-				MaTinNhan:      msgID,
-				LoaiTinNhan:    "SYSTEM",
-				NguoiGuiID:     userID,         
-				NguoiNhanID:    maKH,           
-				TieuDe:         tieuDe,
-				NoiDung:        noiDung,
-				NgayTao:        nowStr,
-				TenNguoiGui:    tenNguoiGui,
-				ChucVuNguoiGui: chucVuNguoiGui,
-			}
-			core.ThemMoiTinNhan(shopID, newMsg)
-			count++
+	if isSendAsBot == "1" {
+		bot, okBot := core.LayKhachHang(shopID, "0000000000000000000")
+		if okBot {
+			senderID = bot.MaKhachHang
+			tenNguoiGui = bot.TenKhachHang
+			chucVuNguoiGui = bot.ChucVu
+		} else {
+			senderID = "SYSTEM"
+			tenNguoiGui = "Trợ lý ảo 99K"
+			chucVuNguoiGui = "Hệ thống"
+		}
+	} else {
+		sender, okSender := core.LayKhachHang(shopID, userID)
+		if okSender {
+			tenNguoiGui = sender.TenKhachHang
+			chucVuNguoiGui = sender.ChucVu
 		}
 	}
 
-	c.JSON(200, gin.H{"status": "ok", "msg": fmt.Sprintf("Đã gửi thông báo thành công cho %d người!", count)})
+	loc := time.FixedZone("ICT", 7*3600)
+	now := time.Now()
+	nowStr := now.In(loc).Format("2006-01-02 15:04:05")
+
+	// CÔNG THỨC TẠO MÃ TIN NHẮN CHUẨN KIẾN TRÚC MỚI
+	msgID := fmt.Sprintf("ALL_%d_%s", now.UnixNano(), senderID) 
+
+	// CHỈ LƯU 1 DÒNG DUY NHẤT XUỐNG DB
+	newMsg := &core.TinNhan{
+		MaTinNhan:      msgID,
+		LoaiTinNhan:    "ALL", // Phân loại tin nhắn gửi hàng loạt
+		NguoiGuiID:     senderID,         
+		NguoiNhanID:    jsonIDs, // Lưu trực tiếp chuỗi mảng JSON vào Sheet       
+		TieuDe:         tieuDe,
+		NoiDung:        noiDung,
+		NgayTao:        nowStr,
+		TenNguoiGui:    tenNguoiGui,
+		ChucVuNguoiGui: chucVuNguoiGui,
+	}
+	
+	core.ThemMoiTinNhan(shopID, newMsg)
+
+	c.JSON(200, gin.H{"status": "ok", "msg": fmt.Sprintf("Đã gửi thông báo thành công cho %d người!", len(listMaKH))})
 }
