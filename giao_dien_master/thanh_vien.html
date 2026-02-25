@@ -12,52 +12,16 @@
         label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; display: block; letter-spacing: 0.05em; }
         .iti { width: 100%; } 
         
-        /* Tinh chỉnh thanh cuộn ngang cực xịn cho Bảng */
-        .table-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Mượt mà trên iOS */
-        }
-        .table-scroll::-webkit-scrollbar { 
-            height: 10px; /* Dày hơn để dễ vuốt */
-        }
-        .table-scroll::-webkit-scrollbar-track { 
-            background: #f1f5f9; 
-            border-radius: 8px; 
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.05); /* Chiều sâu nhẹ */
-            margin: 0 4px;
-        }
-        .table-scroll::-webkit-scrollbar-thumb { 
-            background-color: #c084fc; 
-            background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 50%, transparent); /* Hiệu ứng bóng */
-            border-radius: 8px; 
-            border: 2px solid #f1f5f9; /* Viền để tạo khe hở với track */
-        }
-        .table-scroll::-webkit-scrollbar-thumb:hover { 
-            background-color: #9333ea; 
-        }
-        /* Mũi tên 2 đầu Scrollbar */
-        .table-scroll::-webkit-scrollbar-button:single-button {
-            display: block;
-            border-style: solid;
-            height: 10px;
-            width: 18px;
-        }
-        /* Mũi tên trái */
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement {
-            border-width: 5px 8px 5px 0;
-            border-color: transparent #cbd5e1 transparent transparent;
-        }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
-            border-color: transparent #9333ea transparent transparent;
-        }
-        /* Mũi tên phải */
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment {
-            border-width: 5px 0 5px 8px;
-            border-color: transparent transparent transparent #cbd5e1;
-        }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
-            border-color: transparent transparent transparent #9333ea;
-        }
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-scroll::-webkit-scrollbar { height: 10px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; box-shadow: inset 0 0 4px rgba(0,0,0,0.05); margin: 0 4px; }
+        .table-scroll::-webkit-scrollbar-thumb { background-color: #c084fc; background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 50%, transparent); border-radius: 8px; border: 2px solid #f1f5f9; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #9333ea; }
+        .table-scroll::-webkit-scrollbar-button:single-button { display: block; border-style: solid; height: 10px; width: 18px; }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement { border-width: 5px 8px 5px 0; border-color: transparent #cbd5e1 transparent transparent; }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement:hover { border-color: transparent #9333ea transparent transparent; }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment { border-width: 5px 0 5px 8px; border-color: transparent transparent transparent #cbd5e1; }
+        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment:hover { border-color: transparent transparent transparent #9333ea; }
     </style>
 
     <div class="max-w-7xl mx-auto mb-10">
@@ -72,7 +36,7 @@
             
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
                 <div class="relative w-full sm:w-72">
-                    <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm tên, SĐT, Email..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
+                    <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <button onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
@@ -86,13 +50,14 @@
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-200/40 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
             
             <div class="overflow-x-auto w-full relative z-10 table-scroll pb-1">
-                <table class="w-full text-sm text-left text-slate-600 min-w-[700px]">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[700px] md:min-w-[900px]">
                     <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                         <tr>
                             <th class="px-4 sm:px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-purple-900 whitespace-nowrap">Thành Viên Master</th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Liên hệ</th>
-                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Chức Vụ & Trạng Thái</th>
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Chức Vụ <span class="md:hidden">& Trạng Thái</span></th>
+                            <th class="hidden md:table-cell px-4 sm:px-6 py-4 font-black text-center tracking-widest whitespace-nowrap">Trạng Thái</th>
                             <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest w-36 whitespace-nowrap">Thao tác</th>
                         </tr>
                     </thead>
@@ -110,19 +75,26 @@
                                         <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="font-black text-slate-800 text-[15px] group-hover:text-purple-700 transition search-target truncate">{{ .TenKhachHang }}</div>
+                                        <div class="font-black text-slate-800 text-[15px] group-hover:text-purple-700 transition truncate">{{ .TenKhachHang }}</div>
                                         <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">ID: {{ .MaKhachHang }}</div>
-                                        <div class="text-[11px] text-purple-500 font-bold search-target truncate">User: {{ .TenDangNhap }}</div>
+                                        <div class="text-[11px] text-purple-500 font-bold truncate">User: {{ .TenDangNhap }}</div>
                                     </div>
                                 </div>
                             </td>
+                            
                             <td class="px-4 sm:px-6 py-4 text-xs space-y-1.5 whitespace-nowrap">
-                                <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
-                                <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-bold text-slate-700 search-target">{{ .Email }}</span>{{ else }}---{{ end }}</div>
+                                <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> <span class="font-bold text-slate-700">{{ if .DienThoai }}{{ .DienThoai }}{{ else }}---{{ end }}</span></div>
+                                <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> <span class="font-bold text-slate-700">{{ if .Email }}{{ .Email }}{{ else }}---{{ end }}</span></div>
+                                {{ if .MangXaHoi.Zalo }}
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-blue-600 font-black bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded text-[9px] tracking-widest">ZALO</span>
+                                    <span class="font-bold text-blue-600">{{ .MangXaHoi.Zalo }}</span>
+                                </div>
+                                {{ end }}
                             </td>
                             
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col gap-2.5 items-start">
+                                <div class="flex flex-col md:block gap-2.5 items-start">
                                     <div>
                                         {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
                                             <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
@@ -132,8 +104,7 @@
                                             <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide whitespace-nowrap">{{ .ChucVu }}</span>
                                         {{ end }}
                                     </div>
-                                    
-                                    <div>
+                                    <div class="md:hidden">
                                         {{ if eq .TrangThai 1 }}
                                             <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-emerald-200"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
                                         {{ else if eq .TrangThai 0 }}
@@ -143,6 +114,16 @@
                                         {{ end }}
                                     </div>
                                 </div>
+                            </td>
+                            
+                            <td class="hidden md:table-cell px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                                {{ if eq .TrangThai 1 }}
+                                    <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
+                                {{ else if eq .TrangThai 0 }}
+                                    <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> Tạm khóa</span>
+                                {{ else if eq .TrangThai -1 }}
+                                    <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Đợi xóa</span>
+                                {{ end }}
                             </td>
                             
                             <td class="px-4 sm:px-6 py-4 text-center">
@@ -162,7 +143,7 @@
     <div id="data_members" class="hidden">
         {{ range .DanhSach }}
         <div class="m-data" 
-            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" 
+            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
             data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
             data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
             data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
@@ -187,7 +168,6 @@
             </div>
             
             <div class="p-4 sm:p-8 overflow-y-auto custom-scroll relative">
-                
                 <form id="formEdit" class="space-y-6" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
@@ -382,7 +362,9 @@
         document.querySelectorAll('.m-data').forEach(el => {
             let id = el.getAttribute('data-id');
             mapData[id] = {
-                ten: el.getAttribute('data-name'), role: el.getAttribute('data-role'), title: el.getAttribute('data-title'),
+                id: id,
+                ten: el.getAttribute('data-name'), user: el.getAttribute('data-user'), email: el.getAttribute('data-email'),
+                role: el.getAttribute('data-role'), title: el.getAttribute('data-title'),
                 sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'),
                 address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
                 zalo: el.getAttribute('data-zalo'), fb: el.getAttribute('data-fb'), tiktok: el.getAttribute('data-tiktok'), note: el.getAttribute('data-note'),
@@ -391,13 +373,39 @@
             };
         });
 
+        // [SIÊU TÌM KIẾM ĐA NĂNG & LOẠI BỎ DẤU TIẾNG VIỆT]
         function filterTable(inputId, tbodyId) { 
-            const query = document.getElementById(inputId).value.toLowerCase(); 
+            const query = document.getElementById(inputId).value.toLowerCase().trim(); 
+            // Hàm loại bỏ dấu tiếng Việt để tìm kiếm mượt mà
+            const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+            const queryClean = removeAccents(query);
+
             document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { 
-                const targets = row.querySelectorAll('.search-target');
-                let found = false;
-                targets.forEach(t => { if(t.innerText.toLowerCase().includes(query)) found = true; });
-                row.style.display = found ? '' : 'none'; 
+                const cb = row.querySelector('.chk-member');
+                if (!cb) return;
+                const id = cb.value;
+                const data = mapData[id];
+                if (!data) return;
+
+                // Xử lý chuỗi trạng thái ảo để tìm kiếm
+                let statusText = "khoa tam khoa"; // 0
+                if(data.status == 1) statusText = "hoat dong";
+                else if (data.status == -1) statusText = "doi xoa";
+
+                // Gộp toàn bộ dữ liệu của member này thành 1 chuỗi dài
+                const combinedString = `
+                    ${data.id} ${data.ten} ${data.user} ${data.email} ${data.role} ${data.title}
+                    ${data.sdt} ${data.dob} ${data.address} ${data.tax} ${data.zalo}
+                    ${data.fb} ${data.tiktok} ${data.source} ${data.note} ${statusText}
+                `.toLowerCase();
+
+                const combinedClean = removeAccents(combinedString);
+
+                if (combinedClean.includes(queryClean)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }); 
         }
 
