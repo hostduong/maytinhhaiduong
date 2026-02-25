@@ -208,8 +208,13 @@ func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 	input = strings.ToLower(strings.TrimSpace(input))
 	list := CacheKhachHang[shopID]
 	for _, kh := range list { 
-		if strings.ToLower(kh.TenDangNhap) == input { return kh, true } 
-		if kh.Email != "" && strings.ToLower(kh.Email) == input { return kh, true } 
+		if strings.ToLower(kh.TenDangNhap) == input || (kh.Email != "" && strings.ToLower(kh.Email) == input) {
+			// [MỚI BỔ SUNG BẢO MẬT]: Nếu tìm thấy trùng khớp nhưng là Bot Hệ thống -> Trả về False coi như không tồn tại
+			if kh.MaKhachHang == "0000000000000000000" {
+				return nil, false
+			}
+			return kh, true 
+		} 
 	}
 	return nil, false
 }
