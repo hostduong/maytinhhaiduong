@@ -9,7 +9,7 @@
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 
-    <div class="max-w-7xl mx-auto h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col pb-6">
+    <div class="max-w-7xl mx-auto h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col pb-6 relative z-10">
         
         <div class="flex items-center gap-3 mb-4 shrink-0 hidden md:flex">
             <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
@@ -21,7 +21,7 @@
         <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 flex-1 flex overflow-hidden relative min-h-0">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
             
-            <div id="contactPane" class="w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col bg-slate-50/30 relative z-10 shrink-0 transition-all duration-300 h-full min-h-0">
+            <div id="contactPane" class="w-full md:w-80 lg:w-[400px] border-r border-slate-100 flex flex-col bg-slate-50/30 relative z-10 shrink-0 transition-all duration-300 h-full min-h-0">
                 <div class="p-4 md:p-5 border-b border-slate-100 bg-white shrink-0">
                     <div class="relative">
                         <input type="text" id="searchChat" onkeyup="renderContactList()" placeholder="Tìm tên, username, ID..." class="w-full pl-11 pr-4 py-2.5 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition shadow-sm bg-slate-50">
@@ -42,6 +42,7 @@
                 </div>
 
                 <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full">
+                    
                     <div class="h-16 border-b border-slate-100 px-5 flex items-center justify-between bg-white shrink-0 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] z-10">
                         <div class="flex items-center gap-3">
                             <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
@@ -53,12 +54,12 @@
                         </div>
                     </div>
 
-                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-5 chat-scroll bg-slate-50/50 flex flex-col gap-4 min-h-0">
+                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-slate-50/50 flex flex-col gap-5 min-h-0">
                         </div>
 
                     <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20">
                         <div class="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.2rem] p-1.5 shadow-inner focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
-                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-sm text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập tin nhắn..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-[15px] text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập tin nhắn (Shift + Enter để xuống dòng)..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
                             
                             <button type="button" onclick="executeSendChat()" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50 disabled:grayscale">
                                 <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
@@ -76,7 +77,7 @@
         <div class="u-data" data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-avatar="{{ .AnhDaiDien }}" data-role="{{ .ChucVu }}">
             <div class="u-msgs">
                 {{ range .Inbox }}
-                    <div class="msg-node" data-msgid="{{ .MaTinNhan }}" data-sender="{{ .NguoiGuiID }}" data-sendername="{{ .TenNguoiGui }}" data-time="{{ .NgayTao }}" data-content="{{ .NoiDung }}" data-read="{{ .DaDoc }}"></div>
+                    <div class="msg-node" data-msgid="{{ .MaTinNhan }}" data-type="{{ .LoaiTinNhan }}" data-title="{{ .TieuDe }}" data-sender="{{ .NguoiGuiID }}" data-sendername="{{ .TenNguoiGui }}" data-time="{{ .NgayTao }}" data-content="{{ .NoiDung }}" data-read="{{ .DaDoc }}"></div>
                 {{ end }}
             </div>
         </div>
@@ -97,14 +98,21 @@
                 let msgs = [];
                 el.querySelectorAll('.msg-node').forEach(m => {
                     msgs.push({
-                        id: m.dataset.msgid, sender: m.dataset.sender,
-                        senderName: m.dataset.sendername, time: m.dataset.time,
-                        content: m.dataset.content, read: m.dataset.read === 'true'
+                        id: m.dataset.msgid, 
+                        type: m.dataset.type,      // Nhận diện SYSTEM hay CHAT
+                        title: m.dataset.title,    // Lấy tiêu đề thông báo
+                        sender: m.dataset.sender,
+                        senderName: m.dataset.sendername, 
+                        time: m.dataset.time,
+                        content: m.dataset.content, 
+                        read: m.dataset.read === 'true'
                     });
                 });
                 
                 msgs.sort((a,b) => a.time.localeCompare(b.time));
-                if (msgs.length > 20) msgs = msgs.slice(msgs.length - 20);
+                
+                // Mở rộng giới hạn hiển thị lên 50 tin để xem được nhiều lịch sử hơn
+                if (msgs.length > 50) msgs = msgs.slice(msgs.length - 50);
 
                 let latest = msgs.length > 0 ? msgs[msgs.length - 1] : null;
                 let ava = el.dataset.avatar;
@@ -139,9 +147,15 @@
                 let unreadDot = "";
 
                 if (u.latestMsg) {
-                    snippet = u.latestMsg.content.length > 35 ? u.latestMsg.content.substring(0,35) + '...' : u.latestMsg.content;
+                    // Nếu là thông báo hệ thống, hiển thị tiêu đề làm snippet
+                    if (u.latestMsg.type === 'SYSTEM') {
+                        snippet = `[Hệ thống] ${u.latestMsg.title}`;
+                    } else {
+                        snippet = u.latestMsg.content.length > 35 ? u.latestMsg.content.substring(0,35) + '...' : u.latestMsg.content;
+                    }
+                    
                     timeStr = u.latestMsg.time.split(' ')[1] || "";
-                    if (!u.latestMsg.read && u.latestMsg.sender !== myUserID && u.latestMsg.sender !== 'SYSTEM') {
+                    if (!u.latestMsg.read && u.latestMsg.sender !== myUserID) {
                         unreadDot = `<div class="w-3 h-3 bg-red-500 rounded-full shrink-0 shadow-sm border-2 border-white absolute -top-0.5 -right-0.5"></div>`;
                         snippet = `<b class="text-purple-700">${snippet}</b>`;
                     }
@@ -185,7 +199,6 @@
             renderMessages(u);
             renderContactList();
             
-            // Focus vào ô input khi mở đoạn chat
             setTimeout(() => { document.getElementById('chatInputContent').focus(); }, 100);
         }
 
@@ -204,30 +217,49 @@
                 html = `<div class="text-center text-slate-400 text-xs py-10 italic">Bắt đầu cuộc trò chuyện với ${u.name}</div>`;
             } else {
                 u.messages.forEach(m => {
-                    let isMe = (m.sender === myUserID || m.sender === 'SYSTEM');
-                    if (isMe) {
+                    let isMe = (m.sender === myUserID);
+                    
+                    // GIAO DIỆN PRO MAX: TÁCH BIỆT SYSTEM VÀ CHAT
+                    if (m.type === 'SYSTEM' || m.sender === 'SYSTEM') {
+                        // 1. Dạng Card Thông Báo Chính Giữa
+                        html += `
+                        <div class="flex justify-center w-full my-3 animate-[fadeIn_0.3s_ease-out]">
+                            <div class="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-5 max-w-[90%] sm:max-w-md w-full text-center shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-purple-500"></div>
+                                <div class="mx-auto w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <h4 class="text-[14px] font-black text-indigo-950 mb-1.5">${m.title || 'Thông báo hệ thống'}</h4>
+                                <div class="text-[13px] text-slate-600 leading-relaxed">${m.content}</div>
+                                <span class="text-[10px] text-slate-400 font-medium mt-3 block">${m.time}</span>
+                            </div>
+                        </div>`;
+                    } else if (isMe) {
+                        // 2. Dạng Chat bong bóng của Admin (Nằm bên phải)
                         html += `
                         <div class="flex flex-col items-end w-full pl-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
                             <div class="flex items-end gap-2">
                                 <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
-                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
+                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
                             </div>
                         </div>`;
                     } else {
+                        // 3. Dạng Chat bong bóng của Thành viên (Nằm bên trái)
                         html += `
                         <div class="flex flex-col items-start w-full pr-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
                             <span class="text-[10px] font-bold text-slate-500 ml-1 mb-1">${m.senderName}</span>
                             <div class="flex items-end gap-2">
-                                <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
+                                <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
                                 <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
                             </div>
                         </div>`;
-                        
-                        if(!m.read) {
-                            m.read = true;
-                            const fd = new FormData(); fd.append('msg_id', m.id);
-                            fetch('/master/api/doc-tin-nhan', {method:'POST', body:fd});
-                        }
+                    }
+                    
+                    // Call API đọc tin nhắn ngầm
+                    if(!m.read && !isMe) {
+                        m.read = true;
+                        const fd = new FormData(); fd.append('msg_id', m.id);
+                        fetch('/master/api/doc-tin-nhan', {method:'POST', body:fd});
                     }
                 });
             }
@@ -235,7 +267,6 @@
             history.scrollTop = history.scrollHeight;
         }
 
-        // [ĐÃ SỬA]: Hàm bắn tin nhắn không bị kẹt form submit
         async function executeSendChat() {
             if(!activeChatID) return;
             
@@ -252,7 +283,7 @@
 
             try {
                 const res = await fetch('/master/api/tin-nhan/send-chat', { method: 'POST', body: fd });
-                if (!res.ok) throw new Error("Server Response Error");
+                if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
@@ -262,6 +293,7 @@
                     const u = chatData.find(x => x.id === activeChatID);
                     u.messages.push({
                         id: data.data.ma_tin_nhan,
+                        type: 'CHAT',
                         sender: myUserID,
                         senderName: 'Bạn',
                         time: data.data.ngay_tao,
@@ -277,19 +309,18 @@
                     Swal.fire('Lỗi', data.msg, 'error');
                 }
             } catch(err) {
-                console.error("Fetch Exception:", err);
-                Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Hãy thử lại.', 'error');
+                console.error("Fetch Error:", err);
+                Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.', 'error');
             } finally {
                 btn.disabled = false;
                 input.focus();
             }
         }
 
-        // Bắt sự kiện Enter (Gửi) và Shift+Enter (Xuống dòng)
         document.getElementById('chatInputContent').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Chống xuống dòng mặc định
-                executeSendChat(); // Kích hoạt hàm gửi
+                e.preventDefault(); 
+                executeSendChat(); 
             }
         });
 
