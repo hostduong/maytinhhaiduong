@@ -15,9 +15,6 @@ import (
 	"google.golang.org/api/run/v1"
 )
 
-// ==========================================================
-// 1. TRANG ĐĂNG KÝ
-// ==========================================================
 func TrangDangKy(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	cookie, _ := c.Cookie("session_id")
@@ -31,9 +28,6 @@ func TrangDangKy(c *gin.Context) {
 	c.HTML(http.StatusOK, "dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
 }
 
-// ==========================================================
-// 2. XỬ LÝ ĐĂNG KÝ (SOFT GATE - CHO VÀO THẲNG)
-// ==========================================================
 func XuLyDangKy(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	theme := c.GetString("THEME") 
@@ -69,11 +63,42 @@ func XuLyDangKy(c *gin.Context) {
 	soLuong := len(listHienTai)
 	var maKH, vaiTro, chucVu string
 
+	loc := time.FixedZone("ICT", 7*3600) 
+	nowVN := time.Now().In(loc)
+	nowStr := nowVN.Format("2006-01-02 15:04:05")
+	ghi := core.ThemVaoHangCho
+
 	if theme == "theme_master" {
 		if soLuong == 0 {
+			// [MỚI] 1. TẠO TÀI KHOẢN HỆ THỐNG (BOT) TRƯỚC VÀO DÒNG 11
+			bot := &core.KhachHang{
+				SpreadsheetID:  shopID,
+				DongTrongSheet: core.DongBatDau_KhachHang,
+				MaKhachHang:    "0000000000000000000",
+				TenDangNhap:    "admin",
+				VaiTroQuyenHan: "admin",
+				ChucVu:         "Hệ thống",
+				TenKhachHang:   "Trợ lý ảo 99K",
+				TrangThai:      1,
+				NgayTao:        nowStr,
+				NgayCapNhat:    nowStr,
+			}
+			core.ThemKhachHangVaoRam(bot)
+			
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_MaKhachHang, bot.MaKhachHang)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_TenDangNhap, bot.TenDangNhap)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_VaiTroQuyenHan, bot.VaiTroQuyenHan)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_ChucVu, bot.ChucVu)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_TenKhachHang, bot.TenKhachHang)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_TrangThai, bot.TrangThai)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_NgayTao, bot.NgayTao)
+			ghi(shopID, "KHACH_HANG", bot.DongTrongSheet, core.CotKH_NgayCapNhat, bot.NgayCapNhat)
+
+			// 2. THIẾT LẬP BIẾN CHO TÀI KHOẢN ROOT (SẼ ĐƯỢC LƯU Ở DÒNG 12 DO soLuong ĐÃ TĂNG)
 			maKH = "0000000000000000001"
 			vaiTro = "quan_tri_he_thong" 
 			chucVu = "Quản trị hệ thống"
+			soLuong = 1 // Cập nhật lại số lượng để Root chiếm dòng tiếp theo
 		} else {
 			maKH = core.TaoMaKhachHangMoi(shopID)
 			vaiTro = "khach_hang" 
@@ -94,10 +119,6 @@ func XuLyDangKy(c *gin.Context) {
 	passHash, _ := cau_hinh.HashMatKhau(pass)
 	pinHash, _ := cau_hinh.HashMatKhau(maPin)
 	
-	loc := time.FixedZone("ICT", 7*3600) 
-	nowVN := time.Now().In(loc)
-	nowStr := nowVN.Format("2006-01-02 15:04:05")
-
 	newKH := &core.KhachHang{
 		SpreadsheetID:  shopID,
 		MaKhachHang:    maKH,
@@ -119,10 +140,7 @@ func XuLyDangKy(c *gin.Context) {
 		NgaySinh:       ngaySinh,
 		GioiTinh:       gioiTinh,
 		ViTien:         core.WalletInfo{ SoDuHienTai: 0 },
-		
-		// [ĐÃ SỬA CHỮA LỖI Ở ĐÂY]: Khởi tạo bằng struct TinNhan mới
 		Inbox:          make([]*core.TinNhan, 0), 
-		
 		NgayTao:        nowStr, 
 		NguoiCapNhat:   user,
 		NgayCapNhat:    nowStr, 
@@ -131,9 +149,8 @@ func XuLyDangKy(c *gin.Context) {
 	newKH.DongTrongSheet = core.DongBatDau_KhachHang + soLuong
 	core.ThemKhachHangVaoRam(newKH)
 	
-	ghi := core.ThemVaoHangCho
-	sh := "KHACH_HANG"
 	r := newKH.DongTrongSheet
+	sh := "KHACH_HANG"
 	
 	ghi(shopID, sh, r, core.CotKH_MaKhachHang, newKH.MaKhachHang)
 	ghi(shopID, sh, r, core.CotKH_TenDangNhap, newKH.TenDangNhap)
@@ -143,7 +160,6 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_VaiTroQuyenHan, newKH.VaiTroQuyenHan)
 	ghi(shopID, sh, r, core.CotKH_ChucVu, newKH.ChucVu)
 	ghi(shopID, sh, r, core.CotKH_TrangThai, newKH.TrangThai)
-	
 	ghi(shopID, sh, r, core.CotKH_TenKhachHang, newKH.TenKhachHang)
 	ghi(shopID, sh, r, core.CotKH_DienThoai, newKH.DienThoai)
 	ghi(shopID, sh, r, core.CotKH_NgaySinh, newKH.NgaySinh)
@@ -153,14 +169,11 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
 
-	// CHẠY NGẦM GỬI OTP 
 	if theme == "theme_master" && vaiTro != "quan_tri_he_thong" {
 		code := core.TaoMaOTP6So() 
 		core.LuuOTP(shopID + "_" + user, code) 
-		// go core.GuiMailXacMinhAPI(email, code) 
 	}
 
-	// TẠO COOKIE ĐĂNG NHẬP
 	sessionID := cau_hinh.TaoSessionIDAnToan()
 	userAgent := c.Request.UserAgent()
 	ttl := cau_hinh.ThoiGianHetHanCookie
@@ -183,9 +196,6 @@ func XuLyDangKy(c *gin.Context) {
 	}
 }
 
-// ==========================================================
-// 3. API XÁC THỰC EMAIL TỪ TRANG QUẢN LÝ (AJAX)
-// ==========================================================
 func API_XacThucKichHoat(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID") 
@@ -200,7 +210,6 @@ func API_XacThucKichHoat(c *gin.Context) {
 	loc := time.FixedZone("ICT", 7*3600)
 	nowVN := time.Now().In(loc)
 
-	// 1. BƠM GÓI TRIAL VÀO TÀI KHOẢN
 	core.KhoaHeThong.Lock()
 	kh.GoiDichVu = append(kh.GoiDichVu, core.PlanInfo{
 		MaGoi:      "TRIAL_3DAYS",
@@ -210,10 +219,8 @@ func API_XacThucKichHoat(c *gin.Context) {
 	})
 	core.KhoaHeThong.Unlock()
 
-	// 2. LƯU XUỐNG SHEET BẢNG JSON
 	core.ThemVaoHangCho(masterShopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_GoiDichVuJson, core.ToJSON(kh.GoiDichVu))
 
-	// 3. CHẠY NGẦM GOOGLE CLOUD API TẠO SUBDOMAIN
 	go func(sub string) {
 		TuDongThemSubdomain(sub)
 	}(kh.TenDangNhap)
@@ -221,7 +228,6 @@ func API_XacThucKichHoat(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Xác thực thành công! Hệ thống đang khởi tạo Tên miền."})
 }
 
-// Hàm kết nối Cloud Run
 func TuDongThemSubdomain(subdomain string) error {
 	ctx := context.Background()
 	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson 
