@@ -11,6 +11,11 @@
         .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
         label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; display: block; letter-spacing: 0.05em; }
         .iti { width: 100%; } 
+        /* Tinh chỉnh thanh cuộn ngang cho bảng */
+        .table-scroll::-webkit-scrollbar { height: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #9333ea; }
     </style>
 
     <div class="max-w-7xl mx-auto mb-10">
@@ -38,15 +43,20 @@
         <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-200/40 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
             
-            <div class="overflow-x-auto w-full relative z-10 custom-scroll">
-                <table class="w-full text-sm text-left text-slate-600 min-w-[900px]">
+            <div class="overflow-x-auto w-full relative z-10 table-scroll pb-2">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[700px] md:min-w-[900px]">
                     <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                         <tr>
                             <th class="px-4 sm:px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-purple-900 whitespace-nowrap">Thành Viên Master</th>
                             <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Liên hệ</th>
-                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Chức Vụ</th>
-                            <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest whitespace-nowrap">Trạng Thái</th>
+                            
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">
+                                Chức Vụ <span class="md:hidden">& Trạng Thái</span>
+                            </th>
+                            
+                            <th class="hidden md:table-cell px-4 sm:px-6 py-4 font-black text-center tracking-widest whitespace-nowrap">Trạng Thái</th>
+                            
                             <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest w-28 whitespace-nowrap">Thao tác</th>
                         </tr>
                     </thead>
@@ -54,7 +64,7 @@
                         {{ range .DanhSach }}
                         <tr class="bg-white hover:bg-purple-50/30 transition group">
                             <td class="px-4 sm:px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
-                            <td class="px-4 sm:px-6 py-4 min-w-[250px]">
+                            <td class="px-4 sm:px-6 py-4 min-w-[220px]">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 shrink-0 rounded-full border-2 border-white bg-slate-100 overflow-hidden shadow-sm">
                                         {{ $avatar := .AnhDaiDien }}
@@ -74,22 +84,37 @@
                                 <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
                                 <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-bold text-slate-700 search-target">{{ .Email }}</span>{{ else }}---{{ end }}</div>
                             </td>
+                            
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
-                                    <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
-                                    <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                {{ else }}
-                                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide whitespace-nowrap">{{ .ChucVu }}</span>
-                                {{ end }}
+                                <div class="flex flex-col md:block gap-2">
+                                    <div>
+                                        {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
+                                            <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                        {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
+                                            <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                        {{ else }}
+                                            <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide whitespace-nowrap">{{ .ChucVu }}</span>
+                                        {{ end }}
+                                    </div>
+                                    
+                                    <div class="md:hidden mt-2">
+                                        {{ if eq .TrangThai 1 }}
+                                            <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-emerald-200"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
+                                        {{ else }}
+                                            <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-200"><span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Khóa</span>
+                                        {{ end }}
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                            
+                            <td class="hidden md:table-cell px-4 sm:px-6 py-4 text-center whitespace-nowrap">
                                 {{ if eq .TrangThai 1 }}
                                     <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Mở</span>
                                 {{ else }}
                                     <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Khóa</span>
                                 {{ end }}
                             </td>
+                            
                             <td class="px-4 sm:px-6 py-4 text-center">
                                 <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-purple-200 hover:border-purple-600 active:scale-95 whitespace-nowrap">Sửa Hồ Sơ</button>
                             </td>
@@ -129,7 +154,6 @@
             </div>
             
             <div class="p-4 sm:p-8 overflow-y-auto custom-scroll relative">
-                
                 <form id="formEdit" class="space-y-6" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
