@@ -1,46 +1,60 @@
 {{ define "master_dong_bo_sheets" }}
     {{ template "header_master" . }}
 
-    <div class="max-w-3xl mx-auto py-8">
-        <div class="mb-8">
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Đồng bộ Dữ liệu Lõi</h1>
-            <p class="text-slate-500 mt-2 font-medium">Làm mới bộ nhớ đệm (RAM) toàn bộ Nền tảng từ Google Sheets.</p>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+
+    <div class="max-w-4xl mx-auto py-8 mb-10">
+        
+        <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 bg-purple-100 text-purple-600 rounded-[1rem] shadow-inner shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">Đồng Bộ Dữ Liệu Lõi</h1>
+                <p class="text-slate-500 mt-1 font-medium text-sm">Làm mới bộ nhớ đệm (RAM) toàn bộ Nền tảng từ Google Sheets.</p>
+            </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 p-8 sm:p-10 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
             
-            <div id="boxWarning" class="bg-amber-50/80 border border-amber-200 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500">
-                <div class="bg-amber-100 p-3 rounded-full text-amber-600 shrink-0 shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="relative z-10">
+                <div id="boxWarning" class="bg-amber-50/80 border border-amber-200/60 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500 shadow-sm">
+                    <div class="bg-amber-100 p-3.5 rounded-[1rem] text-amber-600 shrink-0 shadow-inner">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-amber-900 text-lg mb-2 tracking-tight">Cảnh báo tác động hệ thống!</h3>
+                        <ul class="list-disc list-inside text-sm text-amber-800/90 space-y-2.5 leading-relaxed font-medium">
+                            <li>Tính năng này sẽ <b>tải lại toàn bộ dữ liệu</b> (Khách hàng, Phân quyền, Cấu hình, Tin nhắn...) từ Sheet Master.</li>
+                            <li>Chỉ sử dụng khi bạn vừa can thiệp sửa/xóa dữ liệu trực tiếp trên file Excel.</li>
+                            <li>Yêu cầu <b>Mã PIN Bảo mật 2 lớp</b> để thực thi.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-black text-amber-900 text-lg mb-2 tracking-tight">Cảnh báo tác động hệ thống!</h3>
-                    <ul class="list-disc list-inside text-sm text-amber-800 space-y-2 leading-relaxed">
-                        <li>Tính năng này sẽ <b>tải lại toàn bộ dữ liệu</b> (Khách hàng, Phân quyền, Lịch sử...) từ Sheet Master.</li>
-                        <li>Chỉ sử dụng khi bạn vừa can thiệp sửa/xóa dữ liệu trực tiếp trên file Excel.</li>
-                        <li>Yêu cầu <b>Mã PIN Bảo mật 2 lớp</b> để thực thi.</li>
-                    </ul>
+
+                <div id="boxSuccess" class="hidden bg-emerald-50/80 border border-emerald-200/60 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500 shadow-sm">
+                    <div class="bg-emerald-100 p-3.5 rounded-[1rem] text-emerald-600 shrink-0 shadow-inner">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-emerald-900 text-lg mb-1 tracking-tight">Đồng bộ hoàn tất!</h3>
+                        <p class="text-[13px] text-emerald-800/90 leading-relaxed font-medium mt-2">Hệ thống đã nạp thành công dữ liệu mới nhất từ Google Sheets lên RAM. Nền tảng đang hoạt động với trạng thái tối ưu nhất.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center border-t border-purple-50 pt-10">
+                    <button id="btnActionReload" onclick="xacNhanDongBo()" class="px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 hover:from-purple-700 hover:to-indigo-700 flex items-center gap-3 min-w-[320px] justify-center active:scale-95 group disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none">
+                        <svg class="w-6 h-6 shrink-0 group-hover:rotate-180 transition duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span class="font-black text-lg tracking-widest uppercase">Đồng Bộ Master</span>
+                    </button>
+                    <p id="txtCooldown" class="text-sm font-bold text-slate-400 mt-5 hidden tracking-wide"></p>
                 </div>
             </div>
-
-            <div id="boxSuccess" class="hidden bg-emerald-50 border border-emerald-200 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500">
-                <div class="bg-emerald-100 p-3 rounded-full text-emerald-600 shrink-0 shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <div>
-                    <h3 class="font-black text-emerald-900 text-lg mb-1 tracking-tight">Đồng bộ hoàn tất!</h3>
-                    <p class="text-sm text-emerald-800 leading-relaxed">Hệ thống đã nạp thành công dữ liệu mới nhất từ Google Sheets lên RAM. Nền tảng đang hoạt động với trạng thái tối ưu nhất.</p>
-                </div>
-            </div>
-
-            <div class="flex flex-col items-center border-t border-slate-100 pt-8">
-                <button id="btnActionReload" onclick="xacNhanDongBo()" class="px-10 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 flex items-center gap-3 min-w-[300px] justify-center active:scale-95 group">
-                    <svg class="w-6 h-6 shrink-0 group-hover:rotate-180 transition duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    <span class="font-black text-lg tracking-wide">ĐỒNG BỘ MASTER</span>
-                </button>
-                <p id="txtCooldown" class="text-sm font-bold text-slate-400 mt-4 hidden"></p>
-            </div>
-
         </div>
     </div>
 
@@ -69,8 +83,6 @@
                     boxSuccess.classList.remove('hidden');
 
                     btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
-                    btn.classList.remove('hover:-translate-y-1', 'hover:bg-purple-700');
                     txt.classList.remove('hidden');
                     
                     let timeLeft = 60 - elapsed;
@@ -81,8 +93,6 @@
                             clearInterval(timer);
                             // Hết cooldown -> Trả lại Box Cảnh Báo
                             btn.disabled = false;
-                            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'grayscale');
-                            btn.classList.add('hover:-translate-y-1', 'hover:bg-purple-700');
                             txt.classList.add('hidden');
                             boxSuccess.classList.add('hidden');
                             boxWarning.classList.remove('hidden');
@@ -105,7 +115,7 @@
                 html: `
                     <div class="text-sm text-slate-500 mb-5 font-medium">Nhập <b>Mã PIN</b> để cho phép tải lại hệ thống.</div>
                     <div class="relative w-4/5 mx-auto">
-                        <input type="password" id="swal-pin-input" class="swal2-pin-input w-full box-border bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-center tracking-[0.5em] font-bold text-xl outline-none transition" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <input type="password" id="swal-pin-input" class="swal2-pin-input w-full box-border bg-slate-50 border border-purple-200 rounded-xl py-3 px-4 text-center tracking-[0.5em] font-bold text-xl outline-none transition" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                         <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-purple-600">
                             <svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
                             <svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -113,7 +123,7 @@
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonColor: '#9333ea',
+                confirmButtonColor: '#7e22ce',
                 cancelButtonColor: '#cbd5e1',
                 confirmButtonText: 'Đồng bộ ngay',
                 cancelButtonText: 'Hủy',
@@ -130,7 +140,7 @@
                 
                 const fd = new FormData(); fd.append('pin_xac_nhan', pinXacNhan);
                 try {
-                    // API chuẩn đã đổi tên
+                    // Gọi API Đồng bộ Sheets
                     const r = await fetch('/master/api/dong-bo-sheets', {method: 'POST', body: fd});
                     const res = await r.json();
                     if (res.status === 'ok') {
