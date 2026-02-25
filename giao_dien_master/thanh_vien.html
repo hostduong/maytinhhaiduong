@@ -13,39 +13,39 @@
         .iti { width: 100%; } 
         
         /* SCROLLBAR NGANG XỊN XÒ */
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; }
-        .table-scroll::-webkit-scrollbar { height: 12px; }
-        .table-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; box-shadow: inset 0 0 4px rgba(0,0,0,0.05); margin: 0 4px; }
-        .table-scroll::-webkit-scrollbar-thumb { background-color: #c084fc; background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.4) 50%, transparent); border-radius: 8px; border: 2px solid #f1f5f9; }
-        .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #9333ea; }
-        .table-scroll::-webkit-scrollbar-button:single-button { display: block; border-style: solid; height: 12px; width: 16px; background-color: #f1f5f9; }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement { border-width: 6px 8px 6px 0; border-color: transparent #a855f7 transparent transparent; }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement:hover { border-color: transparent #7e22ce transparent transparent; }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment { border-width: 6px 0 6px 8px; border-color: transparent transparent transparent #a855f7; }
-        .table-scroll::-webkit-scrollbar-button:single-button:horizontal:increment:hover { border-color: transparent transparent transparent #7e22ce; }
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+        .table-scroll::-webkit-scrollbar { height: 10px; }
+        .table-scroll::-webkit-scrollbar-track { background: transparent; border-radius: 8px; margin: 0 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background-color: #d8b4fe; border-radius: 8px; border: 2px solid #ffffff; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #a855f7; }
 
-        /* [THIẾT KẾ MỚI]: ROW AS CARD - BIẾN MỖI DÒNG THÀNH 1 CARD BO VIỀN TÍM */
-        .card-table { border-collapse: separate; border-spacing: 0 14px; }
-        .card-row td { 
-            background: #ffffff; 
-            border-top: 1px solid #e9d5ff; 
-            border-bottom: 1px solid #e9d5ff; 
-            transition: all 0.2s ease;
+        /* [THIẾT KẾ MỚI]: VIỀN LED CHẠY ANIMATION (PRO MAX) */
+        @keyframes spin-slow {
+            100% { transform: rotate(360deg); }
         }
-        .card-row td:first-child { 
-            border-left: 1px solid #e9d5ff; 
-            border-top-left-radius: 1.25rem; 
-            border-bottom-left-radius: 1.25rem; 
+        .animated-border-wrapper {
+            position: relative;
+            border-radius: 1.5rem; /* 24px */
+            padding: 2px; /* Độ dày của viền sáng */
+            overflow: hidden;
+            background: #f1f5f9; /* Màu nền chờ */
         }
-        .card-row td:last-child { 
-            border-right: 1px solid #e9d5ff; 
-            border-top-right-radius: 1.25rem; 
-            border-bottom-right-radius: 1.25rem; 
+        .animated-border-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            /* Dải màu xoay: Đa phần trong suốt, điểm xuyết màu Tím và Indigo */
+            background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
+            animation: spin-slow 4s linear infinite;
+            z-index: 0;
         }
-        .card-row:hover td { 
-            background: #faf5ff; 
-            border-color: #d8b4fe; 
-            box-shadow: 0 4px 12px -2px rgba(147, 51, 234, 0.08); 
+        .animated-border-inner {
+            position: relative;
+            background: #ffffff;
+            border-radius: calc(1.5rem - 2px);
+            z-index: 1;
+            height: 100%;
+            overflow: hidden;
         }
     </style>
 
@@ -65,98 +65,103 @@
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <button onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     Gửi Thông Báo (<span id="countSelected">0</span>)
                 </button>
             </div>
         </div>
 
-        <div class="w-full relative">
-            <div class="overflow-x-auto w-full relative z-10 table-scroll">
-                <table class="w-full text-sm text-left text-slate-600 min-w-[700px] md:min-w-[900px] card-table">
-                    <thead class="text-[11px] text-slate-500 uppercase">
-                        <tr>
-                            <th class="px-4 sm:px-5 pb-2 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
-                            <th class="px-4 sm:px-6 pb-2 font-black tracking-widest text-slate-400 whitespace-nowrap">Thành Viên Master</th>
-                            <th class="px-4 sm:px-6 pb-2 font-black tracking-widest text-slate-400 whitespace-nowrap">Liên hệ</th>
-                            <th class="px-4 sm:px-6 pb-2 font-black tracking-widest text-slate-400 whitespace-nowrap">Chức Vụ & Trạng Thái</th>
-                            <th class="px-4 sm:px-6 pb-2 font-black text-center tracking-widest text-slate-400 w-36 whitespace-nowrap">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyMembers">
-                        {{ range .DanhSach }}
-                        <tr class="card-row group">
-                            <td class="px-4 sm:px-5 py-5 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
-                            <td class="px-4 sm:px-6 py-5 min-w-[220px]">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 shrink-0 rounded-full border-2 border-white bg-slate-100 overflow-hidden shadow-md">
-                                        {{ $avatar := .AnhDaiDien }}
-                                        {{ if not $avatar }}
-                                            {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=f3e8ff&color=7e22ce&bold=true" }}
-                                        {{ end }}
-                                        <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
+        <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
+            <div class="animated-border-inner flex flex-col w-full relative">
+                
+                <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/15 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
+                
+                <div class="overflow-x-auto w-full relative z-10 table-scroll">
+                    <table class="w-full text-sm text-left text-slate-600 min-w-[700px] md:min-w-[900px]">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-4 sm:px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
+                                <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap">Thành Viên Master</th>
+                                <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap">Liên hệ</th>
+                                <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap">Chức Vụ & Trạng Thái</th>
+                                <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest text-slate-700 w-36 whitespace-nowrap">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
+                            {{ range .DanhSach }}
+                            <tr class="hover:bg-purple-50/40 transition-colors duration-200 group">
+                                <td class="px-4 sm:px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
+                                <td class="px-4 sm:px-6 py-4 min-w-[220px]">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-11 h-11 shrink-0 rounded-full border border-slate-200 bg-white overflow-hidden shadow-sm">
+                                            {{ $avatar := .AnhDaiDien }}
+                                            {{ if not $avatar }}
+                                                {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=f3e8ff&color=7e22ce&bold=true" }}
+                                            {{ end }}
+                                            <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="font-black text-slate-800 text-[15px] group-hover:text-purple-700 transition search-target truncate">{{ .TenKhachHang }}</div>
+                                            <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate bg-slate-100/50 px-2 py-0.5 rounded border border-slate-100 inline-block">ID: {{ .MaKhachHang }}</div>
+                                            <div class="text-[11px] text-purple-600 font-bold search-target truncate mt-1">User: {{ .TenDangNhap }}</div>
+                                        </div>
                                     </div>
-                                    <div class="min-w-0">
-                                        <div class="font-black text-slate-800 text-[16px] group-hover:text-purple-700 transition search-target truncate">{{ .TenKhachHang }}</div>
-                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block">ID: {{ .MaKhachHang }}</div>
-                                        <div class="text-[11px] text-purple-600 font-bold search-target truncate mt-1">User: {{ .TenDangNhap }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            
-                            <td class="px-4 sm:px-6 py-5 text-[13px] space-y-1.5 whitespace-nowrap">
-                                {{ if .DienThoai }}
-                                <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> <span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span></div>
-                                {{ end }}
+                                </td>
                                 
-                                {{ if .Email }}
-                                <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> <span class="font-bold text-slate-700 search-target">{{ .Email }}</span></div>
-                                {{ end }}
-                                
-                                {{ if .MangXaHoi.Zalo }}
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-blue-600 font-black bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded text-[10px] tracking-widest shadow-sm">ZALO</span>
-                                    <span class="font-bold text-blue-600 search-target">{{ .MangXaHoi.Zalo }}</span>
-                                </div>
-                                {{ end }}
-                            </td>
-                            
-                            <td class="px-4 sm:px-6 py-5 whitespace-nowrap">
-                                <div class="flex flex-col gap-3 items-start">
-                                    <div>
-                                        {{ if or (eq .VaiTroQuyenHan "quan_tri_he_thong") (eq .MaKhachHang "0000000000000000000") }}
-                                            <span class="bg-gradient-to-r from-slate-900 to-slate-800 text-yellow-400 px-3.5 py-1.5 rounded-lg shadow-md border border-slate-700 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                        {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
-                                            <span class="bg-gradient-to-r from-rose-600 to-red-600 text-white px-3.5 py-1.5 rounded-lg shadow-md border border-rose-500 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                        {{ else if eq .VaiTroQuyenHan "quan_tri_vien" }}
-                                            <span class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3.5 py-1.5 rounded-lg shadow-md border border-indigo-400 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                        {{ else }}
-                                            <span class="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-lg border border-slate-200 font-bold text-[11px] tracking-wide uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                        {{ end }}
-                                    </div>
+                                <td class="px-4 sm:px-6 py-4 text-[12.5px] space-y-1.5 whitespace-nowrap">
+                                    {{ if .DienThoai }}
+                                    <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> <span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span></div>
+                                    {{ end }}
                                     
-                                    <div>
-                                        {{ if eq .TrangThai 1 }}
-                                            <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold border border-emerald-200 shadow-sm"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
-                                        {{ else if eq .TrangThai 0 }}
-                                            <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-[11px] font-bold border border-amber-200 shadow-sm"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Tạm khóa</span>
-                                        {{ else if eq .TrangThai -1 }}
-                                            <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-3 py-1 rounded-full text-[11px] font-bold border border-red-200 shadow-sm"><span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Đợi xóa</span>
-                                        {{ end }}
+                                    {{ if .Email }}
+                                    <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> <span class="font-bold text-slate-700 search-target">{{ .Email }}</span></div>
+                                    {{ end }}
+                                    
+                                    {{ if .MangXaHoi.Zalo }}
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-blue-600 font-black bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded text-[9px] tracking-widest shadow-sm">ZALO</span>
+                                        <span class="font-bold text-blue-600 search-target">{{ .MangXaHoi.Zalo }}</span>
                                     </div>
-                                </div>
-                            </td>
-                            
-                            <td class="px-4 sm:px-6 py-5 text-center">
-                                <button onclick="editMember('{{ .MaKhachHang }}')" class="group inline-flex items-center justify-center gap-2 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all border border-purple-200 hover:shadow-lg hover:shadow-purple-200 active:scale-95 whitespace-nowrap">
-                                    <svg class="w-4 h-4 text-purple-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    <span>Sửa Hồ Sơ</span>
-                                </button>
-                            </td>
-                        </tr>
-                        {{ end }}
-                    </tbody>
-                </table>
+                                    {{ end }}
+                                </td>
+                                
+                                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col gap-2.5 items-start">
+                                        <div>
+                                            {{ if or (eq .VaiTroQuyenHan "quan_tri_he_thong") (eq .MaKhachHang "0000000000000000000") }}
+                                                <span class="bg-gradient-to-r from-slate-900 to-slate-800 text-yellow-400 px-3 py-1.5 rounded-lg shadow-sm border border-slate-700 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                            {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
+                                                <span class="bg-gradient-to-r from-rose-600 to-red-600 text-white px-3 py-1.5 rounded-lg shadow-sm border border-rose-500 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                            {{ else if eq .VaiTroQuyenHan "quan_tri_vien" }}
+                                                <span class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3 py-1.5 rounded-lg shadow-sm border border-indigo-400 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                            {{ else }}
+                                                <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 font-bold text-[11px] tracking-wide uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                            {{ end }}
+                                        </div>
+                                        
+                                        <div>
+                                            {{ if eq .TrangThai 1 }}
+                                                <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-emerald-200 shadow-sm"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Hoạt động</span>
+                                            {{ else if eq .TrangThai 0 }}
+                                                <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-amber-200 shadow-sm"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Tạm khóa</span>
+                                            {{ else if eq .TrangThai -1 }}
+                                                <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-200 shadow-sm"><span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Đợi xóa</span>
+                                            {{ end }}
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                <td class="px-4 sm:px-6 py-4 text-center">
+                                    <button onclick="editMember('{{ .MaKhachHang }}')" class="group inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 active:scale-95 whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 text-purple-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <span>Sửa Hồ Sơ</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -352,9 +357,9 @@
                 <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required autocomplete="off" spellcheck="false"></textarea></div>
                 
                 {{ if or (eq .NhanVien.VaiTroQuyenHan "quan_tri_he_thong") (eq .NhanVien.VaiTroQuyenHan "quan_tri_vien_he_thong") (eq .NhanVien.VaiTroQuyenHan "quan_tri_vien") }}
-                <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-purple-300 transition">
                     <input type="checkbox" id="chkSendAsBot" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
-                    <label for="chkSendAsBot" class="text-sm font-bold text-slate-700 cursor-pointer select-none">Gửi dưới danh nghĩa Trợ lý ảo (Hệ thống)</label>
+                    <label for="chkSendAsBot" class="text-[13px] font-bold text-slate-700 cursor-pointer select-none">Gửi dưới danh nghĩa Trợ lý ảo (Hệ thống)</label>
                 </div>
                 {{ end }}
             </div>
@@ -406,7 +411,7 @@
             const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             const queryClean = removeAccents(query);
 
-            document.querySelectorAll(`#${tbodyId} tr.card-row`).forEach(row => { 
+            document.querySelectorAll(`#${tbodyId} tr`).forEach(row => { 
                 const cb = row.querySelector('.chk-member');
                 if (!cb) return;
                 const id = cb.value;
