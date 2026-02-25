@@ -14,46 +14,47 @@
     </style>
 
     <div class="max-w-7xl mx-auto mb-10">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-5">
             <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner">
+                <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 </div>
-                <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">Quản Lý Core Team</h1>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">Quản Lý Core Team</h1>
             </div>
             
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="relative flex-1 md:w-72">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <div class="relative w-full sm:w-72">
                     <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm tên, SĐT, Email..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <button onclick="openMessageModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                <button onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     Gửi Thông Báo (<span id="countSelected">0</span>)
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
+        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-200/40 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
             
-            <div class="overflow-x-auto relative z-10">
-                <table class="w-full text-sm text-left text-slate-600 min-w-[800px]">
-                    <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+            <div class="overflow-x-auto w-full relative z-10 custom-scroll">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[900px]">
+                    <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                         <tr>
-                            <th class="px-5 py-5 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
-                            <th class="px-6 py-5 font-black tracking-widest text-purple-900">Thành Viên Master</th>
-                            <th class="px-6 py-5 font-black tracking-widest">Liên hệ</th>
-                            <th class="px-6 py-5 font-black tracking-widest">Chức Vụ</th>
-                            <th class="px-6 py-5 font-black text-center tracking-widest">Trạng Thái</th>
-                            <th class="px-6 py-5 font-black text-center tracking-widest w-28">Thao tác</th>
+                            <th class="px-4 sm:px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest text-purple-900 whitespace-nowrap">Thành Viên Master</th>
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Liên hệ</th>
+                            <th class="px-4 sm:px-6 py-4 font-black tracking-widest whitespace-nowrap">Chức Vụ</th>
+                            <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest whitespace-nowrap">Trạng Thái</th>
+                            <th class="px-4 sm:px-6 py-4 font-black text-center tracking-widest w-28 whitespace-nowrap">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyMembers" class="divide-y divide-slate-50">
                         {{ range .DanhSach }}
                         <tr class="bg-white hover:bg-purple-50/30 transition group">
-                            <td class="px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 sm:px-5 py-4 text-center"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateCount()"></td>
+                            <td class="px-4 sm:px-6 py-4 min-w-[250px]">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 shrink-0 rounded-full border-2 border-white bg-slate-100 overflow-hidden shadow-sm">
                                         {{ $avatar := .AnhDaiDien }}
@@ -62,35 +63,35 @@
                                         {{ end }}
                                         <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
                                     </div>
-                                    <div>
-                                        <div class="font-black text-slate-800 text-base group-hover:text-purple-700 transition search-target">{{ .TenKhachHang }}</div>
-                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ .MaKhachHang }}</div>
-                                        <div class="text-[11px] text-purple-500 font-bold search-target">User: {{ .TenDangNhap }}</div>
+                                    <div class="min-w-0">
+                                        <div class="font-black text-slate-800 text-[15px] group-hover:text-purple-700 transition search-target truncate">{{ .TenKhachHang }}</div>
+                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">ID: {{ .MaKhachHang }}</div>
+                                        <div class="text-[11px] text-purple-500 font-bold search-target truncate">User: {{ .TenDangNhap }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-xs space-y-1.5">
+                            <td class="px-4 sm:px-6 py-4 text-xs space-y-1.5 whitespace-nowrap">
                                 <div class="flex items-center gap-2"><span class="text-slate-400">📞</span> {{ if .DienThoai }}<span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span>{{ else }}---{{ end }}</div>
                                 <div class="flex items-center gap-2"><span class="text-slate-400">📧</span> {{ if .Email }}<span class="font-bold text-slate-700 search-target">{{ .Email }}</span>{{ else }}---{{ end }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                 {{ if eq .VaiTroQuyenHan "quan_tri_he_thong" }}
-                                    <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
+                                    <span class="bg-slate-900 text-yellow-400 text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
                                 {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
-                                    <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase">{{ .ChucVu }}</span>
+                                    <span class="bg-red-600 text-white text-[10px] font-black tracking-widest px-3 py-1.5 rounded-lg shadow-sm uppercase whitespace-nowrap">{{ .ChucVu }}</span>
                                 {{ else }}
-                                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide">{{ .ChucVu }}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide whitespace-nowrap">{{ .ChucVu }}</span>
                                 {{ end }}
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
                                 {{ if eq .TrangThai 1 }}
                                     <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Mở</span>
                                 {{ else }}
                                     <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Khóa</span>
                                 {{ end }}
                             </td>
-                            <td class="px-6 py-4 text-center">
-                                <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-purple-200 hover:border-purple-600 active:scale-95">Sửa Hồ Sơ</button>
+                            <td class="px-4 sm:px-6 py-4 text-center">
+                                <button onclick="editMember('{{ .MaKhachHang }}')" class="bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-purple-200 hover:border-purple-600 active:scale-95 whitespace-nowrap">Sửa Hồ Sơ</button>
                             </td>
                         </tr>
                         {{ end }}
@@ -117,38 +118,37 @@
     <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6">
         <div class="bg-slate-50 rounded-[2rem] shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh] border border-white/20">
             
-            <div class="px-8 py-6 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem] shrink-0">
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem] shrink-0">
                 <div class="flex items-center gap-3">
-                    <span class="bg-purple-100 p-2.5 rounded-2xl text-purple-600 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="bg-purple-100 p-2 sm:p-2.5 rounded-2xl text-purple-600 shadow-inner">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     </span>
-                    <h3 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600" id="modalTitle">Hồ Sơ & Phân Quyền</h3>
+                    <h3 class="text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600" id="modalTitle">Hồ Sơ & Phân Quyền</h3>
                 </div>
                 <button onclick="closeModal('modalEdit')" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">&times;</button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scroll relative">
+            <div class="p-4 sm:p-8 overflow-y-auto custom-scroll relative">
                 
                 <form id="formEdit" class="space-y-6" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
-                    <div class="bg-indigo-50/80 border border-indigo-100 p-5 rounded-2xl flex items-start gap-4 mb-6 shadow-sm">
-                        <div class="bg-indigo-100 p-2.5 rounded-full text-indigo-600 shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="bg-indigo-50/80 border border-indigo-100 p-4 sm:p-5 rounded-2xl flex items-start gap-4 mb-6 shadow-sm">
+                        <div class="bg-indigo-100 p-2 sm:p-2.5 rounded-full text-indigo-600 shrink-0">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
                             <h4 class="text-sm font-black text-indigo-900 mb-1">Lưu ý quản trị</h4>
-                            <p class="text-[13px] text-indigo-800/80 leading-relaxed font-medium">
+                            <p class="text-xs sm:text-[13px] text-indigo-800/80 leading-relaxed font-medium">
                                 Dữ liệu hiển thị bên dưới là <b>hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu và làm thay đổi thông tin cá nhân của người dùng trên toàn hệ thống.
                             </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
                         
                         <div class="lg:col-span-7">
-                            
-                            <div class="bg-white p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
+                            <div class="bg-white p-6 sm:p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                                 
                                 <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-6 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
@@ -172,7 +172,7 @@
                                         <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
                                     </div>
                                     
-                                    <div class="grid grid-cols-2 gap-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <div>
                                             <label class="form-lbl">Giới tính</label>
                                             <select name="gioi_tinh" id="f_gender" class="input-premium bg-white cursor-pointer"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select>
@@ -188,7 +188,6 @@
                                             <div><label class="form-lbl text-emerald-600">Nguồn khách hàng</label><input type="text" name="nguon_khach_hang" id="f_source" class="input-premium bg-emerald-50/50" placeholder="VD: Đăng ký Web..."></div>
                                             
                                             <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://facebook.com/..."></div>
-                                            
                                             <div class="sm:col-span-2"><label class="form-lbl text-slate-800">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://tiktok.com/@..."></div>
                                         </div>
                                     </div>
@@ -196,9 +195,9 @@
                             </div>
                         </div>
 
-                        <div class="lg:col-span-5 space-y-8">
+                        <div class="lg:col-span-5 space-y-6 sm:space-y-8">
                             
-                            <div class="bg-white p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
+                            <div class="bg-white p-6 sm:p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                                 <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 uppercase tracking-widest text-[11px] flex items-center gap-2 mb-6 relative z-10">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hệ thống & Quyền hạn
@@ -251,13 +250,13 @@
                                 </div>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
+                            <div class="bg-white p-6 sm:p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                                 <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Dữ liệu quản trị
                                 </h4>
                                 
-                                <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-500 relative z-10">
+                                <div class="space-y-4 mb-6 text-xs sm:text-[13px] font-medium font-mono text-slate-500 relative z-10">
                                     <div class="flex justify-between items-center"><span>Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
                                     <div class="flex justify-between items-center"><span>Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
                                     <div class="flex justify-between items-center"><span>Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
@@ -273,9 +272,9 @@
                 </form>
             </div>
 
-            <div class="px-8 py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex justify-end gap-4 shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
-                <button onclick="closeModal('modalEdit')" class="px-8 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng Modal</button>
-                <button onclick="saveMember()" id="btnSaveMem" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2 text-[15px]">
+            <div class="px-6 sm:px-8 py-4 sm:py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex flex-col sm:flex-row justify-end gap-3 shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+                <button onclick="closeModal('modalEdit')" class="w-full sm:w-auto px-8 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng Modal</button>
+                <button onclick="saveMember()" id="btnSaveMem" class="w-full sm:w-auto px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 text-[15px]">
                     Lưu Thay Đổi
                 </button>
             </div>
@@ -284,18 +283,18 @@
 
     <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
         <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg transform transition-all overflow-hidden border border-white/20">
-            <div class="px-8 py-6 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-indigo-600">
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-indigo-600">
                 <h3 class="text-xl font-black text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
                 <button onclick="closeModal('modalMsg')" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition text-xl font-bold">&times;</button>
             </div>
-            <div class="p-8 space-y-6">
+            <div class="p-6 sm:p-8 space-y-6">
                 <div class="bg-purple-50 text-purple-700 p-4 rounded-2xl text-sm font-bold border border-purple-100 flex items-center justify-between shadow-sm"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-purple-700 text-2xl bg-white px-4 py-1 rounded-xl shadow-sm border border-purple-200">0</span></div>
                 <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật..." required autocomplete="off" spellcheck="false"></div>
                 <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required autocomplete="off" spellcheck="false"></textarea></div>
             </div>
-            <div class="px-8 py-5 border-t bg-slate-50 flex justify-end gap-3 rounded-b-[2rem]">
-                <button onclick="closeModal('modalMsg')" class="px-6 py-2.5 text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl font-bold transition">Hủy</button>
-                <button onclick="sendMessages()" id="btnSendMsg" class="px-8 py-2.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md transition transform active:scale-95 flex items-center gap-2">Phát sóng</button>
+            <div class="px-6 sm:px-8 py-4 sm:py-5 border-t bg-slate-50 flex flex-col sm:flex-row justify-end gap-3 rounded-b-[2rem]">
+                <button onclick="closeModal('modalMsg')" class="w-full sm:w-auto px-6 py-3 text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl font-bold transition">Hủy</button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="w-full sm:w-auto px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">Phát sóng</button>
             </div>
         </div>
     </div>
