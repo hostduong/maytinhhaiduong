@@ -93,6 +93,12 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
 	newRole := c.PostForm("vai_tro")
 
+	// [MỚI] CHẶN CẤP QUYỀN ROOT CHO NGƯỜI KHÁC
+	if newRole == "quan_tri_he_thong" && maKH != "0000000000000000001" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi bảo mật: Chỉ có duy nhất 1 Người sáng lập (ID 001) được giữ quyền Quản trị hệ thống!"})
+		return
+	}
+
 	if isTargetRootLevel1 && !isMeRootLevel1 {
 		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Chủ tịch!"})
 		return
@@ -151,7 +157,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
 	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("tiktok"))
 
-	// [MỚI BỔ SUNG BẢO MẬT]: Chỉ cho phép đổi Pass/PIN nếu KHÔNG PHẢI là Bot Hệ Thống
 	if maKH != "0000000000000000000" {
 		passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi"))
 		if passMoi != "" {
@@ -170,8 +175,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 
 	loc := time.FixedZone("ICT", 7*3600)
 	kh.NgayCapNhat = time.Now().In(loc).Format("2006-01-02 15:04:05")
-	
-	// [ĐÃ SỬA]: Lưu thông tin User ID (Tên đăng nhập) của người thực hiện hành động này
 	kh.NguoiCapNhat = admin.TenDangNhap 
 	core.KhoaHeThong.Unlock()
 
@@ -192,8 +195,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_AnhDaiDien, kh.AnhDaiDien)         
 	ghi(shopID, sh, r, core.CotKH_NguonKhachHang, kh.NguonKhachHang) 
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
-	
-	// [ĐÃ SỬA]: Ghi Người Cập Nhật xuống Sheet
 	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 	
 	jsonMXH := core.ToJSON(kh.MangXaHoi)
