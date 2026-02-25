@@ -2,40 +2,38 @@
     {{ template "header_master" . }}
 
     <style>
-        /* Tùy chỉnh thanh cuộn cho khu vực Chat */
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: transparent; }
         .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .chat-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 
-    <div class="max-w-7xl mx-auto mb-4 h-[calc(100vh-8rem)]">
+    <div class="max-w-7xl mx-auto h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col pb-6">
         
-        <div class="flex items-center gap-3 mb-6 shrink-0 hidden md:flex">
+        <div class="flex items-center gap-3 mb-4 shrink-0 hidden md:flex">
             <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
             </div>
             <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">Trạm Tin Nhắn</h1>
         </div>
 
-        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 flex overflow-hidden h-full relative">
+        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 flex-1 flex overflow-hidden relative min-h-0">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
             
-            <div id="contactPane" class="w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col bg-slate-50/30 relative z-10 shrink-0 transition-all duration-300">
-                <div class="p-5 border-b border-slate-100 bg-white">
+            <div id="contactPane" class="w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col bg-slate-50/30 relative z-10 shrink-0 transition-all duration-300 h-full min-h-0">
+                <div class="p-4 md:p-5 border-b border-slate-100 bg-white shrink-0">
                     <div class="relative">
                         <input type="text" id="searchChat" onkeyup="renderContactList()" placeholder="Tìm tên, username, ID..." class="w-full pl-11 pr-4 py-2.5 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition shadow-sm bg-slate-50">
                         <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                 </div>
-                <div id="contactListRender" class="flex-1 overflow-y-auto chat-scroll divide-y divide-slate-100/80"></div>
+                <div id="contactListRender" class="flex-1 overflow-y-auto chat-scroll divide-y divide-slate-100/80 min-h-0"></div>
             </div>
 
-            <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0">
+            <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0 h-full min-h-0">
                 
-                <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400">
+                <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-0">
                     <div class="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mb-5 shadow-inner">
                         <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
                     </div>
@@ -43,28 +41,29 @@
                     <p class="text-sm mt-1">Chọn một thành viên bên trái để bắt đầu trò chuyện.</p>
                 </div>
 
-                <div id="activeChatState" class="flex-1 flex flex-col hidden h-full">
+                <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full">
                     <div class="h-16 border-b border-slate-100 px-5 flex items-center justify-between bg-white shrink-0 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] z-10">
                         <div class="flex items-center gap-3">
                             <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                            <div id="chatActiveAvatar" class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shadow-sm border border-slate-100"></div>
-                            <div>
-                                <h3 id="chatActiveName" class="font-black text-slate-800 text-[15px] leading-tight">--</h3>
-                                <p id="chatActiveRole" class="text-[11px] font-bold text-purple-600 uppercase tracking-widest leading-tight mt-0.5">--</p>
+                            <div id="chatActiveAvatar" class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0"></div>
+                            <div class="min-w-0">
+                                <h3 id="chatActiveName" class="font-black text-slate-800 text-[15px] leading-tight truncate">--</h3>
+                                <p id="chatActiveRole" class="text-[10px] font-bold text-purple-600 uppercase tracking-widest leading-tight mt-1 truncate">--</p>
                             </div>
                         </div>
                     </div>
 
-                    <div id="chatHistory" class="flex-1 overflow-y-auto p-5 chat-scroll bg-slate-50/50 flex flex-col gap-4">
+                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-5 chat-scroll bg-slate-50/50 flex flex-col gap-4 min-h-0">
                         </div>
 
-                    <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                        <form onsubmit="sendChatMessage(event)" class="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.2rem] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
-                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-sm text-slate-800 placeholder-slate-400 custom-scroll max-h-32" placeholder="Nhập tin nhắn..." required oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
-                            <button type="submit" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50">
+                    <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20">
+                        <div class="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.2rem] p-1.5 shadow-inner focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
+                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-sm text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập tin nhắn..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                            
+                            <button type="button" onclick="executeSendChat()" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50 disabled:grayscale">
                                 <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -91,7 +90,6 @@
         let chatData = [];
         let activeChatID = null;
 
-        // 1. CHUẨN BỊ DỮ LIỆU TỪ HTML VÀO JAVASCRIPT OBJECT
         function parseData() {
             chatData = [];
             document.querySelectorAll('.u-data').forEach(el => {
@@ -105,15 +103,10 @@
                     });
                 });
                 
-                // Sắp xếp tin nhắn cũ -> mới
                 msgs.sort((a,b) => a.time.localeCompare(b.time));
-                
-                // Chỉ lấy 20 tin nhắn mới nhất để tối ưu RAM
                 if (msgs.length > 20) msgs = msgs.slice(msgs.length - 20);
 
                 let latest = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-
-                // Xử lý Avatar chuẩn
                 let ava = el.dataset.avatar;
                 if(!ava) ava = `https://ui-avatars.com/api/?name=${el.dataset.name}&background=f3e8ff&color=7e22ce&bold=true`;
 
@@ -124,14 +117,12 @@
                 });
             });
 
-            // Sắp xếp danh bạ: Ai có tin nhắn mới nhất đẩy lên đầu
             chatData.sort((a, b) => {
                 if(!a.latestMsg) return 1; if(!b.latestMsg) return -1;
                 return b.latestMsg.time.localeCompare(a.latestMsg.time);
             });
         }
 
-        // 2. RENDER DANH BẠ (CỘT TRÁI)
         function renderContactList() {
             const query = removeAccents(document.getElementById('searchChat').value.toLowerCase().trim());
             const container = document.getElementById('contactListRender');
@@ -141,18 +132,17 @@
                 const strSearch = removeAccents(`${u.name} ${u.user} ${u.id}`).toLowerCase();
                 if (!strSearch.includes(query)) return;
 
-                const isActive = (u.id === activeChatID) ? 'bg-purple-50 border-l-4 border-purple-600' : 'hover:bg-slate-50 border-l-4 border-transparent';
+                const isActive = (u.id === activeChatID) ? 'bg-purple-50/80 border-l-4 border-purple-600' : 'hover:bg-slate-50 border-l-4 border-transparent';
                 
                 let snippet = "<i class='text-slate-300'>Chưa có tin nhắn</i>";
                 let timeStr = "";
                 let unreadDot = "";
 
                 if (u.latestMsg) {
-                    // Cắt ngắn snippet
                     snippet = u.latestMsg.content.length > 35 ? u.latestMsg.content.substring(0,35) + '...' : u.latestMsg.content;
-                    timeStr = u.latestMsg.time.split(' ')[1] || ""; // Lấy giờ
+                    timeStr = u.latestMsg.time.split(' ')[1] || "";
                     if (!u.latestMsg.read && u.latestMsg.sender !== myUserID && u.latestMsg.sender !== 'SYSTEM') {
-                        unreadDot = `<div class="w-2.5 h-2.5 bg-red-500 rounded-full shrink-0 shadow-sm border border-white absolute -top-0.5 -right-0.5"></div>`;
+                        unreadDot = `<div class="w-3 h-3 bg-red-500 rounded-full shrink-0 shadow-sm border-2 border-white absolute -top-0.5 -right-0.5"></div>`;
                         snippet = `<b class="text-purple-700">${snippet}</b>`;
                     }
                 }
@@ -175,13 +165,11 @@
             container.innerHTML = html;
         }
 
-        // 3. MỞ KHUNG CHAT (CỘT PHẢI)
         function openChat(userID) {
             activeChatID = userID;
             const u = chatData.find(x => x.id === userID);
             if(!u) return;
 
-            // Đổi UI Mobile
             if(window.innerWidth < 768) {
                 document.getElementById('contactPane').classList.add('hidden');
                 document.getElementById('chatPane').classList.remove('hidden', 'translate-x-full');
@@ -190,13 +178,15 @@
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('activeChatState').classList.remove('hidden');
 
-            // Cập nhật Header Chat
             document.getElementById('chatActiveName').innerText = u.name;
             document.getElementById('chatActiveRole').innerText = u.role;
             document.getElementById('chatActiveAvatar').innerHTML = `<img src="${u.avatar}" class="w-full h-full object-cover">`;
 
             renderMessages(u);
-            renderContactList(); // Refresh lại danh sách để tô màu active
+            renderContactList();
+            
+            // Focus vào ô input khi mở đoạn chat
+            setTimeout(() => { document.getElementById('chatInputContent').focus(); }, 100);
         }
 
         function closeChatMobile() {
@@ -206,7 +196,6 @@
             renderContactList();
         }
 
-        // 4. RENDER TIN NHẮN (BONG BÓNG CHAT)
         function renderMessages(u) {
             const history = document.getElementById('chatHistory');
             let html = '';
@@ -215,15 +204,13 @@
                 html = `<div class="text-center text-slate-400 text-xs py-10 italic">Bắt đầu cuộc trò chuyện với ${u.name}</div>`;
             } else {
                 u.messages.forEach(m => {
-                    // Logic xác định hướng bong bóng: Nếu người gửi là Master/System thì nằm bên phải
                     let isMe = (m.sender === myUserID || m.sender === 'SYSTEM');
-                    
                     if (isMe) {
                         html += `
                         <div class="flex flex-col items-end w-full pl-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
                             <div class="flex items-end gap-2">
-                                <span class="text-[9px] text-slate-400 font-medium mb-1">${m.time.split(' ')[1]}</span>
-                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap">${m.content}</div>
+                                <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
+                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
                             </div>
                         </div>`;
                     } else {
@@ -231,12 +218,11 @@
                         <div class="flex flex-col items-start w-full pr-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
                             <span class="text-[10px] font-bold text-slate-500 ml-1 mb-1">${m.senderName}</span>
                             <div class="flex items-end gap-2">
-                                <div class="bg-white border border-slate-200 text-slate-800 p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap">${m.content}</div>
-                                <span class="text-[9px] text-slate-400 font-medium mb-1">${m.time.split(' ')[1]}</span>
+                                <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm text-[14px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
+                                <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
                             </div>
                         </div>`;
                         
-                        // Call API đọc tin nhắn ngầm nếu tin của ng khác gửi đến chưa đọc
                         if(!m.read) {
                             m.read = true;
                             const fd = new FormData(); fd.append('msg_id', m.id);
@@ -246,13 +232,11 @@
                 });
             }
             history.innerHTML = html;
-            // Scroll to bottom
             history.scrollTop = history.scrollHeight;
         }
 
-        // 5. GỬI TIN NHẮN CHAT
-        async function sendChatMessage(e) {
-            e.preventDefault();
+        // [ĐÃ SỬA]: Hàm bắn tin nhắn không bị kẹt form submit
+        async function executeSendChat() {
             if(!activeChatID) return;
             
             const input = document.getElementById('chatInputContent');
@@ -268,47 +252,47 @@
 
             try {
                 const res = await fetch('/master/api/tin-nhan/send-chat', { method: 'POST', body: fd });
+                if (!res.ok) throw new Error("Server Response Error");
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
-                    input.value = ''; input.style.height = '';
-                    // Fake update UI immediately for snappy feel
+                    input.value = ''; 
+                    input.style.height = '';
+                    
                     const u = chatData.find(x => x.id === activeChatID);
                     u.messages.push({
                         id: data.data.ma_tin_nhan,
                         sender: myUserID,
-                        senderName: 'Me',
+                        senderName: 'Bạn',
                         time: data.data.ngay_tao,
                         content: content,
                         read: true
                     });
                     u.latestMsg = u.messages[u.messages.length - 1];
                     
-                    // Xếp lại danh sách để đẩy người này lên đầu
                     chatData.sort((a, b) => b.latestMsg.time.localeCompare(a.latestMsg.time));
-                    
                     renderMessages(u);
                     renderContactList();
                 } else {
                     Swal.fire('Lỗi', data.msg, 'error');
                 }
             } catch(err) {
-                Swal.fire('Lỗi', 'Không thể gửi tin nhắn do lỗi mạng', 'error');
+                console.error("Fetch Exception:", err);
+                Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Hãy thử lại.', 'error');
             } finally {
                 btn.disabled = false;
                 input.focus();
             }
         }
 
-        // Xử lý Shift+Enter xuống dòng, Enter gửi
+        // Bắt sự kiện Enter (Gửi) và Shift+Enter (Xuống dòng)
         document.getElementById('chatInputContent').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendChatMessage(e);
+                e.preventDefault(); // Chống xuống dòng mặc định
+                executeSendChat(); // Kích hoạt hàm gửi
             }
         });
 
-        // Khởi chạy khi load trang
         parseData();
         renderContactList();
     </script>
