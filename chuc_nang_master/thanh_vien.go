@@ -18,7 +18,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	vaiTro := c.GetString("USER_ROLE")
 
-	// Chặn quyền ngặt nghèo
 	if vaiTro != "quan_tri_he_thong" && vaiTro != "quan_tri_vien_he_thong" {
 		c.Redirect(http.StatusFound, "/")
 		return
@@ -27,7 +26,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	me, _ := core.LayKhachHang(masterShopID, userID)
 	listAll := core.LayDanhSachKhachHang(masterShopID)
 	
-	// Clone để nạp Inbox mà không làm hỏng Cache chung
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
@@ -49,7 +47,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
-		"TieuDe":         "Core Team (Admin)",
+		"TieuDe":         "Core Team",
 		"NhanVien":       me,
 		"DanhSach":       listView, 
 		"DanhSachVaiTro": listVaiTro, 
@@ -90,7 +88,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		return
 	}
 
-	// [LUẬT BẢO MẬT 2 TẦNG MASTER]
 	isTargetRootLevel1 := (maKH == "0000000000000000001" || kh.VaiTroQuyenHan == "quan_tri_he_thong")
 	isMeRootLevel1 := (userID == "0000000000000000001" || myRole == "quan_tri_he_thong")
 	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
@@ -170,6 +167,9 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 
 	loc := time.FixedZone("ICT", 7*3600)
 	kh.NgayCapNhat = time.Now().In(loc).Format("2006-01-02 15:04:05")
+	
+	// [ĐÃ SỬA]: Lưu thông tin User ID (Tên đăng nhập) của người thực hiện hành động này
+	kh.NguoiCapNhat = admin.TenDangNhap 
 	core.KhoaHeThong.Unlock()
 
 	ghi := core.ThemVaoHangCho
@@ -189,6 +189,9 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_AnhDaiDien, kh.AnhDaiDien)         
 	ghi(shopID, sh, r, core.CotKH_NguonKhachHang, kh.NguonKhachHang) 
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
+	
+	// [ĐÃ SỬA]: Ghi Người Cập Nhật xuống Sheet
+	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 	
 	jsonMXH := core.ToJSON(kh.MangXaHoi)
 	ghi(shopID, sh, r, core.CotKH_MangXaHoiJson, jsonMXH)
