@@ -189,7 +189,16 @@ func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 	mtxTinNhan.Lock()
 	list := CacheTinNhan[shopID]
-	msg.DongTrongSheet = DongBatDau_TinNhan + len(list)
+	
+	// [THUẬT TOÁN MỚI]: Tìm dòng lớn nhất hiện tại để Append, tránh bị ghi đè
+	maxRow := DongBatDau_TinNhan - 1
+	for _, m := range list {
+		if m.DongTrongSheet > maxRow {
+			maxRow = m.DongTrongSheet
+		}
+	}
+	msg.DongTrongSheet = maxRow + 1
+	
 	CacheTinNhan[shopID] = append(list, msg)
 	mtxTinNhan.Unlock()
 	
