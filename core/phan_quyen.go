@@ -139,3 +139,27 @@ func KiemTraQuyen(shopID string, vaiTro string, maChucNang string) bool {
 	}
 	return false
 }
+
+// =========================================================================
+// HÀM TIỆN ÍCH: LẤY CẤP BẬC (LEVEL) CỦA MỘT USER ĐỂ KIỂM TRA BẢO MẬT BACKEND
+// =========================================================================
+func LayCapBacVaiTro(shopID string, maKH string, vaiTro string) int {
+	// Ưu tiên cao nhất (GOD): Bot Hệ Thống và Người Sáng Lập mặc định là Tầng 1
+	if maKH == "0000000000000000000" || vaiTro == "quan_tri_he_thong" {
+		return 1
+	}
+
+	mtxQuyen.RLock()
+	defer mtxQuyen.RUnlock()
+	
+	// Quét trong bảng Phân quyền để lấy Level
+	for _, v := range CacheDanhSachVaiTro[shopID] {
+		if v.MaVaiTro == vaiTro {
+			if v.StyleLevel > 0 {
+				return v.StyleLevel // Trả về số 1, 2, 3, 4, 5
+			}
+			return 5 // Nếu Admin quên điền ô style, mặc định ném xuống Tầng 5 thấp nhất
+		}
+	}
+	return 5
+}
