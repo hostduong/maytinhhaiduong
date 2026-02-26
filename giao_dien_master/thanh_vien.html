@@ -84,14 +84,26 @@
                                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-col gap-2.5 items-start">
                                         <div>
-                                            {{ if or (eq .VaiTroQuyenHan "quan_tri_he_thong") (eq .MaKhachHang "0000000000000000000") }}
-                                                <span class="bg-gradient-to-r from-slate-900 to-slate-800 text-yellow-400 px-3 py-1.5 rounded-lg shadow-sm border border-slate-700 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                            {{ else if eq .VaiTroQuyenHan "quan_tri_vien_he_thong" }}
-                                                <span class="bg-gradient-to-r from-rose-600 to-red-600 text-white px-3 py-1.5 rounded-lg shadow-sm border border-rose-500 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
-                                            {{ else if eq .VaiTroQuyenHan "quan_tri_vien" }}
-                                                <span class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-3 py-1.5 rounded-lg shadow-sm border border-indigo-400 font-black text-[10px] tracking-widest uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                            {{ if or (eq .VaiTroQuyenHan "quan_tri_he_thong") (eq .VaiTroQuyenHan "quan_tri_cua_hang") (eq .MaKhachHang "0000000000000000000") }}
+                                                <div class="badge-animated-wrap badge-god"><div class="badge-inner shadow-sm">{{ .ChucVu }}</div></div>
+                                            
+                                            {{ else if or (eq .VaiTroQuyenHan "quan_tri_vien_he_thong") (eq .VaiTroQuyenHan "giam_doc") }}
+                                                <div class="badge-animated-wrap badge-manager"><div class="badge-inner shadow-sm">{{ .ChucVu }}</div></div>
+                                            
+                                            {{ else if or (eq .VaiTroQuyenHan "quan_tri_vien") (eq .VaiTroQuyenHan "quan_ly") (eq .VaiTroQuyenHan "truong_phong_kinh_doanh") (eq .VaiTroQuyenHan "kiem_soat_noi_bo") }}
+                                                <div class="badge-animated-wrap badge-leader"><div class="badge-inner shadow-sm">{{ .ChucVu }}</div></div>
+                                            
+                                            {{ else if or (eq .VaiTroQuyenHan "nhan_vien_kinh_doanh") (eq .VaiTroQuyenHan "cham_soc_khach_hang") (eq .VaiTroQuyenHan "marketing") }}
+                                                <span class="badge-static badge-staff-sales">{{ .ChucVu }}</span>
+                                            
+                                            {{ else if or (eq .VaiTroQuyenHan "ke_toan") (eq .VaiTroQuyenHan "thu_quy") }}
+                                                <span class="badge-static badge-staff-finance">{{ .ChucVu }}</span>
+
+                                            {{ else if or (eq .VaiTroQuyenHan "truong_kho") (eq .VaiTroQuyenHan "thu_kho") }}
+                                                <span class="badge-static badge-staff-warehouse">{{ .ChucVu }}</span>
+                                            
                                             {{ else }}
-                                                <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 font-bold text-[11px] tracking-wide uppercase whitespace-nowrap">{{ .ChucVu }}</span>
+                                                <span class="badge-static badge-guest">{{ .ChucVu }}</span>
                                             {{ end }}
                                         </div>
                                         
