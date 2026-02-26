@@ -123,29 +123,71 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 /* ==============================================================
    9. MA TRẬN GIAO DIỆN 10x10 (ALL ANIMATED LED BORDERS)
    ============================================================== */
-.badge-animated-wrap { position: relative; display: inline-flex; border-radius: 0.5rem; padding: 1.5px; overflow: hidden; }
-.badge-animated-wrap::before { content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; animation: spin-slow 3.5s linear infinite; z-index: 0; }
-.badge-inner { position: relative; z-index: 1; border-radius: calc(0.5rem - 1.5px); padding: 0.35rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+.badge-animated-wrap {
+    position: relative;
+    display: inline-flex;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    /* FIX LỖI: Tạo không gian Z-index riêng để tia sáng không chui xuống dưới bảng */
+    z-index: 1; 
+}
 
-/* PHÂN CẤP ĐỘ SÁNG CỦA VIỀN LED THEO TIER (S, A, B, C) */
-.tier-s::before { opacity: 1; filter: drop-shadow(0 0 3px rgba(255,255,255,0.4)); } /* Sáng rực rỡ */
-.tier-a::before { opacity: 0.85; } /* Sáng vừa */
-.tier-b::before { opacity: 0.6; padding: 1px; } /* Mờ mờ, viền mỏng hơn */
-.tier-c::before { opacity: 0.35; padding: 1px; } /* Rất mờ, chìm vào nền */
+/* Tạo dải tia sáng LED xoay vòng */
+.badge-animated-wrap::before {
+    content: '';
+    position: absolute;
+    top: -100%; left: -100%; width: 300%; height: 300%;
+    animation: spin-slow 3.5s linear infinite;
+    /* FIX LỖI: Nằm dưới badge-inner nhưng bị nhốt trên nền của wrap */
+    z-index: -1; 
+}
 
-/* HỆ THỐNG MÀU SẮC CHO VIỀN (0-9) */
-.theme-0::before { background: conic-gradient(transparent, transparent, transparent, #64748b, #cbd5e1, transparent); }
-.theme-1::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #93c5fd, transparent); }
-.theme-2::before { background: conic-gradient(transparent, transparent, transparent, #059669, #6ee7b7, transparent); }
-.theme-3::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fdba74, transparent); }
-.theme-4::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
-.theme-5::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
-.theme-6::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fde68a, transparent); }
-.theme-7::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #a5f3fc, transparent); }
-.theme-8::before { background: conic-gradient(transparent, transparent, transparent, #db2777, #fbcfe8, transparent); }
-.theme-9::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fef08a, transparent); }
+/* Nội dung chữ chức vụ bên trong */
+.badge-inner {
+    position: relative;
+    z-index: 2;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    width: 100%;
+    height: 100%;
+}
 
-/* MÀU NỀN BÊN TRONG THEO TIER VÀ THEME */
+/* ========================================
+   PHÂN LỚP ĐỘ DÀY VIỀN & MÀU TRACK CƠ BẢN
+   ======================================== */
+/* Tier S & A: Cấp Quản lý -> Viền dày (1.5px), đường ray viền xám đậm để lộ rõ */
+.tier-s, .tier-a { padding: 1.5px; background-color: #cbd5e1; }
+.tier-s .badge-inner, .tier-a .badge-inner { border-radius: calc(0.5rem - 1.5px); }
+.tier-s::before { opacity: 1; filter: brightness(1.2); }
+.tier-a::before { opacity: 0.85; }
+
+/* Tier B & C: Cấp Nhân viên -> Viền siêu mỏng (1px), đường ray viền mờ nhạt */
+.tier-b, .tier-c { padding: 1px; background-color: #e2e8f0; }
+.tier-b .badge-inner, .tier-c .badge-inner { border-radius: calc(0.5rem - 1px); }
+.tier-b::before { opacity: 0.6; }
+.tier-c::before { opacity: 0.35; }
+
+/* ========================================
+   HỆ THỐNG MÀU TIA SÁNG LED (THEME 0-9)
+   ======================================== */
+.badge-animated-wrap.theme-0::before { background: conic-gradient(transparent, transparent, transparent, #64748b, #cbd5e1, transparent); }
+.badge-animated-wrap.theme-1::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #93c5fd, transparent); }
+.badge-animated-wrap.theme-2::before { background: conic-gradient(transparent, transparent, transparent, #059669, #6ee7b7, transparent); }
+.badge-animated-wrap.theme-3::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fdba74, transparent); }
+.badge-animated-wrap.theme-4::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
+.badge-animated-wrap.theme-5::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
+.badge-animated-wrap.theme-6::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fde68a, transparent); }
+.badge-animated-wrap.theme-7::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #a5f3fc, transparent); }
+.badge-animated-wrap.theme-8::before { background: conic-gradient(transparent, transparent, transparent, #db2777, #fbcfe8, transparent); }
+.badge-animated-wrap.theme-9::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fef08a, transparent); }
+
+/* ========================================
+   HỆ THỐNG MÀU NỀN TRONG THEO TIER VÀ THEME
+   ======================================== */
 /* Tier S (Nền trắng/đen bóng) */
 .tier-s .badge-inner { background: #ffffff; }
 .theme-0.tier-s .badge-inner { color: #334155; } .theme-1.tier-s .badge-inner { color: #1d4ed8; }
@@ -182,8 +224,8 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
    ============================================================== */
 .floating-icon {
     position: absolute;
-    top: -5px;      /* Đã kéo thụt xuống */
-    right: -4px;    /* Đã kéo thụt vào trong */
+    top: -5px;      
+    right: -4px;    
     z-index: 20;
     font-size: 13px;
     transform: rotate(15deg); 
@@ -194,12 +236,11 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
     animation: icon-catch-light 3.5s linear infinite;
 }
 
-/* Biến đổi nhẹ kích thước icon theo cấp */
-.icon-lvl-0 { font-size: 15px; top: -7px; right: -5px; } /* Vương miện to hơn */
-.icon-lvl-9 { font-size: 11px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); opacity: 0.8; } /* Khách mờ hơn */
+/* Tùy chỉnh icon theo cấp bậc */
+.icon-lvl-0 { font-size: 15px; top: -7px; right: -5px; } 
+.icon-lvl-9 { font-size: 11px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); opacity: 0.8; }
 
 @keyframes icon-catch-light {
     0%, 30%, 100% { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)) brightness(1); transform: rotate(15deg) scale(1); }
-    /* Chớp sáng rực rỡ đúng lúc tia sáng lướt qua góc 45 độ */
     10%, 16% { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) brightness(1.3); transform: rotate(8deg) scale(1.15); }
 }
