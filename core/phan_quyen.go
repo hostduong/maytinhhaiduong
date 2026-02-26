@@ -62,11 +62,29 @@ func NapPhanQuyen(shopID string) {
 			styleCode := 90 // Mặc định Level 9, Màu 0 (Khách hàng)
 			if styleIndex != -1 {
 				val := LayInt(raw[styleIndex], i)
-				if val >= 0 { styleCode = val } // Hỗ trợ cả số 0 (Level 0)
+				if val >= 0 { styleCode = val } 
 			}
 			
-			lvl, thm := styleCode, 0
-			if styleCode >= 10 { lvl = styleCode / 10; thm = styleCode % 10 }
+			var lvl, thm int
+			if styleCode >= 10 { 
+				// Tùy chỉnh toàn diện (2 số)
+				lvl = styleCode / 10 
+				thm = styleCode % 10 
+			} else {
+				// SMART DEFAULT: Nếu Admin chỉ nhập 1 số (0-9), tự động "mix" màu đẹp nhất
+				lvl = styleCode
+				switch lvl {
+				case 0: thm = 9 // GOD (Tầng 0) -> Màu Đen/Vàng Hoàng gia
+				case 1: thm = 4 // Platform Biz (Tầng 1) -> Màu Đỏ Uy quyền
+				case 2: thm = 7 // Platform IT (Tầng 2) -> Màu Xanh Lơ (Tech)
+				case 3: thm = 5 // Shop Owner (Tầng 3) -> Màu Tím (Độc quyền)
+				case 4: thm = 4 // Shop C-Level (Tầng 4) -> Màu Đỏ
+				case 5: thm = 6 // Shop Manager (Tầng 5) -> Màu Vàng Amber
+				case 6: thm = 2 // Back-office (Tầng 6) -> Màu Xanh Ngọc (Tiền/Kho)
+				case 7: thm = 1 // Front-office (Tầng 7) -> Màu Xanh Dương (Giao tiếp)
+				default: thm = 0 // Tầng 8, 9 -> Màu Xám chìm
+				}
+			}
 
 			danhSachVaiTroCuaShop = append(danhSachVaiTroCuaShop, VaiTroInfo{
 				MaVaiTro: roleID, TenVaiTro: roleName, StyleLevel: lvl, StyleTheme: thm,
