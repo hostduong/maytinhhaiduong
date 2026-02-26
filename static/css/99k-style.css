@@ -119,3 +119,62 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 .swal-animated-purple .swal2-title { padding-top: 2.5rem !important; margin: 0 !important; }
 .swal-animated-purple .swal2-html-container { padding: 1.5rem 2rem !important; margin: 0 !important; overflow: visible !important; }
 .swal-animated-purple .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
+
+/* ==============================================================
+   9. BADGE CHỨC VỤ PHÂN TẦNG (POWER HIERARCHY BADGES)
+   ============================================================== */
+/* Khung bọc viền LED chạy cho 3 Tầng Cao Nhất */
+.badge-animated-wrap {
+    position: relative;
+    display: inline-flex;
+    border-radius: 0.5rem; /* Bo góc 8px */
+    padding: 1.5px; /* Độ dày viền sáng */
+    overflow: hidden;
+}
+.badge-animated-wrap::before {
+    content: '';
+    position: absolute;
+    top: -100%; left: -100%; width: 300%; height: 300%;
+    animation: spin-slow 3s linear infinite;
+    z-index: 0;
+}
+.badge-inner {
+    position: relative;
+    z-index: 1;
+    border-radius: calc(0.5rem - 1.5px);
+    padding: 0.35rem 0.75rem; 
+    font-size: 0.65rem; /* 10px */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+/* TẦNG 1: GOD (Hệ thống, Cấp cao nhất) - Vàng / Đen */
+.badge-god::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fcd34d, transparent); }
+.badge-god .badge-inner { background-color: #0f172a; color: #fbbf24; }
+
+/* TẦNG 2: MANAGER (Quản lý cấp cao) - Đỏ / Trắng */
+.badge-manager::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
+.badge-manager .badge-inner { background-color: #ffffff; color: #e11d48; }
+
+/* TẦNG 3: LEADER (Trưởng phòng/Kiểm soát) - Tím / Trắng */
+.badge-leader::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
+.badge-leader .badge-inner { background-color: #ffffff; color: #7e22ce; }
+
+/* TẦNG 4 & 5: STAFF & GUEST (Badge tĩnh nổi khối 3D) */
+.badge-static {
+    display: inline-flex;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.badge-staff-sales { background: linear-gradient(to right, #eff6ff, #dbeafe); color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-staff-finance { background: linear-gradient(to right, #ecfdf5, #d1fae5); color: #059669; border: 1px solid #a7f3d0; }
+.badge-staff-warehouse { background: linear-gradient(to right, #fff7ed, #fef3c7); color: #ea580c; border: 1px solid #fde68a; }
+.badge-guest { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; box-shadow: none; }
