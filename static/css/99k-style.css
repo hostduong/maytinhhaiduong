@@ -57,3 +57,29 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
     background-color: #f3e8ff !important; 
     border-color: #f3e8ff !important; 
 }
+
+/* 7. HIỆU ỨNG VIỀN LED CẢNH BÁO (WARNING/NOTICE BOX) */
+.animated-warning-wrapper {
+    position: relative;
+    border-radius: 1.25rem; /* Bo góc 20px gọn gàng hơn */
+    padding: 2px;
+    overflow: hidden;
+    background: #fffbeb; /* Nền dự phòng màu vàng nhạt */
+}
+.animated-warning-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    /* Dải LED xoay: Trong suốt kết hợp Vàng Amber & Cam đậm */
+    background: conic-gradient(transparent, transparent, transparent, #f59e0b, #ea580c, transparent);
+    animation: spin-slow 3s linear infinite; /* Chạy nhanh hơn viền Tím 1 chút để thu hút sự chú ý */
+    z-index: 0;
+}
+.animated-warning-inner {
+    position: relative;
+    background: #ffffff;
+    border-radius: calc(1.25rem - 2px);
+    z-index: 1;
+    height: 100%;
+    overflow: hidden;
+}
