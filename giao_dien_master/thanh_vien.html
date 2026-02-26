@@ -49,24 +49,27 @@
                                 <td class="px-4 sm:px-5 py-4 text-center align-middle" onclick="event.stopPropagation()"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
                                 
                                 <td class="px-4 py-4 w-full sm:w-auto max-w-[320px] align-middle relative">
-                                    
-                                    {{ if eq .TrangThai 0 }}
-                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 overflow-hidden">
-                                        <div class="text-3xl sm:text-4xl font-black text-amber-600/70 -rotate-[15deg] border-[3px] border-amber-500/60 rounded-2xl px-6 py-2 uppercase tracking-[0.2em] select-none shadow-[0_8px_30px_rgba(245,158,11,0.25)] backdrop-blur-[1px] bg-white/40">Tạm Khóa</div>
-                                    </div>
-                                    {{ end }}
-                                    {{ if eq .TrangThai -1 }}
-                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 overflow-hidden">
-                                        <div class="text-3xl sm:text-4xl font-black text-red-600/70 -rotate-[15deg] border-[3px] border-red-500/60 rounded-2xl px-6 py-2 uppercase tracking-[0.2em] select-none shadow-[0_8px_30px_rgba(239,68,68,0.25)] backdrop-blur-[1px] bg-white/40">Đợi Xóa</div>
-                                    </div>
-                                    {{ end }}
-
-                                    <div class="flex items-center gap-4 relative z-10">
+                                    <div class="flex items-center gap-3 sm:gap-4 relative z-10">
                                         
-                                        <div class="avatar-led-wrap w-12 h-12 shrink-0">
-                                            {{ $avatar := .AnhDaiDien }}
-                                            {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
-                                            <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover">
+                                        <div class="relative shrink-0 flex items-center justify-center">
+                                            
+                                            <div class="avatar-led-wrap w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if ne .TrangThai 1 }}opacity-60 grayscale{{ end }}">
+                                                {{ $avatar := .AnhDaiDien }}
+                                                {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
+                                                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover">
+                                            </div>
+                                            
+                                            {{ if eq .TrangThai 0 }}
+                                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                                                <span class="text-[7px] sm:text-[8px] md:text-[9px] font-black text-amber-600 bg-white/80 backdrop-blur-[1px] border border-amber-500/80 px-1.5 py-0.5 rounded shadow-sm -rotate-[15deg] uppercase tracking-wider">Tạm Khóa</span>
+                                            </div>
+                                            {{ end }}
+                                            {{ if eq .TrangThai -1 }}
+                                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                                                <span class="text-[7px] sm:text-[8px] md:text-[9px] font-black text-red-600 bg-white/80 backdrop-blur-[1px] border border-red-500/80 px-1.5 py-0.5 rounded shadow-sm -rotate-[15deg] uppercase tracking-wider">Đợi Xóa</span>
+                                            </div>
+                                            {{ end }}
+
                                         </div>
                                         
                                         <div class="flex flex-col min-w-0 flex-1 gap-1">
@@ -81,19 +84,17 @@
                                             </div>
                                             
                                             <div class="flex flex-wrap items-center gap-2 mt-1">
-                                                <div class="inline-flex items-center gap-1 bg-slate-100/80 border border-slate-200/80 text-slate-600 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-mono shadow-sm max-w-full">
-                                                    <svg class="w-3 h-3 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" /></svg>
-                                                    <span class="truncate">{{ .MaKhachHang }}</span>
-                                                </div>
+                                                
                                                 <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm max-w-full search-target">
                                                     <svg class="w-3 h-3 shrink-0 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
                                                     <span class="truncate">{{ .TenDangNhap }}</span>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center gap-1.5 mt-0.5">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shadow-sm"></span>
-                                                <span class="text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm">{{ .ChucVu }}</span>
+                                                
+                                                <div class="flex items-center gap-1.5 shrink-0">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shadow-sm"></span>
+                                                    <span class="text-[10px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm">{{ .ChucVu }}</span>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
