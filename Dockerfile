@@ -14,10 +14,13 @@ RUN apk add --no-cache ca-certificates
 # Copy file chạy
 COPY --from=builder /app/server .
 
-# --- COPY ĐẦY ĐỦ 3 THƯ MỤC GIAO DIỆN ---
+# --- COPY ĐẦY ĐỦ CÁC THƯ MỤC HỆ THỐNG ---
 COPY --from=builder /app/giao_dien ./giao_dien
 COPY --from=builder /app/giao_dien_admin ./giao_dien_admin
 COPY --from=builder /app/giao_dien_master ./giao_dien_master
+
+# [THÊM DÒNG NÀY]: Copy thư mục chứa file CSS/JS dùng chung
+COPY --from=builder /app/static ./static
 # ------------------------------------------
 
 EXPOSE 8080
