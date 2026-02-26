@@ -5,14 +5,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
-    <div class="max-w-7xl mx-auto mb-10">
+    <div class="max-w-7xl mx-auto mb-24 sm:mb-10">
         
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-5">
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-gradient-animated">Quản Lý Core Team</h1>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-gradient-animated uppercase">QUẢN LÝ THÀNH VIÊN</h1>
             </div>
             
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
@@ -36,9 +36,9 @@
                         <thead class="text-[10px] sm:text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                             <tr>
                                 <th class="px-2 sm:px-5 py-3 sm:py-4 text-center w-8 sm:w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
-                                <th class="px-2 sm:px-4 py-3 sm:py-4 font-black tracking-wider sm:tracking-widest text-slate-700">Thành Viên & Chức Vụ</th>
-                                <th class="px-4 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap hidden sm:table-cell">Liên hệ</th>
-                                <th class="px-4 py-4 font-black text-center tracking-widest text-slate-700 w-36 whitespace-nowrap hidden sm:table-cell">Thao tác</th>
+                                <th class="px-2 sm:px-4 py-3 sm:py-4 font-black tracking-wider sm:tracking-widest text-slate-700 uppercase">Thành Viên</th>
+                                <th class="px-4 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap hidden sm:table-cell uppercase">THÔNG TIN</th>
+                                <th class="px-4 py-4 font-black text-center tracking-widest text-slate-700 w-36 whitespace-nowrap hidden sm:table-cell uppercase">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
@@ -50,9 +50,9 @@
                                 
                                 <td class="px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto align-middle relative">
 
-                                    <div class="grid grid-cols-[auto_1fr] sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
+                                    <div class="grid grid-cols-[auto_1fr] items-center sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
                                         
-                                        <div class="flex flex-col items-center gap-2.5 shrink-0">
+                                        <div class="flex flex-col items-center justify-center gap-2.5 shrink-0">
                                             
                                             <div class="avatar-led-wrap w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
                                                 {{ $avatar := .AnhDaiDien }}
@@ -60,17 +60,17 @@
                                                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
                                                 
                                                 {{ if eq .TrangThai 0 }}
-                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                    <div class="w-[85%] h-[85%] rounded-full border-[1.5px] border-amber-500 flex items-center justify-center -rotate-[15deg] bg-amber-900/30">
-                                                        <span class="text-[6.5px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter">Tạm<br>Khóa</span>
+                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
+                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Tạm<br>Khóa</span>
                                                     </div>
                                                 </div>
                                                 {{ end }}
                                                 
                                                 {{ if eq .TrangThai -1 }}
-                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                    <div class="w-[85%] h-[85%] rounded-full border-[1.5px] border-red-500 flex items-center justify-center -rotate-[15deg] bg-red-900/30">
-                                                        <span class="text-[6.5px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter">Đợi<br>Xóa</span>
+                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
+                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Đợi<br>Xóa</span>
                                                     </div>
                                                 </div>
                                                 {{ end }}
@@ -93,15 +93,18 @@
                                                 </div>
                                             </div>
                                             
-                                            <div class="flex flex-nowrap items-center gap-1.5 mt-1.5 w-full overflow-hidden">
-                                                <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm shrink-0 search-target">
+                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5 w-full">
+                                                
+                                                <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm max-w-full search-target shrink-0">
                                                     <svg class="w-3 h-3 shrink-0 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
-                                                    <span class="truncate max-w-[80px] sm:max-w-none">{{ .TenDangNhap }}</span>
+                                                    <span class="truncate max-w-[100px] sm:max-w-none">{{ .TenDangNhap }}</span>
                                                 </div>
                                                 
-                                                <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-slate-300 shadow-sm shrink-0"></span>
-                                                
-                                                <span class="text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm truncate shrink-0">{{ .ChucVu }}</span>
+                                                <div class="flex items-center gap-1.5 shrink-0">
+                                                    <span class="hidden sm:inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-slate-300 shadow-sm shrink-0"></span>
+                                                    <span class="text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm">{{ .ChucVu }}</span>
+                                                </div>
+
                                             </div>
 
                                             <div class="sm:hidden flex flex-col gap-1.5 mt-2.5 pt-2.5 border-t border-slate-200/60 w-full text-[11px]">
@@ -453,7 +456,6 @@
                     const errBox = document.getElementById('swal-custom-err');
                     const val = input.value; 
                     if (val.length < 8) { 
-                        // Kích hoạt rung lắc CSS và hiện lỗi bằng div nội bộ
                         input.classList.add('pin-error');
                         errBox.classList.remove('hidden'); 
                         errBox.classList.add('animate-bounce');
