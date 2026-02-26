@@ -72,25 +72,13 @@
                                         
                                         <div class="relative inline-flex items-center mt-1.5 mr-1.5">
                                             
-                                            {{ if lt .StyleLevel 4 }} 
-                                                <div class="badge-tier-s theme-{{ .StyleTheme }}"><div class="badge-inner shadow-sm">{{ .ChucVu }}</div></div>
-                                            {{ else if lt .StyleLevel 7 }} 
-                                                <span class="badge-tier-a theme-{{ .StyleTheme }}">{{ .ChucVu }}</span>
-                                            {{ else if eq .StyleLevel 7 }} 
-                                                <span class="badge-tier-b theme-{{ .StyleTheme }}">{{ .ChucVu }}</span>
-                                            {{ else }} 
-                                                <span class="badge-tier-c theme-{{ .StyleTheme }}">{{ .ChucVu }}</span>
-                                            {{ end }}
+                                            <div class="badge-animated-wrap theme-{{ .StyleTheme }} {{ if lt .StyleLevel 4 }}tier-s{{ else if lt .StyleLevel 7 }}tier-a{{ else if eq .StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }}">
+                                                <div class="badge-inner shadow-sm">{{ .ChucVu }}</div>
+                                            </div>
 
-                                            {{ if eq .StyleLevel 0 }}
-                                                <div class="floating-icon icon-vip-glow icon-god">👑</div>
-                                            {{ else if lt .StyleLevel 3 }}
-                                                <div class="floating-icon icon-vip-glow">⚡</div>
-                                            {{ else if eq .StyleLevel 3 }}
-                                                <div class="floating-icon icon-vip-glow">⭐</div>
-                                            {{ else if lt .StyleLevel 7 }}
-                                                <div class="floating-icon icon-static text-[11px]">🥇</div>
-                                            {{ end }}
+                                            <div class="floating-icon {{ if eq .StyleLevel 0 }}icon-lvl-0{{ else if gt .StyleLevel 7 }}icon-lvl-9{{ end }}">
+                                                {{ if eq .StyleLevel 0 }} 👑 {{ else if eq .StyleLevel 1 }} ⚡ {{ else if eq .StyleLevel 2 }} 🛡️ {{ else if eq .StyleLevel 3 }} ⭐ {{ else if eq .StyleLevel 4 }} 🎯 {{ else if eq .StyleLevel 5 }} 💼 {{ else if eq .StyleLevel 6 }} ⚖️ {{ else if eq .StyleLevel 7 }} 🚀 {{ else if eq .StyleLevel 8 }} 🤝 {{ else }} 👤 {{ end }}
+                                            </div>
                                             
                                         </div>
                                         
