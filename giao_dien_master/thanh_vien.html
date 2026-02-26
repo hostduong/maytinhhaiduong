@@ -153,15 +153,21 @@
                 <form id="formEdit" class="space-y-6" autocomplete="off" spellcheck="false">
                     <input type="hidden" name="ma_khach_hang" id="f_ma">
                     
-                    <div class="bg-indigo-50/80 border border-indigo-100 p-4 sm:p-5 rounded-2xl flex items-start gap-4 mb-6 shadow-sm">
-                        <div class="bg-indigo-100 p-2 sm:p-2.5 rounded-full text-indigo-600 shrink-0">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-black text-indigo-900 mb-1">Lưu ý quản trị</h4>
-                            <p class="text-xs sm:text-[13px] text-indigo-800/80 leading-relaxed font-medium">
-                                Dữ liệu hiển thị bên dưới là <b>hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu và làm thay đổi thông tin cá nhân của người dùng trên toàn hệ thống.
-                            </p>
+                    <div class="animated-warning-wrapper mb-6 shadow-md shadow-orange-100/50">
+                        <div class="animated-warning-inner p-4 sm:p-5 flex items-start gap-4 bg-orange-50/40 backdrop-blur-sm relative">
+                            
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none z-0"></div>
+
+                            <div class="bg-gradient-to-br from-amber-100 to-orange-200 p-2.5 rounded-full text-orange-600 shrink-0 shadow-inner border border-orange-300/50 relative z-10">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            
+                            <div class="relative z-10">
+                                <h4 class="text-[15px] font-black text-orange-950 mb-1">Lưu ý quản trị</h4>
+                                <p class="text-[13px] text-orange-900/80 leading-relaxed font-medium">
+                                    Dữ liệu hiển thị bên dưới là <b class="text-orange-700">hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu và làm thay đổi thông tin cá nhân của người dùng trên toàn hệ thống.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
