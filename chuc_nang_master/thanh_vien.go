@@ -26,16 +26,37 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	me, _ := core.LayKhachHang(masterShopID, userID)
 	listAll := core.LayDanhSachKhachHang(masterShopID)
 	
+	core.KhoaHeThong.RLock()
+	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
+	core.KhoaHeThong.RUnlock()
+
+	// TẠO BẢN ĐỒ TRA CỨU STYLE NHANH NHẤT
+	mapStyle := make(map[string]core.VaiTroInfo)
+	for _, v := range listVaiTro {
+		mapStyle[v.MaVaiTro] = v
+	}
+
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
+		
+		// [MỚI BỔ SUNG] - BƠM STYLE VÀO DỮ LIỆU ĐỂ RENDER
+		if khCopy.MaKhachHang == "0000000000000000000" {
+			khCopy.StyleLevel = 1 // Khóa cứng Tầng 1
+			khCopy.StyleTheme = 9 // Khóa cứng Màu Đen Vàng Hoàng Gia
+		} else {
+			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
+				khCopy.StyleLevel = vInfo.StyleLevel
+				khCopy.StyleTheme = vInfo.StyleTheme
+			} else {
+				khCopy.StyleLevel = 5 // Mặc định khách hàng
+				khCopy.StyleTheme = 0
+			}
+		}
+
 		listView = append(listView, &khCopy)
 	}
-	
-	core.KhoaHeThong.RLock()
-	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
-	core.KhoaHeThong.RUnlock()
 
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
@@ -93,7 +114,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
 	newRole := c.PostForm("vai_tro")
 
-	// [MỚI] CHẶN CẤP QUYỀN ROOT CHO NGƯỜI KHÁC
 	if newRole == "quan_tri_he_thong" && maKH != "0000000000000000001" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi bảo mật: Chỉ có duy nhất 1 Người sáng lập (ID 001) được giữ quyền Quản trị hệ thống!"})
 		return
@@ -229,7 +249,6 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 		return
 	}
 
-	// XÁC ĐỊNH NGƯỜI GỬI (Gửi ẩn danh hệ thống hay gửi bằng acc thật)
 	senderID := userID
 	chucVuNguoiGui := "Nội bộ"
 	tenNguoiGui := "Ẩn danh"
@@ -257,15 +276,13 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 	now := time.Now()
 	nowStr := now.In(loc).Format("2006-01-02 15:04:05")
 
-	// CÔNG THỨC TẠO MÃ TIN NHẮN CHUẨN KIẾN TRÚC MỚI
 	msgID := fmt.Sprintf("ALL_%d_%s", now.UnixNano(), senderID) 
 
-	// CHỈ LƯU 1 DÒNG DUY NHẤT XUỐNG DB
 	newMsg := &core.TinNhan{
 		MaTinNhan:      msgID,
-		LoaiTinNhan:    "ALL", // Phân loại tin nhắn gửi hàng loạt
+		LoaiTinNhan:    "ALL",
 		NguoiGuiID:     senderID,         
-		NguoiNhanID:    jsonIDs, // Lưu trực tiếp chuỗi mảng JSON vào Sheet       
+		NguoiNhanID:    jsonIDs,       
 		TieuDe:         tieuDe,
 		NoiDung:        noiDung,
 		NgayTao:        nowStr,
