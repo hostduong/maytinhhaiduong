@@ -258,3 +258,24 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
     25%, 75% {transform: translateX(-5px);} 
     50% {transform: translateX(5px);} 
 }
+
+/* ==============================================================
+   15. HIỆU ỨNG CHỮ CHỨC VỤ CHẠY MÀU THEO TIER
+   ============================================================== */
+.text-theme-gradient {
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: text-shine 3s linear infinite;
+    display: inline-block;
+}
+.text-theme-0 { background-image: linear-gradient(-45deg, #475569, #94a3b8, #475569); }
+.text-theme-1 { background-image: linear-gradient(-45deg, #2563eb, #60a5fa, #2563eb); }
+.text-theme-2 { background-image: linear-gradient(-45deg, #059669, #34d399, #059669); }
+.text-theme-3 { background-image: linear-gradient(-45deg, #ea580c, #fb923c, #ea580c); }
+.text-theme-4 { background-image: linear-gradient(-45deg, #e11d48, #fb7185, #e11d48); }
+.text-theme-5 { background-image: linear-gradient(-45deg, #7e22ce, #c084fc, #7e22ce); }
+.text-theme-6 { background-image: linear-gradient(-45deg, #d97706, #fcd34d, #d97706); }
+.text-theme-7 { background-image: linear-gradient(-45deg, #0891b2, #67e8f9, #0891b2); }
+.text-theme-8 { background-image: linear-gradient(-45deg, #db2777, #f9a8d4, #db2777); }
+.text-theme-9 { background-image: linear-gradient(-45deg, #f59e0b, #fef08a, #f59e0b); }
