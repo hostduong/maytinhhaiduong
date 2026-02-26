@@ -7,76 +7,47 @@ import (
 	"app/cau_hinh" 
 )
 
-// =============================================================
-// 1. ĐỊNH NGHĨA VỊ TRÍ CỘT (ĐÃ DỊCH CHUYỂN BỎ INBOX)
-// =============================================================
 const (
 	DongBatDau_KhachHang = 11
 
-	CotKH_MaKhachHang        = 0  // A
-	CotKH_TenDangNhap        = 1  // B (Subdomain)
-	CotKH_Email              = 2  // C
-	CotKH_MatKhauHash        = 3  // D
-	CotKH_MaPinHash          = 4  // E
-	CotKH_RefreshTokenJson   = 5  // F
-	CotKH_VaiTroQuyenHan     = 6  // G
-	CotKH_ChucVu             = 7  // H
-	CotKH_TrangThai          = 8  // I
+	CotKH_MaKhachHang        = 0  
+	CotKH_TenDangNhap        = 1  
+	CotKH_Email              = 2  
+	CotKH_MatKhauHash        = 3  
+	CotKH_MaPinHash          = 4  
+	CotKH_RefreshTokenJson   = 5  
+	CotKH_VaiTroQuyenHan     = 6  
+	CotKH_ChucVu             = 7  
+	CotKH_TrangThai          = 8  
 	
-	CotKH_DataSheetsJson     = 9  // J
-	CotKH_GoiDichVuJson      = 10 // K
-	CotKH_CauHinhJson        = 11 // L
+	CotKH_DataSheetsJson     = 9  
+	CotKH_GoiDichVuJson      = 10 
+	CotKH_CauHinhJson        = 11 
 	
-	CotKH_NguonKhachHang     = 12 // M
-	CotKH_TenKhachHang       = 13 // N
-	CotKH_DienThoai          = 14 // O
-	CotKH_AnhDaiDien         = 15 // P
-	CotKH_MangXaHoiJson      = 16 // Q
-	CotKH_DiaChi             = 17 // R
-	CotKH_NgaySinh           = 18 // S
-	CotKH_GioiTinh           = 19 // T
-	CotKH_MaSoThue           = 20 // U
-	CotKH_ViTienJson         = 21 // V
+	CotKH_NguonKhachHang     = 12 
+	CotKH_TenKhachHang       = 13 
+	CotKH_DienThoai          = 14 
+	CotKH_AnhDaiDien         = 15 
+	CotKH_MangXaHoiJson      = 16 
+	CotKH_DiaChi             = 17 
+	CotKH_NgaySinh           = 18 
+	CotKH_GioiTinh           = 19 
+	CotKH_MaSoThue           = 20 
+	CotKH_ViTienJson         = 21 
 	
-	// [ĐÃ XÓA CotKH_InboxJson Ở ĐÂY - CHUYỂN SANG SHEET MỚI]
-	
-	CotKH_GhiChu             = 22 // W (Đã kéo lên cột 22)
-	CotKH_NgayTao            = 23 // X
-	CotKH_NguoiCapNhat       = 24 // Y 
-	CotKH_NgayCapNhat        = 25 // Z
+	CotKH_GhiChu             = 22 
+	CotKH_NgayTao            = 23 
+	CotKH_NguoiCapNhat       = 24 
+	CotKH_NgayCapNhat        = 25 
 )
 
-// =============================================================
-// 2. CÁC STRUCT THÀNH PHẦN (JSON)
-// =============================================================
-type TokenInfo struct { 
-	DeviceName string `json:"dev"`
-	ExpiresAt  int64  `json:"exp"` 
-}
-type DataSheetInfo struct { 
-	SpreadsheetID  string `json:"sheet_id"`
-	GoogleAuthJson string `json:"google_auth_json"`
-	FolderDriveID  string `json:"folder_drive_id"` 
-}
-type PlanInfo struct {
-	MaGoi      string `json:"ma_goi"`       
-	TenGoi     string `json:"ten_goi"`      
-	NgayHetHan string `json:"ngay_het_han"` 
-	TrangThai  string `json:"trang_thai"`   
-}
-type UserConfig struct { 
-	Theme        string `json:"theme"`
-	ChuyenNganh  string `json:"chuyen_nganh"`
-	CustomDomain string `json:"custom_domain"`
-	DarkMode     bool   `json:"dark_mode"`
-	Language     string `json:"lang"` 
-}
+type TokenInfo struct { DeviceName string `json:"dev"`; ExpiresAt int64 `json:"exp"` }
+type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"`; GoogleAuthJson string `json:"google_auth_json"`; FolderDriveID string `json:"folder_drive_id"` }
+type PlanInfo struct { MaGoi string `json:"ma_goi"`; TenGoi string `json:"ten_goi"`; NgayHetHan string `json:"ngay_het_han"`; TrangThai string `json:"trang_thai"` }
+type UserConfig struct { Theme string `json:"theme"`; ChuyenNganh string `json:"chuyen_nganh"`; CustomDomain string `json:"custom_domain"`; DarkMode bool `json:"dark_mode"`; Language string `json:"lang"` }
 type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
 type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
 
-// =============================================================
-// 3. STRUCT CHÍNH (ĐỐI TƯỢNG KHÁCH HÀNG / CHỦ SHOP)
-// =============================================================
 type KhachHang struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -107,8 +78,11 @@ type KhachHang struct {
 	MaSoThue         string     `json:"ma_so_thue"`
 	ViTien           WalletInfo `json:"vi_tien"`
 	
-	// [MỚI] Trỏ thẳng sang Lõi Tin nhắn mới. Đánh dấu json:"-" để KHÔNG ghi xuống sheet Khách Hàng.
 	Inbox            []*TinNhan `json:"-"` 
+
+	// [MỚI BỔ SUNG] 2 BIẾN ẢO DÙNG ĐỂ GÁN UI
+	StyleLevel       int        `json:"-"` 
+	StyleTheme       int        `json:"-"`
 
 	GhiChu           string     `json:"ghi_chu"`
 	NgayTao          string     `json:"ngay_tao"`
@@ -121,9 +95,6 @@ var (
 	CacheMapKhachHang = make(map[string]*KhachHang) 
 )
 
-// =============================================================
-// 4. LOGIC ĐỌC VÀ LƯU VÀO RAM
-// =============================================================
 func NapKhachHang(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, "KHACH_HANG")
@@ -158,7 +129,7 @@ func NapKhachHang(shopID string) {
 			NgayTao:        LayString(r, CotKH_NgayTao),
 			NguoiCapNhat:   LayString(r, CotKH_NguoiCapNhat),
 			NgayCapNhat:    LayString(r, CotKH_NgayCapNhat),
-			Inbox:          make([]*TinNhan, 0), // Tránh lỗi Nil Pointer
+			Inbox:          make([]*TinNhan, 0),
 		}
 
 		_ = json.Unmarshal([]byte(LayString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
@@ -209,10 +180,7 @@ func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 	list := CacheKhachHang[shopID]
 	for _, kh := range list { 
 		if strings.ToLower(kh.TenDangNhap) == input || (kh.Email != "" && strings.ToLower(kh.Email) == input) {
-			// [MỚI BỔ SUNG BẢO MẬT]: Nếu tìm thấy trùng khớp nhưng là Bot Hệ thống -> Trả về False coi như không tồn tại
-			if kh.MaKhachHang == "0000000000000000000" {
-				return nil, false
-			}
+			if kh.MaKhachHang == "0000000000000000000" { return nil, false }
 			return kh, true 
 		} 
 	}
