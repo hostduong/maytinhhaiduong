@@ -83,3 +83,39 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
     height: 100%;
     overflow: hidden;
 }
+
+/* ==============================================================
+   8. SWEETALERT PREMIUM (POPUP VIỀN LED CHẠY)
+   ============================================================== */
+.swal-animated-purple {
+    position: relative !important;
+    border-radius: 1.5rem !important; /* Bo góc 24px */
+    padding: 0 !important; /* Xóa padding mặc định để làm viền */
+    overflow: hidden !important;
+    background: transparent !important;
+}
+/* Tạo dải LED xoay */
+.swal-animated-purple::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
+    animation: spin-slow 4s linear infinite;
+    z-index: -2;
+    pointer-events: none;
+}
+/* Tạo nền trắng bên trong, cách viền 2px */
+.swal-animated-purple::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    background: #ffffff;
+    border-radius: calc(1.5rem - 2px);
+    z-index: -1;
+    pointer-events: none;
+}
+/* Phục hồi khoảng cách (Padding) cho nội dung bên trong */
+.swal-animated-purple > * { position: relative; z-index: 1; }
+.swal-animated-purple .swal2-title { padding-top: 2.5rem !important; margin: 0 !important; }
+.swal-animated-purple .swal2-html-container { padding: 1.5rem 2rem !important; margin: 0 !important; overflow: visible !important; }
+.swal-animated-purple .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
