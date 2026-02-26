@@ -49,26 +49,33 @@
                                 <td class="px-4 sm:px-5 py-4 text-center align-middle" onclick="event.stopPropagation()"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
                                 
                                 <td class="px-4 py-4 w-full sm:w-auto max-w-[320px] align-middle relative">
+
                                     <div class="flex items-center gap-3 sm:gap-4 relative z-10">
                                         
                                         <div class="relative shrink-0 flex items-center justify-center">
                                             
-                                            <div class="avatar-led-wrap w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if ne .TrangThai 1 }}opacity-60 grayscale{{ end }}">
+                                            <div class="avatar-led-wrap w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
                                                 {{ $avatar := .AnhDaiDien }}
                                                 {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
-                                                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover">
+                                                
+                                                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
+                                                
+                                                {{ if eq .TrangThai 0 }}
+                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+                                                    <div class="w-[85%] h-[85%] rounded-full border-[1.5px] border-amber-500 flex items-center justify-center -rotate-[15deg] bg-amber-900/30">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter">Tạm<br>Khóa</span>
+                                                    </div>
+                                                </div>
+                                                {{ end }}
+                                                
+                                                {{ if eq .TrangThai -1 }}
+                                                <div class="absolute inset-[2.5px] rounded-full bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+                                                    <div class="w-[85%] h-[85%] rounded-full border-[1.5px] border-red-500 flex items-center justify-center -rotate-[15deg] bg-red-900/30">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter">Đợi<br>Xóa</span>
+                                                    </div>
+                                                </div>
+                                                {{ end }}
                                             </div>
-                                            
-                                            {{ if eq .TrangThai 0 }}
-                                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                                                <span class="text-[7px] sm:text-[8px] md:text-[9px] font-black text-amber-600 bg-white/80 backdrop-blur-[1px] border border-amber-500/80 px-1.5 py-0.5 rounded shadow-sm -rotate-[15deg] uppercase tracking-wider">Tạm Khóa</span>
-                                            </div>
-                                            {{ end }}
-                                            {{ if eq .TrangThai -1 }}
-                                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                                                <span class="text-[7px] sm:text-[8px] md:text-[9px] font-black text-red-600 bg-white/80 backdrop-blur-[1px] border border-red-500/80 px-1.5 py-0.5 rounded shadow-sm -rotate-[15deg] uppercase tracking-wider">Đợi Xóa</span>
-                                            </div>
-                                            {{ end }}
 
                                         </div>
                                         
@@ -83,15 +90,15 @@
                                                 </div>
                                             </div>
                                             
-                                            <div class="flex flex-wrap items-center gap-2 mt-1">
+                                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2 mt-1">
                                                 
-                                                <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm max-w-full search-target">
+                                                <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm max-w-full search-target shrink-0">
                                                     <svg class="w-3 h-3 shrink-0 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
                                                     <span class="truncate">{{ .TenDangNhap }}</span>
                                                 </div>
                                                 
                                                 <div class="flex items-center gap-1.5 shrink-0">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shadow-sm"></span>
+                                                    <span class="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300 shadow-sm"></span>
                                                     <span class="text-[10px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm">{{ .ChucVu }}</span>
                                                 </div>
 
