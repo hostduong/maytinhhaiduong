@@ -121,61 +121,82 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 .swal-animated-purple .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
 
 /* ==============================================================
-   9. BADGE CHỨC VỤ MA TRẬN 5 TẦNG (DATA-DRIVEN UI MATRIX)
+   9. MA TRẬN GIAO DIỆN 10x10 (UI TIER S-A-B-C x THEME 0-9)
    ============================================================== */
-.badge-animated-wrap {
-    position: relative; display: inline-flex; border-radius: 0.5rem; padding: 1.5px; overflow: hidden;
-}
-.badge-animated-wrap::before {
-    content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
-    animation: spin-slow 3s linear infinite; z-index: 0;
-}
-.badge-inner {
-    position: relative; z-index: 1; border-radius: calc(0.5rem - 1.5px);
-    padding: 0.35rem 0.75rem; font-size: 0.65rem; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
-}
+/* KHUNG CƠ BẢN */
+.badge-tier-s { position: relative; display: inline-flex; border-radius: 0.5rem; padding: 1.5px; overflow: hidden; }
+.badge-tier-s::before { content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; animation: spin-slow 3s linear infinite; z-index: 0; }
+.badge-tier-s .badge-inner { position: relative; z-index: 1; border-radius: calc(0.5rem - 1.5px); padding: 0.35rem 0.75rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; background-color: #ffffff;}
+.badge-tier-a, .badge-tier-b, .badge-tier-c { display: inline-flex; border-radius: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
 
-/* --- MÀU MẶC ĐỊNH CHO TẦNG 1, 2, 3 NẾU KHÔNG TRUYỀN THEME --- */
-.badge-level-1::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fcd34d, transparent); }
-.badge-level-1 .badge-inner { background-color: #0f172a; color: #fbbf24; }
-.badge-level-2::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
-.badge-level-2 .badge-inner { background-color: #ffffff; color: #e11d48; }
-.badge-level-3::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
-.badge-level-3 .badge-inner { background-color: #ffffff; color: #7e22ce; }
+/* BỘ THEME MÀU SẮC (0 ĐẾN 9) ĐƯỢC ÉP VÀO 4 HẠNG UI */
 
-/* --- MA TRẬN 9 MÀU TÙY CHỈNH CHO ANIMATED BADGES (LEVEL 1-3) --- */
-.badge-animated-wrap.theme-1::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #93c5fd, transparent); }
-.badge-animated-wrap.theme-1 .badge-inner { background-color: #ffffff; color: #2563eb; }
-.badge-animated-wrap.theme-2::before { background: conic-gradient(transparent, transparent, transparent, #059669, #6ee7b7, transparent); }
-.badge-animated-wrap.theme-2 .badge-inner { background-color: #ffffff; color: #059669; }
-.badge-animated-wrap.theme-3::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fdba74, transparent); }
-.badge-animated-wrap.theme-3 .badge-inner { background-color: #ffffff; color: #ea580c; }
-.badge-animated-wrap.theme-4::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
-.badge-animated-wrap.theme-4 .badge-inner { background-color: #ffffff; color: #e11d48; }
-.badge-animated-wrap.theme-5::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
-.badge-animated-wrap.theme-5 .badge-inner { background-color: #ffffff; color: #7e22ce; }
-.badge-animated-wrap.theme-6::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fde68a, transparent); }
-.badge-animated-wrap.theme-6 .badge-inner { background-color: #ffffff; color: #d97706; }
-.badge-animated-wrap.theme-7::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #a5f3fc, transparent); }
-.badge-animated-wrap.theme-7 .badge-inner { background-color: #ffffff; color: #0891b2; }
-.badge-animated-wrap.theme-8::before { background: conic-gradient(transparent, transparent, transparent, #475569, #cbd5e1, transparent); }
-.badge-animated-wrap.theme-8 .badge-inner { background-color: #ffffff; color: #475569; }
-.badge-animated-wrap.theme-9::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fcd34d, transparent); }
-.badge-animated-wrap.theme-9 .badge-inner { background-color: #0f172a; color: #fbbf24; }
+/* 0: Slate (Xám/Trung tính) */
+.theme-0.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #475569, #94a3b8, transparent); }
+.theme-0.badge-tier-s .badge-inner { color: #334155; }
+.theme-0.badge-tier-a { background: linear-gradient(to right, #475569, #334155); color: #ffffff; box-shadow: 0 3px 6px rgba(51,65,85,0.2); border: 1px solid #1e293b; }
+.theme-0.badge-tier-b { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.theme-0.badge-tier-c { background: transparent; color: #64748b; border: 1px dashed #cbd5e1; }
 
-/* --- MA TRẬN 9 MÀU CHO STATIC BADGES (LEVEL 4) --- */
-.badge-static { display: inline-flex; border-radius: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.badge-static.theme-1 { background: linear-gradient(to right, #eff6ff, #dbeafe); color: #2563eb; border: 1px solid #bfdbfe; }
-.badge-static.theme-2 { background: linear-gradient(to right, #ecfdf5, #d1fae5); color: #059669; border: 1px solid #a7f3d0; }
-.badge-static.theme-3 { background: linear-gradient(to right, #fff7ed, #fef3c7); color: #ea580c; border: 1px solid #fde68a; }
-.badge-static.theme-4 { background: linear-gradient(to right, #fff1f2, #ffe4e6); color: #e11d48; border: 1px solid #fecdd3; }
-.badge-static.theme-5 { background: linear-gradient(to right, #faf5ff, #f3e8ff); color: #7e22ce; border: 1px solid #e9d5ff; }
-.badge-static.theme-6 { background: linear-gradient(to right, #fffbeb, #fef3c7); color: #d97706; border: 1px solid #fde68a; }
-.badge-static.theme-7 { background: linear-gradient(to right, #ecfeff, #cffafe); color: #0891b2; border: 1px solid #a5f3fc; }
-.badge-static.theme-8 { background: linear-gradient(to right, #f8fafc, #f1f5f9); color: #475569; border: 1px solid #e2e8f0; }
-.badge-static.theme-9 { background: linear-gradient(to right, #1e293b, #0f172a); color: #fbbf24; border: 1px solid #334155; }
-.badge-static.theme-0 { background: linear-gradient(to right, #f8fafc, #f1f5f9); color: #475569; border: 1px solid #e2e8f0; }
+/* 1: Blue (Xanh dương) */
+.theme-1.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #60a5fa, transparent); }
+.theme-1.badge-tier-s .badge-inner { color: #1d4ed8; }
+.theme-1.badge-tier-a { background: linear-gradient(to right, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 3px 6px rgba(37,99,235,0.2); border: 1px solid #1e40af; }
+.theme-1.badge-tier-b { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.theme-1.badge-tier-c { background: transparent; color: #3b82f6; border: 1px dashed #93c5fd; }
 
-/* TẦNG 5: KHÁCH HÀNG (Mặc định) */
-.badge-guest { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; box-shadow: none; display: inline-flex; border-radius: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+/* 2: Emerald (Xanh ngọc) */
+.theme-2.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #059669, #34d399, transparent); }
+.theme-2.badge-tier-s .badge-inner { color: #047857; }
+.theme-2.badge-tier-a { background: linear-gradient(to right, #059669, #047857); color: #ffffff; box-shadow: 0 3px 6px rgba(5,150,105,0.2); border: 1px solid #065f46; }
+.theme-2.badge-tier-b { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.theme-2.badge-tier-c { background: transparent; color: #10b981; border: 1px dashed #6ee7b7; }
+
+/* 3: Orange (Cam) */
+.theme-3.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fb923c, transparent); }
+.theme-3.badge-tier-s .badge-inner { color: #c2410c; }
+.theme-3.badge-tier-a { background: linear-gradient(to right, #ea580c, #c2410c); color: #ffffff; box-shadow: 0 3px 6px rgba(234,88,12,0.2); border: 1px solid #9a3412; }
+.theme-3.badge-tier-b { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.theme-3.badge-tier-c { background: transparent; color: #f97316; border: 1px dashed #fdba74; }
+
+/* 4: Rose/Red (Đỏ) */
+.theme-4.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fb7185, transparent); }
+.theme-4.badge-tier-s .badge-inner { color: #be123c; }
+.theme-4.badge-tier-a { background: linear-gradient(to right, #e11d48, #be123c); color: #ffffff; box-shadow: 0 3px 6px rgba(225,29,72,0.2); border: 1px solid #9f1239; }
+.theme-4.badge-tier-b { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+.theme-4.badge-tier-c { background: transparent; color: #f43f5e; border: 1px dashed #fda4af; }
+
+/* 5: Purple (Tím 99K) */
+.theme-5.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #c084fc, transparent); }
+.theme-5.badge-tier-s .badge-inner { color: #6b21a8; }
+.theme-5.badge-tier-a { background: linear-gradient(to right, #7e22ce, #6b21a8); color: #ffffff; box-shadow: 0 3px 6px rgba(126,34,206,0.2); border: 1px solid #581c87; }
+.theme-5.badge-tier-b { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+.theme-5.badge-tier-c { background: transparent; color: #a855f7; border: 1px dashed #d8b4fe; }
+
+/* 6: Amber (Vàng hổ phách) */
+.theme-6.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fcd34d, transparent); }
+.theme-6.badge-tier-s .badge-inner { color: #b45309; }
+.theme-6.badge-tier-a { background: linear-gradient(to right, #d97706, #b45309); color: #ffffff; box-shadow: 0 3px 6px rgba(217,119,6,0.2); border: 1px solid #92400e; }
+.theme-6.badge-tier-b { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.theme-6.badge-tier-c { background: transparent; color: #f59e0b; border: 1px dashed #fcd34d; }
+
+/* 7: Cyan (Xanh lơ) */
+.theme-7.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #67e8f9, transparent); }
+.theme-7.badge-tier-s .badge-inner { color: #0e7490; }
+.theme-7.badge-tier-a { background: linear-gradient(to right, #0891b2, #0e7490); color: #ffffff; box-shadow: 0 3px 6px rgba(8,145,178,0.2); border: 1px solid #155e75; }
+.theme-7.badge-tier-b { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
+.theme-7.badge-tier-c { background: transparent; color: #06b6d4; border: 1px dashed #67e8f9; }
+
+/* 8: Pink (Hồng) */
+.theme-8.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #db2777, #f9a8d4, transparent); }
+.theme-8.badge-tier-s .badge-inner { color: #be185d; }
+.theme-8.badge-tier-a { background: linear-gradient(to right, #db2777, #be185d); color: #ffffff; box-shadow: 0 3px 6px rgba(219,39,119,0.2); border: 1px solid #9d174d; }
+.theme-8.badge-tier-b { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
+.theme-8.badge-tier-c { background: transparent; color: #ec4899; border: 1px dashed #f472b6; }
+
+/* 9: Black/Gold (Đen Vàng - Hoàng gia) */
+.theme-9.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fef08a, transparent); }
+.theme-9.badge-tier-s .badge-inner { background-color: #0f172a; color: #fbbf24; }
+.theme-9.badge-tier-a { background: linear-gradient(to right, #1e293b, #0f172a); color: #fbbf24; box-shadow: 0 3px 6px rgba(15,23,42,0.4); border: 1px solid #000000; }
+.theme-9.badge-tier-b { background: #1e293b; color: #fcd34d; border: 1px solid #334155; }
+.theme-9.badge-tier-c { background: transparent; color: #334155; border: 1px dashed #475569; }
