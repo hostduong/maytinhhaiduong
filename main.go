@@ -37,6 +37,10 @@ func main() {
 	core.NapKhachHang("")
 
 	router := gin.Default()
+	
+	// [QUAN TRỌNG ĐÃ BỔ SUNG Ở ĐÂY] - Mở quyền truy cập thư mục static chứa CSS/JS
+	router.Static("/static", "./static")
+
 	router.Use(chuc_nang.GatewaySaaS, chuc_nang.KiemTraGoiDichVu)
 
 	funcMap := chuc_nang.LayBoHamHTML()
@@ -56,8 +60,6 @@ func main() {
 	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) 
 	
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
-
-	// [ĐÃ XÓA BỎ BLOCK ROUTER /cua-hang CŨ Ở ĐÂY]
 
 	// Master Area (Quản trị hệ thống Lõi)
 	master := router.Group("/master")
