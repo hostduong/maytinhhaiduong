@@ -210,7 +210,7 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 }
 
 /* ==============================================================
-   12. AVATAR VIỀN LED CHẠY CỰC XỊN
+   12. AVATAR VIỀN LED CHẠY (ĐỔI MÀU THEO TRẠNG THÁI)
    ============================================================== */
 .avatar-led-wrap {
     position: relative;
@@ -223,14 +223,20 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 }
 .avatar-led-wrap::before {
     content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: conic-gradient(transparent, transparent, transparent, #a855f7, #ec4899, transparent);
     animation: spin-slow 3s linear infinite; z-index: -1;
 }
+
+/* Các dải màu LED theo trạng thái */
+.avatar-led-wrap.led-active::before { background: conic-gradient(transparent, transparent, transparent, #a855f7, #ec4899, transparent); }
+.avatar-led-wrap.led-locked::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #ea580c, transparent); }
+.avatar-led-wrap.led-deleted::before { background: conic-gradient(transparent, transparent, transparent, #ef4444, #be123c, transparent); }
+
 .avatar-led-wrap img {
     position: relative; z-index: 2;
-    border: 2px solid #ffffff; /* Viền trắng bọc ảnh tách biệt với tia LED */
+    border: 2px solid #ffffff; 
     background-color: #ffffff;
     border-radius: 50%;
+    transition: all 0.3s ease;
 }
 
 /* ==============================================================
@@ -279,3 +285,5 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 .text-theme-7 { background-image: linear-gradient(-45deg, #0891b2, #67e8f9, #0891b2); }
 .text-theme-8 { background-image: linear-gradient(-45deg, #db2777, #f9a8d4, #db2777); }
 .text-theme-9 { background-image: linear-gradient(-45deg, #f59e0b, #fef08a, #f59e0b); }
+
+
