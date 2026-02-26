@@ -145,7 +145,15 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	kh.NguonKhachHang = strings.TrimSpace(c.PostForm("nguon_khach_hang"))
 	
 	if gt := c.PostForm("gioi_tinh"); gt == "1" { kh.GioiTinh = 1 } else if gt == "0" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
-	if c.PostForm("trang_thai") == "1" { kh.TrangThai = 1 } else { kh.TrangThai = 0 }
+	// FIX LỖI: Bắt đủ 3 trạng thái 1 (Hoạt động), 0 (Khóa), -1 (Đợi xóa)
+	tt := c.PostForm("trang_thai")
+	if tt == "1" { 
+   	 kh.TrangThai = 1 
+	} else if tt == "-1" { 
+   	 kh.TrangThai = -1 
+	} else { 
+  	  kh.TrangThai = 0 
+	}
 
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
