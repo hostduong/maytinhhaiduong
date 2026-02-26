@@ -16,8 +16,11 @@ const (
 )
 
 type VaiTroInfo struct {
-	MaVaiTro  string
-	TenVaiTro string
+	MaVaiTro   string
+	TenVaiTro  string
+	// [MỚI] THUẬT TOÁN TÁCH SỐ UI
+	StyleLevel int // Level phân quyền (Hàng chục)
+	StyleTheme int // Mã màu (Hàng đơn vị)
 }
 
 var (
@@ -32,14 +35,16 @@ func NapPhanQuyen(shopID string) {
 	raw, err := LoadSheetData(shopID, "PHAN_QUYEN")
 	if err != nil { return }
 
-	// [ĐÃ FIX LỖI TYPE]: Sử dụng hàm LayString để ép kiểu an toàn từ interface{} sang string
 	headerIndex := -1
+	styleIndex := -1
+
 	for i, row := range raw {
 		if len(row) > 0 {
-			firstCell := LayString(row, 0)
-			if strings.TrimSpace(strings.ToLower(firstCell)) == "ma_chuc_nang" {
+			firstCell := strings.TrimSpace(strings.ToLower(LayString(row, 0)))
+			if firstCell == "ma_chuc_nang" {
 				headerIndex = i
-				break
+			} else if firstCell == "style" { // TÌM ĐÚNG DÒNG CHỨA STYLE
+				styleIndex = i
 			}
 		}
 	}
@@ -49,7 +54,6 @@ func NapPhanQuyen(shopID string) {
 	tempMap := make(map[string]map[string]bool)
 	var danhSachVaiTroCuaShop []VaiTroInfo 
 
-	// A. QUÉT HEADER
 	header := raw[headerIndex]
 	var listMaVaiTro []string 
 
@@ -70,19 +74,35 @@ func NapPhanQuyen(shopID string) {
 			listMaVaiTro = append(listMaVaiTro, roleID)
 			tempMap[roleID] = make(map[string]bool)
 			
+			// [MỚI] THUẬT TOÁN ĐỌC STYLE MA TRẬN TỪ SHEETS
+			styleCode := 5 // Mặc định Level 5 nếu ô rỗng
+			if styleIndex != -1 {
+				val := LayInt(raw[styleIndex], i)
+				if val > 0 { styleCode = val }
+			}
+
+			lvl := styleCode
+			thm := 0
+			// Nếu style là số có 2 chữ số (VD: 42, 15)
+			if styleCode >= 10 {
+				lvl = styleCode / 10 // Lấy số chục làm Level
+				thm = styleCode % 10 // Lấy số lẻ làm Theme màu
+			}
+
 			danhSachVaiTroCuaShop = append(danhSachVaiTroCuaShop, VaiTroInfo{
-				MaVaiTro:  roleID,
-				TenVaiTro: roleName,
+				MaVaiTro:   roleID,
+				TenVaiTro:  roleName,
+				StyleLevel: lvl,
+				StyleTheme: thm,
 			})
 		}
 	}
 
-	// B. DUYỆT DỮ LIỆU
 	for i, row := range raw {
 		if i <= headerIndex { continue }
 
 		maChucNang := strings.TrimSpace(LayString(row, CotPQ_MaChucNang))
-		if maChucNang == "" { continue }
+		if maChucNang == "" || maChucNang == "style" { continue } // Bỏ qua dòng style khi duyệt data
 
 		for j, roleID := range listMaVaiTro {
 			colIndex := CotPQ_StartRole + j
