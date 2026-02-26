@@ -16,9 +16,10 @@ import (
 func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
-	vaiTro := c.GetString("USER_ROLE")
-
-	if vaiTro != "quan_tri_he_thong" && vaiTro != "quan_tri_vien_he_thong" {
+	
+	// Chặn vòng gửi xe: Chỉ Level 1 và 2 mới được vào trang Quản lý Core Team
+	myLevel := core.LayCapBacVaiTro(masterShopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.Redirect(http.StatusFound, "/")
 		return
 	}
@@ -30,32 +31,42 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
 
-	// TẠO BẢN ĐỒ TRA CỨU STYLE NHANH NHẤT
 	mapStyle := make(map[string]core.VaiTroInfo)
 	for _, v := range listVaiTro {
 		mapStyle[v.MaVaiTro] = v
 	}
 
+	// Xử lý dữ liệu hiển thị (Bơm Tầng Level vào)
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		
-		// [MỚI BỔ SUNG] - BƠM STYLE VÀO DỮ LIỆU ĐỂ RENDER
 		if khCopy.MaKhachHang == "0000000000000000000" {
-			khCopy.StyleLevel = 1 // Khóa cứng Tầng 1
-			khCopy.StyleTheme = 9 // Khóa cứng Màu Đen Vàng Hoàng Gia
+			khCopy.StyleLevel = 1 
+			khCopy.StyleTheme = 9 
 		} else {
 			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
 				khCopy.StyleLevel = vInfo.StyleLevel
 				khCopy.StyleTheme = vInfo.StyleTheme
 			} else {
-				khCopy.StyleLevel = 5 // Mặc định khách hàng
+				khCopy.StyleLevel = 5 
 				khCopy.StyleTheme = 0
 			}
 		}
-
 		listView = append(listView, &khCopy)
+	}
+
+	// Bơm Level vào chính bản thân mình (Để UI hiện ẩn/hiện Nút)
+	meCopy := *me
+	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok {
+		meCopy.StyleLevel = vInfo.StyleLevel
+		meCopy.StyleTheme = vInfo.StyleTheme
+	} else {
+		meCopy.StyleLevel = 5
+	}
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
+		meCopy.StyleLevel = 1
 	}
 
 	if len(listVaiTro) == 0 {
@@ -69,34 +80,32 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
 		"TieuDe":         "Core Team",
-		"NhanVien":       me,
+		"NhanVien":       &meCopy,
 		"DanhSach":       listView, 
 		"DanhSachVaiTro": listVaiTro, 
 	})
 }
 
+// ========================================================
+// BẢO MẬT API SỬA HỒ SƠ (CHECK BẰNG TẦNG LEVEL)
+// ========================================================
 func API_LuuThanhVienMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID") 
-	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền quản trị nhân sự!"})
+	// 1. Kiểm tra Level người đang thao tác (Người sửa)
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Từ chối truy cập: Chỉ Cấp quản lý (Tầng 1, 2) mới được phép sửa hồ sơ!"})
 		return
 	}
 
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
-	if pinXacNhan == "" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập mã PIN xác nhận!"})
-		return
-	}
-
 	admin, okAdmin := core.LayKhachHang(shopID, userID)
 	if !okAdmin || admin.MaPinHash == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN! Vui lòng cài đặt trước."})
 		return
 	}
-
 	if !cau_hinh.KiemTraMatKhau(pinXacNhan, admin.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không chính xác!"})
 		return
@@ -109,35 +118,39 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		return
 	}
 
-	isTargetRootLevel1 := (maKH == "0000000000000000001" || kh.VaiTroQuyenHan == "quan_tri_he_thong")
-	isMeRootLevel1 := (userID == "0000000000000000001" || myRole == "quan_tri_he_thong")
-	isTargetRootLevel2 := (kh.VaiTroQuyenHan == "quan_tri_vien_he_thong")
+	// 2. Kiểm tra Level người bị sửa (Nạn nhân)
+	targetLevel := core.LayCapBacVaiTro(shopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
+
+	// [LUẬT 1]: Tầng 2 không được phép sửa hồ sơ Tầng 1
+	if myLevel == 2 && targetLevel == 1 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi bảo mật: Bạn không có quyền chỉnh sửa hồ sơ của cấp trên (Tầng 1)!"})
+		return
+	}
+
 	newRole := c.PostForm("vai_tro")
 
+	// [LUẬT 2]: Không ai được cướp ngôi 001
 	if newRole == "quan_tri_he_thong" && maKH != "0000000000000000001" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi bảo mật: Chỉ có duy nhất 1 Người sáng lập (ID 001) được giữ quyền Quản trị hệ thống!"})
 		return
 	}
 
-	if isTargetRootLevel1 && !isMeRootLevel1 {
-		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT TỐI CAO: Không ai có thể chỉnh sửa thông tin của Chủ tịch!"})
-		return
-	}
-	if isTargetRootLevel1 && isMeRootLevel1 && newRole != "" && newRole != "quan_tri_he_thong" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn là Người sáng lập, không thể tự giáng chức chính mình!"})
-		return
-	}
-	if isTargetRootLevel2 && !isMeRootLevel1 && userID != maKH {
-		c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị hệ thống (Cấp 1) mới sửa được Quản trị viên hệ thống (Cấp 2) khác!"})
-		return
-	}
-	if (newRole == "quan_tri_he_thong" || newRole == "quan_tri_vien_he_thong") && !isMeRootLevel1 {
-		if userID != maKH || (userID == maKH && kh.VaiTroQuyenHan != newRole) {
-			c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị hệ thống mới có quyền bổ nhiệm chức vụ này!"})
+	// [LUẬT 3]: Tầng 2 không được cấp quyền cho người khác lên thành Tầng 1
+	if newRole != "" && newRole != kh.VaiTroQuyenHan {
+		newLevel := core.LayCapBacVaiTro(shopID, "", newRole)
+		if myLevel == 2 && newLevel == 1 {
+			c.JSON(200, gin.H{"status": "error", "msg": "Lỗi phân quyền: Bạn không thể bổ nhiệm người khác lên chức vụ cao hơn mình (Tầng 1)!"})
 			return
 		}
 	}
 
+	// [LUẬT 4]: Root 001 không thể tự giáng chức mình
+	if maKH == "0000000000000000001" && newRole != "" && newRole != "quan_tri_he_thong" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn là Người sáng lập, không thể tự giáng chức chính mình!"})
+		return
+	}
+
+	// [LUẬT 5]: Không được tự khóa tài khoản của mình
 	trangThaiMoi := c.PostForm("trang_thai")
 	if maKH == userID && trangThaiMoi == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Bạn không thể tự khóa tài khoản của chính mình!"})
@@ -223,20 +236,25 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật thông tin thành công!"})
 }
 
+// ========================================================
+// BẢO MẬT API GỬI THÔNG BÁO TẬP THỂ
+// ========================================================
 func API_GuiTinNhanMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
-	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
+	// Lấy Level để check phân quyền
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	
+	if myLevel > 2 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Từ chối truy cập: Chỉ Tầng 1 và 2 mới được phép phát sóng thông báo!"})
 		return
 	}
 
 	tieuDe := strings.TrimSpace(c.PostForm("tieu_de"))
 	noiDung := strings.TrimSpace(c.PostForm("noi_dung"))
-	jsonIDs := c.PostForm("danh_sach_id") // Đây là chuỗi JSON mảng ID
-	isSendAsBot := c.PostForm("send_as_bot") // "1" hoặc "0"
+	jsonIDs := c.PostForm("danh_sach_id") 
+	isSendAsBot := c.PostForm("send_as_bot") 
 
 	if tieuDe == "" || noiDung == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Tiêu đề và Nội dung không được để trống!"})
