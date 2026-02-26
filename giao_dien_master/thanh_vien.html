@@ -43,7 +43,12 @@
                             </tr>
                         </thead>
                         <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
-                            <td class="px-3 sm:px-6 py-4 w-full sm:w-auto max-w-[250px] sm:max-w-none align-top">
+                            {{ range .DanhSach }}
+                            <tr class="hover-soft-row bg-white/60 cursor-pointer" onclick="editMember('{{ .MaKhachHang }}')">
+                                
+                                <td class="px-4 sm:px-5 py-4 text-center" onclick="event.stopPropagation()"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
+                                
+                                <td class="px-3 sm:px-6 py-4 w-full sm:w-auto max-w-[250px] sm:max-w-none align-top">
                                     <div class="flex items-start gap-3 sm:gap-4">
                                         <div class="relative w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full p-[2px] bg-gradient-to-tr from-purple-500 to-indigo-400 shadow-md">
                                             {{ $avatar := .AnhDaiDien }}
@@ -391,7 +396,6 @@
             let statusSelect = document.getElementById('f_status');
 
             Array.from(roleSelect.options).forEach(opt => {
-                // CHỐT CHẶN UI: Người thường không được thấy/chọn quyền Quản trị hệ thống
                 if (opt.value === "quan_tri_he_thong") {
                     opt.disabled = (ma !== "0000000000000000001");
                 } else { opt.disabled = false; }
@@ -400,7 +404,6 @@
             roleSelect.value = data.role; statusSelect.value = data.status;
             roleSelect.disabled = false; statusSelect.disabled = false;
 
-            // Khóa UI nếu mình không đủ quyền lực sửa người này
             if (ma === "0000000000000000001" && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
             if (ma === currentUserID) { statusSelect.disabled = true; }
 
