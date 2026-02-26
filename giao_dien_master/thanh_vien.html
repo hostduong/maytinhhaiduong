@@ -5,54 +5,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
-    <style>
-        .input-premium { width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-size: 0.9rem; padding: 0.75rem 1rem; transition: 0.2s; outline: none; }
-        .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.1); background-color: #fff; }
-        .input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; }
-        label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; display: block; letter-spacing: 0.05em; }
-        .iti { width: 100%; } 
-        
-        /* SCROLLBAR NGANG XỊN XÒ */
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
-        .table-scroll::-webkit-scrollbar { height: 10px; }
-        .table-scroll::-webkit-scrollbar-track { background: transparent; border-radius: 8px; margin: 0 10px; }
-        .table-scroll::-webkit-scrollbar-thumb { background-color: #d8b4fe; border-radius: 8px; border: 2px solid #ffffff; }
-        .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #a855f7; }
-
-        /* VIỀN LED CHẠY ANIMATION CHO BẢNG TỔNG */
-        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-        .animated-border-wrapper {
-            position: relative;
-            border-radius: 1.5rem;
-            padding: 2px;
-            overflow: hidden;
-            background: #f1f5f9;
-        }
-        .animated-border-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
-            animation: spin-slow 4s linear infinite;
-            z-index: 0;
-        }
-        .animated-border-inner {
-            position: relative;
-            background: #ffffff;
-            border-radius: calc(1.5rem - 2px);
-            z-index: 1;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        /* [ĐÃ SỬA]: HOVER DÒNG TINH TẾ (NỀN TÍM NHẠT + VIỀN TIỆP MÀU NỀN) */
-        .hover-soft-row { transition: all 0.2s ease; }
-        .hover-soft-row:hover td {
-            background-color: #f3e8ff !important; 
-            border-color: #f3e8ff !important; 
-        }
-    </style>
-
     <div class="max-w-7xl mx-auto mb-10">
         
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-5">
@@ -156,7 +108,7 @@
                                 </td>
                                 
                                 <td class="px-4 sm:px-6 py-4 text-center">
-                                    <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 active:scale-95 whitespace-nowrap">
+                                    <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all shadow-sm border border-purple-200 hover:shadow-purple-200 active:scale-95 whitespace-nowrap group-hover:border-purple-600">
                                         <svg class="w-3.5 h-3.5 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         <span>Sửa Hồ Sơ</span>
                                     </button>
