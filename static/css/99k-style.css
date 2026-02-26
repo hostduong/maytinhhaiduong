@@ -121,123 +121,85 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 .swal-animated-purple .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
 
 /* ==============================================================
-   9. MA TRẬN GIAO DIỆN 10x10 (UI TIER S-A-B-C x THEME 0-9)
+   9. MA TRẬN GIAO DIỆN 10x10 (ALL ANIMATED LED BORDERS)
    ============================================================== */
-/* KHUNG CƠ BẢN */
-.badge-tier-s { position: relative; display: inline-flex; border-radius: 0.5rem; padding: 1.5px; overflow: hidden; }
-.badge-tier-s::before { content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; animation: spin-slow 3s linear infinite; z-index: 0; }
-.badge-tier-s .badge-inner { position: relative; z-index: 1; border-radius: calc(0.5rem - 1.5px); padding: 0.35rem 0.75rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; background-color: #ffffff;}
-.badge-tier-a, .badge-tier-b, .badge-tier-c { display: inline-flex; border-radius: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+.badge-animated-wrap { position: relative; display: inline-flex; border-radius: 0.5rem; padding: 1.5px; overflow: hidden; }
+.badge-animated-wrap::before { content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; animation: spin-slow 3.5s linear infinite; z-index: 0; }
+.badge-inner { position: relative; z-index: 1; border-radius: calc(0.5rem - 1.5px); padding: 0.35rem 0.85rem; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
 
-/* BỘ THEME MÀU SẮC (0 ĐẾN 9) ĐƯỢC ÉP VÀO 4 HẠNG UI */
+/* PHÂN CẤP ĐỘ SÁNG CỦA VIỀN LED THEO TIER (S, A, B, C) */
+.tier-s::before { opacity: 1; filter: drop-shadow(0 0 3px rgba(255,255,255,0.4)); } /* Sáng rực rỡ */
+.tier-a::before { opacity: 0.85; } /* Sáng vừa */
+.tier-b::before { opacity: 0.6; padding: 1px; } /* Mờ mờ, viền mỏng hơn */
+.tier-c::before { opacity: 0.35; padding: 1px; } /* Rất mờ, chìm vào nền */
 
-/* 0: Slate (Xám/Trung tính) */
-.theme-0.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #475569, #94a3b8, transparent); }
-.theme-0.badge-tier-s .badge-inner { color: #334155; }
-.theme-0.badge-tier-a { background: linear-gradient(to right, #475569, #334155); color: #ffffff; box-shadow: 0 3px 6px rgba(51,65,85,0.2); border: 1px solid #1e293b; }
-.theme-0.badge-tier-b { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-.theme-0.badge-tier-c { background: transparent; color: #64748b; border: 1px dashed #cbd5e1; }
+/* HỆ THỐNG MÀU SẮC CHO VIỀN (0-9) */
+.theme-0::before { background: conic-gradient(transparent, transparent, transparent, #64748b, #cbd5e1, transparent); }
+.theme-1::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #93c5fd, transparent); }
+.theme-2::before { background: conic-gradient(transparent, transparent, transparent, #059669, #6ee7b7, transparent); }
+.theme-3::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fdba74, transparent); }
+.theme-4::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fda4af, transparent); }
+.theme-5::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #d8b4fe, transparent); }
+.theme-6::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fde68a, transparent); }
+.theme-7::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #a5f3fc, transparent); }
+.theme-8::before { background: conic-gradient(transparent, transparent, transparent, #db2777, #fbcfe8, transparent); }
+.theme-9::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fef08a, transparent); }
 
-/* 1: Blue (Xanh dương) */
-.theme-1.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #2563eb, #60a5fa, transparent); }
-.theme-1.badge-tier-s .badge-inner { color: #1d4ed8; }
-.theme-1.badge-tier-a { background: linear-gradient(to right, #2563eb, #1d4ed8); color: #ffffff; box-shadow: 0 3px 6px rgba(37,99,235,0.2); border: 1px solid #1e40af; }
-.theme-1.badge-tier-b { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-.theme-1.badge-tier-c { background: transparent; color: #3b82f6; border: 1px dashed #93c5fd; }
+/* MÀU NỀN BÊN TRONG THEO TIER VÀ THEME */
+/* Tier S (Nền trắng/đen bóng) */
+.tier-s .badge-inner { background: #ffffff; }
+.theme-0.tier-s .badge-inner { color: #334155; } .theme-1.tier-s .badge-inner { color: #1d4ed8; }
+.theme-2.tier-s .badge-inner { color: #047857; } .theme-3.tier-s .badge-inner { color: #c2410c; }
+.theme-4.tier-s .badge-inner { color: #be123c; } .theme-5.tier-s .badge-inner { color: #6b21a8; }
+.theme-6.tier-s .badge-inner { color: #b45309; } .theme-7.tier-s .badge-inner { color: #0e7490; }
+.theme-8.tier-s .badge-inner { color: #be185d; } .theme-9.tier-s .badge-inner { background: #0f172a; color: #fbbf24; }
 
-/* 2: Emerald (Xanh ngọc) */
-.theme-2.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #059669, #34d399, transparent); }
-.theme-2.badge-tier-s .badge-inner { color: #047857; }
-.theme-2.badge-tier-a { background: linear-gradient(to right, #059669, #047857); color: #ffffff; box-shadow: 0 3px 6px rgba(5,150,105,0.2); border: 1px solid #065f46; }
-.theme-2.badge-tier-b { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-.theme-2.badge-tier-c { background: transparent; color: #10b981; border: 1px dashed #6ee7b7; }
+/* Tier A (Nền Gradient đậm chữ trắng) */
+.tier-a .badge-inner { color: #ffffff; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+.theme-0.tier-a .badge-inner { background: linear-gradient(to right, #475569, #334155); } .theme-1.tier-a .badge-inner { background: linear-gradient(to right, #2563eb, #1d4ed8); }
+.theme-2.tier-a .badge-inner { background: linear-gradient(to right, #059669, #047857); } .theme-3.tier-a .badge-inner { background: linear-gradient(to right, #ea580c, #c2410c); }
+.theme-4.tier-a .badge-inner { background: linear-gradient(to right, #e11d48, #be123c); } .theme-5.tier-a .badge-inner { background: linear-gradient(to right, #7e22ce, #6b21a8); }
+.theme-6.tier-a .badge-inner { background: linear-gradient(to right, #d97706, #b45309); } .theme-7.tier-a .badge-inner { background: linear-gradient(to right, #0891b2, #0e7490); }
+.theme-8.tier-a .badge-inner { background: linear-gradient(to right, #db2777, #be185d); } .theme-9.tier-a .badge-inner { background: linear-gradient(to right, #1e293b, #0f172a); color: #fbbf24;}
 
-/* 3: Orange (Cam) */
-.theme-3.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #ea580c, #fb923c, transparent); }
-.theme-3.badge-tier-s .badge-inner { color: #c2410c; }
-.theme-3.badge-tier-a { background: linear-gradient(to right, #ea580c, #c2410c); color: #ffffff; box-shadow: 0 3px 6px rgba(234,88,12,0.2); border: 1px solid #9a3412; }
-.theme-3.badge-tier-b { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
-.theme-3.badge-tier-c { background: transparent; color: #f97316; border: 1px dashed #fdba74; }
+/* Tier B (Nền Pastel màu nhạt chữ đậm) */
+.theme-0.tier-b .badge-inner { background: #f1f5f9; color: #475569; } .theme-1.tier-b .badge-inner { background: #eff6ff; color: #2563eb; }
+.theme-2.tier-b .badge-inner { background: #ecfdf5; color: #059669; } .theme-3.tier-b .badge-inner { background: #fff7ed; color: #ea580c; }
+.theme-4.tier-b .badge-inner { background: #fff1f2; color: #e11d48; } .theme-5.tier-b .badge-inner { background: #faf5ff; color: #7e22ce; }
+.theme-6.tier-b .badge-inner { background: #fffbeb; color: #d97706; } .theme-7.tier-b .badge-inner { background: #ecfeff; color: #0891b2; }
+.theme-8.tier-b .badge-inner { background: #fdf2f8; color: #db2777; } .theme-9.tier-b .badge-inner { background: #1e293b; color: #fcd34d; }
 
-/* 4: Rose/Red (Đỏ) */
-.theme-4.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #e11d48, #fb7185, transparent); }
-.theme-4.badge-tier-s .badge-inner { color: #be123c; }
-.theme-4.badge-tier-a { background: linear-gradient(to right, #e11d48, #be123c); color: #ffffff; box-shadow: 0 3px 6px rgba(225,29,72,0.2); border: 1px solid #9f1239; }
-.theme-4.badge-tier-b { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
-.theme-4.badge-tier-c { background: transparent; color: #f43f5e; border: 1px dashed #fda4af; }
-
-/* 5: Purple (Tím 99K) */
-.theme-5.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #7e22ce, #c084fc, transparent); }
-.theme-5.badge-tier-s .badge-inner { color: #6b21a8; }
-.theme-5.badge-tier-a { background: linear-gradient(to right, #7e22ce, #6b21a8); color: #ffffff; box-shadow: 0 3px 6px rgba(126,34,206,0.2); border: 1px solid #581c87; }
-.theme-5.badge-tier-b { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
-.theme-5.badge-tier-c { background: transparent; color: #a855f7; border: 1px dashed #d8b4fe; }
-
-/* 6: Amber (Vàng hổ phách) */
-.theme-6.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #d97706, #fcd34d, transparent); }
-.theme-6.badge-tier-s .badge-inner { color: #b45309; }
-.theme-6.badge-tier-a { background: linear-gradient(to right, #d97706, #b45309); color: #ffffff; box-shadow: 0 3px 6px rgba(217,119,6,0.2); border: 1px solid #92400e; }
-.theme-6.badge-tier-b { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-.theme-6.badge-tier-c { background: transparent; color: #f59e0b; border: 1px dashed #fcd34d; }
-
-/* 7: Cyan (Xanh lơ) */
-.theme-7.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #0891b2, #67e8f9, transparent); }
-.theme-7.badge-tier-s .badge-inner { color: #0e7490; }
-.theme-7.badge-tier-a { background: linear-gradient(to right, #0891b2, #0e7490); color: #ffffff; box-shadow: 0 3px 6px rgba(8,145,178,0.2); border: 1px solid #155e75; }
-.theme-7.badge-tier-b { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
-.theme-7.badge-tier-c { background: transparent; color: #06b6d4; border: 1px dashed #67e8f9; }
-
-/* 8: Pink (Hồng) */
-.theme-8.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #db2777, #f9a8d4, transparent); }
-.theme-8.badge-tier-s .badge-inner { color: #be185d; }
-.theme-8.badge-tier-a { background: linear-gradient(to right, #db2777, #be185d); color: #ffffff; box-shadow: 0 3px 6px rgba(219,39,119,0.2); border: 1px solid #9d174d; }
-.theme-8.badge-tier-b { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
-.theme-8.badge-tier-c { background: transparent; color: #ec4899; border: 1px dashed #f472b6; }
-
-/* 9: Black/Gold (Đen Vàng - Hoàng gia) */
-.theme-9.badge-tier-s::before { background: conic-gradient(transparent, transparent, transparent, #f59e0b, #fef08a, transparent); }
-.theme-9.badge-tier-s .badge-inner { background-color: #0f172a; color: #fbbf24; }
-.theme-9.badge-tier-a { background: linear-gradient(to right, #1e293b, #0f172a); color: #fbbf24; box-shadow: 0 3px 6px rgba(15,23,42,0.4); border: 1px solid #000000; }
-.theme-9.badge-tier-b { background: #1e293b; color: #fcd34d; border: 1px solid #334155; }
-.theme-9.badge-tier-c { background: transparent; color: #334155; border: 1px dashed #475569; }
+/* Tier C (Nền cực nhạt mờ chìm) */
+.tier-c .badge-inner { background: rgba(255,255,255,0.7); backdrop-filter: blur(2px); }
+.theme-0.tier-c .badge-inner { color: #64748b; } .theme-1.tier-c .badge-inner { color: #3b82f6; }
+.theme-2.tier-c .badge-inner { color: #10b981; } .theme-3.tier-c .badge-inner { color: #f97316; }
+.theme-4.tier-c .badge-inner { color: #f43f5e; } .theme-5.tier-c .badge-inner { color: #a855f7; }
+.theme-6.tier-c .badge-inner { color: #f59e0b; } .theme-7.tier-c .badge-inner { color: #06b6d4; }
+.theme-8.tier-c .badge-inner { color: #ec4899; } .theme-9.tier-c .badge-inner { color: #475569; }
 
 /* ==============================================================
-   10. FLOATING ICON (ICON ĐỘI MŨ NGHIÊNG BẮT SÁNG)
+   10. FLOATING ICON (ICON ĐỘI THỤT VÀO TRONG BẮT SÁNG)
    ============================================================== */
 .floating-icon {
     position: absolute;
-    top: -9px;      /* Nhô lên khỏi viền trên */
-    right: -7px;    /* Nhô ra khỏi viền phải */
+    top: -5px;      /* Đã kéo thụt xuống */
+    right: -4px;    /* Đã kéo thụt vào trong */
     z-index: 20;
     font-size: 13px;
-    /* Hiệu ứng đội mũ nghiêng 15 độ phá cách */
     transform: rotate(15deg); 
-    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25));
     transition: all 0.3s ease;
     user-select: none;
+    /* Khớp với tốc độ 3.5s của viền LED */
+    animation: icon-catch-light 3.5s linear infinite;
 }
 
-/* Thuật toán đồng bộ nhịp sáng (Light Sync Algorithm) */
-/* Ánh sáng chạy 3s/vòng -> Chạm góc phải trên ở 12.5% chu kỳ */
+/* Biến đổi nhẹ kích thước icon theo cấp */
+.icon-lvl-0 { font-size: 15px; top: -7px; right: -5px; } /* Vương miện to hơn */
+.icon-lvl-9 { font-size: 11px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); opacity: 0.8; } /* Khách mờ hơn */
+
 @keyframes icon-catch-light {
-    0%, 30%, 100% { 
-        filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15)) brightness(1); 
-        transform: rotate(15deg) scale(1); 
-    }
-    /* Chớp sáng rực rỡ và nảy nhẹ khi tia LED quét qua */
-    12%, 18% { 
-        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9)) brightness(1.4); 
-        transform: rotate(10deg) scale(1.15); 
-    }
+    0%, 30%, 100% { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)) brightness(1); transform: rotate(15deg) scale(1); }
+    /* Chớp sáng rực rỡ đúng lúc tia sáng lướt qua góc 45 độ */
+    10%, 16% { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) brightness(1.3); transform: rotate(8deg) scale(1.15); }
 }
-
-/* Gán Icon cho Tầng có viền LED chạy (0, 1, 2, 3) */
-.icon-vip-glow {
-    animation: icon-catch-light 3s linear infinite; /* Khớp tuyệt đối với spin-slow 3s */
-}
-
-/* Icon cỡ bự cho Sếp Tổng */
-.icon-god { font-size: 16px; top: -11px; right: -9px; }
-
-/* Icon tĩnh cho Quản lý cấp trung (Không có viền chạy nên không chớp) */
-.icon-static { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
