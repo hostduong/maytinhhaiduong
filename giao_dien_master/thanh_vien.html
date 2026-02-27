@@ -20,7 +20,7 @@
                     <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <button onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                <button type="button" onclick="openMessageModal()" class="relative z-50 w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
                     Gửi Thông Báo (<span id="countSelected">0</span>)
                 </button>
@@ -334,6 +334,37 @@
         const myLevel = {{ .NhanVien.StyleLevel }};
         let itiPhone, itiZalo;
 
+        /* =========================================================
+           HỆ THỐNG TƯỜNG LỬA (FIREWALL) & GIAO DIỆN INPUT THÔNG MINH
+           ========================================================= */
+        function checkInputState(input) {
+            if(input.value.trim() !== "") input.classList.add('has-data');
+            else input.classList.remove('has-data');
+        }
+
+        function initSmartInputs() {
+            document.querySelectorAll('.input-premium').forEach(input => {
+                checkInputState(input); // Check ngay lúc load
+                
+                input.addEventListener('input', function() {
+                    // Tường lửa chống Google Sheets Injection và XSS/SQL
+                    // Bỏ qua chặn ký tự cho các ô cần thiết (Email, URL, Password)
+                    if (this.type !== 'email' && this.type !== 'url' && this.type !== 'password' && this.id !== 'f_fb' && this.id !== 'f_tiktok') {
+                        // 1. Cấm dấu =, +, -, @ đứng ĐẦU TIÊN (Chống lỗi #ERROR Google Sheets)
+                        this.value = this.value.replace(/^[=+\-@]/, '');
+                        // 2. Cấm toàn bộ ký tự có thể gây hack XSS, SQL
+                        this.value = this.value.replace(/[<>;"'`{}\[\]\\]/g, '');
+                    }
+                    // Cập nhật viền tím
+                    checkInputState(this);
+                });
+            });
+        }
+        document.addEventListener("DOMContentLoaded", initSmartInputs);
+
+        /* =========================================================
+           CÁC HÀM XỬ LÝ GIAO DIỆN CHÍNH
+           ========================================================= */
         function togglePass(id) {
             const input = document.getElementById(id);
             const eyeSlash = document.getElementById('eye_slash_' + id);
@@ -422,6 +453,9 @@
             if (ma === "0000000000000000001" && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
             if (ma === currentUserID) { statusSelect.disabled = true; }
 
+            // Quét lại toàn bộ viền Input sang Tím nhạt cho các ô đã có chữ
+            document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
+
             document.getElementById('modalEdit').classList.remove('hidden');
         }
 
@@ -475,7 +509,6 @@
                 const res = await fetch('/master/api/thanh-vien/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    // MẪU 1: THÀNH CÔNG (CẦU VỒNG, TÍM)
                     Swal.fire({
                         title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
                         html: `<div class="text-[15px] text-slate-600 font-medium px-4">${data.msg}</div>`,
@@ -483,7 +516,6 @@
                         showConfirmButton: false, timer: 1500
                     }).then(() => location.reload());
                 } else {
-                    // MẪU 2: LỖI BẢO MẬT (LỬA ĐỎ, CAM)
                     Swal.fire({
                         title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
                         html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`,
@@ -502,9 +534,6 @@
             finally { btn.disabled = false; btn.innerHTML = old; btn.classList.remove('opacity-80', 'cursor-not-allowed'); }
         }
 
-        /* --------------------------------------------------------
-           XÓA BỎ BẢNG "OOPS" XẤU XÍ, THAY BẰNG CHUẨN MASTER ERROR
-           -------------------------------------------------------- */
         function openMessageModal() { 
             let count = getSelectedIDs().length; 
             if (count === 0) { 
