@@ -65,7 +65,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
-		"TieuDe": "Core Team", "NhanVien": &meCopy, "DanhSach": listView, "DanhSachVaiTro": listVaiTro, 
+		"TieuDe": "Thành viên", "NhanVien": &meCopy, "DanhSach": listView, "DanhSachVaiTro": listVaiTro, 
 	})
 }
 
