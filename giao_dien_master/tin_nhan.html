@@ -49,9 +49,9 @@
                             <div id="chatActiveAvatar" class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0"></div>
                             <div class="min-w-0">
                                 <div id="chatActiveName" class="mb-1 leading-tight">--</div>
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                    <p id="chatActiveRole" class="text-[10px] font-black uppercase tracking-widest leading-tight truncate">--</p>
+                                    <p id="chatActiveRole" class="leading-tight truncate">--</p>
                                 </div>
                             </div>
                         </div>
@@ -92,11 +92,11 @@
         const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
         
         let chatData = [];
-        let userMap = {}; // Bảng ánh xạ ID -> User Info siêu tốc
+        let userMap = {}; 
         let activeChatID = null;
 
-        // [MỚI] HÀM RENDER HUY HIỆU TÊN (DÙNG CHUNG CHO TOÀN BỘ CHAT)
-        function getVipBadge(name, level, theme, extraClass = "") {
+        // [MỚI 100%]: HÀM GỘP CẢ HUY HIỆU TÊN VÀ CHỮ GRADIENT CHỨC VỤ 
+        function getVipNameAndRole(name, role, level, theme, extraClass = "") {
             let tier = "tier-c";
             if (level < 4) tier = "tier-s";
             else if (level < 7) tier = "tier-a";
@@ -108,7 +108,34 @@
             let iconClass = (level === 0) ? "icon-lvl-0" : (level > 7 ? "icon-lvl-9" : "");
 
             return `
-            <div class="relative inline-flex items-center ${extraClass} z-10 max-w-full">
+            <div class="flex items-center gap-1.5 sm:gap-2 ${extraClass}">
+                <div class="relative inline-flex items-center z-10 max-w-full shrink-0">
+                    <div class="badge-animated-wrap theme-${theme} ${tier} !mt-0 !mr-0 max-w-full">
+                        <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none">${name}</div>
+                    </div>
+                    <div class="floating-icon ${iconClass}">${icon}</div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <span class="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-slate-300 shadow-sm shrink-0"></span>
+                    <span class="text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-${theme} drop-shadow-sm">${role}</span>
+                </div>
+            </div>`;
+        }
+
+        // Dùng riêng cho Active Chat Name (Vì Role hiển thị ở dòng dưới)
+        function getVipBadgeOnly(name, level, theme, extraClass = "") {
+            let tier = "tier-c";
+            if (level < 4) tier = "tier-s";
+            else if (level < 7) tier = "tier-a";
+            else if (level === 7) tier = "tier-b";
+
+            let icon = "👤";
+            if (level === 0) icon = "👑"; else if (level === 1) icon = "⚡"; else if (level === 2) icon = "🛡️"; else if (level === 3) icon = "⭐"; else if (level === 4) icon = "🎯"; else if (level === 5) icon = "💼"; else if (level === 6) icon = "⚖️"; else if (level === 7) icon = "🚀"; else if (level === 8) icon = "🤝";
+            
+            let iconClass = (level === 0) ? "icon-lvl-0" : (level > 7 ? "icon-lvl-9" : "");
+
+            return `
+            <div class="relative inline-flex items-center ${extraClass} z-10 max-w-full shrink-0">
                 <div class="badge-animated-wrap theme-${theme} ${tier} !mt-0 !mr-0 max-w-full">
                     <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none">${name}</div>
                 </div>
@@ -142,8 +169,8 @@
                 let ava = el.dataset.avatar;
                 if(!ava) ava = `https://ui-avatars.com/api/?name=${el.dataset.name}&background=f3e8ff&color=7e22ce&bold=true`;
 
-                let lvl = parseInt(el.dataset.level) || 9;
-                let thm = parseInt(el.dataset.theme) || 0;
+                let lvl = parseInt(el.dataset.level); if (isNaN(lvl)) lvl = 9;
+                let thm = parseInt(el.dataset.theme); if (isNaN(thm)) thm = 0;
 
                 let userObj = {
                     id: id, name: el.dataset.name, user: el.dataset.user,
@@ -190,8 +217,7 @@
                     }
                 }
 
-                // Vẽ tên thu nhỏ ở cột danh bạ
-                let nameHtml = getVipBadge(u.name, u.level, u.theme, "scale-[0.8] origin-left -ml-2 -mt-1");
+                let nameAndRoleHtml = getVipNameAndRole(u.name, u.role, u.level, u.theme, "scale-[0.8] origin-left -ml-2 -mt-1");
 
                 html += `
                 <div onclick="openChat('${u.id}')" class="p-4 cursor-pointer transition-all flex gap-3 ${isActive}">
@@ -201,7 +227,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline">
-                            ${nameHtml}
+                            ${nameAndRoleHtml}
                             <span class="text-[10px] text-slate-400 shrink-0 font-medium">${timeStr}</span>
                         </div>
                         <div class="text-[12px] text-slate-500 line-clamp-2 leading-snug mt-1">${snippet}</div>
@@ -224,8 +250,8 @@
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('activeChatState').classList.remove('hidden');
 
-            document.getElementById('chatActiveName').innerHTML = getVipBadge(u.name, u.level, u.theme, "scale-[0.85] origin-left -ml-1");
-            document.getElementById('chatActiveRole').innerHTML = `<span class="text-theme-gradient text-theme-${u.theme}">${u.role}</span>`;
+            document.getElementById('chatActiveName').innerHTML = getVipBadgeOnly(u.name, u.level, u.theme, "scale-[0.9] origin-left -ml-1");
+            document.getElementById('chatActiveRole').innerHTML = `<span class="text-[10px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-${u.theme}">${u.role}</span>`;
             document.getElementById('chatActiveAvatar').innerHTML = `<img src="${u.avatar}" class="w-full h-full object-cover">`;
 
             renderMessages(u);
@@ -252,9 +278,9 @@
                     let isMe = (m.sender === myUserID);
                     
                     if (m.type === 'SYSTEM' || m.type === 'AUTO' || m.type === 'ALL' || m.sender === '0000000000000000000') {
-                        // Tra cứu ID Sender (Ví dụ Bot có ID 000...000)
+                        // Tra cứu ID Sender, bảo vệ chống null
                         let sender = userMap[m.sender] || { name: 'Hệ thống', role: 'Thông báo', level: 0, theme: 9, avatar: 'https://ui-avatars.com/api/?name=Sys&background=f3e8ff&color=7e22ce' };
-                        let senderBadge = getVipBadge(sender.name, sender.level, sender.theme, "scale-[0.75] origin-left");
+                        let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.85] origin-left");
                         
                         html += `
                         <div class="flex justify-center w-full my-4 animate-[fadeIn_0.3s_ease-out]">
@@ -270,8 +296,8 @@
                                 
                                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                                     <div class="flex items-center gap-1.5 -ml-1">
-                                        <img src="${sender.avatar}" class="w-5 h-5 rounded-full border border-slate-200">
-                                        ${senderBadge}
+                                        <img src="${sender.avatar}" class="w-6 h-6 rounded-full border border-slate-200 shadow-sm">
+                                        ${senderInfoHtml}
                                     </div>
                                     <span class="text-[10.5px] text-slate-400 font-medium font-mono">${m.time.split(' ')[1]}</span>
                                 </div>
@@ -286,14 +312,14 @@
                             </div>
                         </div>`;
                     } else {
-                        // Vẽ Huy hiệu thay cho tên đen
-                        let sender = userMap[m.sender] || { name: 'Người dùng', level: 9, theme: 0 };
-                        let senderBadge = getVipBadge(sender.name, sender.level, sender.theme, "scale-[0.8] origin-bottom-left ml-1 mb-1.5");
+                        // Hiển thị Full Tên & Chức vụ cho người chat đối diện
+                        let sender = userMap[m.sender] || { name: 'Người dùng', role: 'Khách', level: 9, theme: 0, avatar: 'https://ui-avatars.com/api/?name=User&background=f3e8ff&color=7e22ce' };
+                        let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.8] origin-bottom-left ml-1 mb-0.5");
 
                         html += `
-                        <div class="flex flex-col items-start w-full pr-12 mb-1.5 animate-[fadeIn_0.3s_ease-out]">
-                            ${senderBadge}
-                            <div class="flex items-end gap-2">
+                        <div class="flex flex-col items-start w-full pr-12 mb-2 animate-[fadeIn_0.3s_ease-out]">
+                            ${senderInfoHtml}
+                            <div class="flex items-end gap-2 mt-0.5">
                                 <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 rounded-[1.25rem] rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
                                 <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
                             </div>
@@ -334,6 +360,7 @@
                     input.value = ''; 
                     input.style.height = '';
                     
+                    // Lấy thời gian từ data trả về, nếu lỗi thì dùng giờ hiện tại
                     const msgTime = (data.data && (data.data.ngay_tao || data.data.NgayTao)) || new Date().toLocaleString('en-GB').replace(',', '');
                     const msgId = (data.data && (data.data.ma_tin_nhan || data.data.MaTinNhan)) || 'TMP_' + Date.now();
 
