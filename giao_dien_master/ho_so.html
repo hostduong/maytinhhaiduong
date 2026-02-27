@@ -22,79 +22,85 @@
             <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-gradient-animated uppercase">HỒ SƠ CÁ NHÂN</h1>
         </div>
 
-        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 mb-8 overflow-hidden relative">
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 h-32 relative">
-                <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
-            </div>
-            
-            <div class="text-center -mt-16 relative px-6 pb-8 z-10">
-                 <div class="inline-block p-1.5 bg-white rounded-full shadow-md">
-                    <div class="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner relative">
-                        {{ $avatar := .NhanVien.AnhDaiDien }}
-                        {{ if not $avatar }}
-                            {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=f3e8ff&color=7e22ce&size=200&bold=true" }}
-                        {{ end }}
-                        <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
-                    </div>
-                </div>
-                <h2 class="mt-3 text-3xl font-black text-slate-800 tracking-tight">{{ .NhanVien.TenKhachHang }}</h2>
-                <div class="text-purple-600 font-black bg-purple-50 inline-block px-4 py-1.5 rounded-full text-[10px] mt-2 tracking-widest border border-purple-100 uppercase">
-                    {{ .NhanVien.ChucVu }}
+        <div class="animated-border-wrapper shadow-xl shadow-purple-100/50 mb-8">
+            <div class="animated-border-inner overflow-hidden relative">
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-700 h-32 relative">
+                    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
                 </div>
                 
-                <div class="flex justify-center gap-4 mt-5">
-                    {{ if .NhanVien.MangXaHoi.Facebook }}
-                    <a href="{{ .NhanVien.MangXaHoi.Facebook }}" target="_blank" class="p-2.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-                    {{ end }}
-                    {{ if .NhanVien.MangXaHoi.Tiktok }}
-                    <a href="{{ .NhanVien.MangXaHoi.Tiktok }}" target="_blank" class="p-2.5 bg-slate-100 text-slate-800 rounded-full hover:bg-black hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg></a>
-                    {{ end }}
-                    {{ if .NhanVien.MangXaHoi.Zalo }}
-                    <a href="https://zalo.me/{{ .NhanVien.MangXaHoi.Zalo }}" target="_blank" class="p-2.5 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-black text-xs flex items-center justify-center w-10 h-10 border border-blue-200 shadow-sm">Zalo</a>
-                    {{ end }}
+                <div class="text-center -mt-16 relative px-6 pb-8 z-10">
+                    <div class="inline-block p-1.5 bg-white rounded-full shadow-md">
+                        <div class="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner relative">
+                            {{ $avatar := .NhanVien.AnhDaiDien }}
+                            {{ if not $avatar }}
+                                {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=f3e8ff&color=7e22ce&size=200&bold=true" }}
+                            {{ end }}
+                            <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <h2 class="mt-3 text-3xl font-black text-slate-800 tracking-tight">{{ .NhanVien.TenKhachHang }}</h2>
+                    <div class="text-purple-600 font-black bg-purple-50 inline-block px-4 py-1.5 rounded-full text-[10px] mt-2 tracking-widest border border-purple-100 uppercase">
+                        {{ .NhanVien.ChucVu }}
+                    </div>
+                    
+                    <div class="flex justify-center gap-4 mt-5">
+                        {{ if .NhanVien.MangXaHoi.Facebook }}
+                        <a href="{{ .NhanVien.MangXaHoi.Facebook }}" target="_blank" class="p-2.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                        {{ end }}
+                        {{ if .NhanVien.MangXaHoi.Tiktok }}
+                        <a href="{{ .NhanVien.MangXaHoi.Tiktok }}" target="_blank" class="p-2.5 bg-slate-100 text-slate-800 rounded-full hover:bg-black hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg></a>
+                        {{ end }}
+                        {{ if .NhanVien.MangXaHoi.Zalo }}
+                        <a href="https://zalo.me/{{ .NhanVien.MangXaHoi.Zalo }}" target="_blank" class="p-2.5 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-black text-xs flex items-center justify-center w-10 h-10 border border-blue-200 shadow-sm">Zalo</a>
+                        {{ end }}
+                    </div>
                 </div>
-            </div>
-            
-            <div class="flex flex-wrap justify-center gap-4 py-6 px-6 border-t border-purple-50 bg-slate-50/50 relative z-10">
-                <button onclick="toggleModal('modalInfo')" class="bg-white border border-purple-200 hover:bg-purple-50 text-purple-700 px-6 py-3 rounded-2xl font-bold shadow-sm transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    Cập nhật hồ sơ
-                </button>
-                <button onclick="toggleModal('modalPass')" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-purple-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    Đổi mật khẩu
-                </button>
-                <button onclick="toggleModal('modalPin')" class="bg-indigo-900 hover:bg-indigo-950 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-indigo-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
-                    Đổi mã PIN
-                </button>
+                
+                <div class="flex flex-wrap justify-center gap-4 py-6 px-6 border-t border-purple-50 bg-slate-50/50 relative z-10">
+                    <button onclick="toggleModal('modalInfo')" class="bg-white border border-purple-200 hover:bg-purple-50 text-purple-700 px-6 py-3 rounded-2xl font-bold shadow-sm transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        Cập nhật hồ sơ
+                    </button>
+                    <button onclick="toggleModal('modalPass')" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-purple-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Đổi mật khẩu
+                    </button>
+                    <button onclick="toggleModal('modalPin')" class="bg-indigo-900 hover:bg-indigo-950 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-indigo-200 transition transform hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
+                        Đổi mã PIN
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-2 bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 p-8 space-y-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                <h3 class="text-lg font-black text-purple-700 border-b border-purple-50 pb-3 mb-2 flex items-center gap-2 relative z-10 uppercase tracking-widest">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Thông tin liên hệ
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
-                    <div><label class="form-lbl">Họ và tên</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.TenKhachHang }}</div></div>
-                    <div><label class="form-lbl">Số điện thoại</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DienThoai }} {{ .NhanVien.DienThoai }} {{ else }} -- {{ end }}</div></div>
-                    <div><label class="form-lbl">Email</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.Email }}</div></div>
-                    <div><label class="form-lbl">Ngày sinh</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.NgaySinh }} {{ .NhanVien.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
-                    <div class="sm:col-span-2"><label class="form-lbl">Địa chỉ</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DiaChi }} {{ .NhanVien.DiaChi }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
+            <div class="animated-border-wrapper shadow-lg shadow-purple-100/50 md:col-span-2">
+                <div class="animated-border-inner p-8 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
+                    <h3 class="text-lg font-black text-purple-700 border-b border-purple-50 pb-3 mb-2 flex items-center gap-2 relative z-10 uppercase tracking-widest">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Thông tin liên hệ
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+                        <div><label class="form-lbl">Họ và tên</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.TenKhachHang }}</div></div>
+                        <div><label class="form-lbl">Số điện thoại</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DienThoai }} {{ .NhanVien.DienThoai }} {{ else }} -- {{ end }}</div></div>
+                        <div><label class="form-lbl">Email</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.Email }}</div></div>
+                        <div><label class="form-lbl">Ngày sinh</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.NgaySinh }} {{ .NhanVien.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
+                        <div class="sm:col-span-2"><label class="form-lbl">Địa chỉ</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DiaChi }} {{ .NhanVien.DiaChi }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
+                    </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 p-8 space-y-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                <h3 class="text-lg font-black text-purple-700 border-b border-purple-50 pb-3 mb-2 flex items-center gap-2 relative z-10 uppercase tracking-widest">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Bảo mật
-                </h3>
-                <div class="relative z-10 space-y-6">
-                    <div><label class="form-lbl">Tên đăng nhập (ID)</label><div class="text-blue-600 font-black tracking-wide text-base">{{ .NhanVien.TenDangNhap }}</div></div>
-                    <div><label class="form-lbl">Ngày gia nhập</label><div class="text-slate-800 font-bold text-sm">{{ .NhanVien.NgayTao }}</div></div>
-                    <div><label class="form-lbl">Cập nhật lần cuối</label><div class="text-slate-600 font-medium text-sm">{{ .NhanVien.NgayCapNhat }}</div></div>
+            <div class="animated-border-wrapper shadow-lg shadow-purple-100/50">
+                <div class="animated-border-inner p-8 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none z-0"></div>
+                    <h3 class="text-lg font-black text-purple-700 border-b border-purple-50 pb-3 mb-2 flex items-center gap-2 relative z-10 uppercase tracking-widest">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Bảo mật
+                    </h3>
+                    <div class="relative z-10 space-y-6">
+                        <div><label class="form-lbl">Tên đăng nhập (ID)</label><div class="text-blue-600 font-black tracking-wide text-base">{{ .NhanVien.TenDangNhap }}</div></div>
+                        <div><label class="form-lbl">Ngày gia nhập</label><div class="text-slate-800 font-bold text-sm">{{ .NhanVien.NgayTao }}</div></div>
+                        <div><label class="form-lbl">Cập nhật lần cuối</label><div class="text-slate-600 font-medium text-sm">{{ .NhanVien.NgayCapNhat }}</div></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,67 +120,69 @@
             </div>
             
             <div class="p-8 overflow-y-auto custom-scroll relative">
-                <div class="bg-white p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                    
-                    <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-6 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> 
-                        Thông tin định danh & Liên hệ
-                    </h4>
-                    
-                    <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
-                            <div class="md:col-span-2">
-                                <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
-                                <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-900" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                                <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
-                            </div>
-                            
-                            <div class="md:col-span-2">
-                                <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
-                                <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                            </div>
+                <div class="animated-border-wrapper shadow-lg shadow-purple-100/50">
+                    <div class="animated-border-inner p-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
+                        
+                        <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-6 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> 
+                            Thông tin định danh & Liên hệ
+                        </h4>
+                        
+                        <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <div class="md:col-span-2">
+                                    <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
+                                    <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-900" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                    <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
+                                    <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                </div>
 
-                            <div>
-                                <label class="form-lbl">Số điện thoại</label>
-                                <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                                <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
-                            </div>
-                            
-                            <div>
-                                <label class="form-lbl">Ngày sinh</label>
-                                <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium bg-white" autocomplete="new-password">
-                            </div>
+                                <div>
+                                    <label class="form-lbl">Số điện thoại</label>
+                                    <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                    <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-lbl">Ngày sinh</label>
+                                    <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium bg-white" autocomplete="new-password">
+                                </div>
 
-                            <div>
-                                <label class="form-lbl">Giới tính</label>
-                                <select id="newGender" class="input-premium bg-white cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
-                            </div>
-                            
-                            <div>
-                                <label class="form-lbl">Mã số thuế</label>
-                                <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                                <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
-                            </div>
+                                <div>
+                                    <label class="form-lbl">Giới tính</label>
+                                    <select id="newGender" class="input-premium bg-white cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-lbl">Mã số thuế</label>
+                                    <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                    <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
+                                </div>
 
-                            <div class="md:col-span-2">
-                                <label class="form-lbl">Địa chỉ</label>
-                                <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                            </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-lbl">Địa chỉ</label>
+                                    <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                </div>
 
-                            <div class="md:col-span-2 pt-6 border-t border-purple-50">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
-                                    <div></div>
-                                    
-                                    <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
-                                    
-                                    <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                <div class="md:col-span-2 pt-6 border-t border-purple-50">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
+                                        <div></div>
+                                        
+                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                        
+                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
             
@@ -187,7 +195,8 @@
             </div>
         </div>
     </div>
-
+    
+    {{/* Bắt đầu phần HTML Modal và script cũ của bạn ... */}}
     <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-md transform transition-all relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
@@ -288,11 +297,7 @@
         if(inputPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
         if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
-        /* =========================================================
-           TƯỜNG LỬA (FIREWALL) & GIAO DIỆN INPUT THÔNG MINH
-           ========================================================= */
         function checkInputState(input) {
-            // Loại trừ những ô đang bị lỗi đỏ ra để không bị đè màu
             if(!input.classList.contains('input-error')) {
                 if(input.value.trim() !== "") input.classList.add('has-data');
                 else input.classList.remove('has-data');
@@ -313,9 +318,6 @@
         }
         document.addEventListener("DOMContentLoaded", initSmartInputs);
 
-        /* =========================================================
-           NÚT LOADING LED SPINNER CHUẨN
-           ========================================================= */
         function setBtnLoading(id, text) { 
             const btn = document.getElementById(id); 
             btn.disabled = true; btn.dataset.oldText = btn.innerHTML; 
@@ -414,7 +416,6 @@
 
         async function postData(url, data) { const fd = new FormData(); for(const k in data) fd.append(k, data[k]); try { const r = await fetch(url, {method:'POST', body:fd}); return await r.json(); } catch(e){ return {status:'error', msg:'Đường truyền đến máy chủ bị gián đoạn!'}; } }
         
-        // ĐỒNG BỘ HIỆU ỨNG THÔNG BÁO CHUẨN MỚI
         function handleRes(res, modalId, btnId) { 
             setBtnNormal(btnId); 
             if(res.status === 'ok') {
