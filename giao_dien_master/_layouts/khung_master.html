@@ -22,7 +22,7 @@
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { padding-right: 0 !important; }
         .swal2-pin-input:focus { border-color: #9333ea !important; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1) !important; background-color: white !important;}
 
-        /* [MỚI] CSS để trượt ẩn Sidebar mượt mà trên Desktop */
+        /* CSS trượt ẩn Sidebar mượt mà trên Desktop */
         @media (min-width: 768px) {
             .desktop-sidebar-collapsed {
                 margin-left: -280px !important;
@@ -66,7 +66,7 @@
                 <span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ
             </a>
 
-            <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Hộp thư hệ thống"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Hộp thư"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <div class="flex items-center gap-3">
                     <span class="text-lg w-6 text-center">💬</span> Hộp thư
                 </div>
@@ -79,7 +79,7 @@
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
             </div>
 
-            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Core Team (Admin)"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Core Team"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">🛡️</span> Core Team
             </a>
 
@@ -119,7 +119,7 @@
         <header class="h-16 md:h-20 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 shadow-sm z-20">
             <div class="flex items-center gap-3 md:gap-4">
                 
-                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition flex items-center justify-center group" title="Tắt / Mở Sidebar">
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition flex items-center justify-center group" title="Tắt / Mở Menu">
                     <svg class="w-6 h-6 transition-transform group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h16"></path></svg>
                 </button>
                 
@@ -130,17 +130,9 @@
                     <span class="text-xl font-black text-slate-800 tracking-tight">99K<span class="text-purple-600">.vn</span></span>
                 </a>
                 
-                <div class="h-6 w-px bg-slate-200 hidden mx-1" id="headerDivider"></div>
-
-                <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight truncate">{{ .TieuDe }}</h2>
             </div>
             
-            <div class="flex items-center gap-3">
-                <a href="/" target="_blank" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    Xem Cửa Hàng
-                </a>
-            </div>
+            <div></div>
         </header>
         
         <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll relative">
@@ -151,12 +143,11 @@
     </div>
 
     <script>
-        // --- LOGIC ĐIỀU KHIỂN SIDEBAR MỚI NHẤT ---
+        // --- LOGIC ĐIỀU KHIỂN SIDEBAR VÀ HIỆN LOGO TỰ ĐỘNG ---
         function toggleSidebar() {
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const headerLogo = document.getElementById('headerLogo');
-            const headerDivider = document.getElementById('headerDivider');
             
             if (window.innerWidth < 768) {
                 if (sidebar.classList.contains('-translate-x-full')) {
@@ -166,37 +157,39 @@
                 }
             } else {
                 sidebar.classList.toggle('desktop-sidebar-collapsed');
-                // Bật tắt Logo trên Header khi Sidebar đóng mở
+                // Bật Logo ở Header nếu Sidebar đóng lại
                 if (sidebar.classList.contains('desktop-sidebar-collapsed')) {
                     headerLogo.classList.remove('hidden'); headerLogo.classList.add('flex');
-                    headerDivider.classList.remove('hidden'); headerDivider.classList.add('block');
                 } else {
                     headerLogo.classList.add('hidden'); headerLogo.classList.remove('flex');
-                    headerDivider.classList.add('hidden'); headerDivider.classList.remove('block');
                 }
             }
         }
-        // Xác nhận Đăng xuất
+
+        // --- ĐĂNG XUẤT ÁP DỤNG MẪU MODAL CHUẨN CỦA HỆ THỐNG ---
         function confirmLogout() {
             Swal.fire({
-                title: 'Đăng xuất khỏi hệ thống?',
-                text: "Phiên làm việc hiện tại của bạn sẽ bị hủy.",
-                icon: 'warning',
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></div><span class="text-3xl font-black title-gradient-red">Đăng Xuất?</span></div>',
+                html: `<div class="text-[15px] text-orange-900 font-medium px-4">Bạn có chắc chắn muốn kết thúc phiên làm việc và rời khỏi hệ thống?</div>`,
+                customClass: { 
+                    popup: 'swal-master-error', 
+                    confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95',
+                    cancelButton: 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200 font-bold rounded-xl px-8 py-3 transition active:scale-95 mr-3'
+                },
+                buttonsStyling: false,
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#cbd5e1',
-                confirmButtonText: 'Đăng xuất ngay',
-                cancelButtonText: 'Trở lại',
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Ở lại',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Đang đăng xuất...',
-                        allowOutsideClick: false,
+                        title: '<div class="flex flex-col items-center gap-4"><div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-purple-600 animate-spin"></div><span class="text-xl font-black title-gradient-purple">Đang tải...</span></div>',
+                        customClass: { popup: 'swal-master-success' },
                         showConfirmButton: false,
-                        didOpen: () => { Swal.showLoading(); }
+                        allowOutsideClick: false
                     });
-                    window.location.href = '/logout';
+                    setTimeout(() => window.location.href = '/logout', 400); 
                 }
             });
         }
