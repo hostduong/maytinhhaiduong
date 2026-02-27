@@ -10,9 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// =========================================================
-// 1. GIAO DIỆN TRANG CHAT MASTER
-// =========================================================
 func TrangTinNhanMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID") 
 	userID := c.GetString("USER_ID")
@@ -31,7 +28,6 @@ func TrangTinNhanMaster(c *gin.Context) {
 
 	listAll := core.LayDanhSachKhachHang(masterShopID)
 	
-	// Lấy Danh sách Vai trò để map StyleLevel và StyleTheme
 	core.KhoaHeThong.RLock()
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
@@ -42,20 +38,29 @@ func TrangTinNhanMaster(c *gin.Context) {
 	var listChat []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
-		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		
-		// Bơm Style VIP vào object
 		if khCopy.MaKhachHang == "0000000000000000000" {
+			// [FIX]: Chặn Bot hiển thị toàn bộ tin nhắn của hệ thống. Chỉ hiện tin của Mình và Bot.
 			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
+			var myBotInbox []*core.TinNhan
+			allMyMsgs := core.LayHopThuNguoiDung(masterShopID, userID, vaiTro)
+			for _, m := range allMyMsgs {
+				// Lọc riêng tin nhắn hệ thống hoặc chat trực tiếp với Bot
+				if m.NguoiGuiID == "0000000000000000000" || m.NguoiNhanID == "0000000000000000000" || m.LoaiTinNhan == "SYSTEM" || m.LoaiTinNhan == "ALL" {
+					myBotInbox = append(myBotInbox, m)
+				}
+			}
+			khCopy.Inbox = myBotInbox
 		} else {
+			khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
 				khCopy.StyleLevel, khCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme
 			} else {
 				khCopy.StyleLevel, khCopy.StyleTheme = 9, 0 
 			}
 		}
-		if khCopy.MaKhachHang == "0000000000000000001" { khCopy.StyleLevel = 0 }
 
+		if khCopy.MaKhachHang == "0000000000000000001" { khCopy.StyleLevel = 0 }
 		listChat = append(listChat, &khCopy)
 	}
 
@@ -75,9 +80,6 @@ func API_DanhDauDaDocMaster(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok"})
 }
 
-// =========================================================
-// 3. API GỬI TIN NHẮN TRỰC TIẾP (CHAT)
-// =========================================================
 func API_GuiTinNhanChat(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -90,16 +92,34 @@ func API_GuiTinNhanChat(c *gin.Context) {
 		return
 	}
 
+	// [MỚI]: Kích hoạt chức năng Trả lời dưới danh nghĩa Hệ Thống (Bot)
+	sendAsBot := c.PostForm("send_as_bot")
+	tieuDe := strings.TrimSpace(c.PostForm("tieu_de"))
+	
+	senderID := userID
+	msgType := "CHAT"
+	
+	if sendAsBot == "1" {
+		// Chỉ Level 0, 1, 2 mới được dùng quyền này
+		if core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE")) <= 2 {
+			senderID = "0000000000000000000" // Ép ID Bot
+			msgType = "AUTO" // Đổi sang AUTO để Front-end vẽ khung Card ở giữa
+			if tieuDe == "" { tieuDe = "Phản hồi từ Hệ thống" }
+		}
+	} else {
+		tieuDe = "" // Chat 1-1 thường thì không cần tiêu đề
+	}
+
 	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 	msgID := fmt.Sprintf("MSG_%d_%s", time.Now().UnixNano(), nguoiNhanID) 
 
 	newMsg := &core.TinNhan{
 		MaTinNhan:      msgID,
-		LoaiTinNhan:    "CHAT",
-		NguoiGuiID:     userID,         
+		LoaiTinNhan:    msgType,
+		NguoiGuiID:     senderID,         
 		NguoiNhanID:    nguoiNhanID,           
-		TieuDe:         "Tin nhắn hệ thống",
+		TieuDe:         tieuDe,
 		NoiDung:        noiDung,
 		NgayTao:        nowStr,
 	}
