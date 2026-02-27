@@ -9,15 +9,8 @@
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 
-    <div class="max-w-7xl mx-auto h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col pb-6 relative z-10">
+    <div class="max-w-7xl mx-auto h-[calc(100vh-5rem)] md:h-[calc(100vh-6.5rem)] flex flex-col pt-4 md:pt-6 pb-6 relative z-10">
         
-        <div class="flex items-center gap-3 mb-4 shrink-0 hidden md:flex">
-            <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-            </div>
-            <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600">Trạm Tin Nhắn</h1>
-        </div>
-
         <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 flex-1 flex overflow-hidden relative min-h-0">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
             
@@ -107,7 +100,6 @@
         let userMap = {}; 
         let activeChatID = null;
 
-        // Toggle giao diện nhập Tiêu đề Bot
         const chkBot = document.getElementById('chatAsBot');
         if (chkBot) {
             chkBot.addEventListener('change', function() {
@@ -369,7 +361,6 @@
             fd.append('nguoi_nhan_id', activeChatID);
             fd.append('noi_dung', content);
             
-            // Lấy thêm trạng thái Checkbox
             let chk = document.getElementById('chatAsBot');
             let isBot = (chk && chk.checked);
             let title = "Phản hồi từ Hệ thống";
@@ -388,7 +379,7 @@
                 if (data.status === 'ok') {
                     input.value = ''; 
                     input.style.height = '';
-                    if (isBot) document.getElementById('chatBotTitle').value = ""; // Clear title sau khi gửi
+                    if (isBot) document.getElementById('chatBotTitle').value = ""; 
                     
                     const msgTime = (data.data && (data.data.ngay_tao || data.data.NgayTao)) || new Date().toLocaleString('en-GB').replace(',', '');
                     const msgId = (data.data && (data.data.ma_tin_nhan || data.data.MaTinNhan)) || 'TMP_' + Date.now();
@@ -396,11 +387,11 @@
                     const u = chatData.find(x => x.id === activeChatID);
                     u.messages.push({
                         id: msgId,
-                        type: isBot ? 'AUTO' : 'CHAT', // Tự động đổi dạng Card hoặc Bong bóng
+                        type: isBot ? 'AUTO' : 'CHAT', 
                         sender: isBot ? '0000000000000000000' : myUserID,
                         time: msgTime,
                         content: content,
-                        title: title, // Thêm title để render Card đúng
+                        title: title, 
                         read: true
                     });
                     
