@@ -286,4 +286,36 @@ label.form-lbl { font-size: 0.65rem; font-weight: 800; color: #64748b; text-tran
 .text-theme-8 { background-image: linear-gradient(-45deg, #db2777, #f9a8d4, #db2777); }
 .text-theme-9 { background-image: linear-gradient(-45deg, #f59e0b, #fef08a, #f59e0b); }
 
+/* ==============================================================
+   16. VÒNG XOÁY LED CHO NÚT BẤM (SPINNER) VÀ MODAL CẢNH BÁO
+   ============================================================== */
+/* Vòng xoáy LED quét radar cực đẹp cho Nút bấm */
+.spinner-led-btn {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: conic-gradient(transparent 10%, rgba(255,255,255,0.3) 70%, #ffffff 100%);
+    animation: spin-fast 0.7s linear infinite;
+    -webkit-mask: radial-gradient(circle, transparent 40%, black 41%);
+    mask: radial-gradient(circle, transparent 40%, black 41%);
+    filter: drop-shadow(0 0 4px rgba(255,255,255,1));
+}
+@keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* Hộp thông báo THÀNH CÔNG (LED Xanh Ngọc Bừng Sáng) */
+.swal-animated-emerald { position: relative !important; border-radius: 1.5rem !important; padding: 0 !important; overflow: hidden !important; background: transparent !important; }
+.swal-animated-emerald::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, #10b981, #059669, transparent); animation: spin-slow 3s linear infinite; z-index: -2; pointer-events: none; }
+.swal-animated-emerald::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; background: #ffffff; border-radius: calc(1.5rem - 2px); z-index: -1; pointer-events: none; }
+.swal-animated-emerald > * { position: relative; z-index: 1; }
+.swal-animated-emerald .swal2-title { padding-top: 2.5rem !important; margin: 0 !important; }
+.swal-animated-emerald .swal2-html-container { padding: 1.5rem 2rem !important; margin: 0 !important; overflow: visible !important; }
+.swal-animated-emerald .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
+
+/* Hộp thông báo THẤT BẠI / LỖI (LED Đỏ Cảnh Báo) */
+.swal-animated-red { position: relative !important; border-radius: 1.5rem !important; padding: 0 !important; overflow: hidden !important; background: transparent !important; }
+.swal-animated-red::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, #ef4444, #e11d48, transparent); animation: spin-slow 2s linear infinite; z-index: -2; pointer-events: none; }
+.swal-animated-red::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; background: #ffffff; border-radius: calc(1.5rem - 2px); z-index: -1; pointer-events: none; }
+.swal-animated-red > * { position: relative; z-index: 1; }
+.swal-animated-red .swal2-title { padding-top: 2.5rem !important; margin: 0 !important; }
+.swal-animated-red .swal2-html-container { padding: 1.5rem 2rem !important; margin: 0 !important; overflow: visible !important; }
+.swal-animated-red .swal2-actions { padding-bottom: 2.5rem !important; margin-top: 0 !important; }
