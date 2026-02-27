@@ -46,6 +46,9 @@ type TinNhan struct {
 	NgayTao        string        `json:"ngay_tao"`
 	NguoiDoc       []string      `json:"nguoi_doc"`
 	TrangThaiXoa   []string      `json:"trang_thai_xoa"`
+	
+	// [ĐÃ FIX]: Thêm biến ảo để Front-end biết tin này đã đọc hay chưa
+	DaDoc          bool          `json:"da_doc"` 
 }
 
 var (
@@ -53,7 +56,6 @@ var (
 	mtxTinNhan   sync.RWMutex
 )
 
-// Helper check chuỗi trong mảng
 func ContainsString(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val { return true }
@@ -102,42 +104,40 @@ func NapTinNhan(shopID string) {
 	mtxTinNhan.Unlock()
 }
 
-// Lấy hộp thư của 1 người (Đã lọc theo ID và Vai trò)
 func LayHopThuNguoiDung(shopID string, maKH string, vaiTro string) []*TinNhan {
 	mtxTinNhan.RLock()
 	defer mtxTinNhan.RUnlock()
 
 	var inbox []*TinNhan
 	for _, m := range CacheTinNhan[shopID] {
-		// Bỏ qua tin nhắn bị user này xóa mềm
 		if ContainsString(m.TrangThaiXoa, maKH) { continue }
 
 		isReceiver := false
 		
-		// 1. Nếu là tin nhắn CHAT hoặc AUTO (đích danh 1 ID)
 		if m.LoaiTinNhan == "CHAT" || m.LoaiTinNhan == "AUTO" {
 			if m.NguoiNhanID == maKH || m.NguoiGuiID == maKH {
 				isReceiver = true
 			}
 		} else if m.LoaiTinNhan == "SYSTEM" || m.LoaiTinNhan == "ALL" {
-			// 2. Nếu là thông báo tập thể (Mảng JSON các ID hoặc Role)
 			if strings.Contains(m.NguoiNhanID, "["+maKH+"]") || strings.Contains(m.NguoiNhanID, "\""+maKH+"\"") {
 				isReceiver = true
 			} else if m.NguoiNhanID == "ALL" || strings.Contains(m.NguoiNhanID, vaiTro) {
 				isReceiver = true
 			} else if m.NguoiGuiID == maKH {
-				isReceiver = true // Người gửi cũng được xem lại thông báo của mình
+				isReceiver = true 
 			}
 		}
 
-		if isReceiver { inbox = append(inbox, m) }
+		// [ĐÃ FIX]: Tạo bản Copy để nhét cờ DaDoc riêng cho từng User, không làm hỏng Cache tổng
+		if isReceiver { 
+			mCopy := *m
+			mCopy.DaDoc = ContainsString(m.NguoiDoc, maKH)
+			inbox = append(inbox, &mCopy) 
+		}
 	}
 	return inbox
 }
 
-// =========================================================
-// [SỬ DỤNG HÀNG ĐỢI UPDATE]: Chỉ cập nhật 1 ô (Cột NguoiDoc)
-// =========================================================
 func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 	mtxTinNhan.Lock()
 	defer mtxTinNhan.Unlock()
@@ -153,14 +153,10 @@ func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 	}
 }
 
-// =========================================================
-// [SỬ DỤNG HÀNG ĐỢI APPEND]: Tạo tin nhắn mới hoàn toàn
-// =========================================================
 func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 	mtxTinNhan.Lock()
 	list := CacheTinNhan[shopID]
 	
-	// 1. Dự đoán RowIndex trên RAM để sau này Update (đọc/xoá) có cái mà dùng
 	maxRow := DongBatDau_TinNhan - 1
 	for _, m := range list {
 		if m.DongTrongSheet > maxRow { maxRow = m.DongTrongSheet }
@@ -174,22 +170,20 @@ func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 	if msg.NguoiDoc == nil { msg.NguoiDoc = make([]string, 0) }
 	if msg.TrangThaiXoa == nil { msg.TrangThaiXoa = make([]string, 0) }
 
-	// 2. Gói toàn bộ dữ liệu thành 1 dòng (Row Slice) - Đúng 12 cột
 	dongMoi := []interface{}{
-		msg.MaTinNhan,        // A (0)
-		msg.LoaiTinNhan,      // B (1)
-		msg.NguoiGuiID,       // C (2)
-		msg.NguoiNhanID,      // D (3)
-		msg.TieuDe,           // E (4)
-		msg.NoiDung,          // F (5)
-		ToJSON(msg.DinhKem),  // G (6)
-		msg.ThamChieuID,      // H (7)
-		msg.ReplyChoID,       // I (8)
-		msg.NgayTao,          // J (9)
-		ToJSON(msg.NguoiDoc), // K (10)
-		ToJSON(msg.TrangThaiXoa), // L (11)
+		msg.MaTinNhan,        
+		msg.LoaiTinNhan,      
+		msg.NguoiGuiID,       
+		msg.NguoiNhanID,      
+		msg.TieuDe,           
+		msg.NoiDung,          
+		ToJSON(msg.DinhKem),  
+		msg.ThamChieuID,      
+		msg.ReplyChoID,       
+		msg.NgayTao,          
+		ToJSON(msg.NguoiDoc), 
+		ToJSON(msg.TrangThaiXoa), 
 	}
 
-	// 3. Ném vào Hàng đợi Append kép
 	ThemDongVaoHangCho(shopID, "TIN_NHAN", dongMoi)
 }
