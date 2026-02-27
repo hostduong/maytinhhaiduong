@@ -22,9 +22,6 @@ const (
 	CotTN_NgayTao      = 9  // J
 	CotTN_NguoiDocJson = 10 // K
 	CotTN_TrangThaiXoa = 11 // L
-	// Mở rộng thêm 2 cột theo thiết kế hiển thị
-	CotTN_TenNguoiGui    = 12 // M
-	CotTN_ChucVuNguoiGui = 13 // N
 )
 
 type FileDinhKem struct {
@@ -49,10 +46,6 @@ type TinNhan struct {
 	NgayTao        string        `json:"ngay_tao"`
 	NguoiDoc       []string      `json:"nguoi_doc"`
 	TrangThaiXoa   []string      `json:"trang_thai_xoa"`
-	
-	// Thông tin phụ trợ hiển thị nhanh
-	TenNguoiGui    string `json:"ten_nguoi_gui"`
-	ChucVuNguoiGui string `json:"chuc_vu_nguoi_gui"`
 }
 
 var (
@@ -91,8 +84,6 @@ func NapTinNhan(shopID string) {
 			ThamChieuID:    LayString(r, CotTN_ThamChieuID),
 			ReplyChoID:     LayString(r, CotTN_ReplyChoID),
 			NgayTao:        LayString(r, CotTN_NgayTao),
-			TenNguoiGui:    LayString(r, CotTN_TenNguoiGui),
-			ChucVuNguoiGui: LayString(r, CotTN_ChucVuNguoiGui),
 		}
 
 		_ = json.Unmarshal([]byte(LayString(r, CotTN_DinhKemJson)), &tn.DinhKem)
@@ -155,7 +146,6 @@ func DanhDauDocTinNhan(shopID string, maKH string, msgID string) {
 		if m.MaTinNhan == msgID {
 			if !ContainsString(m.NguoiDoc, maKH) {
 				m.NguoiDoc = append(m.NguoiDoc, maKH)
-				// Hàm cũ: Ghi đè vào đúng tọa độ dòng/cột
 				ThemVaoHangCho(shopID, "TIN_NHAN", m.DongTrongSheet, CotTN_NguoiDocJson, ToJSON(m.NguoiDoc))
 			}
 			break
@@ -180,12 +170,11 @@ func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 	CacheTinNhan[shopID] = append(list, msg)
 	mtxTinNhan.Unlock()
 	
-	// Khởi tạo mảng rỗng để chống nil khi parse JSON
 	if msg.DinhKem == nil { msg.DinhKem = make([]FileDinhKem, 0) }
 	if msg.NguoiDoc == nil { msg.NguoiDoc = make([]string, 0) }
 	if msg.TrangThaiXoa == nil { msg.TrangThaiXoa = make([]string, 0) }
 
-	// 2. Gói toàn bộ dữ liệu thành 1 dòng (Row Slice)
+	// 2. Gói toàn bộ dữ liệu thành 1 dòng (Row Slice) - Đúng 12 cột
 	dongMoi := []interface{}{
 		msg.MaTinNhan,        // A (0)
 		msg.LoaiTinNhan,      // B (1)
@@ -199,10 +188,8 @@ func ThemMoiTinNhan(shopID string, msg *TinNhan) {
 		msg.NgayTao,          // J (9)
 		ToJSON(msg.NguoiDoc), // K (10)
 		ToJSON(msg.TrangThaiXoa), // L (11)
-		msg.TenNguoiGui,      // M (12)
-		msg.ChucVuNguoiGui,   // N (13)
 	}
 
-	// 3. Ném vào Hàng đợi Append (Để API Google tự tìm dòng trống cuối cùng và điền vào)
+	// 3. Ném vào Hàng đợi Append kép
 	ThemDongVaoHangCho(shopID, "TIN_NHAN", dongMoi)
 }
