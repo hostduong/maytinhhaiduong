@@ -33,7 +33,7 @@ func TrangHoSoMaster(c *gin.Context) {
 
 	// Đẩy ra View của Master
 	c.HTML(http.StatusOK, "master_ho_so", gin.H{
-		"TieuDe":   "Hồ sơ cá nhân",
+		"TieuDe":   "Hồ sơ",
 		"NhanVien": kh,
 		"QuyenHan": vaiTro,
 	})
