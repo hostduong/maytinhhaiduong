@@ -5,17 +5,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
-    <div class="max-w-7xl mx-auto mb-24 sm:mb-10">
+    <div class="max-w-7xl mx-auto pt-4 sm:pt-6 mb-24 sm:mb-10">
         
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-5">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-inner shrink-0">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-gradient-animated uppercase">THÀNH VIÊN</h1>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center mb-6 gap-3 w-full">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto ml-auto">
                 <div class="relative w-full sm:w-72">
                     <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -249,7 +242,7 @@
 
                                         <div id="box_cap_lai_bao_mat" class="pt-6 border-t border-purple-50">
                                             <h4 class="font-black text-orange-600 uppercase tracking-widest text-[10px] flex items-center gap-2 mb-4">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật
                                             </h4>
                                             <div class="space-y-4">
                                                 <div>
@@ -334,9 +327,6 @@
         const myLevel = {{ .NhanVien.StyleLevel }};
         let itiPhone, itiZalo;
 
-        /* =========================================================
-           TƯỜNG LỬA (FIREWALL) & GIAO DIỆN INPUT THÔNG MINH
-           ========================================================= */
         function checkInputState(input) {
             if(input.value.trim() !== "") input.classList.add('has-data');
             else input.classList.remove('has-data');
@@ -344,24 +334,18 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('.input-premium').forEach(input => {
-                checkInputState(input); // Kiểm tra khi tải trang
+                checkInputState(input); 
                 
                 input.addEventListener('input', function() {
-                    // Firewall: Bỏ qua chặn ký tự cho Mật khẩu, Email, URL
                     if (this.type !== 'email' && this.type !== 'url' && this.type !== 'password' && this.id !== 'f_fb' && this.id !== 'f_tiktok') {
-                        // Cấm dấu = + - @ đứng đầu tiên (Chống lỗi Hàm Google Sheets)
                         this.value = this.value.replace(/^[=+\-@]/, '');
-                        // Cấm các ký tự mã độc XSS, SQL Injection
                         this.value = this.value.replace(/[<>;'`{}\[\]\\]/g, '');
                     }
-                    checkInputState(this); // Cập nhật màu viền Tím
+                    checkInputState(this); 
                 });
             });
         });
 
-        /* =========================================================
-           CÁC HÀM XỬ LÝ GIAO DIỆN VÀ DATA
-           ========================================================= */
         function togglePass(id) {
             const input = document.getElementById(id);
             const eyeSlash = document.getElementById('eye_slash_' + id); const eyeOpen = document.getElementById('eye_open_' + id);
@@ -444,15 +428,10 @@
             if (ma === "0000000000000000001" && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
             if (ma === currentUserID) { statusSelect.disabled = true; }
 
-            // Quét lại viền Input Tím sau khi đổ data
             document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
-
             document.getElementById('modalEdit').classList.remove('hidden');
         }
 
-        /* ------------------------------------------------------------------
-           CÁC HÀM TƯƠNG TÁC API KÈM HIỆU ỨNG LED BẤT KHẢ CHIẾN BẠI
-           ------------------------------------------------------------------ */
         window.toggleAllCheckboxes = function() { 
             let isChecked = document.getElementById('checkAll').checked; 
             document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked); 
