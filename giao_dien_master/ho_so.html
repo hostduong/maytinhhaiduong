@@ -81,11 +81,11 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Thông tin liên hệ
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
-                        <div><label class="form-lbl">Họ và tên</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.TenKhachHang }}</div></div>
-                        <div><label class="form-lbl">Số điện thoại</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DienThoai }} {{ .NhanVien.DienThoai }} {{ else }} -- {{ end }}</div></div>
-                        <div><label class="form-lbl">Email</label><div class="text-slate-900 font-bold text-base">{{ .NhanVien.Email }}</div></div>
-                        <div><label class="form-lbl">Ngày sinh</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.NgaySinh }} {{ .NhanVien.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
-                        <div class="sm:col-span-2"><label class="form-lbl">Địa chỉ</label><div class="text-slate-900 font-bold text-base">{{ if .NhanVien.DiaChi }} {{ .NhanVien.DiaChi }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
+                        <div><label class="form-lbl">Họ và tên</label><div class="text-purple-700 font-bold text-base">{{ .NhanVien.TenKhachHang }}</div></div>
+                        <div><label class="form-lbl">Số điện thoại</label><div class="text-emerald-600 font-bold text-base">{{ if .NhanVien.DienThoai }} {{ .NhanVien.DienThoai }} {{ else }} -- {{ end }}</div></div>
+                        <div><label class="form-lbl">Email</label><div class="text-blue-600 font-bold text-base">{{ .NhanVien.Email }}</div></div>
+                        <div><label class="form-lbl">Ngày sinh</label><div class="text-orange-600 font-bold text-base">{{ if .NhanVien.NgaySinh }} {{ .NhanVien.NgaySinh }} {{ else }} --/--/---- {{ end }}</div></div>
+                        <div class="sm:col-span-2"><label class="form-lbl">Địa chỉ</label><div class="text-slate-800 font-bold text-base">{{ if .NhanVien.DiaChi }} {{ .NhanVien.DiaChi }} {{ else }} <span class="text-slate-300 italic">Chưa cập nhật</span> {{ end }}</div></div>
                     </div>
                 </div>
             </div>
@@ -97,9 +97,9 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Bảo mật
                     </h3>
                     <div class="relative z-10 space-y-6">
-                        <div><label class="form-lbl">Tên đăng nhập (ID)</label><div class="text-blue-600 font-black tracking-wide text-base">{{ .NhanVien.TenDangNhap }}</div></div>
-                        <div><label class="form-lbl">Ngày gia nhập</label><div class="text-slate-800 font-bold text-sm">{{ .NhanVien.NgayTao }}</div></div>
-                        <div><label class="form-lbl">Cập nhật lần cuối</label><div class="text-slate-600 font-medium text-sm">{{ .NhanVien.NgayCapNhat }}</div></div>
+                        <div><label class="form-lbl">Tên đăng nhập (ID)</label><div class="text-indigo-600 font-black tracking-wide text-base">{{ .NhanVien.TenDangNhap }}</div></div>
+                        <div><label class="form-lbl">Ngày gia nhập</label><div class="text-slate-700 font-bold text-sm">{{ .NhanVien.NgayTao }}</div></div>
+                        <div><label class="form-lbl">Cập nhật lần cuối</label><div class="text-slate-500 font-medium text-sm">{{ .NhanVien.NgayCapNhat }}</div></div>
                     </div>
                 </div>
             </div>
@@ -131,52 +131,42 @@
                         
                         <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
                                     <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-900" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
                                     <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
                                 </div>
-                                
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
                                     <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
                                 </div>
-
                                 <div>
                                     <label class="form-lbl">Số điện thoại</label>
                                     <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                                     <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
                                 </div>
-                                
                                 <div>
                                     <label class="form-lbl">Ngày sinh</label>
                                     <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium bg-white" autocomplete="new-password">
                                 </div>
-
                                 <div>
                                     <label class="form-lbl">Giới tính</label>
                                     <select id="newGender" class="input-premium bg-white cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
                                 </div>
-                                
                                 <div>
                                     <label class="form-lbl">Mã số thuế</label>
                                     <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                                     <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
                                 </div>
-
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Địa chỉ</label>
                                     <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
                                 </div>
-
                                 <div class="md:col-span-2 pt-6 border-t border-purple-50">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
                                         <div></div>
-                                        
                                         <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
-                                        
                                         <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                     </div>
                                 </div>
@@ -195,95 +185,126 @@
             </div>
         </div>
     </div>
-    
-    {{/* Bắt đầu phần HTML Modal và script cũ của bạn ... */}}
+
     <div id="modalPass" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-md transform transition-all relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-            
-            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 relative z-10">
-                <h3 class="text-2xl font-black title-gradient-purple">Đổi Mật Khẩu</h3>
-                <button onclick="toggleModal('modalPass')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-red-50 hover:text-red-500 font-bold transition">✕</button>
-            </div>
-            
-            <form autocomplete="new-password" class="space-y-6 relative z-10" onsubmit="event.preventDefault();">
-                <div class="relative">
-                    <label class="form-lbl">Mật khẩu hiện tại</label>
-                    <input type="password" id="oldPass" placeholder="••••••••" class="input-premium pr-10" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                    <button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-0 pr-3.5 pt-6 flex items-center text-slate-400 hover:text-purple-600">
-                        <svg id="eye_slash_oldPass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                        <svg id="eye_open_oldPass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        <div class="animated-border-wrapper shadow-2xl shadow-purple-200/50 w-full max-w-md">
+            <div class="animated-border-inner p-8 bg-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none z-0"></div>
+                
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 relative z-10">
+                    <h3 class="text-2xl font-black title-gradient-purple flex items-center gap-2">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Đổi Mật Khẩu
+                    </h3>
+                    <button onclick="toggleModal('modalPass')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-red-50 hover:text-red-500 font-bold transition">✕</button>
+                </div>
+                
+                <form autocomplete="new-password" class="space-y-6 relative z-10" onsubmit="event.preventDefault();">
+                    <div class="relative group">
+                        <label class="form-lbl font-bold">Mật khẩu hiện tại</label>
+                        <div class="absolute inset-0 bg-purple-500/10 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none mt-6"></div>
+                        <input type="password" id="oldPass" placeholder="••••••••" 
+                            class="relative w-full box-border bg-white border-2 border-slate-200 rounded-xl py-3 px-4 text-center tracking-[0.25em] font-black text-xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)] placeholder-slate-300" 
+                            autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <button type="button" onclick="togglePass('oldPass')" class="absolute inset-y-0 right-2 pt-6 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl">
+                            <svg id="eye_slash_oldPass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_oldPass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="relative group">
+                        <label class="form-lbl font-bold">Mật khẩu mới</label>
+                        <div class="absolute inset-0 bg-purple-500/10 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none mt-6"></div>
+                        <input type="password" id="newPass" placeholder="••••••••" 
+                            class="relative w-full box-border bg-white border-2 border-slate-200 rounded-xl py-3 px-4 text-center tracking-[0.25em] font-black text-xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)] placeholder-slate-300" 
+                            autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-2 pt-6 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl">
+                            <svg id="eye_slash_newPass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_newPass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                        <p id="err_newPass" class="error-text text-center mt-2">Từ 8-30 ký tự (Chữ, số, ký tự đặc biệt). Không khoảng trắng.</p>
+                    </div>
+                </form>
+                
+                <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100 relative z-10">
+                    <button onclick="toggleModal('modalPass')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
+                    <button id="btnSavePass" onclick="doiPass()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-purple-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Xác nhận đổi
                     </button>
                 </div>
-                <div class="relative">
-                    <label class="form-lbl">Mật khẩu mới</label>
-                    <input type="password" id="newPass" placeholder="••••••••" class="input-premium pr-10" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                    <button type="button" onclick="togglePass('newPass')" class="absolute inset-y-0 right-0 pr-3.5 pt-6 flex items-center text-slate-400 hover:text-purple-600">
-                        <svg id="eye_slash_newPass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                        <svg id="eye_open_newPass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </button>
-                    <p id="err_newPass" class="error-text">Từ 8-30 ký tự (Chữ, số, ký tự đặc biệt). Không khoảng trắng.</p>
-                </div>
-            </form>
-            
-            <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100 relative z-10">
-                <button onclick="toggleModal('modalPass')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
-                <button id="btnSavePass" onclick="doiPass()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-purple-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                    Lưu Mật Khẩu
-                </button>
             </div>
         </div>
     </div>
 
     <div id="modalPin" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-md transform transition-all relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="animated-border-wrapper shadow-2xl shadow-indigo-200/50 w-full max-w-md">
+            <div class="animated-border-inner p-8 bg-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-100/60 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none z-0"></div>
 
-            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 relative z-10">
-                <h3 class="text-2xl font-black title-gradient-purple">Đổi Mã PIN</h3>
-                <button onclick="toggleModal('modalPin')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-red-50 hover:text-red-500 font-bold transition">✕</button>
-            </div>
-            
-            <div id="viewChangePin" class="space-y-4 pt-2 relative z-10">
-                <form autocomplete="new-password" class="space-y-6" onsubmit="event.preventDefault();">
-                    <div class="relative">
-                        <label class="form-lbl">Mã PIN hiện tại</label>
-                        <input type="password" id="oldPin" maxlength="8" placeholder="••••••••" class="input-premium pr-10 tracking-[0.25em] font-black text-xl text-center" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                        <button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-0 pr-3.5 pt-6 flex items-center text-slate-400 hover:text-purple-600"><svg id="eye_slash_oldPin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_oldPin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
-                    </div>
-                    <div class="relative">
-                        <label class="form-lbl">Mã PIN mới</label>
-                        <input type="password" id="newPin" maxlength="8" placeholder="••••••••" class="input-premium pr-10 tracking-[0.25em] font-black text-xl text-center" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                        <button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-0 pr-3.5 pt-6 flex items-center text-slate-400 hover:text-purple-600"><svg id="eye_slash_newPin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_newPin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
-                        <p id="err_newPin" class="error-text text-center mt-2">Mã PIN phải là đủ 8 chữ số.</p>
-                    </div>
-                </form>
-                
-                <div class="text-right">
-                    <button onclick="switchPinView('forgot')" class="text-xs text-purple-600 hover:text-purple-800 hover:underline font-bold transition">Quên mã PIN?</button>
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 relative z-10">
+                    <h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
+                        Đổi Mã PIN
+                    </h3>
+                    <button onclick="toggleModal('modalPin')" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-red-50 hover:text-red-500 font-bold transition">✕</button>
                 </div>
                 
-                <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button onclick="toggleModal('modalPin')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
-                    <button id="btnSavePin" onclick="doiPin()" disabled class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-purple-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                        Lưu Mã PIN
-                    </button>
+                <div id="viewChangePin" class="space-y-4 pt-2 relative z-10">
+                    <form autocomplete="new-password" class="space-y-6" onsubmit="event.preventDefault();">
+                        <div class="relative group">
+                            <label class="form-lbl font-bold">Mã PIN hiện tại</label>
+                            <div class="absolute inset-0 bg-indigo-500/10 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none mt-6"></div>
+                            <input type="password" id="oldPin" maxlength="8" placeholder="••••••••" 
+                                class="relative w-full box-border bg-white border-2 border-slate-200 rounded-xl py-3 px-4 text-center tracking-[0.25em] font-black text-xl text-slate-800 outline-none transition-all duration-300 focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder-slate-300" 
+                                autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                            <button type="button" onclick="togglePass('oldPin')" class="absolute inset-y-0 right-2 pt-6 w-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition z-10 bg-white my-1 rounded-xl">
+                                <svg id="eye_slash_oldPin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_oldPin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="relative group">
+                            <label class="form-lbl font-bold">Mã PIN mới</label>
+                            <div class="absolute inset-0 bg-indigo-500/10 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none mt-6"></div>
+                            <input type="password" id="newPin" maxlength="8" placeholder="••••••••" 
+                                class="relative w-full box-border bg-white border-2 border-slate-200 rounded-xl py-3 px-4 text-center tracking-[0.25em] font-black text-xl text-slate-800 outline-none transition-all duration-300 focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder-slate-300" 
+                                autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                            <button type="button" onclick="togglePass('newPin')" class="absolute inset-y-0 right-2 pt-6 w-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition z-10 bg-white my-1 rounded-xl">
+                                <svg id="eye_slash_newPin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                                <svg id="eye_open_newPin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                            <p id="err_newPin" class="error-text text-center mt-2">Mã PIN phải là đủ 8 chữ số.</p>
+                        </div>
+                    </form>
+                    
+                    <div class="text-right">
+                        <button onclick="switchPinView('forgot')" class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline font-bold transition">Quên mã PIN?</button>
+                    </div>
+                    
+                    <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button onclick="toggleModal('modalPin')" class="text-slate-500 bg-slate-100 hover:bg-slate-200 px-6 py-3 rounded-xl font-bold transition w-full">Hủy</button>
+                        <button id="btnSavePin" onclick="doiPin()" disabled class="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-indigo-600/30 w-full transition transform hover:-translate-y-1 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            Xác nhận đổi
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="viewForgotPin" class="hidden space-y-4 pt-4 relative z-10">
-                <div class="bg-amber-50 p-5 rounded-2xl text-sm text-amber-800 font-medium leading-relaxed border border-amber-200">
-                    Hệ thống sẽ <b>tạo mã PIN ngẫu nhiên mới</b> và gửi trực tiếp tới Email của bạn. Mã PIN cũ sẽ bị hủy ngay lập tức để bảo vệ tài khoản.
-                </div>
-                <button id="btnConfirmForgot" onclick="guiYeuCauResetPin()" class="w-full bg-amber-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 transition transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-80 disabled:cursor-not-allowed">
-                    Xác Nhận & Gửi Email
-                </button>
-                <div class="mt-6 flex justify-center items-center pt-2 border-t border-slate-100">
-                    <button onclick="switchPinView('change')" class="text-slate-400 text-sm font-bold hover:text-slate-600 transition flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg> Quay lại
+                <div id="viewForgotPin" class="hidden space-y-4 pt-4 relative z-10">
+                    <div class="bg-amber-50 p-5 rounded-2xl text-sm text-amber-800 font-medium leading-relaxed border border-amber-200">
+                        Hệ thống sẽ <b>tạo mã PIN ngẫu nhiên mới</b> và gửi trực tiếp tới Email của bạn. Mã PIN cũ sẽ bị hủy ngay lập tức để bảo vệ tài khoản.
+                    </div>
+                    <button id="btnConfirmForgot" onclick="guiYeuCauResetPin()" class="w-full bg-amber-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 transition transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-80 disabled:cursor-not-allowed">
+                        Xác Nhận & Gửi Email
                     </button>
+                    <div class="mt-6 flex justify-center items-center pt-2 border-t border-slate-100">
+                        <button onclick="switchPinView('change')" class="text-slate-400 text-sm font-bold hover:text-slate-600 transition flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg> Quay lại
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
