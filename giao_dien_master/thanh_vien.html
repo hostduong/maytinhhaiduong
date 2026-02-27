@@ -5,19 +5,20 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
-    <div class="max-w-7xl mx-auto pt-4 sm:pt-6 mb-24 sm:mb-10">
+    <div class="max-w-7xl mx-auto mb-24 sm:mb-10">
         
-        <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center mb-6 gap-3 w-full">
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto ml-auto">
-                <div class="relative w-full sm:w-72">
-                    <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
-                    <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <button type="button" onclick="openMessageModal()" class="relative z-50 w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
-                    Gửi Thông Báo (<span id="countSelected">0</span>)
-                </button>
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full">
+            
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
+
+            <button type="button" onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                Gửi Thông Báo (<span id="countSelected">0</span>)
+            </button>
+            
         </div>
 
         <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
