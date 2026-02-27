@@ -38,9 +38,20 @@
                             <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=f3e8ff&color=7e22ce'" class="w-full h-full object-cover">
                         </div>
                     </div>
-                    <h2 class="mt-3 text-3xl font-black text-slate-800 tracking-tight">{{ .NhanVien.TenKhachHang }}</h2>
-                    <div class="text-purple-600 font-black bg-purple-50 inline-block px-4 py-1.5 rounded-full text-[10px] mt-2 tracking-widest border border-purple-100 uppercase">
-                        {{ .NhanVien.ChucVu }}
+                    
+                    <h2 class="mt-3 text-3xl font-black tracking-tight text-transparent bg-clip-text text-gradient-animated">
+                        {{ .NhanVien.TenKhachHang }}
+                    </h2>
+                    
+                    <div class="mt-2 flex justify-center">
+                        <div class="relative inline-flex items-center max-w-full">
+                            <div class="badge-animated-wrap theme-{{ .NhanVien.StyleTheme }} {{ if lt .NhanVien.StyleLevel 4 }}tier-s{{ else if lt .NhanVien.StyleLevel 7 }}tier-a{{ else if eq .NhanVien.StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
+                                <div class="badge-inner shadow-sm truncate max-w-[250px]">{{ .NhanVien.ChucVu }}</div>
+                            </div>
+                            <div class="floating-icon {{ if eq .NhanVien.StyleLevel 0 }}icon-lvl-0{{ else if gt .NhanVien.StyleLevel 7 }}icon-lvl-9{{ end }}">
+                                {{ if eq .NhanVien.StyleLevel 0 }} 👑 {{ else if eq .NhanVien.StyleLevel 1 }} ⚡ {{ else if eq .NhanVien.StyleLevel 2 }} 🛡️ {{ else if eq .NhanVien.StyleLevel 3 }} ⭐ {{ else if eq .NhanVien.StyleLevel 4 }} 🎯 {{ else if eq .NhanVien.StyleLevel 5 }} 💼 {{ else if eq .NhanVien.StyleLevel 6 }} ⚖️ {{ else if eq .NhanVien.StyleLevel 7 }} 🚀 {{ else if eq .NhanVien.StyleLevel 8 }} 🤝 {{ else }} 👤 {{ end }}
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="flex justify-center gap-4 mt-5">
@@ -120,59 +131,67 @@
             </div>
             
             <div class="p-8 overflow-y-auto custom-scroll relative">
-                <div class="animated-border-wrapper shadow-lg shadow-purple-100/50">
-                    <div class="animated-border-inner p-8 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
-                        
-                        <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-6 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> 
-                            Thông tin định danh & Liên hệ
-                        </h4>
-                        
-                        <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="md:col-span-2">
-                                    <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
-                                    <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-900" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                                    <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
-                                    <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                                </div>
-                                <div>
-                                    <label class="form-lbl">Số điện thoại</label>
-                                    <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                                    <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
-                                </div>
-                                <div>
-                                    <label class="form-lbl">Ngày sinh</label>
-                                    <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium bg-white" autocomplete="new-password">
-                                </div>
-                                <div>
-                                    <label class="form-lbl">Giới tính</label>
-                                    <select id="newGender" class="input-premium bg-white cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
-                                </div>
-                                <div>
-                                    <label class="form-lbl">Mã số thuế</label>
-                                    <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                                    <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="form-lbl">Địa chỉ</label>
-                                    <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
-                                </div>
-                                <div class="md:col-span-2 pt-6 border-t border-purple-50">
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
-                                        <div></div>
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-blue-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
-                                    </div>
+                <div class="bg-white p-8 rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                    
+                    <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-6 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> 
+                        Thông tin định danh & Liên hệ
+                    </h4>
+                    
+                    <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <div class="md:col-span-2">
+                                <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
+                                <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-800" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
+                                <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-purple-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                            </div>
+
+                            <div>
+                                <label class="form-lbl">Số điện thoại</label>
+                                <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium font-bold text-slate-800" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
+                            </div>
+                            
+                            <div>
+                                <label class="form-lbl">Ngày sinh</label>
+                                <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium font-bold text-slate-800" autocomplete="new-password">
+                            </div>
+
+                            <div>
+                                <label class="form-lbl">Giới tính</label>
+                                <select id="newGender" class="input-premium font-bold text-slate-800 cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
+                            </div>
+                            
+                            <div>
+                                <label class="form-lbl">Mã số thuế</label>
+                                <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium font-bold text-slate-800" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="form-lbl">Địa chỉ</label>
+                                <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium font-bold text-slate-800" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                            </div>
+
+                            <div class="md:col-span-2 pt-6 border-t border-purple-50">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium font-bold text-slate-800" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
+                                    <div></div>
+                                    
+                                    <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-purple-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                    
+                                    <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-purple-600" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             
