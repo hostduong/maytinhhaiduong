@@ -23,7 +23,7 @@ func TrangDongBoSheetsMaster(c *gin.Context) {
 	me, _ := core.LayKhachHang(masterShopID, userID)
 
 	c.HTML(http.StatusOK, "master_dong_bo_sheets", gin.H{
-		"TieuDe":   "Đồng Bộ Master",
+		"TieuDe":   "Đồng Bộ Sheets",
 		"NhanVien": me,
 		"QuyenHan": vaiTro,
 	})
