@@ -155,34 +155,27 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const headerLogo = document.getElementById('headerLogo');
+            const headerDivider = document.getElementById('headerDivider');
             
-            // Nếu là thiết bị di động (chiều rộng nhỏ hơn 768px)
             if (window.innerWidth < 768) {
                 if (sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                    document.body.classList.add('overflow-hidden'); // Khóa cuộn nền
+                    sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
                 } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
+                    sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
                 }
-            } 
-            // Nếu là máy tính (Desktop)
-            else {
-                // Áp dụng class css thu gọn (margin-left: -280px)
+            } else {
                 sidebar.classList.toggle('desktop-sidebar-collapsed');
+                // Bật tắt Logo trên Header khi Sidebar đóng mở
+                if (sidebar.classList.contains('desktop-sidebar-collapsed')) {
+                    headerLogo.classList.remove('hidden'); headerLogo.classList.add('flex');
+                    headerDivider.classList.remove('hidden'); headerDivider.classList.add('block');
+                } else {
+                    headerLogo.classList.add('hidden'); headerLogo.classList.remove('flex');
+                    headerDivider.classList.add('hidden'); headerDivider.classList.remove('block');
+                }
             }
         }
-
-        // Tự động xử lý khi người dùng xoay ngang điện thoại hoặc kéo lại cửa sổ máy tính
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 768) {
-                document.getElementById('sidebarOverlay').classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-            }
-        });
-
         // Xác nhận Đăng xuất
         function confirmLogout() {
             Swal.fire({
