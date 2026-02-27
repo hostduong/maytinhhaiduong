@@ -292,33 +292,48 @@
                     input.value = ''; 
                     input.style.height = '';
                     
+                    // Lấy thời gian từ data (Hỗ trợ cả snake_case và PascalCase)
+                    const msgTime = (data.data && (data.data.ngay_tao || data.data.NgayTao)) || new Date().toLocaleString('en-GB').replace(',', '');
+                    const msgId = (data.data && (data.data.ma_tin_nhan || data.data.MaTinNhan)) || 'TMP_' + Date.now();
+
                     const u = chatData.find(x => x.id === activeChatID);
                     u.messages.push({
-                        id: data.data.ma_tin_nhan,
+                        id: msgId,
                         type: 'CHAT',
                         sender: myUserID,
                         senderName: 'Bạn',
-                        time: data.data.ngay_tao,
+                        time: msgTime,
                         content: content,
                         read: true
                     });
+                    
                     u.latestMsg = u.messages[u.messages.length - 1];
                     
-                    chatData.sort((a, b) => b.latestMsg.time.localeCompare(a.latestMsg.time));
+                    // [ĐÃ FIX LỖI CRASH Ở ĐÂY]: Thêm điều kiện check null khi sắp xếp danh bạ
+                    chatData.sort((a, b) => {
+                        if (!a.latestMsg) return 1;  // Đẩy người chưa có tin nhắn xuống dưới
+                        if (!b.latestMsg) return -1;
+                        return b.latestMsg.time.localeCompare(a.latestMsg.time);
+                    });
+
                     renderMessages(u);
                     renderContactList();
                 } else {
                     Swal.fire('Lỗi', data.msg, 'error');
                 }
             } catch(err) {
-                console.error("Fetch Error:", err);
-                Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.', 'error');
+                console.error("Lỗi thực tế của JS:", err);
+                Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Kết Nối</span></div>',
+                    html: `<div class="text-[15px] text-orange-900 font-medium px-4">Không thể kết nối đến máy chủ! Vui lòng kiểm tra mạng.</div>`,
+                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
+                    buttonsStyling: false, confirmButtonText: 'Đóng lại'
+                });
             } finally {
                 btn.disabled = false;
                 input.focus();
             }
         }
-
         document.getElementById('chatInputContent').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault(); 
