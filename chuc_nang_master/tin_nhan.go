@@ -29,14 +29,33 @@ func TrangTinNhanMaster(c *gin.Context) {
 		return
 	}
 
-	// Lấy danh sách toàn bộ nhân sự để làm Danh bạ Chat
 	listAll := core.LayDanhSachKhachHang(masterShopID)
-	var listChat []*core.KhachHang
+	
+	// Lấy Danh sách Vai trò để map StyleLevel và StyleTheme
+	core.KhoaHeThong.RLock()
+	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
+	core.KhoaHeThong.RUnlock()
 
+	mapStyle := make(map[string]core.VaiTroInfo)
+	for _, v := range listVaiTro { mapStyle[v.MaVaiTro] = v }
+
+	var listChat []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
-		// Lấy lịch sử hộp thư liên quan đến nhân sự này
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
+		
+		// Bơm Style VIP vào object
+		if khCopy.MaKhachHang == "0000000000000000000" {
+			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
+		} else {
+			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
+				khCopy.StyleLevel, khCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme
+			} else {
+				khCopy.StyleLevel, khCopy.StyleTheme = 9, 0 
+			}
+		}
+		if khCopy.MaKhachHang == "0000000000000000001" { khCopy.StyleLevel = 0 }
+
 		listChat = append(listChat, &khCopy)
 	}
 
@@ -47,9 +66,6 @@ func TrangTinNhanMaster(c *gin.Context) {
 	})
 }
 
-// =========================================================
-// 2. API ĐÁNH DẤU ĐÃ ĐỌC
-// =========================================================
 func API_DanhDauDaDocMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -73,14 +89,6 @@ func API_GuiTinNhanChat(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Thiếu thông tin người nhận hoặc nội dung!"})
 		return
 	}
-	
-	sender, _ := core.LayKhachHang(shopID, userID)
-	chucVuNguoiGui := "Hệ Thống Master"
-	tenNguoiGui := "Nền tảng 99k.vn"
-	if sender != nil {
-		if sender.ChucVu != "" { chucVuNguoiGui = sender.ChucVu }
-		if sender.TenKhachHang != "" { tenNguoiGui = sender.TenKhachHang }
-	}
 
 	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
@@ -94,8 +102,6 @@ func API_GuiTinNhanChat(c *gin.Context) {
 		TieuDe:         "Tin nhắn hệ thống",
 		NoiDung:        noiDung,
 		NgayTao:        nowStr,
-		TenNguoiGui:    tenNguoiGui,
-		ChucVuNguoiGui: chucVuNguoiGui,
 	}
 	core.ThemMoiTinNhan(shopID, newMsg)
 	
