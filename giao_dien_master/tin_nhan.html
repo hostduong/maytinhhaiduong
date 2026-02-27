@@ -57,12 +57,24 @@
                         </div>
                     </div>
 
-                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-slate-50/50 flex flex-col gap-5 min-h-0">
-                    </div>
+                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-slate-50/50 flex flex-col gap-5 min-h-0"></div>
 
-                    <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20">
+                    <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20 flex flex-col gap-2">
+                        
+                        {{ if lt .NhanVien.StyleLevel 3 }}
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-slate-50/80 p-2 rounded-xl border border-slate-100">
+                            <div class="flex items-center gap-2 px-2 shrink-0">
+                                <input type="checkbox" id="chatAsBot" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                                <label for="chatAsBot" class="text-xs font-bold text-slate-600 cursor-pointer select-none whitespace-nowrap">Phản hồi danh nghĩa Hệ Thống</label>
+                            </div>
+                            <div id="wrapBotTitle" class="hidden flex-1 w-full animate-[fadeIn_0.2s_ease-out]">
+                                <input type="text" id="chatBotTitle" placeholder="Tiêu đề thông báo..." class="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-[13px] font-bold text-purple-700 outline-none focus:border-purple-400 transition shadow-sm">
+                            </div>
+                        </div>
+                        {{ end }}
+
                         <div class="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.2rem] p-1.5 shadow-inner focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
-                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-[15px] text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập tin nhắn (Shift + Enter để xuống dòng)..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-[15px] text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập nội dung (Shift + Enter xuống dòng)..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
                             
                             <button type="button" onclick="executeSendChat()" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50 disabled:grayscale">
                                 <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
@@ -95,7 +107,16 @@
         let userMap = {}; 
         let activeChatID = null;
 
-        // [MỚI 100%]: HÀM GỘP CẢ HUY HIỆU TÊN VÀ CHỮ GRADIENT CHỨC VỤ 
+        // Toggle giao diện nhập Tiêu đề Bot
+        const chkBot = document.getElementById('chatAsBot');
+        if (chkBot) {
+            chkBot.addEventListener('change', function() {
+                let wrap = document.getElementById('wrapBotTitle');
+                if (this.checked) wrap.classList.remove('hidden');
+                else wrap.classList.add('hidden');
+            });
+        }
+
         function getVipNameAndRole(name, role, level, theme, extraClass = "") {
             let tier = "tier-c";
             if (level < 4) tier = "tier-s";
@@ -122,7 +143,6 @@
             </div>`;
         }
 
-        // Dùng riêng cho Active Chat Name (Vì Role hiển thị ở dòng dưới)
         function getVipBadgeOnly(name, level, theme, extraClass = "") {
             let tier = "tier-c";
             if (level < 4) tier = "tier-s";
@@ -278,7 +298,6 @@
                     let isMe = (m.sender === myUserID);
                     
                     if (m.type === 'SYSTEM' || m.type === 'AUTO' || m.type === 'ALL' || m.sender === '0000000000000000000') {
-                        // Tra cứu ID Sender, bảo vệ chống null
                         let sender = userMap[m.sender] || { name: 'Hệ thống', role: 'Thông báo', level: 0, theme: 9, avatar: 'https://ui-avatars.com/api/?name=Sys&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.85] origin-left");
                         
@@ -292,7 +311,7 @@
                                 </div>
                                 
                                 <h4 class="text-[15px] font-black text-slate-800 mb-2 tracking-tight">${m.title || 'Thông báo hệ thống'}</h4>
-                                <div class="text-[13.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/50 p-3 rounded-xl">${m.content}</div>
+                                <div class="text-[13.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/50 p-3 rounded-xl whitespace-pre-wrap">${m.content}</div>
                                 
                                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                                     <div class="flex items-center gap-1.5 -ml-1">
@@ -312,7 +331,6 @@
                             </div>
                         </div>`;
                     } else {
-                        // Hiển thị Full Tên & Chức vụ cho người chat đối diện
                         let sender = userMap[m.sender] || { name: 'Người dùng', role: 'Khách', level: 9, theme: 0, avatar: 'https://ui-avatars.com/api/?name=User&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.8] origin-bottom-left ml-1 mb-0.5");
 
@@ -350,6 +368,17 @@
             const fd = new FormData();
             fd.append('nguoi_nhan_id', activeChatID);
             fd.append('noi_dung', content);
+            
+            // Lấy thêm trạng thái Checkbox
+            let chk = document.getElementById('chatAsBot');
+            let isBot = (chk && chk.checked);
+            let title = "Phản hồi từ Hệ thống";
+            if (isBot) {
+                fd.append('send_as_bot', '1');
+                let inputTitle = document.getElementById('chatBotTitle').value.trim();
+                if (inputTitle !== "") title = inputTitle;
+                fd.append('tieu_de', title);
+            }
 
             try {
                 const res = await fetch('/master/api/tin-nhan/send-chat', { method: 'POST', body: fd });
@@ -359,18 +388,19 @@
                 if (data.status === 'ok') {
                     input.value = ''; 
                     input.style.height = '';
+                    if (isBot) document.getElementById('chatBotTitle').value = ""; // Clear title sau khi gửi
                     
-                    // Lấy thời gian từ data trả về, nếu lỗi thì dùng giờ hiện tại
                     const msgTime = (data.data && (data.data.ngay_tao || data.data.NgayTao)) || new Date().toLocaleString('en-GB').replace(',', '');
                     const msgId = (data.data && (data.data.ma_tin_nhan || data.data.MaTinNhan)) || 'TMP_' + Date.now();
 
                     const u = chatData.find(x => x.id === activeChatID);
                     u.messages.push({
                         id: msgId,
-                        type: 'CHAT',
-                        sender: myUserID,
+                        type: isBot ? 'AUTO' : 'CHAT', // Tự động đổi dạng Card hoặc Bong bóng
+                        sender: isBot ? '0000000000000000000' : myUserID,
                         time: msgTime,
                         content: content,
+                        title: title, // Thêm title để render Card đúng
                         read: true
                     });
                     
