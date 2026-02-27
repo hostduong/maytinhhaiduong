@@ -2,7 +2,9 @@
    HỆ THỐNG GIAO DIỆN CHUẨN (MASTER UI) - 99K.VN
    ============================================================== */
 
-/* 1. INPUT FORM CHUYÊN NGHIỆP (SMART BORDER & INTERACTION) */
+/* ==============================================================
+   1. INPUT FORM CHUYÊN NGHIỆP (TÍM NHẠT THÔNG MINH)
+   ============================================================== */
 .input-premium { 
     width: 100%; box-sizing: border-box; 
     background-color: #ffffff; 
@@ -10,22 +12,16 @@
     border-radius: 0.75rem; font-size: 0.9rem; padding: 0.75rem 1rem; 
     transition: all 0.25s ease; outline: none; 
 }
-.input-premium:hover { 
-    border-color: #a855f7 !important; /* Di chuột: Tím đậm hơn */
-}
+.input-premium:hover { border-color: #a855f7 !important; } /* Di chuột: Tím đậm */
 .input-premium.has-data { 
     border-color: #d8b4fe; /* Có dữ liệu: Viền tím nhạt */
-    background-color: #faf5ff; /* Nền ám tím cực nhẹ */
-    font-weight: 700; color: #4c1d95;
+    background-color: #faf5ff; font-weight: 700; color: #4c1d95;
 }
 .input-premium:focus { 
     border-color: #9333ea !important; /* Đang nhập: Tím rực rỡ */
-    box-shadow: 0 0 0 4px rgba(147,51,234,0.15) !important; 
-    background-color: #ffffff !important; 
+    box-shadow: 0 0 0 4px rgba(147,51,234,0.15) !important; background-color: #ffffff !important; 
 }
-.input-premium:disabled, .input-premium[readonly] { 
-    cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; border-color: #e2e8f0 !important; 
-}
+.input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; border-color: #e2e8f0 !important; }
 
 /* 2. FIX FULL CHIỀU RỘNG CHO INTL-TEL-INPUT (SĐT) */
 .iti { width: 100%; } 
@@ -43,32 +39,19 @@
 .table-scroll::-webkit-scrollbar-thumb { background-color: #d8b4fe; border-radius: 8px; border: 2px solid #ffffff; }
 .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #a855f7; }
 
-/* 5. HIỆU ỨNG VIỀN LED CHẠY ANIMATION (PRO MAX) */
+/* ==============================================================
+   5. HIỆU ỨNG VIỀN LED CHẠY ANIMATION
+   ============================================================== */
 @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-.animated-border-wrapper {
-    position: relative;
-    border-radius: 1.5rem; /* Bo góc 24px */
-    padding: 2px; /* Độ dày của viền sáng */
-    overflow: hidden;
-    background: #f1f5f9;
-}
+.animated-border-wrapper { position: relative; border-radius: 1.5rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
 .animated-border-wrapper::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    /* Dải màu xoay: Trong suốt kết hợp Tím & Indigo */
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
-    animation: spin-slow 4s linear infinite;
-    z-index: 0;
+    animation: spin-slow 4s linear infinite; z-index: 0;
+    pointer-events: none; /* QUAN TRỌNG: Xuyên thấu click chuột, chống liệt nút & checkbox */
 }
-.animated-border-inner {
-    position: relative;
-    background: #ffffff;
-    border-radius: calc(1.5rem - 2px);
-    z-index: 1;
-    height: 100%;
-    overflow: hidden;
-}
+.animated-border-inner { position: relative; background: #ffffff; border-radius: calc(1.5rem - 2px); z-index: 1; height: 100%; overflow: hidden; }
+
 
 /* 6. HIỆU ỨNG HOVER DÒNG TRONG BẢNG (SOFT ROW) */
 .hover-soft-row { transition: all 0.2s ease; }
