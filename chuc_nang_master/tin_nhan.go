@@ -41,7 +41,7 @@ func TrangTinNhanMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_tin_nhan", gin.H{
-		"TieuDe":   "Tin nhắn & Thông báo",
+		"TieuDe":   "Tin nhắn",
 		"NhanVien": me,
 		"ListChat": listChat, 
 	})
