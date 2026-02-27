@@ -65,7 +65,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
-		"TieuDe": "Thành viên", "NhanVien": &meCopy, "DanhSach": listView, "DanhSachVaiTro": listVaiTro, 
+		"TieuDe": "Core Team", "NhanVien": &meCopy, "DanhSach": listView, "DanhSachVaiTro": listVaiTro, 
 	})
 }
 
@@ -106,12 +106,10 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT: Chỉ có duy nhất 1 vị trí Quản trị hệ thống (ID 001)!"})
 		return
 	}
-	// Không được sửa người có level nhỏ hơn (sếp) hoặc bằng mình (đồng nghiệp) - Trừ khi sửa chính mình
 	if userID != maKH && myLevel >= targetLevel {
 		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi: Bạn không có quyền chỉnh sửa cấp trên hoặc người ngang hàng!"})
 		return
 	}
-	// Không được phong chức cho ai lên ngang bằng hoặc cao hơn mình
 	if newRole != "" && newRole != kh.VaiTroQuyenHan {
 		newLevel := core.LayCapBacVaiTro(shopID, "", newRole)
 		if newLevel <= myLevel && myLevel != 0 {
@@ -145,15 +143,8 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	kh.NguonKhachHang = strings.TrimSpace(c.PostForm("nguon_khach_hang"))
 	
 	if gt := c.PostForm("gioi_tinh"); gt == "1" { kh.GioiTinh = 1 } else if gt == "0" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
-	// FIX LỖI: Bắt đủ 3 trạng thái 1 (Hoạt động), 0 (Khóa), -1 (Đợi xóa)
 	tt := c.PostForm("trang_thai")
-	if tt == "1" { 
-   	 kh.TrangThai = 1 
-	} else if tt == "-1" { 
-   	 kh.TrangThai = -1 
-	} else { 
-  	  kh.TrangThai = 0 
-	}
+	if tt == "1" { kh.TrangThai = 1 } else if tt == "-1" { kh.TrangThai = -1 } else { kh.TrangThai = 0 }
 
 	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
 	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("facebook"))
@@ -190,7 +181,6 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	
-	// CẤP 0,1,2 MỚI ĐƯỢC GỬI TIN NHẮN TẬP THỂ
 	if core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE")) > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị Lõi 99K mới được phát sóng thông báo!"})
 		return
@@ -205,23 +195,23 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Chưa chọn người nhận hợp lệ!"}); return
 	}
 
-	senderID, chucVuNguoiGui, tenNguoiGui := userID, "Nội bộ", "Ẩn danh"
+	// [ĐÃ SỬA LỖI Ở ĐÂY]: Chỉ lấy senderID, bỏ việc gán TenNguoiGui và ChucVuNguoiGui
+	senderID := userID
 	if c.PostForm("send_as_bot") == "1" {
 		if bot, ok := core.LayKhachHang(shopID, "0000000000000000000"); ok {
-			senderID, tenNguoiGui, chucVuNguoiGui = bot.MaKhachHang, bot.TenKhachHang, bot.ChucVu
-		} else { senderID, tenNguoiGui, chucVuNguoiGui = "SYSTEM", "Trợ lý ảo 99K", "Hệ thống" }
-	} else {
-		if sender, ok := core.LayKhachHang(shopID, userID); ok {
-			tenNguoiGui, chucVuNguoiGui = sender.TenKhachHang, sender.ChucVu
-		}
+			senderID = bot.MaKhachHang
+		} else { 
+            senderID = "0000000000000000000" 
+        }
 	}
 
 	now := time.Now(); nowStr := now.In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
 	msgID := fmt.Sprintf("ALL_%d_%s", now.UnixNano(), senderID) 
 
+	// Ghi trực tiếp xuống Lõi không cần TenNguoiGui/ChucVuNguoiGui
 	core.ThemMoiTinNhan(shopID, &core.TinNhan{
 		MaTinNhan: msgID, LoaiTinNhan: "ALL", NguoiGuiID: senderID, NguoiNhanID: jsonIDs,       
-		TieuDe: tieuDe, NoiDung: noiDung, NgayTao: nowStr, TenNguoiGui: tenNguoiGui, ChucVuNguoiGui: chucVuNguoiGui,
+		TieuDe: tieuDe, NoiDung: noiDung, NgayTao: nowStr,
 	})
 
 	c.JSON(200, gin.H{"status": "ok", "msg": fmt.Sprintf("Đã gửi thông báo thành công cho %d người!", len(listMaKH))})
