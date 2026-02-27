@@ -432,44 +432,28 @@
                 buttonsStyling: false, 
                 html: `
                     <div class="text-[14px] text-slate-500 mb-8 font-medium leading-relaxed">Hệ thống yêu cầu xác minh danh tính.<br>Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của bạn.</div>
-                    
                     <div class="relative w-full max-w-[280px] mx-auto group">
                         <div class="absolute inset-0 bg-purple-500/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
-                        
                         <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)] placeholder-slate-300" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.classList.remove('pin-error'); document.getElementById('swal-custom-err').classList.add('hidden'); checkPinLength(this);">
-                        
-                        <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-2 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl">
-                            <svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
-                            <svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        </button>
+                        <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-2 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl"><svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                     </div>
-
-                    <div id="swal-custom-err" class="hidden text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-2 text-[13px] font-bold mt-4 flex items-center justify-center gap-1.5 w-full max-w-[280px] mx-auto shadow-sm">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> 
-                        Vui lòng nhập đủ 8 số!
-                    </div>
+                    <div id="swal-custom-err" class="hidden text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-2 text-[13px] font-bold mt-4 flex items-center justify-center gap-1.5 w-full max-w-[280px] mx-auto shadow-sm"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Vui lòng nhập đủ 8 số!</div>
                 `,
                 showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ', reverseButtons: true, 
                 didOpen: () => { setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100); },
                 preConfirm: () => { 
-                    const input = document.getElementById('swal-pin-input');
-                    const errBox = document.getElementById('swal-custom-err');
-                    const val = input.value; 
-                    if (val.length < 8) { 
-                        input.classList.add('pin-error');
-                        errBox.classList.remove('hidden'); 
-                        errBox.classList.add('animate-bounce');
-                        setTimeout(() => errBox.classList.remove('animate-bounce'), 1000);
-                        return false; 
-                    } 
+                    const input = document.getElementById('swal-pin-input'); const errBox = document.getElementById('swal-custom-err'); const val = input.value; 
+                    if (val.length < 8) { input.classList.add('pin-error'); errBox.classList.remove('hidden'); errBox.classList.add('animate-bounce'); setTimeout(() => errBox.classList.remove('animate-bounce'), 1000); return false; } 
                     return val; 
                 }
             });
 
             if (!pinXacNhan) { return; }
 
+            // HIỆU ỨNG LED SPINNER NÚT BẤM (KHÓA NÚT)
             const btn = document.getElementById('btnSaveMem'); const old = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
+            btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.innerHTML = '<div class="flex items-center justify-center gap-2.5"><div class="spinner-led-btn"></div> Đang xử lý...</div>';
             
             const fd = new FormData(document.getElementById('formEdit'));
             fd.append('pin_xac_nhan', pinXacNhan);
@@ -481,43 +465,82 @@
             try {
                 const res = await fetch('/master/api/thanh-vien/save', { method: 'POST', body: fd });
                 const data = await res.json();
-                if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Thành công', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload());
-                else Swal.fire('Lỗi bảo mật', data.msg, 'error'); 
-            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
-            finally { btn.disabled = false; btn.innerHTML = old; }
+                if(data.status === 'ok') {
+                    // MODAL LED THÀNH CÔNG
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 rounded-full flex items-center justify-center shadow-inner border border-emerald-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-2xl font-black text-emerald-600">Thành Công</span></div>',
+                        html: `<div class="text-[14px] text-slate-500 font-medium px-4">${data.msg}</div>`,
+                        customClass: { popup: 'swal-animated-emerald' },
+                        showConfirmButton: false, timer: 1500
+                    }).then(() => location.reload());
+                } else {
+                    // MODAL LED THẤT BẠI
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 text-red-600 rounded-full flex items-center justify-center shadow-inner border border-red-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div><span class="text-2xl font-black text-red-600">Lỗi Bảo Mật</span></div>',
+                        html: `<div class="text-[14px] text-slate-500 font-medium px-4">${data.msg}</div>`,
+                        customClass: { popup: 'swal-animated-red', confirmButton: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-red-200 transition transform hover:-translate-y-0.5 active:scale-95' },
+                        buttonsStyling: false, confirmButtonText: 'Đóng lại'
+                    }); 
+                }
+            } catch(e) { 
+                Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 text-red-600 rounded-full flex items-center justify-center shadow-inner border border-red-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-2xl font-black text-red-600">Lỗi Kết Nối</span></div>',
+                    html: `<div class="text-[14px] text-slate-500 font-medium px-4">Đường truyền đến máy chủ bị gián đoạn!</div>`,
+                    customClass: { popup: 'swal-animated-red', confirmButton: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-red-200 transition transform hover:-translate-y-0.5 active:scale-95' },
+                    buttonsStyling: false, confirmButtonText: 'Đóng lại'
+                }); 
+            } 
+            finally { btn.disabled = false; btn.innerHTML = old; btn.classList.remove('opacity-80', 'cursor-not-allowed'); }
         }
-
-        window.checkPinLength = function(input) {
-            if (input.value.length === 8) {
-                input.classList.remove('border-purple-500', 'focus:border-purple-500', 'focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)]');
-                input.classList.add('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600', 'focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]');
-                input.style.transform = 'scale(1.03)'; setTimeout(() => input.style.transform = 'scale(1)', 150);
-            } else {
-                input.classList.remove('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600', 'focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]');
-                input.classList.add('border-purple-500', 'focus:border-purple-500', 'text-slate-800', 'focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)]');
-            }
-        }
-        function getSelectedIDs() { let ids = []; document.querySelectorAll('.chk-member:checked').forEach(cb => ids.push(cb.value)); return ids; }
-        function toggleAllCheckboxes() { let isChecked = document.getElementById('checkAll').checked; document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked); updateCount(); }
-        function updateCount() { let count = document.querySelectorAll('.chk-member:checked').length; document.getElementById('countSelected').innerText = count; document.getElementById('lblMsgCount').innerText = count; }
-        function openMessageModal() { let count = getSelectedIDs().length; if (count === 0) { Swal.fire('Oops!', 'Vui lòng tích chọn ít nhất 1 người nhận ở bảng danh sách.', 'warning'); return; } document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); document.getElementById('modalMsg').classList.remove('hidden'); }
 
         async function sendMessages() {
             let title = document.getElementById('msgTitle').value.trim(); let content = document.getElementById('msgContent').value.trim(); let ids = getSelectedIDs();
             let chkBot = document.getElementById('chkSendAsBot'); let sendAsBot = (chkBot && chkBot.checked) ? "1" : "0";
             if (!title || !content) { Swal.fire('Lỗi', 'Tiêu đề và nội dung không được trống!', 'error'); return; }
-            const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Đang gửi...';
+            
+            // HIỆU ỨNG LED SPINNER NÚT BẤM (KHÓA NÚT)
+            const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML; 
+            btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.innerHTML = '<div class="flex items-center justify-center gap-2.5"><div class="spinner-led-btn"></div> Đang phát sóng...</div>';
             
             const fd = new FormData(); fd.append('tieu_de', title); fd.append('noi_dung', content); fd.append('danh_sach_id', JSON.stringify(ids)); fd.append('send_as_bot', sendAsBot);
 
             try {
                 const res = await fetch('/master/api/thanh-vien/send-msg', { method: 'POST', body: fd });
                 const data = await res.json();
-                if(data.status === 'ok') { Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 2000, showConfirmButton: false}).then(() => location.reload()); } 
-                else Swal.fire('Lỗi', data.msg, 'error');
-            } catch(e) { Swal.fire('Lỗi mạng', 'Kết nối thất bại', 'error'); } 
-            finally { btn.disabled = false; btn.innerHTML = old; }
+                if(data.status === 'ok') { 
+                    // MODAL LED THÀNH CÔNG
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 rounded-full flex items-center justify-center shadow-inner border border-emerald-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-2xl font-black text-emerald-600">Đã Phát Sóng</span></div>',
+                        html: `<div class="text-[14px] text-slate-500 font-medium px-4">${data.msg}</div>`,
+                        customClass: { popup: 'swal-animated-emerald' },
+                        showConfirmButton: false, timer: 2000
+                    }).then(() => location.reload()); 
+                } 
+                else {
+                    // MODAL LED THẤT BẠI
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 text-red-600 rounded-full flex items-center justify-center shadow-inner border border-red-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div><span class="text-2xl font-black text-red-600">Lỗi Hệ Thống</span></div>',
+                        html: `<div class="text-[14px] text-slate-500 font-medium px-4">${data.msg}</div>`,
+                        customClass: { popup: 'swal-animated-red', confirmButton: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-red-200 transition transform hover:-translate-y-0.5 active:scale-95' },
+                        buttonsStyling: false, confirmButtonText: 'Đóng lại'
+                    });
+                }
+            } catch(e) { 
+                Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 text-red-600 rounded-full flex items-center justify-center shadow-inner border border-red-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-2xl font-black text-red-600">Lỗi Kết Nối</span></div>',
+                    html: `<div class="text-[14px] text-slate-500 font-medium px-4">Đường truyền đến máy chủ bị gián đoạn!</div>`,
+                    customClass: { popup: 'swal-animated-red', confirmButton: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-red-200 transition transform hover:-translate-y-0.5 active:scale-95' },
+                    buttonsStyling: false, confirmButtonText: 'Đóng lại'
+                }); 
+            } 
+            finally { btn.disabled = false; btn.innerHTML = old; btn.classList.remove('opacity-80', 'cursor-not-allowed'); }
         }
+        
+        function getSelectedIDs() { let ids = []; document.querySelectorAll('.chk-member:checked').forEach(cb => ids.push(cb.value)); return ids; }
+        function toggleAllCheckboxes() { let isChecked = document.getElementById('checkAll').checked; document.querySelectorAll('.chk-member').forEach(cb => cb.checked = isChecked); updateCount(); }
+        function updateCount() { let count = document.querySelectorAll('.chk-member:checked').length; document.getElementById('countSelected').innerText = count; document.getElementById('lblMsgCount').innerText = count; }
+        function openMessageModal() { let count = getSelectedIDs().length; if (count === 0) { Swal.fire('Oops!', 'Vui lòng tích chọn ít nhất 1 người nhận ở bảng danh sách.', 'warning'); return; } document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); document.getElementById('modalMsg').classList.remove('hidden'); }
     </script>
     {{ template "footer_master" . }}
 {{ end }}
