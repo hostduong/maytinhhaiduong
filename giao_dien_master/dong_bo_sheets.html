@@ -13,45 +13,55 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 p-8 sm:p-10 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
-            
-            <div class="relative z-10">
-                <div id="boxWarning" class="bg-amber-50/80 border border-amber-200/60 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500 shadow-sm">
-                    <div class="bg-amber-100 p-3.5 rounded-[1rem] text-amber-600 shrink-0 shadow-inner">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div class="animated-border-wrapper shadow-2xl shadow-purple-200/50">
+            <div class="animated-border-inner p-8 sm:p-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
+                
+                <div class="relative z-10">
+                    <div id="boxWarning" class="animated-warning-wrapper mb-8 shadow-md shadow-orange-100/50 transition-all duration-500">
+                        <div class="animated-warning-inner p-6 flex items-start gap-5 bg-orange-50/40 backdrop-blur-sm relative">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none z-0"></div>
+                            <div class="bg-gradient-to-br from-amber-100 to-orange-200 p-3.5 rounded-[1rem] text-orange-600 shrink-0 shadow-inner border border-orange-300/50 relative z-10">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <h3 class="font-black text-orange-950 text-lg mb-2 tracking-tight">Cảnh báo tác động hệ thống!</h3>
+                                <ul class="list-disc list-inside text-[13px] sm:text-sm text-orange-900/80 space-y-2.5 leading-relaxed font-medium">
+                                    <li>Tính năng này sẽ <b>tải lại toàn bộ dữ liệu</b> (Khách hàng, Phân quyền, Cấu hình, Tin nhắn...) từ Sheet Master.</li>
+                                    <li>Chỉ sử dụng khi bạn vừa can thiệp sửa/xóa dữ liệu trực tiếp trên file Excel.</li>
+                                    <li>Yêu cầu <b>Mã PIN Bảo mật 2 lớp</b> để thực thi.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-black text-amber-900 text-lg mb-2 tracking-tight">Cảnh báo tác động hệ thống!</h3>
-                        <ul class="list-disc list-inside text-sm text-amber-800/90 space-y-2.5 leading-relaxed font-medium">
-                            <li>Tính năng này sẽ <b>tải lại toàn bộ dữ liệu</b> (Khách hàng, Phân quyền, Cấu hình, Tin nhắn...) từ Sheet Master.</li>
-                            <li>Chỉ sử dụng khi bạn vừa can thiệp sửa/xóa dữ liệu trực tiếp trên file Excel.</li>
-                            <li>Yêu cầu <b>Mã PIN Bảo mật 2 lớp</b> để thực thi.</li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div id="boxSuccess" class="hidden bg-emerald-50/80 border border-emerald-200/60 p-6 rounded-2xl flex items-start gap-5 mb-8 transition-all duration-500 shadow-sm">
-                    <div class="bg-emerald-100 p-3.5 rounded-[1rem] text-emerald-600 shrink-0 shadow-inner">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <div id="boxSuccess" class="hidden relative rounded-[1.25rem] p-[2px] overflow-hidden mb-8 transition-all duration-500 shadow-md shadow-emerald-100/50">
+                        <div class="absolute inset-[-50%] w-[200%] h-[200%] animate-[spin-slow_3s_linear_infinite] bg-[conic-gradient(transparent,transparent,transparent,#10b981,#059669,transparent)] z-0 pointer-events-none"></div>
+                        <div class="relative bg-white rounded-[calc(1.25rem-2px)] p-6 flex items-start gap-5 z-10 h-full overflow-hidden bg-emerald-50/40 backdrop-blur-sm">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none z-0"></div>
+                            <div class="bg-gradient-to-br from-emerald-100 to-green-200 p-3.5 rounded-[1rem] text-emerald-600 shrink-0 shadow-inner border border-emerald-300/50 relative z-10">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div class="relative z-10">
+                                <h3 class="font-black text-emerald-950 text-lg mb-1 tracking-tight">Đồng bộ hoàn tất!</h3>
+                                <p class="text-[13px] sm:text-sm text-emerald-800/90 leading-relaxed font-medium mt-2">Hệ thống đã nạp thành công dữ liệu mới nhất từ Google Sheets lên RAM. Nền tảng đang hoạt động với trạng thái tối ưu nhất.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-black text-emerald-900 text-lg mb-1 tracking-tight">Đồng bộ hoàn tất!</h3>
-                        <p class="text-[13px] text-emerald-800/90 leading-relaxed font-medium mt-2">Hệ thống đã nạp thành công dữ liệu mới nhất từ Google Sheets lên RAM. Nền tảng đang hoạt động với trạng thái tối ưu nhất.</p>
-                    </div>
-                </div>
 
-                <div class="flex flex-col items-center border-t border-purple-50 pt-10">
-                    <button id="btnActionReload" onclick="xacNhanDongBo()" class="px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 hover:from-purple-700 hover:to-indigo-700 flex items-center gap-3 min-w-[320px] justify-center active:scale-95 group disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none">
-                        <svg class="w-6 h-6 shrink-0 group-hover:rotate-180 transition duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        <span class="font-black text-lg tracking-widest uppercase">Đồng Bộ Master</span>
-                    </button>
-                    <p id="txtCooldown" class="text-sm font-bold text-slate-400 mt-5 hidden tracking-wide"></p>
+                    <div class="flex flex-col items-center border-t border-purple-50 pt-10 mt-2">
+                        <button id="btnActionReload" onclick="xacNhanDongBo()" class="px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 hover:from-purple-700 hover:to-indigo-700 flex items-center gap-3 min-w-[320px] justify-center active:scale-95 group disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none">
+                            <svg class="w-6 h-6 shrink-0 group-hover:rotate-180 transition duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            <span class="font-black text-lg tracking-widest uppercase">Đồng Bộ Master</span>
+                        </button>
+                        <p id="txtCooldown" class="text-sm font-bold text-slate-400 mt-5 hidden tracking-wide"></p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
+    {{/* Bắt đầu phần script cũ của bạn ... */}}
     <script>
         function toggleSwalPin() {
             const input = document.getElementById('swal-pin-input');
@@ -103,7 +113,6 @@
         async function xacNhanDongBo() {
             if (checkCooldown()) return;
 
-            // ĐỒNG BỘ FORM NHẬP PIN CHUẨN
             const { value: pinXacNhan } = await Swal.fire({
                 title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><span class="text-2xl font-black tracking-tight text-gradient-animated">Bảo mật 2 lớp</span></div>',
                 customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 transition active:scale-95 border border-slate-200' },
@@ -137,7 +146,6 @@
                     const res = await r.json();
                     if (res.status === 'ok') {
                         localStorage.setItem('master_reload_time', Date.now().toString());
-                        // ĐỒNG BỘ BOX THÀNH CÔNG
                         Swal.fire({
                             title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Hoàn Tất</span></div>',
                             html: `<div class="text-[15px] text-slate-600 font-medium px-4">${res.msg}</div>`,
@@ -145,7 +153,6 @@
                             showConfirmButton: false, timer: 1500
                         }).then(() => location.reload());
                     } else {
-                        // ĐỒNG BỘ BOX LỖI
                         Swal.fire({
                             title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Bảo Mật</span></div>',
                             html: `<div class="text-[15px] text-orange-900 font-medium px-4">${res.msg}</div>`,
