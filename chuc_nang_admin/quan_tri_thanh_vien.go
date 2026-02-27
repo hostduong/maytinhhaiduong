@@ -198,7 +198,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
+	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_it_he_thong" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
@@ -218,13 +218,14 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 		return
 	}
 
-	// Lấy thông tin người gửi
-	sender, _ := core.LayKhachHang(shopID, userID)
-	chucVuNguoiGui := "Hệ Thống"
-	tenNguoiGui := "Nền tảng 99k.vn"
-	if sender != nil {
-		if sender.ChucVu != "" { chucVuNguoiGui = sender.ChucVu }
-		if sender.TenKhachHang != "" { tenNguoiGui = sender.TenKhachHang }
+	// [ĐÃ SỬA] Chỉ lấy ID Người Gửi, bỏ logic lấy Tên và Chức vụ
+	senderID := userID
+	if c.PostForm("send_as_bot") == "1" {
+		if bot, ok := core.LayKhachHang(shopID, "0000000000000000000"); ok {
+			senderID = bot.MaKhachHang
+		} else { 
+            senderID = "0000000000000000000" // ID Mặc định của Bot
+        }
 	}
 
 	loc := time.FixedZone("ICT", 7*3600)
@@ -234,20 +235,16 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	for _, maKH := range listMaKH {
 		if _, ok := core.LayKhachHang(shopID, maKH); ok {
 			
-			// Tạo ID độc nhất
 			msgID := fmt.Sprintf("MSG_%d_%s", time.Now().UnixNano(), maKH) 
 
-			// [BẮT BUỘC]: Gọi trực tiếp vào Lõi Sheet TIN_NHAN mới
 			newMsg := &core.TinNhan{
 				MaTinNhan:      msgID,
 				LoaiTinNhan:    "SYSTEM",
-				NguoiGuiID:     userID,         
-				NguoiNhanID:    maKH,           // Gửi đích danh cho người nhận
+				NguoiGuiID:     senderID,         
+				NguoiNhanID:    maKH,           
 				TieuDe:         tieuDe,
 				NoiDung:        noiDung,
 				NgayTao:        nowStr,
-				TenNguoiGui:    tenNguoiGui,
-				ChucVuNguoiGui: chucVuNguoiGui,
 			}
 			
 			core.ThemMoiTinNhan(shopID, newMsg)
