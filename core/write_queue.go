@@ -13,6 +13,7 @@ import (
 type SmartQueue struct {
 	sync.Mutex
 	DataUpdate map[string]map[string]map[int]map[int]interface{}
+	// Key thứ 2 bây giờ không phải là tên Sheet nữa, mà là dải Tọa độ (Range)
 	DataAppend map[string]map[string][][]interface{} 
 }
 
@@ -46,7 +47,8 @@ func ThemVaoHangCho(spreadId string, sheetName string, row int, col int, value i
 	}
 }
 
-func ThemDongVaoHangCho(spreadId string, sheetName string, rowData []interface{}) {
+// [ĐÃ SỬA]: Tham số thứ 2 đổi thành rangeToAppend (VD: "TIN_NHAN!A11:Z")
+func ThemDongVaoHangCho(spreadId string, rangeToAppend string, rowData []interface{}) {
 	BoNhoGhi.Lock()
 	defer BoNhoGhi.Unlock()
 
@@ -54,7 +56,7 @@ func ThemDongVaoHangCho(spreadId string, sheetName string, rowData []interface{}
 		BoNhoGhi.DataAppend[spreadId] = make(map[string][][]interface{})
 	}
 	
-	BoNhoGhi.DataAppend[spreadId][sheetName] = append(BoNhoGhi.DataAppend[spreadId][sheetName], rowData)
+	BoNhoGhi.DataAppend[spreadId][rangeToAppend] = append(BoNhoGhi.DataAppend[spreadId][rangeToAppend], rowData)
 
 	select {
 	case KenhBaoThuc <- struct{}{}:
@@ -100,7 +102,7 @@ func ThucHienGhiSheet() {
 			continue
 		}
 
-		// LUỒNG 1: XỬ LÝ UPDATE
+		// LUỒNG 1: XỬ LÝ UPDATE (Giữ nguyên)
 		if sheetsMap, ok := snapshotUpdate[spreadId]; ok && len(sheetsMap) > 0 {
 			var requests []*sheets.ValueRange
 			
@@ -154,23 +156,24 @@ func ThucHienGhiSheet() {
 		}
 
 		// LUỒNG 2: XỬ LÝ APPEND
-		if appendSheets, ok := snapshotAppend[spreadId]; ok && len(appendSheets) > 0 {
-			for sheetName, rowsData := range appendSheets {
+		if appendRanges, ok := snapshotAppend[spreadId]; ok && len(appendRanges) > 0 {
+			// [ĐÃ SỬA]: Biến chạy bây giờ là rangeToAppend (VD: TIN_NHAN!A11:Z)
+			for rangeToAppend, rowsData := range appendRanges {
 				
 				vr := &sheets.ValueRange{
 					Values: rowsData,
 				}
 
-				// [ĐÃ FIX LỖI "LỢN QUÈ" Ở ĐÂY]: Đổi USER_ENTERED thành RAW
-				_, err := srv.Spreadsheets.Values.Append(spreadId, sheetName, vr).
+				// [ĐÃ SỬA]: Đổi INSERT_ROWS thành OVERWRITE để không bị copy định dạng Tiêu đề
+				_, err := srv.Spreadsheets.Values.Append(spreadId, rangeToAppend, vr).
 					ValueInputOption("RAW"). 
-					InsertDataOption("INSERT_ROWS").
+					InsertDataOption("OVERWRITE"). 
 					Do()
 
 				if err != nil {
-					log.Printf("❌ LỖI GHI APPEND %s (Tab: %s): %v", spreadId[:5], sheetName, err)
+					log.Printf("❌ LỖI GHI APPEND %s (Tọa độ: %s): %v", spreadId[:5], rangeToAppend, err)
 				} else {
-					log.Printf("✅ Đã APPEND %d dòng mới vào Tab %s (Sheet %s)", len(rowsData), sheetName, spreadId[:5])
+					log.Printf("✅ Đã APPEND %d dòng mới vào %s (Sheet %s)", len(rowsData), rangeToAppend, spreadId[:5])
 				}
 			}
 		}
