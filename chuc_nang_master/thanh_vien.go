@@ -54,7 +54,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	} else { meCopy.StyleLevel = 9 }
 	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { meCopy.StyleLevel = 0 }
 
-	// CƠ CHẾ DỰ PHÒNG CHUẨN MỚI
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
 			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Quản trị hệ thống", StyleLevel: 0, StyleTheme: 9},
@@ -97,7 +96,6 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	targetLevel := core.LayCapBacVaiTro(shopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
 	newRole := c.PostForm("vai_tro")
 
-	// CHỐT CHẶN 2: BẢO VỆ PHÂN TẦNG TUYỆT ĐỐI
 	if maKH == "0000000000000000001" && userID != "0000000000000000001" {
 		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT: Không ai được chạm vào hồ sơ Người Sáng Lập!"})
 		return
