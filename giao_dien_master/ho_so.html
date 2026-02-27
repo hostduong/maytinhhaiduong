@@ -7,7 +7,6 @@
     
     <style>
         .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
-        /* XÓA class input-success ở đây để không bị đè viền Xanh Lục, chỉ dùng has-data (Tím) từ CSS tổng */
         .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
         .error-text.show { display: block; }
         input::-ms-reveal, input::-ms-clear { display: none; }
@@ -43,13 +42,18 @@
                         {{ .NhanVien.TenKhachHang }}
                     </h2>
                     
+                    {{ $lvl := 9 }} {{ $thm := 0 }}
+                    {{ if eq .NhanVien.VaiTroQuyenHan "quan_tri_he_thong" }} {{ $lvl = 0 }} {{ $thm = 9 }}
+                    {{ else if eq .NhanVien.VaiTroQuyenHan "quan_tri_vien_he_thong" }} {{ $lvl = 1 }} {{ $thm = 4 }}
+                    {{ end }}
+
                     <div class="mt-2 flex justify-center">
                         <div class="relative inline-flex items-center max-w-full">
-                            <div class="badge-animated-wrap theme-{{ .NhanVien.StyleTheme }} {{ if lt .NhanVien.StyleLevel 4 }}tier-s{{ else if lt .NhanVien.StyleLevel 7 }}tier-a{{ else if eq .NhanVien.StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
+                            <div class="badge-animated-wrap theme-{{ $thm }} {{ if lt $lvl 4 }}tier-s{{ else if lt $lvl 7 }}tier-a{{ else if eq $lvl 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
                                 <div class="badge-inner shadow-sm truncate max-w-[250px]">{{ .NhanVien.ChucVu }}</div>
                             </div>
-                            <div class="floating-icon {{ if eq .NhanVien.StyleLevel 0 }}icon-lvl-0{{ else if gt .NhanVien.StyleLevel 7 }}icon-lvl-9{{ end }}">
-                                {{ if eq .NhanVien.StyleLevel 0 }} 👑 {{ else if eq .NhanVien.StyleLevel 1 }} ⚡ {{ else if eq .NhanVien.StyleLevel 2 }} 🛡️ {{ else if eq .NhanVien.StyleLevel 3 }} ⭐ {{ else if eq .NhanVien.StyleLevel 4 }} 🎯 {{ else if eq .NhanVien.StyleLevel 5 }} 💼 {{ else if eq .NhanVien.StyleLevel 6 }} ⚖️ {{ else if eq .NhanVien.StyleLevel 7 }} 🚀 {{ else if eq .NhanVien.StyleLevel 8 }} 🤝 {{ else }} 👤 {{ end }}
+                            <div class="floating-icon {{ if eq $lvl 0 }}icon-lvl-0{{ else if gt $lvl 7 }}icon-lvl-9{{ end }}">
+                                {{ if eq $lvl 0 }} 👑 {{ else if eq $lvl 1 }} ⚡ {{ else if eq $lvl 2 }} 🛡️ {{ else if eq $lvl 3 }} ⭐ {{ else if eq $lvl 4 }} 🎯 {{ else if eq $lvl 5 }} 💼 {{ else if eq $lvl 6 }} ⚖️ {{ else if eq $lvl 7 }} 🚀 {{ else if eq $lvl 8 }} 🤝 {{ else }} 👤 {{ end }}
                             </div>
                         </div>
                     </div>
@@ -140,55 +144,59 @@
                             Thông tin định danh & Liên hệ
                         </h4>
                         
-                        <form id="formInfo" autocomplete="new-password" class="space-y-6 relative z-10">
+                        <form id="formInfo" class="space-y-6 relative z-10">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label>
-                                    <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                    <input type="text" id="newName" value="{{ .NhanVien.TenKhachHang }}" class="input-premium font-bold text-slate-800" spellcheck="false">
                                     <p id="err_newName" class="error-text">Họ tên không hợp lệ.</p>
                                 </div>
                                 
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
-                                    <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px]" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                    <input type="url" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false">
                                 </div>
 
                                 <div>
                                     <label class="form-lbl">Số điện thoại</label>
-                                    <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                    <input type="tel" id="newPhone" value="{{ .NhanVien.DienThoai }}" class="input-premium font-bold text-slate-800">
                                     <p id="err_newPhone" class="error-text">SĐT không hợp lệ.</p>
                                 </div>
                                 
                                 <div>
                                     <label class="form-lbl">Ngày sinh</label>
-                                    <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium bg-white" autocomplete="new-password">
+                                    <input type="date" id="newDob" value="{{ .NhanVien.NgaySinh }}" class="input-premium font-bold text-slate-800 bg-white">
                                 </div>
 
                                 <div>
                                     <label class="form-lbl">Giới tính</label>
-                                    <select id="newGender" class="input-premium bg-white cursor-pointer"><option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option><option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option><option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option></select>
+                                    <select id="newGender" class="input-premium font-bold text-slate-800 cursor-pointer bg-white">
+                                        <option value="Nam" {{ if eq .NhanVien.GioiTinh 1 }}selected{{ end }}>Nam</option>
+                                        <option value="Nữ" {{ if eq .NhanVien.GioiTinh 0 }}selected{{ end }}>Nữ</option>
+                                        <option value="Khác" {{ if eq .NhanVien.GioiTinh -1 }}selected{{ end }}>Khác</option>
+                                    </select>
                                 </div>
                                 
                                 <div>
                                     <label class="form-lbl">Mã số thuế</label>
-                                    <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                                    <input type="text" id="newTax" value="{{ .NhanVien.MaSoThue }}" placeholder="Nhập mã số thuế" class="input-premium font-bold text-slate-800">
                                     <p id="err_newTax" class="error-text">Chỉ nhập số.</p>
                                 </div>
 
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Địa chỉ</label>
-                                    <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                                    <input type="text" id="newAddress" value="{{ .NhanVien.DiaChi }}" placeholder="Số nhà, đường, phường/xã..." class="input-premium font-bold text-slate-800" spellcheck="false">
                                 </div>
 
                                 <div class="md:col-span-2 pt-6 border-t border-purple-50">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"></div>
+                                        <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium font-bold text-slate-800"></div>
                                         <div></div>
                                         
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px]" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="url" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                         
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px]" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="url" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
                                     </div>
                                 </div>
                             </div>
@@ -342,6 +350,7 @@
         function checkInputState(input) {
             // Loại trừ những ô đang bị lỗi đỏ ra để không bị đè màu
             if(!input.classList.contains('input-error')) {
+                // ĐÃ FIX: Chỉ dùng .has-data (màu tím) từ CSS tổng, không tự ý thêm input-success (màu xanh lục) nữa.
                 if(input.value.trim() !== "") input.classList.add('has-data');
                 else input.classList.remove('has-data');
             }
