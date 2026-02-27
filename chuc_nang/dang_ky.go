@@ -168,6 +168,23 @@ func XuLyDangKy(c *gin.Context) {
 	ghi(shopID, sh, r, core.CotKH_NgayTao, newKH.NgayTao)
 	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
 	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
+	ghi(shopID, sh, r, core.CotKH_NguoiCapNhat, newKH.NguoiCapNhat)
+	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, newKH.NgayCapNhat)
+
+	// ==============================================================
+	// TỰ ĐỘNG GỬI TIN NHẮN CHÀO MỪNG TỪ TRỢ LÝ ẢO 99K
+	// ==============================================================
+	msgID := fmt.Sprintf("AUTO_%d_0000000000000000000", time.Now().UnixNano())
+	welcomeMsg := &core.TinNhan{
+		MaTinNhan:   msgID,
+		LoaiTinNhan: "AUTO",
+		NguoiGuiID:  "0000000000000000000", // Gửi từ Bot Hệ Thống
+		NguoiNhanID: maKH,                  // Gửi cho người vừa đăng ký
+		TieuDe:      "Chào mừng gia nhập Nền tảng 99K",
+		NoiDung:     "Chào mừng " + hoTen + " đến với hệ thống 99K.vn! Cửa hàng của bạn đã được khởi tạo thành công. Nếu cần hỗ trợ trong quá trình sử dụng, bạn có thể phản hồi trực tiếp tại cuộc trò chuyện này.",
+		NgayTao:     nowStr,
+	}
+	core.ThemMoiTinNhan(shopID, welcomeMsg)
 
 	if theme == "theme_master" && vaiTro != "quan_tri_he_thong" {
 		code := core.TaoMaOTP6So() 
