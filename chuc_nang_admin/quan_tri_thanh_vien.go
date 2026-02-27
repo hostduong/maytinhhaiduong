@@ -20,7 +20,6 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	me, _ := core.LayKhachHang(shopID, userID)
 	listAll := core.LayDanhSachKhachHang(shopID)
 	
-	// [MỚI - SAFE COPY] Clone danh sách để nạp Inbox mà không làm hỏng Cache chung
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
 		khCopy := *kh 
@@ -44,7 +43,7 @@ func TrangQuanLyThanhVien(c *gin.Context) {
 	c.HTML(http.StatusOK, "quan_tri_thanh_vien", gin.H{
 		"TieuDe":         "Quản lý thành viên",
 		"NhanVien":       me,
-		"DanhSach":       listView, // Truyền bản sao có Inbox ra giao diện
+		"DanhSach":       listView, 
 		"DanhSachVaiTro": listVaiTro, 
 	})
 }
@@ -198,7 +197,7 @@ func API_Admin_GuiTinNhan(c *gin.Context) {
 	userID := c.GetString("USER_ID")
 	myRole := c.GetString("USER_ROLE")
 	
-	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_it_he_thong" {
+	if myRole != "quan_tri_he_thong" && myRole != "quan_tri_vien_he_thong" && myRole != "quan_tri_vien" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền gửi thông báo!"})
 		return
 	}
