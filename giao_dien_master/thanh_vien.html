@@ -29,7 +29,9 @@
                     <table class="w-full text-sm text-left text-slate-600">
                         <thead class="text-[10px] sm:text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                             <tr>
-                                <th class="px-2 sm:px-5 py-3 sm:py-4 text-center w-8 sm:w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"></th>
+                                <th class="px-2 sm:px-5 py-3 sm:py-4 text-center w-8 sm:w-12 cursor-pointer hover:bg-slate-100 transition" title="Chọn/Bỏ chọn tất cả" onclick="if(event.target.tagName !== 'INPUT') { let cb = document.getElementById('checkAll'); cb.checked = !cb.checked; toggleAllCheckboxes(); }">
+                                    <input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                                </th>
                                 <th class="px-2 sm:px-4 py-3 sm:py-4 font-black tracking-wider sm:tracking-widest text-slate-700 uppercase">Thành Viên</th>
                                 <th class="px-4 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap hidden sm:table-cell uppercase">THÔNG TIN</th>
                                 <th class="px-4 py-4 font-black text-center tracking-widest text-slate-700 w-36 whitespace-nowrap hidden sm:table-cell uppercase">Thao tác</th>
@@ -40,7 +42,9 @@
                             
                             <tr class="hover-soft-row cursor-pointer transition-colors relative {{ if eq .TrangThai 0 }}row-locked{{ else if eq .TrangThai -1 }}row-deleted{{ end }}" onclick="editMember('{{ .MaKhachHang }}')">
                                 
-                                <td class="px-2 sm:px-5 py-3 sm:py-4 text-center align-middle" onclick="event.stopPropagation()"><input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm" onchange="updateCount()"></td>
+                                <td class="px-2 sm:px-5 py-3 sm:py-4 text-center align-middle cursor-pointer" onclick="event.stopPropagation(); if(event.target.tagName !== 'INPUT') { let cb = this.querySelector('.chk-member'); cb.checked = !cb.checked; updateCount(); }">
+                                    <input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm cursor-pointer" onchange="updateCount()">
+                                </td>
                                 
                                 <td class="px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto align-middle relative">
 
