@@ -88,6 +88,11 @@ func main() {
 		// 3. Đồn bộ sheets
 		master.GET("/dong-bo-sheets", chuc_nang_master.TrangDongBoSheetsMaster)
 		master.POST("/api/dong-bo-sheets", chuc_nang_master.API_NapLaiDuLieuMasterCoPIN)
+
+		// MODULE SẢN PHẨM NGÀNH MÁY TÍNH DÀNH RIÊNG CHO MASTER
+		master.GET("/san-pham", master_may_tinh.TrangQuanLySanPhamMaster)
+		master.GET("/api/may-tinh/detail/:ma_sp", master_may_tinh.API_LayChiTietSanPhamMaster)
+		master.POST("/api/may-tinh/save", master_may_tinh.API_LuuSanPhamMaster)
 	}
 
 	// API Public
