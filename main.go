@@ -12,7 +12,7 @@ import (
 	"app/cau_hinh"
 	"app/chuc_nang"
 	"app/chuc_nang_admin"
-	"app/chuc_nang_master" 
+	"app/chuc_nang_master"
 	"app/core"
 
 	"github.com/gin-gonic/gin"
@@ -32,14 +32,14 @@ func main() {
 	core.NapPhanQuyen("")
 	core.NapDanhMuc("")
 	core.NapThuongHieu("")
-	core.NapBienLoiNhuan("")	
+	core.NapBienLoiNhuan("")
 	core.NapKhachHang("")
 	core.NapTinNhan("")
 	core.NapDuLieuMayTinh("")
 
 	router := gin.Default()
-	
-	// [QUAN TRỌNG ĐÃ BỔ SUNG Ở ĐÂY] - Mở quyền truy cập thư mục static chứa CSS/JS
+
+	// Mở quyền truy cập thư mục static chứa CSS/JS
 	router.Static("/static", "./static")
 
 	router.Use(chuc_nang.GatewaySaaS, chuc_nang.KiemTraGoiDichVu)
@@ -58,8 +58,8 @@ func main() {
 	router.GET("/register", chuc_nang.TrangDangKy)
 	router.POST("/register", chuc_nang.XuLyDangKy)
 	router.GET("/logout", chuc_nang.DangXuat)
-	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau) 
-	
+	router.GET("/forgot-password", chuc_nang.TrangQuenMatKhau)
+
 	router.GET("/tai-khoan", chuc_nang.KiemTraDangNhap, chuc_nang.TrangHoSo)
 
 	// Master Area (Quản trị hệ thống Lõi)
@@ -69,27 +69,22 @@ func main() {
 		master.GET("/tong-quan", chuc_nang_master.TrangTongQuanMaster)
 		master.GET("/api/reload", chuc_nang_master.API_NapLaiDuLieuMaster)
 
-		// Thêm Route Hồ sơ
 		master.GET("/ho-so", chuc_nang_master.TrangHoSoMaster)
 		master.POST("/api/ho-so", chuc_nang_master.API_LuuHoSoMaster)
 		master.POST("/api/change-pass", chuc_nang_master.API_DoiMatKhauMaster)
 		master.POST("/api/change-pin", chuc_nang_master.API_DoiMaPinMaster)
 
-		// 1. Route Quản lý Core Team
 		master.GET("/thanh-vien", chuc_nang_master.TrangQuanLyThanhVienMaster)
 		master.POST("/api/thanh-vien/save", chuc_nang_master.API_LuuThanhVienMaster)
 		master.POST("/api/thanh-vien/send-msg", chuc_nang_master.API_GuiTinNhanMaster)
 
-		// 2. Route Hộp thư
 		master.GET("/tin-nhan", chuc_nang_master.TrangTinNhanMaster)
 		master.POST("/api/doc-tin-nhan", chuc_nang_master.API_DanhDauDaDocMaster)
 		master.POST("/api/tin-nhan/send-chat", chuc_nang_master.API_GuiTinNhanChat)
 
-		// 3. Đồn bộ sheets
 		master.GET("/dong-bo-sheets", chuc_nang_master.TrangDongBoSheetsMaster)
 		master.POST("/api/dong-bo-sheets", chuc_nang_master.API_NapLaiDuLieuMasterCoPIN)
 
-		// MODULE SẢN PHẨM NGÀNH MÁY TÍNH DÀNH RIÊNG CHO MASTER
 		master.GET("/san-pham", chuc_nang_master.TrangQuanLyMayTinhMaster)
 		master.GET("/api/may-tinh/detail/:ma_sp", chuc_nang_master.API_LayChiTietMayTinhMaster)
 		master.POST("/api/may-tinh/save", chuc_nang_master.API_LuuMayTinhMaster)
@@ -114,7 +109,7 @@ func main() {
 		userApi.POST("/change-pass", chuc_nang.API_DoiMatKhau)
 		userApi.POST("/change-pin", chuc_nang.API_DoiMaPin)
 		userApi.POST("/send-otp-pin", chuc_nang.API_GuiOTPPin)
-		userApi.POST("/verify-softgate", chuc_nang.API_XacThucKichHoat) 
+		userApi.POST("/verify-softgate", chuc_nang.API_XacThucKichHoat)
 	}
 
 	// Admin Area (Dùng chung)
@@ -123,7 +118,7 @@ func main() {
 	{
 		admin.GET("/tong-quan", chuc_nang_admin.TrangTongQuan)
 		admin.GET("/reload", chuc_nang_admin.API_NapLaiDuLieu)
-		
+
 		admin.GET("/thanh-vien", chuc_nang_admin.TrangQuanLyThanhVien)
 		admin.POST("/api/member/save", chuc_nang_admin.API_Admin_LuuThanhVien)
 		admin.POST("/api/member/send-msg", chuc_nang_admin.API_Admin_GuiTinNhan)
@@ -133,14 +128,14 @@ func main() {
 		admin.POST("/api/brand/save", chuc_nang_admin.API_LuuThuongHieu)
 		admin.POST("/api/margin/save", chuc_nang_admin.API_LuuBienLoiNhuan)
 		admin.POST("/api/category/sync-slots", chuc_nang_admin.API_DongBoSlotDanhMuc)
-
-		}
 	}
 
 	port := cau_hinh.BienCauHinh.CongChayWeb
-	if port == "" { port = "8080" }
+	if port == "" {
+		port = "8080"
+	}
 
-	srv := &http.Server{ Addr: "0.0.0.0:" + port, Handler: router }
+	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
 
 	go func() {
 		log.Printf("✅ Server đang chạy tại http://0.0.0.0:%s", port)
@@ -152,12 +147,10 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-    
+	
 	log.Println("⚠️ [SHUTDOWN] Đã nhận lệnh tắt Server...")
-    log.Println("💾 [SHUTDOWN] Đang xả toàn bộ dữ liệu trên RAM xuống Google Sheets lần cuối...")
-    
-    // ÉP BUỘC GHI SHEET TRƯỚC KHI TẮT ĐỂ KHÔNG MẤT DỮ LIỆU
-    core.ThucHienGhiSheet() 
+	log.Println("💾 [SHUTDOWN] Đang xả toàn bộ dữ liệu trên RAM xuống Google Sheets lần cuối...")
+	core.ThucHienGhiSheet()
 
 	log.Println("✅ [SHUTDOWN] Server tắt an toàn. Không mất dữ liệu.")
 }
