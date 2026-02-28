@@ -92,7 +92,7 @@ var (
 	CacheGroupSanPhamMayTinh = make(map[string][]*SanPhamMayTinh)
 )
 
-func NapDuLieuMayTinh(shopID string) {
+func NapMayTinh(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, TenSheetMayTinh) 
 	if err != nil { return }
