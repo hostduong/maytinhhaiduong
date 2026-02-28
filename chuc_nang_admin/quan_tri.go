@@ -56,7 +56,7 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		core.NapDanhMuc(shopID)   
 		core.NapThuongHieu(shopID)
 		core.NapBienLoiNhuan(shopID)
-		core.NapDuLieuMayTinh(shopID)
+		core.NapMayTinh(shopID)
 		core.NapKhachHang(shopID)
 		
 		core.HeThongDangBan = false
