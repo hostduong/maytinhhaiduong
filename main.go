@@ -152,5 +152,12 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("✅ Server tắt an toàn.")
+    
+	log.Println("⚠️ [SHUTDOWN] Đã nhận lệnh tắt Server...")
+    log.Println("💾 [SHUTDOWN] Đang xả toàn bộ dữ liệu trên RAM xuống Google Sheets lần cuối...")
+    
+    // ÉP BUỘC GHI SHEET TRƯỚC KHI TẮT ĐỂ KHÔNG MẤT DỮ LIỆU
+    core.ThucHienGhiSheet() 
+
+	log.Println("✅ [SHUTDOWN] Server tắt an toàn. Không mất dữ liệu.")
 }
