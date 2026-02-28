@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
-    <div class="max-w-7xl mx-auto mb-24 sm:mb-10">
+    <div class="max-w-7xl mx-auto pb-6 mb-24 sm:mb-10">
         
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full">
             
@@ -194,7 +194,7 @@
                                     </h4>
                                     <div class="space-y-6 relative z-10">
                                         <div><label class="form-lbl">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
-                                        <div><label class="form-lbl">Link Ảnh đại diện</label><input type="url" name="anh_dai_dien" id="f_avatar" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://..."></div>
+                                        <div><label class="form-lbl">Link Ảnh đại diện</label><input type="text" name="anh_dai_dien" id="f_avatar" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://..."></div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div><label class="form-lbl">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
                                             <div><label class="form-lbl">Ngày sinh</label><input type="date" name="ngay_sinh" id="f_dob" class="input-premium bg-white"></div>
@@ -208,8 +208,18 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                 <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="f_zalo_fake" class="input-premium"></div>
                                                 <div><label class="form-lbl text-emerald-600">Nguồn khách hàng</label><input type="text" name="nguon_khach_hang" id="f_source" class="input-premium bg-emerald-50/50" placeholder="VD: Đăng ký Web..."></div>
-                                                <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://facebook.com/..."></div>
-                                                <div class="sm:col-span-2"><label class="form-lbl text-slate-800">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="https://tiktok.com/@..."></div>
+                                                
+                                                <div class="sm:col-span-2">
+                                                    <label class="form-lbl text-blue-600">Link Facebook</label>
+                                                    <input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="facebook.com/username" spellcheck="false">
+                                                    <p id="err_f_fb" class="error-text">Định dạng link không hợp lệ.</p>
+                                                </div>
+                                                
+                                                <div class="sm:col-span-2">
+                                                    <label class="form-lbl text-blue-600">Link Tiktok</label>
+                                                    <input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="tiktok.com/username" spellcheck="false">
+                                                    <p id="err_f_tiktok" class="error-text">Định dạng link không hợp lệ.</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -328,9 +338,41 @@
         const myLevel = {{ .NhanVien.StyleLevel }};
         let itiPhone, itiZalo;
 
+        /* =========================================================
+           TƯỜNG LỬA (FIREWALL) & GIAO DIỆN INPUT THÔNG MINH
+           ========================================================= */
         function checkInputState(input) {
             if(input.value.trim() !== "") input.classList.add('has-data');
             else input.classList.remove('has-data');
+        }
+
+        // --- CƠ CHẾ AUTO-FORMAT LINK CHUYÊN NGHIỆP ---
+        function formatSocialLink(val, type) {
+            val = val.trim().replace(/\s/g, ''); 
+            if (val === "") return "";
+            
+            let username = val;
+            
+            if (type === 'facebook') {
+                username = username.replace(/^(https?:\/\/)?(www\.)?facebook\.com\//i, '');
+                username = username.replace(/^(https?:\/\/)?fb\.com\//i, '');
+            } else if (type === 'tiktok') {
+                username = username.replace(/^(https?:\/\/)?(www\.)?tiktok\.com\//i, '');
+                username = username.replace(/^(https?:\/\/)?vt\.tiktok\.com\//i, '');
+            }
+            
+            username = username.split('?')[0];
+            username = username.replace(/\/+$/, '');
+            if (username.startsWith('@')) username = username.substring(1);
+
+            if (username === "") return val;
+
+            if (type === 'facebook') {
+                return `https://www.facebook.com/${username}/`;
+            } else if (type === 'tiktok') {
+                return `https://www.tiktok.com/@${username}`; 
+            }
+            return val;
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -338,13 +380,40 @@
                 checkInputState(input); 
                 
                 input.addEventListener('input', function() {
-                    if (this.type !== 'email' && this.type !== 'url' && this.type !== 'password' && this.id !== 'f_fb' && this.id !== 'f_tiktok') {
+                    if (this.type !== 'email' && this.id !== 'f_fb' && this.id !== 'f_tiktok' && this.id !== 'f_avatar' && this.type !== 'password') {
                         this.value = this.value.replace(/^[=+\-@]/, '');
                         this.value = this.value.replace(/[<>;'`{}\[\]\\]/g, '');
                     }
                     checkInputState(this); 
                 });
             });
+
+            // [MỚI]: Gắn bộ lọc thông minh cho Modal Edit
+            const fbInput = document.getElementById('f_fb');
+            if (fbInput) {
+                fbInput.addEventListener('blur', function() {
+                    this.value = formatSocialLink(this.value, 'facebook');
+                    checkInputState(this);
+                });
+            }
+            const tiktokInput = document.getElementById('f_tiktok');
+            if (tiktokInput) {
+                tiktokInput.addEventListener('blur', function() {
+                    this.value = formatSocialLink(this.value, 'tiktok');
+                    checkInputState(this);
+                });
+            }
+            const avatarInput = document.getElementById('f_avatar');
+            if (avatarInput) {
+                avatarInput.addEventListener('blur', function() {
+                    let v = this.value.trim();
+                    if (v !== "" && !/^https?:\/\//i.test(v)) this.value = 'https://' + v;
+                    checkInputState(this);
+                });
+                avatarInput.addEventListener('input', function() {
+                    if(/\s/.test(this.value)) this.value = this.value.replace(/\s/g, '');
+                });
+            }
         });
 
         function togglePass(id) {
