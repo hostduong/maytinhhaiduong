@@ -20,21 +20,24 @@
 
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
-        /* [MỚI]: CSS Nút Menu Kéo Thả (Assistive Touch) */
+        /* [NÂNG CẤP]: Nút Menu Kéo Thả (Assistive Touch) LED Cầu vồng */
         .assistive-btn {
-            position: fixed; top: 16px; left: 16px; z-index: 99999; /* Z-index siêu cao chống đè */
-            width: 46px; height: 46px; border-radius: 50%;
+            position: fixed; top: 16px; left: 16px; z-index: 999999; /* Z-index siêu cao tuyệt đối không bị đè */
+            width: 48px; height: 48px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: grab; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.3);
+            /* Transition để nhảy mượt mà khi Mở/Đóng menu */
+            transition: transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .assistive-btn:active { cursor: grabbing; transform: scale(0.95); opacity: 0.9; }
+        .assistive-btn:active { cursor: grabbing; transform: scale(0.92); opacity: 0.9; }
+        /* Viền LED 7 màu xoay vòng */
         .assistive-btn::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(#ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000);
             animation: spin-fast 3s linear infinite; z-index: 0; pointer-events: none;
         }
+        /* Phủ ruột trắng bên trong */
         .assistive-btn::after {
             content: ''; position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px;
             background: #ffffff; border-radius: 50%; z-index: 1; pointer-events: none;
@@ -93,7 +96,7 @@
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
             </div>
 
-            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                 <span class="text-lg w-6 text-center">🛡️</span> Thành Viên
             </a>
 
@@ -130,8 +133,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50 relative">
         
-        <div id="assistiveBtn" class="assistive-btn md:hidden" title="Mở Menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <div id="assistiveBtn" class="assistive-btn md:hidden" title="Mở/Đóng Menu">
+            <svg id="iconAssistive" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </div>
 
         <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
@@ -141,8 +144,8 @@
                 </button>
                 
                 <div id="titleState1" class="flex items-center">
-                    <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated">
-                        {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") }}Thành Viên
+                    <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase">
+                        {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
                         {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
                         {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
                         {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
@@ -163,8 +166,8 @@
             </div>
 
             <div id="titleState2" class="hidden absolute left-0 right-0 justify-center pointer-events-none z-0">
-                <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated pointer-events-auto">
-                    {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") }}Thành Viên
+                <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase pointer-events-auto">
+                    {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
                     {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
                     {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
                     {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
@@ -175,7 +178,7 @@
             </div>
         </header>
         
-        <main class="flex-1 overflow-y-auto px-4 pt-4 pb-4 md:px-8 md:pt-4 custom-scroll relative">
+        <main class="flex-1 overflow-y-auto px-4 pt-6 pb-4 md:px-8 md:pt-6 custom-scroll relative">
 {{ end }}
 
 {{ define "footer_master" }}
@@ -186,12 +189,33 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const fab = document.getElementById('assistiveBtn');
+            const iconSvg = document.getElementById('iconAssistive');
             
             if (window.innerWidth < 768) {
-                if (sidebar.classList.contains('-translate-x-full')) {
+                const isOpening = sidebar.classList.contains('-translate-x-full');
+                if (isOpening) {
+                    // ĐANG MỞ MENU
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
+                    if (fab) {
+                        // Đổi icon sang hình X
+                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>';
+                        // Tự động nhảy vào đúng vị trí của nút X (nếu chưa từng bị kéo đi)
+                        if (fab.dataset.isMoved !== 'true') {
+                            fab.style.left = '225px'; fab.style.top = '9px';
+                        }
+                    }
                 } else {
+                    // ĐANG TẮT MENU
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
+                    if (fab) {
+                        // Đổi icon lại thành Menu Hamburger
+                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>';
+                        // Tự động nhảy về góc trái trên cùng (nếu chưa từng bị kéo đi)
+                        if (fab.dataset.isMoved !== 'true') {
+                            fab.style.left = '16px'; fab.style.top = '16px';
+                        }
+                    }
                 }
             } else {
                 sidebar.classList.toggle('desktop-sidebar-collapsed');
@@ -213,11 +237,10 @@
             }
         }
 
-        // [MỚI]: LOGIC KÉO THẢ NÚT ASSISTIVE TOUCH TRÊN MOBILE
+        // --- BỘ LÕI ĐIỀU KHIỂN KÉO THẢ ASSISTIVE TOUCH ---
         const fab = document.getElementById('assistiveBtn');
         if (fab) {
-            let isDragging = false, startX, startY, startLeft, startTop;
-            let hasMoved = false; 
+            let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
 
             const onDragStart = (e) => {
                 isDragging = true; hasMoved = false;
@@ -225,7 +248,7 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 startX = clientX; startY = clientY;
                 startLeft = fab.offsetLeft; startTop = fab.offsetTop;
-                fab.style.transition = 'none'; 
+                fab.style.transition = 'none'; // Tắt hiệu ứng mượt để kéo cho nhạy
             };
 
             const onDragMove = (e) => {
@@ -234,22 +257,34 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 let dx = clientX - startX; let dy = clientY - startY;
                 
-                // Nếu di chuyển quá 5px thì xác nhận là Đang Kéo (không phải Click)
-                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMoved = true;
+                // Kéo vượt qua 8px thì xác nhận là Drag, không phải Click
+                if (Math.abs(dx) > 8 || Math.abs(dy) > 8) hasMoved = true;
                 
-                let newLeft = startLeft + dx; let newTop = startTop + dy;
-                // Giới hạn không cho nút văng ra khỏi màn hình
-                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - fab.offsetWidth));
-                newTop = Math.max(0, Math.min(newTop, window.innerHeight - fab.offsetHeight));
-                
-                fab.style.left = newLeft + 'px';
-                fab.style.top = newTop + 'px';
-                e.preventDefault(); 
+                if (hasMoved) {
+                    let newLeft = startLeft + dx; let newTop = startTop + dy;
+                    // Giới hạn để nút không bị văng ra khỏi màn hình
+                    newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - fab.offsetWidth));
+                    newTop = Math.max(0, Math.min(newTop, window.innerHeight - fab.offsetHeight));
+                    
+                    fab.style.left = newLeft + 'px';
+                    fab.style.top = newTop + 'px';
+                    e.preventDefault(); 
+                }
             };
 
-            const onDragEnd = () => {
+            const onDragEnd = (e) => {
+                if (!isDragging) return;
                 isDragging = false;
-                fab.style.transition = 'transform 0.2s ease, opacity 0.2s ease'; 
+                // Bật lại hiệu ứng mượt
+                fab.style.transition = 'transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
+                
+                if (hasMoved) {
+                    // Đánh dấu là người dùng đã tự tay di chuyển, hệ thống đừng can thiệp tự nhảy nữa
+                    fab.dataset.isMoved = 'true';
+                } else {
+                    // Phân biệt chính xác Touch (chạm) và Mouse (click)
+                    toggleSidebar();
+                }
             };
 
             // Gán sự kiện Chuột (Chuẩn PC giả lập)
@@ -258,14 +293,9 @@
             document.addEventListener('mouseup', onDragEnd);
             
             // Gán sự kiện Cảm ứng (Chuẩn Mobile)
-            fab.addEventListener('touchstart', onDragStart, {passive: false});
+            fab.addEventListener('touchstart', onDragStart, {passive: true});
             document.addEventListener('touchmove', onDragMove, {passive: false});
             document.addEventListener('touchend', onDragEnd);
-            
-            // Thông minh: Nếu kéo thì không Mở Menu, chỉ khi Bấm(Tap) mới mở
-            fab.addEventListener('click', (e) => {
-                if (hasMoved) { e.preventDefault(); } else { toggleSidebar(); }
-            });
         }
 
         function confirmLogout() {
