@@ -15,7 +15,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	
-	// CHỐT CHẶN 1: Tầng 3 (Cửa hàng) trở xuống KHÔNG CÓ CỬA vào đây
 	myLevel := core.LayCapBacVaiTro(masterShopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.Redirect(http.StatusFound, "/")
@@ -37,7 +36,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		if khCopy.MaKhachHang == "0000000000000000000" {
-			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 // Bot hệ thống
+			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
 		} else {
 			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
 				khCopy.StyleLevel, khCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme
@@ -64,7 +63,10 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
-		"TieuDe": "Core Team", "NhanVien": &meCopy, "DanhSach": listView, "DanhSachVaiTro": listVaiTro, 
+		"TieuDe": "Thành Viên", // [ĐÃ FIX]: Đổi từ Core Team thành "Thành Viên" chuẩn 100%
+		"NhanVien": &meCopy, 
+		"DanhSach": listView, 
+		"DanhSachVaiTro": listVaiTro, 
 	})
 }
 
@@ -193,7 +195,6 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Chưa chọn người nhận hợp lệ!"}); return
 	}
 
-	// [ĐÃ SỬA LỖI Ở ĐÂY]: Chỉ lấy senderID, bỏ việc gán TenNguoiGui và ChucVuNguoiGui
 	senderID := userID
 	if c.PostForm("send_as_bot") == "1" {
 		if bot, ok := core.LayKhachHang(shopID, "0000000000000000000"); ok {
@@ -206,7 +207,6 @@ func API_GuiTinNhanMaster(c *gin.Context) {
 	now := time.Now(); nowStr := now.In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
 	msgID := fmt.Sprintf("ALL_%d_%s", now.UnixNano(), senderID) 
 
-	// Ghi trực tiếp xuống Lõi không cần TenNguoiGui/ChucVuNguoiGui
 	core.ThemMoiTinNhan(shopID, &core.TinNhan{
 		MaTinNhan: msgID, LoaiTinNhan: "ALL", NguoiGuiID: senderID, NguoiNhanID: jsonIDs,       
 		TieuDe: tieuDe, NoiDung: noiDung, NgayTao: nowStr,
