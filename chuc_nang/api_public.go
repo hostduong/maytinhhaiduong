@@ -3,18 +3,14 @@ package chuc_nang
 import (
 	"net/http"
 	"strings"
-	data_pc "app/core/may_tinh"
-
+	
+	"app/core"
 	"github.com/gin-gonic/gin"
 )
 
-// API_LayDanhSachSanPham
 func API_LayDanhSachSanPham(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS] Quan trọng
-	
-	// Lấy danh sách của đúng Shop đó
-	danhSach := data_pc.LayDanhSachSanPham(shopID)
-	
+	shopID := c.GetString("SHOP_ID") 
+	danhSach := core.LayDanhSachSanPhamMayTinh(shopID)
 	c.JSON(http.StatusOK, gin.H{
 		"trang_thai": "thanh_cong",
 		"so_luong":   len(danhSach),
@@ -22,11 +18,9 @@ func API_LayDanhSachSanPham(c *gin.Context) {
 	})
 }
 
-// API_LayMenu (Tạo Menu động từ sản phẩm của Shop)
 func API_LayMenu(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
-	
-	dsSP := data_pc.LayDanhSachSanPham(shopID)
+	shopID := c.GetString("SHOP_ID") 
+	dsSP := core.LayDanhSachSanPhamMayTinh(shopID)
 	uniqueDM := make(map[string]bool)
 
 	for _, sp := range dsSP {
@@ -46,19 +40,14 @@ func API_LayMenu(c *gin.Context) {
 			"slug":         strings.ReplaceAll(strings.ToLower(dm), " ", "-"),
 		})
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"danh_muc": menu,
-		"cau_hinh": map[string]interface{}{}, 
-	})
+	c.JSON(http.StatusOK, gin.H{"danh_muc": menu, "cau_hinh": map[string]interface{}{}})
 }
 
-// API_ChiTietSanPham
 func API_ChiTietSanPham(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // [SAAS]
+	shopID := c.GetString("SHOP_ID")
 	id := c.Param("id")
 	
-	sp, tonTai := data_pc.LayChiTietSKU(shopID, id)
+	sp, tonTai := core.LayChiTietSKUMayTinh(shopID, id)
 	if !tonTai {
 		c.JSON(http.StatusNotFound, gin.H{"trang_thai": "loi", "thong_bao": "Không tìm thấy"})
 		return
