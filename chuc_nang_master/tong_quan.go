@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"app/core"
 	"github.com/gin-gonic/gin"
-	data_pc "app/core/may_tinh"
 )
 
 // ==========================================================
@@ -59,7 +58,7 @@ func API_NapLaiDuLieuMaster(c *gin.Context) {
 		core.NapDanhMuc(masterShopID)
 		core.NapThuongHieu(masterShopID)
 		core.NapBienLoiNhuan(masterShopID)
-		data_pc.NapDuLieu(masterShopID)
+		core.NapDuLieuMayTinh(masterShopID)
 		
 		core.HeThongDangBan = false
 	}()
