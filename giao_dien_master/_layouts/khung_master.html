@@ -20,31 +20,31 @@
 
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
-        /* [NÂNG CẤP]: Nút Menu Kéo Thả (Assistive Touch) LED Cầu vồng */
-        .assistive-btn {
-            position: fixed; top: 16px; left: 16px; z-index: 999999; /* Z-index siêu cao tuyệt đối không bị đè */
-            width: 48px; height: 48px; border-radius: 50%;
+        /* [ĐÃ NÂNG CẤP]: CSS dùng chung cho Nút Menu LED (Áp dụng cả PC và Mobile) */
+        .led-menu-btn {
+            position: relative; width: 48px; height: 48px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: grab; overflow: hidden;
-            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.3);
-            /* Transition để nhảy mượt mà khi Mở/Đóng menu */
-            transition: transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
         }
-        .assistive-btn:active { cursor: grabbing; transform: scale(0.92); opacity: 0.9; }
-        /* Viền LED 7 màu xoay vòng */
-        .assistive-btn::before {
+        .led-menu-btn::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(#ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000);
             animation: spin-fast 3s linear infinite; z-index: 0; pointer-events: none;
         }
-        /* Phủ ruột trắng bên trong */
-        .assistive-btn::after {
-            content: ''; position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px;
+        .led-menu-btn::after {
+            content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px;
             background: #ffffff; border-radius: 50%; z-index: 1; pointer-events: none;
         }
-        .assistive-btn svg { position: relative; z-index: 2; color: #475569; transition: color 0.2s; }
-        .assistive-btn:hover svg { color: #9333ea; }
+        .led-menu-btn svg { position: relative; z-index: 2; color: #475569; transition: color 0.2s; }
+        .led-menu-btn:hover svg { color: #9333ea; }
         @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Nút nổi (Kéo thả) dành riêng cho Mobile */
+        .assistive-floating {
+            position: fixed; top: 16px; left: 16px; z-index: 999999; cursor: grab;
+            transition: transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .assistive-floating:active { cursor: grabbing; transform: scale(0.92); opacity: 0.9; }
     </style>
 </head>
 <body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
@@ -55,7 +55,7 @@
         
         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
         
-        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20">
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20 transition" title="Đóng Menu">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
@@ -68,48 +68,70 @@
             </a>
         </div>
         
-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 relative z-10 custom-scroll">
-            <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
+        <nav class="flex-1 overflow-y-auto py-6 relative z-10 custom-scroll flex flex-col">
+            <div class="px-4 space-y-1.5 flex-1">
+                <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
 
-            <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">📊</span> Tổng Quan Master
-            </a>
-            
-            <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS
-            </a>
+                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">📊</span> Tổng Quan Master
+                </a>
+                
+                <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS
+                </a>
 
-            <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ
-            </a>
+                <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ
+                </a>
 
-            <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <div class="flex items-center gap-3">
-                    <span class="text-lg w-6 text-center">💬</span> Tin Nhắn
+                <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-6 text-center">💬</span> Tin Nhắn
+                    </div>
+                    {{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}
+                    <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>
+                    {{ end }}{{ end }}
+                </a>
+
+                <div class="mt-8 mb-3 px-3">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
                 </div>
-                {{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}
-                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>
-                {{ end }}{{ end }}
-            </a>
 
-            <div class="mt-8 mb-3 px-3">
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
+                <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">🛡️</span> Thành Viên
+                </a>
+
+                <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets
+                </a>
+
+                <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+                    <span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi
+                </a>
             </div>
 
-            <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">🛡️</span> Thành Viên
-            </a>
-
-            <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets
-            </a>
-
-            <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                <span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi
-            </a>
+            <div class="mt-8 md:hidden px-4 border-t border-slate-800/80 pt-6">
+                {{ if .NhanVien }}
+                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+                    {{ $avatar := .NhanVien.AnhDaiDien }}
+                    {{ if not $avatar }}
+                        {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}
+                    {{ end }}
+                    <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
+                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
+                    </div>
+                </div>
+                {{ end }}
+                <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    Đăng xuất
+                </button>
+            </div>
         </nav>
 
-        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10 shrink-0">
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10 shrink-0 hidden md:block">
             {{ if .NhanVien }}
             <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
                 {{ $avatar := .NhanVien.AnhDaiDien }}
@@ -123,7 +145,6 @@
                 </div>
             </div>
             {{ end }}
-
             <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 Đăng xuất
@@ -133,17 +154,18 @@
 
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50 relative">
         
-        <div id="assistiveBtn" class="assistive-btn md:hidden" title="Mở/Đóng Menu">
+        <div id="assistiveBtn" class="led-menu-btn assistive-floating md:hidden" title="Mở/Đóng Menu">
             <svg id="iconAssistive" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </div>
 
         <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
             <div class="flex items-center gap-4 relative z-10">
-                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition flex items-center justify-center group" title="Mở/Đóng Menu">
-                    <svg class="w-6 h-6 transition-transform group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                
+                <button onclick="toggleSidebar()" class="led-menu-btn shrink-0 transition-transform hover:scale-105" title="Mở/Đóng Menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
                 
-                <div id="titleState1" class="flex items-center">
+                <div id="titleState1" class="flex items-center ml-2">
                     <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase">
                         {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
                         {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
@@ -155,7 +177,7 @@
                     </h1>
                 </div>
                 
-                <div id="logoState2" class="hidden items-center">
+                <div id="logoState2" class="hidden items-center ml-2">
                     <a href="/master/tong-quan" class="flex items-center gap-2.5">
                         <div class="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-500/30">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -195,26 +217,17 @@
             if (window.innerWidth < 768) {
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
-                    // ĐANG MỞ MENU
+                    // MỞ MENU: Nút tự động nhảy vào tọa độ đè lên nút X của Sidebar
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-                    if (fab) {
-                        // Đổi icon sang hình X
-                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>';
-                        // Tự động nhảy vào đúng vị trí của nút X (nếu chưa từng bị kéo đi)
-                        if (fab.dataset.isMoved !== 'true') {
-                            fab.style.left = '225px'; fab.style.top = '9px';
-                        }
+                    if (fab && fab.dataset.isMoved !== 'true') {
+                        // Tọa độ tính toán chuẩn xác để đè lên nút X (top-4 right-4)
+                        fab.style.left = '222px'; fab.style.top = '10px'; 
                     }
                 } else {
-                    // ĐANG TẮT MENU
+                    // ĐÓNG MENU: Trả về vị trí gốc
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
-                    if (fab) {
-                        // Đổi icon lại thành Menu Hamburger
-                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>';
-                        // Tự động nhảy về góc trái trên cùng (nếu chưa từng bị kéo đi)
-                        if (fab.dataset.isMoved !== 'true') {
-                            fab.style.left = '16px'; fab.style.top = '16px';
-                        }
+                    if (fab && fab.dataset.isMoved !== 'true') {
+                        fab.style.left = '16px'; fab.style.top = '16px';
                     }
                 }
             } else {
@@ -237,7 +250,7 @@
             }
         }
 
-        // --- BỘ LÕI ĐIỀU KHIỂN KÉO THẢ ASSISTIVE TOUCH ---
+        // --- BỘ LÕI ĐIỀU KHIỂN KÉO THẢ ASSISTIVE TOUCH (MOBILE) ---
         const fab = document.getElementById('assistiveBtn');
         if (fab) {
             let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
@@ -248,7 +261,7 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 startX = clientX; startY = clientY;
                 startLeft = fab.offsetLeft; startTop = fab.offsetTop;
-                fab.style.transition = 'none'; // Tắt hiệu ứng mượt để kéo cho nhạy
+                fab.style.transition = 'none'; // Tắt mượt để kéo cho nhạy
             };
 
             const onDragMove = (e) => {
@@ -257,7 +270,7 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 let dx = clientX - startX; let dy = clientY - startY;
                 
-                // Kéo vượt qua 8px thì xác nhận là Drag, không phải Click
+                // Nếu vượt qua 8px thì xác nhận là Drag, không phải Click
                 if (Math.abs(dx) > 8 || Math.abs(dy) > 8) hasMoved = true;
                 
                 if (hasMoved) {
@@ -268,7 +281,7 @@
                     
                     fab.style.left = newLeft + 'px';
                     fab.style.top = newTop + 'px';
-                    e.preventDefault(); 
+                    e.preventDefault(); // Chống cuộn trang khi đang kéo
                 }
             };
 
@@ -279,20 +292,20 @@
                 fab.style.transition = 'transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
                 
                 if (hasMoved) {
-                    // Đánh dấu là người dùng đã tự tay di chuyển, hệ thống đừng can thiệp tự nhảy nữa
+                    // Nếu đã kéo thì đánh dấu, không tự động bay về nữa
                     fab.dataset.isMoved = 'true';
                 } else {
-                    // Phân biệt chính xác Touch (chạm) và Mouse (click)
+                    // Nếu chỉ chạm nhẹ (Click) thì mở/đóng Menu
                     toggleSidebar();
                 }
             };
 
-            // Gán sự kiện Chuột (Chuẩn PC giả lập)
+            // Gán sự kiện Chuột (Giả lập PC)
             fab.addEventListener('mousedown', onDragStart);
             document.addEventListener('mousemove', onDragMove, {passive: false});
             document.addEventListener('mouseup', onDragEnd);
             
-            // Gán sự kiện Cảm ứng (Chuẩn Mobile)
+            // Gán sự kiện Cảm ứng (Mobile)
             fab.addEventListener('touchstart', onDragStart, {passive: true});
             document.addEventListener('touchmove', onDragMove, {passive: false});
             document.addEventListener('touchend', onDragEnd);
