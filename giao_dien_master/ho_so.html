@@ -12,7 +12,7 @@
         input::-ms-reveal, input::-ms-clear { display: none; }
     </style>
 
-    <div class="max-w-5xl mx-auto pt-4 sm:pt-6 pb-8 mb-24 sm:mb-10">
+    <div class="max-w-5xl mx-auto pb-8 mb-24 sm:mb-10">
 
         <div class="animated-border-wrapper shadow-xl shadow-purple-100/50 mb-8">
             <div class="animated-border-inner overflow-hidden relative">
@@ -470,7 +470,7 @@
                 }).then(()=>location.reload()); 
             } else { 
                 Swal.fire({
-                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
                     html: `<div class="text-[15px] text-orange-900 font-medium px-4">${res.msg}</div>`,
                     customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
                     buttonsStyling: false, confirmButtonText: 'Đã hiểu'
