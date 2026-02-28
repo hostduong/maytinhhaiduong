@@ -364,6 +364,37 @@ func API_LuuSanPhamMaster(c *gin.Context) {
 // =============================================================
 type TagifyItem struct { Value string `json:"value"` }
 
+// =============================================================
+// API LẤY CHI TIẾT SẢN PHẨM (DÙNG CHO MODAL SỬA SPA)
+// =============================================================
+func API_LayChiTietSanPhamMaster(c *gin.Context) {
+	masterShopID := c.GetString("SHOP_ID")
+	vaiTro := c.GetString("USER_ROLE")
+
+	// Lớp khiên bảo vệ Master
+	if vaiTro != "quan_tri_he_thong" && vaiTro != "quan_tri_vien_he_thong" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không có quyền!"})
+		return
+	}
+
+	maSP := c.Param("ma_sp")
+	if maSP == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Thiếu mã sản phẩm!"})
+		return
+	}
+
+	core.KhoaHeThong.RLock()
+	listSKU := data_pc.CacheGroupSanPham[core.TaoCompositeKey(masterShopID, maSP)]
+	core.KhoaHeThong.RUnlock()
+
+	if len(listSKU) == 0 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy sản phẩm này trong hệ thống!"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": "ok", "data": listSKU})
+}
+
 func xuLyTags(raw string) string {
 	if raw == "" { return "" }
 	if !strings.Contains(raw, "[") { return raw }
