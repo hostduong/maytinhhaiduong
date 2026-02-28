@@ -13,8 +13,6 @@ import (
 	"app/chuc_nang"
 	"app/chuc_nang_admin"
 	admin_may_tinh "app/chuc_nang_admin/may_tinh"
-	master_may_tinh "app/chuc_nang_master/may_tinh"
-	data_pc "app/core/may_tinh"
 	"app/chuc_nang_master" 
 	"app/core"
 
@@ -38,7 +36,7 @@ func main() {
 	core.NapBienLoiNhuan("")	
 	core.NapKhachHang("")
 	core.NapTinNhan("")
-	data_pc.NapDuLieu("")
+	core.NapDuLieuMayTinh("")
 
 	router := gin.Default()
 	
@@ -93,9 +91,9 @@ func main() {
 		master.POST("/api/dong-bo-sheets", chuc_nang_master.API_NapLaiDuLieuMasterCoPIN)
 
 		// MODULE SẢN PHẨM NGÀNH MÁY TÍNH DÀNH RIÊNG CHO MASTER
-		master.GET("/san-pham", master_may_tinh.TrangQuanLySanPhamMaster)
-		master.GET("/api/may-tinh/detail/:ma_sp", master_may_tinh.API_LayChiTietSanPhamMaster)
-		master.POST("/api/may-tinh/save", master_may_tinh.API_LuuSanPhamMaster)
+		master.GET("/san-pham", chuc_nang_master.TrangQuanLyMayTinhMaster)
+		master.GET("/api/may-tinh/detail/:ma_sp", chuc_nang_master.API_LayChiTietMayTinhMaster)
+		master.POST("/api/may-tinh/save", chuc_nang_master.API_LuuMayTinhMaster)
 	}
 
 	// API Public
