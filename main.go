@@ -35,7 +35,7 @@ func main() {
 	core.NapBienLoiNhuan("")
 	core.NapKhachHang("")
 	core.NapTinNhan("")
-	core.NapDuLieuMayTinh("")
+	core.NapMayTinh("")
 
 	router := gin.Default()
 
