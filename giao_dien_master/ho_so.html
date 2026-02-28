@@ -352,31 +352,36 @@
         }
 
         // --- CƠ CHẾ AUTO-FORMAT LINK CHUYÊN NGHIỆP ---
-        function formatSocialLink(val, domain) {
-            val = val.trim().replace(/\s/g, ''); // Cắt sạch khoảng trắng rác
+        function formatSocialLink(val, type) {
+            val = val.trim().replace(/\s/g, ''); 
             if (val === "") return "";
             
-            // Tìm xem người dùng có gán đúng chuẩn Domain không
-            let regex = new RegExp(`^(https?:\\/\\/)?(www\\.)?${domain}\\/`, 'i');
-            let username = "";
+            let username = val;
             
-            if (regex.test(val)) {
-                // Nếu copy link đầy đủ -> Bóc tách lấy đúng Username
-                username = val.replace(regex, '').replace(/\/+$/, '');
-            } else if (!val.includes('/') && !val.includes(domain)) {
-                // Nếu chỉ gõ chữ trần (Ví dụ: duongyour)
-                username = val.replace(/\/+$/, '');
+            // Lọc bỏ Domain để lấy trần Username
+            if (type === 'facebook') {
+                username = username.replace(/^(https?:\/\/)?(www\.)?facebook\.com\//i, '');
+                username = username.replace(/^(https?:\/\/)?fb\.com\//i, '');
+            } else if (type === 'tiktok') {
+                username = username.replace(/^(https?:\/\/)?(www\.)?tiktok\.com\//i, '');
+                username = username.replace(/^(https?:\/\/)?vt\.tiktok\.com\//i, '');
             }
             
-            // Tái cấu trúc lại thành URL tuyệt đối theo chuẩn của bạn
-            if (username !== "") {
-                // Đặc biệt: Lột sạch dấu @ trước khi gép nối (Để về chuẩn tiktok.com/username)
-                if (username.startsWith('@')) username = username.substring(1);
-                return `https://www.${domain}/${username}/`;
-            }
+            // Xóa query param và gạch chéo ở đuôi
+            username = username.split('?')[0];
+            username = username.replace(/\/+$/, '');
             
-            // Fallback: Lỡ nhập domain khác thì gán tạm https:// cho đúng thẻ
-            if (!/^https?:\/\//i.test(val)) val = 'https://' + val;
+            // Tạm thời gỡ dấu @ ra nếu có để thống nhất
+            if (username.startsWith('@')) username = username.substring(1);
+
+            if (username === "") return val;
+
+            if (type === 'facebook') {
+                return `https://www.facebook.com/${username}/`;
+            } else if (type === 'tiktok') {
+                // TikTok BẮT BUỘC phải có @ trước Username thì mới không bị lỗi 404
+                return `https://www.tiktok.com/@${username}`;
+            }
             return val;
         }
 
@@ -426,7 +431,7 @@
         }
 
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
-        // URL cho phép rộng để chứa form Auto-formatter
+        // URL cho phép rộng để form Auto-formatter làm việc
         const regexUrl  = { char: /[\s]/, full: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}.*$/i };
         const regexNum  = { char: /[^0-9]/, full: /^[0-9]+$/ };
         const regexPass = { char: /[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/, full: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ };
@@ -451,7 +456,7 @@
             let el = document.getElementById(id);
             let val = el.value;
 
-            // Dọn liền tay rác khoảng trắng khi paste link
+            // Chống báo lỗi sai khi paste link dính khoảng trắng
             if ((id === 'newFb' || id === 'newTiktok' || id === 'newAvatar') && /\s/.test(val)) {
                 val = val.replace(/\s/g, '');
                 el.value = val;
@@ -473,12 +478,12 @@
             let val = el.value.trim(); 
             if (val === "") { setError(id, errId, false); return; } 
             
-            // [THỰC THI AUTO-FORMATTER] Tự động biến đổi Username/Link lỡ cỡ thành Full chuẩn
+            // [THỰC THI AUTO-FORMATTER]
             if (id === 'newFb') {
-                val = formatSocialLink(val, 'facebook.com');
+                val = formatSocialLink(val, 'facebook');
                 el.value = val;
             } else if (id === 'newTiktok') {
-                val = formatSocialLink(val, 'tiktok.com');
+                val = formatSocialLink(val, 'tiktok');
                 el.value = val;
             } else if (id === 'newAvatar') {
                 if (!/^https?:\/\//i.test(val)) {
