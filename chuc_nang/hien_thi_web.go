@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"app/core"
-	data_pc "app/core/may_tinh" // Lõi PC
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -60,7 +59,7 @@ func TrangChu(c *gin.Context) {
 	}
 
 	// 2. NGÃ RẼ 2: DÀNH CHO CỬA HÀNG B2C (VD: cuahang.99k.vn)
-	danhSachSP := data_pc.LayDanhSachSanPham(shopID) 
+	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID) 
 	
 	tenantVal, exists := c.Get("TENANT_INFO")
 	var cauHinh core.UserConfig
@@ -84,7 +83,7 @@ func ChiTietSanPham(c *gin.Context) {
 	theme := c.GetString("THEME") // [SAAS] Lấy theme động
 	id := c.Param("id")
 	
-	sp, tonTai := data_pc.LayChiTietSKU(shopID, id)
+	sp, tonTai := core.LayChiTietSKUMayTinh(shopID, id)
 	if !tonTai { c.String(http.StatusNotFound, "Không tìm thấy!"); return }
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
