@@ -141,7 +141,7 @@
                                 
                                 <div class="md:col-span-2">
                                     <label class="form-lbl">Link Ảnh Đại Diện (Avatar URL)</label>
-                                    <input type="url" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false">
+                                    <input type="text" id="newAvatar" value="{{ .NhanVien.AnhDaiDien }}" placeholder="https://..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false">
                                 </div>
 
                                 <div>
@@ -180,9 +180,17 @@
                                         <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="newZalo" value="{{ .NhanVien.MangXaHoi.Zalo }}" class="input-premium font-bold text-slate-800"></div>
                                         <div></div>
                                         
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="url" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="https://facebook.com/..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false"><p id="err_newFb" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                        <div class="sm:col-span-2">
+                                            <label class="form-lbl text-blue-600">Link Facebook</label>
+                                            <input type="text" id="newFb" value="{{ .NhanVien.MangXaHoi.Facebook }}" placeholder="Nhập link hoặc username..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false">
+                                            <p id="err_newFb" class="error-text">Định dạng link không hợp lệ.</p>
+                                        </div>
                                         
-                                        <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link TikTok</label><input type="url" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="https://tiktok.com/@..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false"><p id="err_newTiktok" class="error-text">Link phải bắt đầu bằng http:// hoặc https://</p></div>
+                                        <div class="sm:col-span-2">
+                                            <label class="form-lbl text-blue-600">Link TikTok</label>
+                                            <input type="text" id="newTiktok" value="{{ .NhanVien.MangXaHoi.Tiktok }}" placeholder="Nhập link hoặc username..." class="input-premium font-mono text-[13px] text-purple-600" spellcheck="false">
+                                            <p id="err_newTiktok" class="error-text">Định dạng link không hợp lệ.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -333,6 +341,9 @@
         if(inputPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
         if(inputZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
+        /* =========================================================
+           TƯỜNG LỬA (FIREWALL) & GIAO DIỆN INPUT THÔNG MINH
+           ========================================================= */
         function checkInputState(input) {
             if(!input.classList.contains('input-error')) {
                 if(input.value.trim() !== "") input.classList.add('has-data');
@@ -340,11 +351,40 @@
             }
         }
 
+        // --- CƠ CHẾ AUTO-FORMAT LINK CHUYÊN NGHIỆP ---
+        function formatSocialLink(val, domain) {
+            val = val.trim().replace(/\s/g, ''); // Cắt sạch khoảng trắng rác
+            if (val === "") return "";
+            
+            // Tìm xem người dùng có gán đúng chuẩn Domain không
+            let regex = new RegExp(`^(https?:\\/\\/)?(www\\.)?${domain}\\/`, 'i');
+            let username = "";
+            
+            if (regex.test(val)) {
+                // Nếu copy link đầy đủ -> Bóc tách lấy đúng Username
+                username = val.replace(regex, '').replace(/\/+$/, '');
+            } else if (!val.includes('/') && !val.includes(domain)) {
+                // Nếu chỉ gõ chữ trần (Ví dụ: duongyour)
+                username = val.replace(/\/+$/, '');
+            }
+            
+            // Tái cấu trúc lại thành URL tuyệt đối theo chuẩn của bạn
+            if (username !== "") {
+                // Đặc biệt: Lột sạch dấu @ trước khi gép nối (Để về chuẩn tiktok.com/username)
+                if (username.startsWith('@')) username = username.substring(1);
+                return `https://www.${domain}/${username}/`;
+            }
+            
+            // Fallback: Lỡ nhập domain khác thì gán tạm https:// cho đúng thẻ
+            if (!/^https?:\/\//i.test(val)) val = 'https://' + val;
+            return val;
+        }
+
         function initSmartInputs() {
             document.querySelectorAll('.input-premium').forEach(input => {
                 checkInputState(input); 
                 input.addEventListener('input', function() {
-                    if (this.type !== 'email' && this.type !== 'url' && this.type !== 'password' && this.id !== 'newFb' && this.id !== 'newTiktok') {
+                    if (this.type !== 'email' && this.id !== 'newFb' && this.id !== 'newTiktok' && this.id !== 'newAvatar' && this.type !== 'password') {
                         this.value = this.value.replace(/^[=+\-@]/, '');
                         this.value = this.value.replace(/[<>;'`{}\[\]\\]/g, '');
                     }
@@ -386,7 +426,8 @@
         }
 
         const regexName = { char: /[^\p{L}\s]/u, full: /^[\p{L}\s]{6,50}$/u };
-        const regexUrl  = { char: /[\s]/, full: /^https?:\/\/.+/ };
+        // URL cho phép rộng để chứa form Auto-formatter
+        const regexUrl  = { char: /[\s]/, full: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}.*$/i };
         const regexNum  = { char: /[^0-9]/, full: /^[0-9]+$/ };
         const regexPass = { char: /[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/, full: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ };
         const regexPin  = { char: /[^0-9]/, full: /^\d{8}$/ };
@@ -407,23 +448,56 @@
         }
 
         function handleInput(id, rules, errId) {
-            const val = document.getElementById(id).value;
+            let el = document.getElementById(id);
+            let val = el.value;
+
+            // Dọn liền tay rác khoảng trắng khi paste link
+            if ((id === 'newFb' || id === 'newTiktok' || id === 'newAvatar') && /\s/.test(val)) {
+                val = val.replace(/\s/g, '');
+                el.value = val;
+            }
+
             if (val !== "" && rules.char.test(val)) setError(id, errId, true);
             else { 
-                document.getElementById(id).classList.remove('input-error'); 
+                el.classList.remove('input-error'); 
                 if(document.getElementById(errId)) document.getElementById(errId).classList.remove('show'); 
-                checkInputState(document.getElementById(id));
+                checkInputState(el);
                 if(id.startsWith("new") && !id.includes("Pass") && !id.includes("Pin")) checkInfoBtn(); 
                 if(id.includes("Pass")) checkPassBtn(); 
                 if(id.includes("Pin")) checkPinBtn(); 
             }
         }
-        function handleBlur(id, rules, errId) { const val = document.getElementById(id).value.trim(); if (val === "") return; if (!rules.full.test(val)) setError(id, errId, true); else setError(id, errId, false); }
+        
+        function handleBlur(id, rules, errId) { 
+            let el = document.getElementById(id);
+            let val = el.value.trim(); 
+            if (val === "") { setError(id, errId, false); return; } 
+            
+            // [THỰC THI AUTO-FORMATTER] Tự động biến đổi Username/Link lỡ cỡ thành Full chuẩn
+            if (id === 'newFb') {
+                val = formatSocialLink(val, 'facebook.com');
+                el.value = val;
+            } else if (id === 'newTiktok') {
+                val = formatSocialLink(val, 'tiktok.com');
+                el.value = val;
+            } else if (id === 'newAvatar') {
+                if (!/^https?:\/\//i.test(val)) {
+                    val = 'https://' + val;
+                    el.value = val;
+                }
+            }
+
+            if (!rules.full.test(val)) setError(id, errId, true); 
+            else setError(id, errId, false); 
+        }
 
         const fields = [
-            { id: 'newName', rule: regexName, err: 'err_newName' }, { id: 'newFb', rule: regexUrl, err: 'err_newFb' },
-            { id: 'newTiktok', rule: regexUrl, err: 'err_newTiktok' }, { id: 'newTax', rule: regexNum, err: 'err_newTax' },
-            { id: 'newPass', rule: regexPass, err: 'err_newPass' }, { id: 'newPin', rule: regexPin, err: 'err_newPin' }
+            { id: 'newName', rule: regexName, err: 'err_newName' }, 
+            { id: 'newFb', rule: regexUrl, err: 'err_newFb' },
+            { id: 'newTiktok', rule: regexUrl, err: 'err_newTiktok' }, 
+            { id: 'newTax', rule: regexNum, err: 'err_newTax' },
+            { id: 'newPass', rule: regexPass, err: 'err_newPass' }, 
+            { id: 'newPin', rule: regexPin, err: 'err_newPin' }
         ];
         fields.forEach(f => {
             const el = document.getElementById(f.id);
