@@ -63,7 +63,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
-		"TieuDe": "Thành Viên", // [ĐÃ FIX]: Đổi từ Core Team thành "Thành Viên" chuẩn 100%
+		"TieuDe": "Thành Viên",
 		"NhanVien": &meCopy, 
 		"DanhSach": listView, 
 		"DanhSachVaiTro": listVaiTro, 
@@ -74,6 +74,7 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID") 
 	
+	// Ở đây đã chặn cứng: Chỉ có Level 0, 1, 2 mới lọt được qua khe cửa này
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Chỉ Quản trị Lõi 99K mới được sửa hồ sơ tại đây!"})
@@ -98,6 +99,7 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 	targetLevel := core.LayCapBacVaiTro(shopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
 	newRole := c.PostForm("vai_tro")
 
+	// Bảo vệ ID 001 tuyệt đối
 	if maKH == "0000000000000000001" && userID != "0000000000000000001" {
 		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT: Không ai được chạm vào hồ sơ Người Sáng Lập!"})
 		return
@@ -106,10 +108,17 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "BẢO MẬT: Chỉ có duy nhất 1 vị trí Quản trị hệ thống (ID 001)!"})
 		return
 	}
-	if userID != maKH && myLevel >= targetLevel {
-		c.JSON(200, gin.H{"status": "error", "msg": "Lỗi: Bạn không có quyền chỉnh sửa cấp trên hoặc người ngang hàng!"})
-		return
+
+	// [ĐÃ SỬA]: MIỄN TRỪ KIỂM TRA CẤP BẬC NẾU TÀI KHOẢN BỊ SỬA LÀ BOT (ID 000)
+	if maKH != "0000000000000000000" {
+		// Dành cho người dùng thật: Luật "Không được sửa người ngang hàng hoặc cấp cao hơn"
+		if userID != maKH && myLevel >= targetLevel {
+			c.JSON(200, gin.H{"status": "error", "msg": "Lỗi: Bạn không có quyền chỉnh sửa cấp trên hoặc người ngang hàng!"})
+			return
+		}
 	}
+
+	// Chặn việc tự phong tước hoặc nâng quyền người khác cao hơn mình
 	if newRole != "" && newRole != kh.VaiTroQuyenHan {
 		newLevel := core.LayCapBacVaiTro(shopID, "", newRole)
 		if newLevel <= myLevel && myLevel != 0 {
@@ -117,6 +126,7 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 			return
 		}
 	}
+
 	if maKH == userID && c.PostForm("trang_thai") == "0" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Hệ thống bảo vệ: Không thể tự khóa tài khoản chính mình!"})
 		return
