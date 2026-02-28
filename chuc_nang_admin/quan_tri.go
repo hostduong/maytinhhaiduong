@@ -5,7 +5,6 @@ import (
 	"time"
 	"app/core"
 	"github.com/gin-gonic/gin"
-	data_pc "app/core/may_tinh"
 )
 
 // Struct hiển thị
@@ -57,7 +56,7 @@ func API_NapLaiDuLieu(c *gin.Context) {
 		core.NapDanhMuc(shopID)   
 		core.NapThuongHieu(shopID)
 		core.NapBienLoiNhuan(shopID)
-		data_pc.NapDuLieu(shopID) // Nạp dữ liệu ngành máy tính
+		core.NapDuLieuMayTinh(shopID)
 		core.NapKhachHang(shopID)
 		
 		core.HeThongDangBan = false
@@ -78,7 +77,7 @@ func tinhToanThongKe(shopID string) DuLieuDashboard {
 	defer core.KhoaHeThong.RUnlock()
 
 	// Đếm số lượng trong Shop
-	kq.TongSanPham = len(data_pc.LayDanhSachSanPham(shopID))
+	kq.TongSanPham = len(core.LayDanhSachSanPhamMayTinh(shopID))
 	kq.TongKhachHang = len(core.LayDanhSachKhachHang(shopID))
 	
 	kq.TongDoanhThu = 0
