@@ -66,18 +66,48 @@ func XuLyDangNhap(c *gin.Context) {
 	
 	expTime := time.Now().Add(thoiGianSong).Unix()
 	maxAge  := int(thoiGianSong.Seconds())
+    nowUnix := time.Now().Unix()
 
 	core.KhoaHeThong.Lock()
 	if kh.RefreshTokens == nil {
 		kh.RefreshTokens = make(map[string]core.TokenInfo)
 	}
 	
+    // 1. DỌN DẸP SESSION ĐÃ HẾT HẠN TRƯỚC
+    for key, info := range kh.RefreshTokens {
+        if info.ExpiresAt < nowUnix {
+            delete(kh.RefreshTokens, key)
+        }
+    }
+
+    // 2. GIỚI HẠN THIẾT BỊ (CHỐNG TRÀN Ô GOOGLE SHEET)
+    // Giới hạn 5 thiết bị đăng nhập cùng lúc
+    const MaxDevices = 5
+    if len(kh.RefreshTokens) >= MaxDevices {
+        var oldestKey string
+        var oldestTime int64 = 1<<63 - 1 // Max int64
+        
+        // Tìm thiết bị có thời gian hết hạn gần nhất (cũ nhất)
+        for key, info := range kh.RefreshTokens {
+            if info.ExpiresAt < oldestTime {
+                oldestTime = info.ExpiresAt
+                oldestKey = key
+            }
+        }
+        // Xóa thiết bị cũ nhất
+        if oldestKey != "" {
+            delete(kh.RefreshTokens, oldestKey)
+        }
+    }
+
+    // 3. THÊM SESSION MỚI
 	kh.RefreshTokens[sessionID] = core.TokenInfo{
 		DeviceName: userAgent,
 		ExpiresAt:  expTime,
 	}
 	core.KhoaHeThong.Unlock()
 	
+    // 4. GHI XUỐNG GOOGLE SHEET
 	go func() {
 		sID := kh.SpreadsheetID
 		if sID == "" { sID = shopID } 
