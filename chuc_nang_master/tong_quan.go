@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"app/core"
 	"github.com/gin-gonic/gin"
-	ata_pc "app/core/may_tinh"
+	data_pc "app/core/may_tinh"
 )
 
 // ==========================================================
