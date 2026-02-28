@@ -20,11 +20,12 @@
 
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
-        /* [ĐÃ NÂNG CẤP]: CSS dùng chung cho Nút Menu LED (Áp dụng cả PC và Mobile) */
+        /* Nút Menu LED dùng chung */
         .led-menu-btn {
             position: relative; width: 48px; height: 48px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+            touch-action: none; /* [ĐÃ THÊM]: Chống lag, cuộn nhầm khi chạm trên Mobile */
         }
         .led-menu-btn::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
@@ -39,12 +40,12 @@
         .led-menu-btn:hover svg { color: #9333ea; }
         @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Nút nổi (Kéo thả) dành riêng cho Mobile */
+        /* Kéo thả trên Mobile */
         .assistive-floating {
             position: fixed; top: 16px; left: 16px; z-index: 999999; cursor: grab;
-            transition: transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.15s ease, opacity 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .assistive-floating:active { cursor: grabbing; transform: scale(0.92); opacity: 0.9; }
+        .assistive-floating:active { cursor: grabbing; transform: scale(0.9); opacity: 0.9; }
     </style>
 </head>
 <body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
@@ -55,10 +56,6 @@
         
         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
         
-        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20 transition" title="Đóng Menu">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-
         <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
             <a href="/master/tong-quan" class="text-xl font-black text-white tracking-widest flex items-center gap-3 group">
                 <div class="w-9 h-9 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-900/50 group-hover:scale-105 transition transform">
@@ -217,17 +214,21 @@
             if (window.innerWidth < 768) {
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
-                    // MỞ MENU: Nút tự động nhảy vào tọa độ đè lên nút X của Sidebar
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-                    if (fab && fab.dataset.isMoved !== 'true') {
-                        // Tọa độ tính toán chuẩn xác để đè lên nút X (top-4 right-4)
-                        fab.style.left = '222px'; fab.style.top = '10px'; 
+                    if (fab) {
+                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>';
+                        // Nhảy chuẩn xác vào đúng vị trí góc phải trên cùng (như nút X cũ)
+                        if (fab.dataset.isMoved !== 'true') {
+                            fab.style.left = '218px'; fab.style.top = '16px'; 
+                        }
                     }
                 } else {
-                    // ĐÓNG MENU: Trả về vị trí gốc
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
-                    if (fab && fab.dataset.isMoved !== 'true') {
-                        fab.style.left = '16px'; fab.style.top = '16px';
+                    if (fab) {
+                        if (iconSvg) iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>';
+                        if (fab.dataset.isMoved !== 'true') {
+                            fab.style.left = '16px'; fab.style.top = '16px';
+                        }
                     }
                 }
             } else {
@@ -250,7 +251,7 @@
             }
         }
 
-        // --- BỘ LÕI ĐIỀU KHIỂN KÉO THẢ ASSISTIVE TOUCH (MOBILE) ---
+        // --- BỘ LÕI ĐIỀU KHIỂN KÉO THẢ TỐI ƯU CẢM ỨNG (SIÊU NHẠY) ---
         const fab = document.getElementById('assistiveBtn');
         if (fab) {
             let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
@@ -261,7 +262,7 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 startX = clientX; startY = clientY;
                 startLeft = fab.offsetLeft; startTop = fab.offsetTop;
-                fab.style.transition = 'none'; // Tắt mượt để kéo cho nhạy
+                fab.style.transition = 'none'; 
             };
 
             const onDragMove = (e) => {
@@ -270,42 +271,38 @@
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 let dx = clientX - startX; let dy = clientY - startY;
                 
-                // Nếu vượt qua 8px thì xác nhận là Drag, không phải Click
-                if (Math.abs(dx) > 8 || Math.abs(dy) > 8) hasMoved = true;
+                if (Math.abs(dx) > 6 || Math.abs(dy) > 6) hasMoved = true;
                 
                 if (hasMoved) {
                     let newLeft = startLeft + dx; let newTop = startTop + dy;
-                    // Giới hạn để nút không bị văng ra khỏi màn hình
                     newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - fab.offsetWidth));
                     newTop = Math.max(0, Math.min(newTop, window.innerHeight - fab.offsetHeight));
                     
                     fab.style.left = newLeft + 'px';
                     fab.style.top = newTop + 'px';
-                    e.preventDefault(); // Chống cuộn trang khi đang kéo
+                    if (e.cancelable) e.preventDefault(); 
                 }
             };
 
             const onDragEnd = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                // Bật lại hiệu ứng mượt
-                fab.style.transition = 'transform 0.2s ease, opacity 0.2s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
+                fab.style.transition = 'transform 0.15s ease, opacity 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1)'; 
                 
                 if (hasMoved) {
-                    // Nếu đã kéo thì đánh dấu, không tự động bay về nữa
                     fab.dataset.isMoved = 'true';
                 } else {
-                    // Nếu chỉ chạm nhẹ (Click) thì mở/đóng Menu
+                    // Chạm cực nhạy, xóa luôn event Click mặc định gây trễ 300ms
+                    if (e && e.cancelable) e.preventDefault(); 
                     toggleSidebar();
                 }
             };
 
-            // Gán sự kiện Chuột (Giả lập PC)
             fab.addEventListener('mousedown', onDragStart);
             document.addEventListener('mousemove', onDragMove, {passive: false});
             document.addEventListener('mouseup', onDragEnd);
             
-            // Gán sự kiện Cảm ứng (Mobile)
+            // Xử lý Touch Mobile cực nhạy
             fab.addEventListener('touchstart', onDragStart, {passive: true});
             document.addEventListener('touchmove', onDragMove, {passive: false});
             document.addEventListener('touchend', onDragEnd);
