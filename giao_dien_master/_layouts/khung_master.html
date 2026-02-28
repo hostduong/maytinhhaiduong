@@ -38,7 +38,7 @@
         }
         @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* HIỆU ỨNG CHỮ 99K "NHỊP THỞ CHẬM" (GPU Accelerated) */
+        /* HIỆU ỨNG CHỮ 99K "NHỊP THỞ CHẬM" */
         .text-99k-anim {
             position: relative; z-index: 2; user-select: none; pointer-events: none;
             font-size: 15px; font-weight: 900; letter-spacing: -0.5px;
@@ -58,13 +58,63 @@
         /* Khung định hình Nút nổi kéo thả mượt mà */
         .assistive-floating {
             position: fixed; z-index: 999999; cursor: grab;
-            transition: transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: left, top, transform;
+        }
+        /* Phải delay transition để chống giật chớp nhoáng khi ấn F5 tải trang */
+        .assistive-floating.fab-ready {
+            transition: transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .assistive-floating:active { cursor: grabbing; transform: scale(0.92); }
     </style>
 </head>
 <body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
+
+    <div id="assistiveBtnMobile" class="led-menu-btn assistive-floating drag-fab md:hidden" title="Mở/Đóng Menu" style="left: 16px; top: 16px;">
+        <span class="text-99k-anim">99K</span>
+    </div>
+
+    <div id="assistiveBtnPC" class="led-menu-btn assistive-floating drag-fab hidden md:flex" title="Mở/Đóng Menu" style="left: 32px; top: 16px;">
+        <span class="text-99k-anim">99K</span>
+    </div>
+
+    <script>
+        (function() {
+            function applySavedPosition(id, defaultL, defaultT) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var saved = localStorage.getItem('fab_pos_' + id);
+                if (saved) {
+                    try {
+                        var pos = JSON.parse(saved);
+                        var l = parseInt(pos.left);
+                        var t = parseInt(pos.top);
+                        // Giới hạn để không kẹt viền
+                        var maxW = window.innerWidth - 50; 
+                        var maxH = window.innerHeight - 50;
+                        
+                        // [CẢI TIẾN 3]: Bức tường vật lý, ném về mặc định nếu dính lỗi âm hoặc ngoài màn
+                        if (isNaN(l) || isNaN(t) || l < 0 || t < 0 || l > maxW || t > maxH) {
+                            el.style.left = defaultL + 'px';
+                            el.style.top = defaultT + 'px';
+                            localStorage.removeItem('fab_pos_' + id); // Xóa rác lỗi
+                        } else {
+                            el.style.left = l + 'px';
+                            el.style.top = t + 'px';
+                            el.dataset.isMoved = 'true';
+                        }
+                    } catch(e) {
+                        el.style.left = defaultL + 'px';
+                        el.style.top = defaultT + 'px';
+                    }
+                } else {
+                    el.style.left = defaultL + 'px';
+                    el.style.top = defaultT + 'px';
+                }
+            }
+            applySavedPosition('assistiveBtnMobile', 16, 16);
+            applySavedPosition('assistiveBtnPC', 32, 16);
+        })();
+    </script>
 
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 md:hidden" onclick="toggleSidebar()"></div>
 
@@ -131,19 +181,11 @@
     </aside>
 
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50 relative">
-        
-        <div id="assistiveBtnMobile" class="led-menu-btn assistive-floating drag-fab md:hidden" title="Mở/Đóng Menu" style="left: 16px; top: 16px;">
-            <span class="text-99k-anim">99K</span>
-        </div>
 
         <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
             <div class="flex items-center gap-4 relative z-10">
                 
                 <div class="w-12 h-12 shrink-0"></div>
-
-                <div id="assistiveBtnPC" class="led-menu-btn assistive-floating drag-fab hidden md:flex" title="Mở/Đóng Menu" style="left: 32px; top: 16px;">
-                    <span class="text-99k-anim">99K</span>
-                </div>
                 
                 <div id="titleState1" class="flex items-center ml-2">
                     <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase">
@@ -188,6 +230,13 @@
     </div>
 
     <script>
+        // Mở class mượt mà sau khi DOM xong, dứt điểm lỗi giật nút
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.assistive-floating').forEach(el => el.classList.add('fab-ready'));
+            }, 50);
+        });
+
         function toggleSidebar() {
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -197,9 +246,9 @@
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-                    // Tự động nhảy vào đúng vị trí góc phải trên cùng
+                    // Tự động nhảy vào đúng vị trí góc phải trên cùng (chỗ nút X) nếu chưa bị kéo đi
                     if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
-                        fabMobile.style.left = '215px'; fabMobile.style.top = '15px'; 
+                        fabMobile.style.left = '218px'; fabMobile.style.top = '16px'; 
                     }
                 } else {
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
@@ -221,7 +270,7 @@
             }
         }
 
-        // --- CƠ CHẾ KÉO THẢ NHẸ NHÀNG, KHÔNG TẠO RÁC DOM ---
+        // --- CƠ CHẾ KÉO THẢ TỐI ƯU ---
         let currentDraggingFab = null;
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
 
@@ -232,6 +281,8 @@
             let clientY = e.touches ? e.touches[0].clientY : e.clientY;
             startX = clientX; startY = clientY;
             startLeft = fab.offsetLeft; startTop = fab.offsetTop;
+            
+            // Xóa inline transition để bám chuột tức thì
             fab.style.transition = 'none'; 
         };
 
@@ -245,13 +296,12 @@
             
             if (hasMoved) {
                 let newLeft = startLeft + dx; let newTop = startTop + dy;
-                // Giới hạn để nút không bay ra khỏi viền màn hình
+                // Khóa trong màn hình
                 newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - currentDraggingFab.offsetWidth));
                 newTop = Math.max(0, Math.min(newTop, window.innerHeight - currentDraggingFab.offsetHeight));
                 
                 currentDraggingFab.style.left = newLeft + 'px';
                 currentDraggingFab.style.top = newTop + 'px';
-
                 if (e.cancelable) e.preventDefault(); 
             }
         };
@@ -262,7 +312,8 @@
             let fab = currentDraggingFab;
             currentDraggingFab = null;
 
-            fab.style.transition = 'transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
+            // Xóa bỏ style block để fallback lại CSS class .fab-ready
+            fab.style.transition = ''; 
             
             if (hasMoved) {
                 fab.dataset.isMoved = 'true';
@@ -273,21 +324,8 @@
             }
         };
 
-        // Gán sự kiện và Khôi phục vị trí cũ
+        // Gán sự kiện cho Nút kéo thả
         document.querySelectorAll('.drag-fab').forEach(fab => {
-            const savedPos = localStorage.getItem('fab_pos_' + fab.id);
-            if (savedPos) {
-                try {
-                    const pos = JSON.parse(savedPos);
-                    let l = parseInt(pos.left); let t = parseInt(pos.top);
-                    if (!isNaN(l) && !isNaN(t)) {
-                        l = Math.max(0, Math.min(l, window.innerWidth - 50));
-                        t = Math.max(0, Math.min(t, window.innerHeight - 50));
-                        fab.style.left = l + 'px'; fab.style.top = t + 'px';
-                        fab.dataset.isMoved = 'true';
-                    }
-                } catch(e) {}
-            }
             fab.addEventListener('mousedown', (e) => onDragStart(e, fab));
             fab.addEventListener('touchstart', (e) => onDragStart(e, fab), {passive: true});
         });
@@ -297,12 +335,24 @@
         document.addEventListener('touchmove', onDragMove, {passive: false});
         document.addEventListener('touchend', onDragEnd);
 
+        // Gom nút khi màn hình bị thu nhỏ quá mức
         window.addEventListener('resize', () => {
             document.querySelectorAll('.drag-fab').forEach(fab => {
                 if (fab.dataset.isMoved === 'true') {
                     let l = parseInt(fab.style.left); let t = parseInt(fab.style.top);
-                    if (l > window.innerWidth - 50) fab.style.left = (window.innerWidth - 50) + 'px';
-                    if (t > window.innerHeight - 50) fab.style.top = (window.innerHeight - 50) + 'px';
+                    let maxL = window.innerWidth - 50; let maxT = window.innerHeight - 50;
+                    let changed = false;
+                    
+                    if (l < 0) { l = 0; changed = true; }
+                    if (t < 0) { t = 0; changed = true; }
+                    if (l > maxL) { l = maxL; changed = true; }
+                    if (t > maxT) { t = maxT; changed = true; }
+                    
+                    if(changed) {
+                        fab.style.left = l + 'px';
+                        fab.style.top = t + 'px';
+                        localStorage.setItem('fab_pos_' + fab.id, JSON.stringify({ left: l + 'px', top: t + 'px' }));
+                    }
                 }
             });
         });
