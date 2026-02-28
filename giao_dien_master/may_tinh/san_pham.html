@@ -1,0 +1,286 @@
+{{ define "master_may_tinh_san_pham" }}
+    {{ template "header_master" . }}
+
+    <div class="max-w-7xl mx-auto pb-8 mb-24 sm:mb-10">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-4">
+            <div class="relative w-full sm:w-96 group">
+                <div class="absolute inset-0 bg-purple-500/10 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
+                <input type="text" id="searchSP" placeholder="Tìm tên, mã sản phẩm, SKU..." class="relative w-full pl-12 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm placeholder-slate-400">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <button onclick="openModalSP('')" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-black shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                Thêm Sản Phẩm 
+            </button>
+        </div>
+
+        <div class="animated-border-wrapper shadow-xl shadow-purple-100/50">
+            <div class="animated-border-inner flex flex-col w-full relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
+                
+                <div class="table-scroll w-full relative z-10">
+                    <table class="w-full text-left text-slate-600 text-sm">
+                        <thead class="text-[11px] font-black text-slate-500 uppercase bg-slate-50/80 border-b border-slate-200 tracking-wider">
+                            <tr>
+                                <th class="px-5 py-4 w-16 text-center">Ảnh</th>
+                                <th class="px-5 py-4">Sản Phẩm</th>
+                                <th class="px-5 py-4 hidden md:table-cell">Danh Mục</th>
+                                <th class="px-5 py-4 text-right">Giá Bán</th>
+                                <th class="px-5 py-4 text-center">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
+                            {{ range .DanhSach }}
+                            <tr class="hover-soft-row cursor-pointer group transition-colors" onclick="openModalSP('{{ .MaSanPham }}')">
+                                <td class="px-5 py-4 text-center">
+                                    <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shadow-sm p-0.5 mx-auto">
+                                        <img src="{{ if .UrlHinhAnh }}{{ .UrlHinhAnh }}{{ else }}https://ui-avatars.com/api/?name=SP&background=f3e8ff&color=7e22ce{{ end }}" class="w-full h-full object-cover rounded-lg">
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="font-bold text-slate-800 text-[15px] mb-1 group-hover:text-purple-700 transition-colors">{{ .TenSanPham }}</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-purple-50 text-purple-600 text-[10px] font-black px-2 py-0.5 rounded border border-purple-100">{{ .MaSanPham }}</span>
+                                        <span class="text-xs text-slate-400 font-medium">SKU: {{ .MaSKU }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 hidden md:table-cell">
+                                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">{{ .MaDanhMuc }}</span>
+                                </td>
+                                <td class="px-5 py-4 text-right font-black text-emerald-600 text-[15px]">
+                                    {{ .GiaBan }} ₫
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    {{ if eq .TrangThai 1 }}
+                                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Hiển thị</div>
+                                    {{ else }}
+                                        <div class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Đã ẩn</div>
+                                    {{ end }}
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalProduct" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6">
+        <div class="bg-slate-50 rounded-[2rem] shadow-2xl w-full max-w-5xl transform transition-all flex flex-col h-[95vh] border border-white/20">
+            
+            <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem] shrink-0 z-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <span class="bg-gradient-to-br from-purple-100 to-indigo-100 p-2.5 rounded-2xl text-purple-600 shadow-inner border border-purple-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </span>
+                    <div>
+                        <h3 class="text-xl font-black title-gradient-purple leading-tight" id="modalTitle">Thêm Sản Phẩm</h3>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Kho Máy Tính</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-6 sm:p-8 relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+                
+                <form id="formProduct" class="space-y-8 relative z-10" autocomplete="off">
+                    <input type="hidden" id="f_ma_san_pham" name="ma_san_pham">
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="font-black text-purple-700 border-b border-slate-100 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2">Thông tin cơ bản</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2">
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Tên sản phẩm <span class="text-red-500">*</span></label>
+                                <input type="text" id="f_ten_san_pham" class="input-premium font-bold text-lg text-slate-900" placeholder="VD: Laptop Dell Inspiron 15...">
+                            </div>
+                            
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Danh mục</label>
+                                <input type="text" id="f_ma_danh_muc" class="input-premium" placeholder="VD: Laptop, Văn phòng...">
+                            </div>
+
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Trạng thái</label>
+                                <select id="f_trang_thai" class="input-premium bg-white cursor-pointer font-bold">
+                                    <option value="1" class="text-emerald-600">🟢 Đang bán</option>
+                                    <option value="0" class="text-slate-500">⚪ Tạm ẩn</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h4 class="font-black text-indigo-600 border-b border-slate-100 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2">Giá & Cấu hình (SKU Chính)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Giá nhập (₫)</label>
+                                <input type="number" id="f_gia_nhap" class="input-premium font-mono text-slate-700">
+                            </div>
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Giá bán (₫) <span class="text-red-500">*</span></label>
+                                <input type="number" id="f_gia_ban" class="input-premium font-mono font-black text-emerald-600 text-lg">
+                            </div>
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Link Hình Ảnh</label>
+                                <input type="text" id="f_hinh_anh" class="input-premium font-mono text-[12px] text-blue-600" placeholder="https://...">
+                            </div>
+
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Bảo hành</label>
+                                <input type="text" id="f_bao_hanh" class="input-premium" placeholder="12 Tháng">
+                            </div>
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Tình trạng</label>
+                                <input type="text" id="f_tinh_trang" class="input-premium" placeholder="Mới 100% / Cũ 99%">
+                            </div>
+                            <div>
+                                <label class="form-lbl font-bold text-slate-700 mb-1.5 block">Màu sắc</label>
+                                <input type="text" id="f_mau_sac" class="input-premium" placeholder="Bạc, Đen...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <label class="form-lbl font-bold text-slate-700 mb-2 block">Cấu hình chi tiết (HTML)</label>
+                        <textarea id="f_thong_so" rows="4" class="input-premium font-mono text-[13px] leading-relaxed" placeholder="<li>CPU: Core i5</li><li>RAM: 8GB</li>..."></textarea>
+                    </div>
+
+                </form>
+            </div>
+            
+            <div class="px-6 py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex justify-end gap-3 shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+                <button onclick="closeModal()" class="px-8 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng</button>
+                <button id="btnSaveProduct" onclick="luuSanPham()" class="px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    Lưu Sản Phẩm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // INIT GIAO DIỆN INPUT PREMIUM
+        function checkInputState(input) {
+            if(input.value.trim() !== "") input.classList.add('has-data');
+            else input.classList.remove('has-data');
+        }
+        document.querySelectorAll('.input-premium').forEach(input => {
+            checkInputState(input);
+            input.addEventListener('input', function() { checkInputState(this); });
+        });
+
+        function closeModal() { document.getElementById('modalProduct').classList.add('hidden'); }
+
+        // MỞ MODAL THÊM / SỬA (CƠ CHẾ SPA)
+        async function openModalSP(maSP) {
+            const modal = document.getElementById('modalProduct');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('formProduct');
+            
+            form.reset();
+            document.getElementById('f_ma_san_pham').value = maSP;
+            
+            if (maSP === "") {
+                title.innerText = "Thêm Sản Phẩm Mới";
+                document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
+                modal.classList.remove('hidden');
+            } else {
+                title.innerText = "Cập Nhật: " + maSP;
+                // Hiển thị Loading Swarl
+                Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-4"><div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-purple-600 animate-spin"></div><span class="text-xl font-black title-gradient-purple">Đang tải Data...</span></div>',
+                    customClass: { popup: 'swal-master-success' }, showConfirmButton: false, allowOutsideClick: false
+                });
+
+                try {
+                    // 👉 GỌI API LẤY CHI TIẾT TỪ CONTROLLER MASTER
+                    const res = await fetch(`/master/api/may-tinh/detail/${maSP}`);
+                    const data = await res.json();
+                    
+                    if (data.status === 'ok' && data.data.length > 0) {
+                        const sp = data.data[0]; // Lấy SKU Chính đổ vào Form
+                        
+                        document.getElementById('f_ten_san_pham').value = sp.ten_san_pham || "";
+                        document.getElementById('f_ma_danh_muc').value = sp.ma_danh_muc || "";
+                        document.getElementById('f_trang_thai').value = sp.trang_thai;
+                        document.getElementById('f_gia_nhap').value = sp.gia_nhap || 0;
+                        document.getElementById('f_gia_ban').value = sp.gia_ban || 0;
+                        document.getElementById('f_hinh_anh').value = sp.url_hinh_anh || "";
+                        document.getElementById('f_bao_hanh').value = sp.bao_hanh || "";
+                        document.getElementById('f_tinh_trang').value = sp.tinh_trang || "";
+                        document.getElementById('f_mau_sac').value = sp.mau_sac || "";
+                        document.getElementById('f_thong_so').value = sp.thong_so_html || "";
+
+                        document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
+                        Swal.close();
+                        modal.classList.remove('hidden');
+                    } else {
+                        Swal.fire('Lỗi', data.msg, 'error');
+                    }
+                } catch(e) {
+                    Swal.fire('Lỗi mạng', 'Không thể kết nối đến máy chủ', 'error');
+                }
+            }
+        }
+
+        // LƯU SẢN PHẨM
+        async function luuSanPham() {
+            const btn = document.getElementById('btnSaveProduct');
+            const tenSP = document.getElementById('f_ten_san_pham').value.trim();
+            const giaBan = document.getElementById('f_gia_ban').value;
+
+            if (tenSP === "" || giaBan === "") {
+                Swal.fire({
+                    title: 'Thiếu thông tin', html: 'Vui lòng nhập Tên và Giá bán!', icon: 'warning',
+                    customClass: { confirmButton: 'bg-purple-600 text-white px-6 py-2 rounded-xl font-bold' }, buttonsStyling: false
+                }); return;
+            }
+
+            btn.disabled = true; btn.innerHTML = `<div class="spinner-led-btn"></div> Đang lưu...`;
+
+            // Đóng gói mảng 1 phần tử (Tương thích với kiến trúc nhiều SKU của Backend)
+            const skuData = [{
+                sku_chinh: 1,
+                ten_san_pham: tenSP,
+                ma_danh_muc: document.getElementById('f_ma_danh_muc').value,
+                trang_thai: parseInt(document.getElementById('f_trang_thai').value),
+                gia_nhap: parseFloat(document.getElementById('f_gia_nhap').value) || 0,
+                gia_ban: parseFloat(giaBan),
+                url_hinh_anh: document.getElementById('f_hinh_anh').value,
+                bao_hanh: document.getElementById('f_bao_hanh').value,
+                tinh_trang: document.getElementById('f_tinh_trang').value,
+                mau_sac: document.getElementById('f_mau_sac').value,
+                thong_so_html: document.getElementById('f_thong_so').value
+            }];
+
+            const fd = new FormData();
+            fd.append("ma_san_pham", document.getElementById('f_ma_san_pham').value);
+            fd.append("data_skus", JSON.stringify(skuData));
+
+            try {
+                // 👉 BẮN API LƯU LÊN CONTROLLER MASTER
+                const res = await fetch('/master/api/may-tinh/save', { method: 'POST', body: fd });
+                const data = await res.json();
+
+                if (data.status === 'ok') {
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
+                        html: `<div class="text-[15px] text-slate-600 font-medium px-4">${data.msg}</div>`,
+                        customClass: { popup: 'swal-master-success' }, showConfirmButton: false, timer: 1500
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                }
+            } catch(e) {
+                Swal.fire('Lỗi mạng', 'Không thể kết nối đến máy chủ', 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = `Lưu Sản Phẩm`;
+            }
+        }
+    </script>
+
+    {{ template "footer_master" . }}
+{{ end }}
