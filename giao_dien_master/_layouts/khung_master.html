@@ -20,30 +20,65 @@
 
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
+        /* ======================================================
+           1. NÚT ASSISTIVE BONG BÓNG LÕI (LED CÓ ĐIỂM CHỚP SÁNG)
+           ====================================================== */
         .led-menu-btn {
-            position: relative; width: 48px; height: 48px; border-radius: 50%;
+            position: relative; width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-            touch-action: none; 
+            overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            touch-action: none; background: #fff;
         }
+        /* Vòng LED 7 màu + Điểm trắng lóe sáng (flare) ở 85%-90% */
         .led-menu-btn::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(#ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000);
-            animation: spin-fast 3s linear infinite; z-index: 0; pointer-events: none;
+            background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000 80%, #ffffff 90%, #ff0000 100%);
+            animation: spin-fast 2.5s linear infinite; z-index: 0; pointer-events: none;
         }
         .led-menu-btn::after {
-            content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px;
+            content: ''; position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px;
             background: #ffffff; border-radius: 50%; z-index: 1; pointer-events: none;
         }
-        .led-menu-btn svg { position: relative; z-index: 2; color: #475569; transition: color 0.2s; }
-        .led-menu-btn:hover svg { color: #9333ea; }
         @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* ======================================================
+           2. HIỆU ỨNG CHỮ 99K "NHỊP THỞ" (POP & VANISH)
+           ====================================================== */
+        .text-99k-anim {
+            position: relative; z-index: 2; user-select: none; pointer-events: none;
+            font-size: 15px; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #9333ea, #4f46e5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            /* Chu kỳ 4 giây: Phình to -> Giữ nguyên -> Nổ bùm -> Mất tích -> Lặp lại */
+            animation: pop-breath 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+        }
+        @keyframes pop-breath {
+            0%   { transform: scale(0); opacity: 0; }
+            10%  { transform: scale(1.1); opacity: 1; }
+            15%  { transform: scale(1); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
+            65%  { transform: scale(1); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
+            75%  { transform: scale(1.3); opacity: 0; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* ======================================================
+           3. HIỆU ỨNG SAO CHỔI (COMET TRAIL PARTICLES)
+           ====================================================== */
+        .comet-particle {
+            position: fixed; pointer-events: none; z-index: 999998; /* Nằm ngay dưới nút 999999 */
+            width: 30px; height: 30px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(147,51,234,0.6) 0%, rgba(79,70,229,0.3) 40%, transparent 70%);
+            transform: translate(-50%, -50%) scale(1); opacity: 1;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            mix-blend-mode: screen; /* Giúp vệt sáng chồng lên nhau đẹp hơn */
+        }
+
+        /* Khung định hình Nút nổi */
         .assistive-floating {
             position: fixed; z-index: 999999; cursor: grab;
-            transition: transform 0.15s ease, opacity 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .assistive-floating:active { cursor: grabbing; transform: scale(0.9); opacity: 0.9; }
+        .assistive-floating:active { cursor: grabbing; transform: scale(0.9); }
     </style>
 </head>
 <body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
@@ -53,10 +88,6 @@
     <aside id="masterSidebar" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-950 text-slate-300 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:flex shrink-0 transition-all duration-300 ease-in-out border-r border-slate-800 shadow-2xl md:shadow-none">
         
         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20 transition" title="Đóng Menu">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
 
         <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
             <a href="/master/tong-quan" class="text-xl font-black text-white tracking-widest flex items-center gap-3 group">
@@ -70,52 +101,21 @@
         <nav class="flex-1 overflow-y-auto py-6 relative z-10 custom-scroll flex flex-col">
             <div class="px-4 space-y-1.5 flex-1">
                 <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
-
-                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">📊</span> Tổng Quan Master
-                </a>
-                
-                <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS
-                </a>
-
-                <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ
-                </a>
-
-                <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg w-6 text-center">💬</span> Tin Nhắn
-                    </div>
-                    {{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}
-                    <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>
-                    {{ end }}{{ end }}
-                </a>
-
-                <div class="mt-8 mb-3 px-3">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p>
-                </div>
-
-                <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">🛡️</span> Thành Viên
-                </a>
-
-                <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets
-                </a>
-
-                <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
-                    <span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi
-                </a>
+                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan Master</a>
+                <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS</a>
+                <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ</a>
+                <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><div class="flex items-center gap-3"><span class="text-lg w-6 text-center">💬</span> Tin Nhắn</div>{{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>{{ end }}{{ end }}</a>
+                <div class="mt-8 mb-3 px-3"><p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p></div>
+                <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🛡️</span> Thành Viên</a>
+                <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets</a>
+                <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi</a>
             </div>
 
             <div class="mt-8 md:hidden px-4 border-t border-slate-800/80 pt-6">
                 {{ if .NhanVien }}
                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
                     {{ $avatar := .NhanVien.AnhDaiDien }}
-                    {{ if not $avatar }}
-                        {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}
-                    {{ end }}
+                    {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
@@ -124,8 +124,7 @@
                 </div>
                 {{ end }}
                 <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                    Đăng xuất
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Đăng xuất
                 </button>
             </div>
         </nav>
@@ -134,9 +133,7 @@
             {{ if .NhanVien }}
             <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
                 {{ $avatar := .NhanVien.AnhDaiDien }}
-                {{ if not $avatar }}
-                    {{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}
-                {{ end }}
+                {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
@@ -145,8 +142,7 @@
             </div>
             {{ end }}
             <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                Đăng xuất
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Đăng xuất
             </button>
         </div>
     </aside>
@@ -154,7 +150,7 @@
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50 relative">
         
         <div id="assistiveBtnMobile" class="led-menu-btn assistive-floating drag-fab md:hidden" title="Mở/Đóng Menu" style="left: 16px; top: 16px;">
-            <svg id="iconAssistiveMobile" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <span class="text-99k-anim">99K</span>
         </div>
 
         <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
@@ -163,7 +159,7 @@
                 <div class="w-12 h-12 shrink-0"></div>
 
                 <div id="assistiveBtnPC" class="led-menu-btn assistive-floating drag-fab hidden md:flex" title="Mở/Đóng Menu" style="left: 32px; top: 16px;">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span class="text-99k-anim">99K</span>
                 </div>
                 
                 <div id="titleState1" class="flex items-center ml-2">
@@ -213,50 +209,57 @@
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const fabMobile = document.getElementById('assistiveBtnMobile');
-            const iconMobile = document.getElementById('iconAssistiveMobile');
             
             if (window.innerWidth < 768) {
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-                    if (fabMobile) {
-                        if (iconMobile) iconMobile.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>';
-                        if (fabMobile.dataset.isMoved !== 'true') {
-                            fabMobile.style.left = '218px'; fabMobile.style.top = '16px'; 
-                        }
+                    // Tự động nhảy vào đúng vị trí góc phải trên cùng
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '215px'; fabMobile.style.top = '15px'; 
                     }
                 } else {
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
-                    if (fabMobile) {
-                        if (iconMobile) iconMobile.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>';
-                        if (fabMobile.dataset.isMoved !== 'true') {
-                            fabMobile.style.left = '16px'; fabMobile.style.top = '16px';
-                        }
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '16px'; fabMobile.style.top = '16px';
                     }
                 }
             } else {
                 sidebar.classList.toggle('desktop-sidebar-collapsed');
                 const isClosed = sidebar.classList.contains('desktop-sidebar-collapsed');
-                
                 const t1 = document.getElementById('titleState1'); 
                 const logo2 = document.getElementById('logoState2');
                 const t2 = document.getElementById('titleState2');
-
                 if (isClosed) {
-                    t1.classList.add('hidden'); 
-                    logo2.classList.remove('hidden'); logo2.classList.add('flex');
-                    t2.classList.remove('hidden'); t2.classList.add('flex');
+                    t1.classList.add('hidden'); logo2.classList.remove('hidden'); logo2.classList.add('flex'); t2.classList.remove('hidden'); t2.classList.add('flex');
                 } else {
-                    logo2.classList.add('hidden'); logo2.classList.remove('flex');
-                    t2.classList.add('hidden'); t2.classList.remove('flex');
-                    t1.classList.remove('hidden'); 
+                    logo2.classList.add('hidden'); logo2.classList.remove('flex'); t2.classList.add('hidden'); t2.classList.remove('flex'); t1.classList.remove('hidden'); 
                 }
             }
         }
 
-        // --- CƠ CHẾ KÉO THẢ VÀ GHI NHỚ VỊ TRÍ (LOCAL STORAGE) ---
+        // --- CƠ CHẾ KÉO THẢ, LOCAL STORAGE VÀ HIỆU ỨNG SAO CHỔI (COMET TRAIL) ---
         let currentDraggingFab = null;
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
+        let lastSpawnTime = 0; // Bộ đếm thời gian thả sao chổi
+
+        // Hàm tạo hạt sao chổi phát sáng
+        function spawnCometParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'comet-particle';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+
+            // Bắt đầu animation thu nhỏ và mờ dần ở Frame tiếp theo
+            requestAnimationFrame(() => {
+                particle.style.transform = 'translate(-50%, -50%) scale(0.1)';
+                particle.style.opacity = '0';
+            });
+
+            // Dọn dẹp rác DOM sau khi animation kết thúc (500ms)
+            setTimeout(() => { if (particle.parentNode) particle.parentNode.removeChild(particle); }, 500);
+        }
 
         const onDragStart = (e, fab) => {
             currentDraggingFab = fab;
@@ -278,11 +281,22 @@
             
             if (hasMoved) {
                 let newLeft = startLeft + dx; let newTop = startTop + dy;
-                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 48));
-                newTop = Math.max(0, Math.min(newTop, window.innerHeight - 48));
+                // Giới hạn để nút không bay ra khỏi viền màn hình
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - currentDraggingFab.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - currentDraggingFab.offsetHeight));
                 
                 currentDraggingFab.style.left = newLeft + 'px';
                 currentDraggingFab.style.top = newTop + 'px';
+
+                // TÍNH TOÁN TỌA ĐỘ TÂM NÚT VÀ PHUN SAO CHỔI
+                const now = Date.now();
+                if (now - lastSpawnTime > 25) { // Cứ sau 25ms xả 1 hạt (Mượt ~40fps)
+                    let centerX = newLeft + (currentDraggingFab.offsetWidth / 2);
+                    let centerY = newTop + (currentDraggingFab.offsetHeight / 2);
+                    spawnCometParticle(centerX, centerY);
+                    lastSpawnTime = now;
+                }
+
                 if (e.cancelable) e.preventDefault(); 
             }
         };
@@ -293,41 +307,32 @@
             let fab = currentDraggingFab;
             currentDraggingFab = null;
 
-            fab.style.transition = 'transform 0.15s ease, opacity 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1)'; 
+            fab.style.transition = 'transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
             
             if (hasMoved) {
                 fab.dataset.isMoved = 'true';
-                // [TÍNH NĂNG MỚI]: Ghi nhớ vị trí khi nhả chuột
-                localStorage.setItem('fab_pos_' + fab.id, JSON.stringify({
-                    left: fab.style.left,
-                    top: fab.style.top
-                }));
+                localStorage.setItem('fab_pos_' + fab.id, JSON.stringify({ left: fab.style.left, top: fab.style.top }));
             } else {
                 if (e && e.cancelable) e.preventDefault(); 
                 toggleSidebar();
             }
         };
 
-        // Gán sự kiện và Load vị trí cũ cho tất cả các nút Kéo thả
+        // Khởi tạo các nút
         document.querySelectorAll('.drag-fab').forEach(fab => {
-            // [TÍNH NĂNG MỚI]: Phục hồi vị trí từ bộ nhớ trình duyệt
             const savedPos = localStorage.getItem('fab_pos_' + fab.id);
             if (savedPos) {
                 try {
                     const pos = JSON.parse(savedPos);
-                    let l = parseInt(pos.left);
-                    let t = parseInt(pos.top);
+                    let l = parseInt(pos.left); let t = parseInt(pos.top);
                     if (!isNaN(l) && !isNaN(t)) {
-                        // Chống tràn màn hình nếu đổi từ màn PC xuống Mobile
-                        l = Math.max(0, Math.min(l, window.innerWidth - 48));
-                        t = Math.max(0, Math.min(t, window.innerHeight - 48));
-                        fab.style.left = l + 'px';
-                        fab.style.top = t + 'px';
+                        l = Math.max(0, Math.min(l, window.innerWidth - 50));
+                        t = Math.max(0, Math.min(t, window.innerHeight - 50));
+                        fab.style.left = l + 'px'; fab.style.top = t + 'px';
                         fab.dataset.isMoved = 'true';
                     }
                 } catch(e) {}
             }
-
             fab.addEventListener('mousedown', (e) => onDragStart(e, fab));
             fab.addEventListener('touchstart', (e) => onDragStart(e, fab), {passive: true});
         });
@@ -337,18 +342,15 @@
         document.addEventListener('touchmove', onDragMove, {passive: false});
         document.addEventListener('touchend', onDragEnd);
 
-        // [BẢO VỆ]: Nếu Resize trình duyệt, gom nút lại nếu bị kẹt ngoài rìa
         window.addEventListener('resize', () => {
             document.querySelectorAll('.drag-fab').forEach(fab => {
                 if (fab.dataset.isMoved === 'true') {
-                    let l = parseInt(fab.style.left);
-                    let t = parseInt(fab.style.top);
-                    if (l > window.innerWidth - 48) fab.style.left = (window.innerWidth - 48) + 'px';
-                    if (t > window.innerHeight - 48) fab.style.top = (window.innerHeight - 48) + 'px';
+                    let l = parseInt(fab.style.left); let t = parseInt(fab.style.top);
+                    if (l > window.innerWidth - 50) fab.style.left = (window.innerWidth - 50) + 'px';
+                    if (t > window.innerHeight - 50) fab.style.top = (window.innerHeight - 50) + 'px';
                 }
             });
         });
-
 
         function confirmLogout() {
             Swal.fire({
