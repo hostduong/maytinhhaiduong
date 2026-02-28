@@ -13,6 +13,7 @@ import (
 	"app/chuc_nang"
 	"app/chuc_nang_admin"
 	admin_may_tinh "app/chuc_nang_admin/may_tinh"
+	master_may_tinh "app/chuc_nang_master/may_tinh"
 	"app/chuc_nang_master" 
 	"app/core"
 
