@@ -12,7 +12,6 @@ import (
 	"app/cau_hinh"
 	"app/chuc_nang"
 	"app/chuc_nang_admin"
-	admin_may_tinh "app/chuc_nang_admin/may_tinh"
 	"app/chuc_nang_master" 
 	"app/core"
 
@@ -135,11 +134,6 @@ func main() {
 		admin.POST("/api/margin/save", chuc_nang_admin.API_LuuBienLoiNhuan)
 		admin.POST("/api/category/sync-slots", chuc_nang_admin.API_DongBoSlotDanhMuc)
 
-		// --- ĐỊNH TUYẾN RIÊNG CHO NGÀNH MÁY TÍNH ---
-		pc := admin.Group("/pc")
-		{
-			pc.GET("/san-pham", admin_may_tinh.TrangQuanLySanPham)
-			pc.POST("/api/product/save", admin_may_tinh.API_LuuSanPham)
 		}
 	}
 
