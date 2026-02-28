@@ -58,7 +58,7 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 		core.NapPhanQuyen(masterShopID) 
 		core.NapKhachHang(masterShopID)
 		core.NapTinNhan(masterShopID)
-		core.NapDuLieuMayTinh(masterShopID)
+		core.NapMayTinh(masterShopID)
 		core.HeThongDangBan = false
 	}()
 
