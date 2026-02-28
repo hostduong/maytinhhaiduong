@@ -16,10 +16,6 @@
         <span class="text-99k-anim">99K</span>
     </div>
 
-    <div id="assistiveBtnPC" class="led-menu-btn assistive-floating drag-fab hidden md:flex" title="Mở/Đóng Menu" style="left: 32px; top: 16px;">
-        <span class="text-99k-anim">99K</span>
-    </div>
-
     <script>
         (function() {
             function applySavedPosition(id, defaultL, defaultT) {
@@ -53,7 +49,6 @@
                 }
             }
             applySavedPosition('assistiveBtnMobile', 16, 16);
-            applySavedPosition('assistiveBtnPC', 32, 16);
         })();
     </script>
 
@@ -62,6 +57,10 @@
     <aside id="masterSidebar" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-950 text-slate-300 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:flex shrink-0 transition-all duration-300 ease-in-out border-r border-slate-800 shadow-2xl md:shadow-none">
         
         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20 transition" title="Đóng Menu">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
 
         <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
             <a href="/master/tong-quan" class="text-xl font-black text-white tracking-widest flex items-center gap-3 group">
@@ -126,7 +125,9 @@
         <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
             <div class="flex items-center gap-4 relative z-10">
                 
-                <div class="w-12 h-12 shrink-0"></div>
+                <button onclick="toggleSidebar()" class="led-menu-btn shrink-0 transition-transform hover:scale-105 hidden md:flex" title="Mở/Đóng Menu">
+                    <span class="text-99k-anim">99K</span>
+                </button>
                 
                 <div id="titleState1" class="flex items-center ml-2">
                     <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase">
@@ -171,16 +172,30 @@
     </div>
 
     <script>
+        // Mở class mượt mà sau khi DOM xong, dứt điểm lỗi giật nút trên Mobile
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.assistive-floating').forEach(el => el.classList.add('fab-ready'));
+            }, 50);
+        });
+
         function toggleSidebar() {
             const sidebar = document.getElementById('masterSidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const fabMobile = document.getElementById('assistiveBtnMobile');
             
             if (window.innerWidth < 768) {
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '218px'; fabMobile.style.top = '16px'; 
+                    }
                 } else {
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '16px'; fabMobile.style.top = '16px';
+                    }
                 }
             } else {
                 sidebar.classList.toggle('desktop-sidebar-collapsed');
@@ -196,7 +211,7 @@
             }
         }
 
-        // --- CƠ CHẾ KÉO THẢ NHẸ NHÀNG (ĐÃ BỎ SAO CHỔI ĐỂ TỐI ƯU MƯỢT MÀ) ---
+        // --- CƠ CHẾ KÉO THẢ (BÂY GIỜ CHỈ HOẠT ĐỘNG VỚI NÚT MOBILE) ---
         let currentDraggingFab = null;
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
 
@@ -207,6 +222,8 @@
             let clientY = e.touches ? e.touches[0].clientY : e.clientY;
             startX = clientX; startY = clientY;
             startLeft = fab.offsetLeft; startTop = fab.offsetTop;
+            
+            // Xóa inline transition để bám tay tức thì
             fab.style.transition = 'none'; 
         };
 
@@ -220,13 +237,12 @@
             
             if (hasMoved) {
                 let newLeft = startLeft + dx; let newTop = startTop + dy;
-                // Giới hạn để nút không bay ra khỏi viền màn hình
+                // Khóa trong màn hình
                 newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - currentDraggingFab.offsetWidth));
                 newTop = Math.max(0, Math.min(newTop, window.innerHeight - currentDraggingFab.offsetHeight));
                 
                 currentDraggingFab.style.left = newLeft + 'px';
                 currentDraggingFab.style.top = newTop + 'px';
-
                 if (e.cancelable) e.preventDefault(); 
             }
         };
@@ -237,7 +253,8 @@
             let fab = currentDraggingFab;
             currentDraggingFab = null;
 
-            fab.style.transition = 'transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'; 
+            // Phục hồi lại CSS mượt mà
+            fab.style.transition = ''; 
             
             if (hasMoved) {
                 fab.dataset.isMoved = 'true';
@@ -248,7 +265,7 @@
             }
         };
 
-        // Gán sự kiện cho Nút kéo thả
+        // Gán sự kiện cho Nút kéo thả (chỉ Mobile có class drag-fab)
         document.querySelectorAll('.drag-fab').forEach(fab => {
             fab.addEventListener('mousedown', (e) => onDragStart(e, fab));
             fab.addEventListener('touchstart', (e) => onDragStart(e, fab), {passive: true});
@@ -259,6 +276,7 @@
         document.addEventListener('touchmove', onDragMove, {passive: false});
         document.addEventListener('touchend', onDragEnd);
 
+        // Gom nút khi màn hình bị lật ngang/dọc trên điện thoại
         window.addEventListener('resize', () => {
             document.querySelectorAll('.drag-fab').forEach(fab => {
                 if (fab.dataset.isMoved === 'true') {
