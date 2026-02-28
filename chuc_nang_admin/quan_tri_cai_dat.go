@@ -6,7 +6,6 @@ import (
 	"strings"
 	"app/core"
 	"github.com/gin-gonic/gin"
-	data_pc "app/core/may_tinh"
 )
 
 // =============================================================
@@ -263,7 +262,7 @@ func API_DongBoSlotDanhMuc(c *gin.Context) {
 	}
 
 	// BƯỚC 1: QUÉT SẢN PHẨM CỦA SHOP
-	listSP := data_pc.LayDanhSachSanPham(shopID) // [SAAS]
+	listSP := core.LayDanhSachSanPhamMayTinh(shopID)
 	
 	mapMaxSlot := make(map[string]int) 
 	
