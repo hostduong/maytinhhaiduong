@@ -21,56 +21,62 @@
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
         /* ======================================================
-           1. NÚT ASSISTIVE BONG BÓNG LÕI (LED CÓ ĐIỂM CHỚP SÁNG)
+           1. NÚT ASSISTIVE BONG BÓNG LÕI 
            ====================================================== */
         .led-menu-btn {
-            position: relative; width: 50px; height: 50px; border-radius: 50%;
+            position: relative; width: 48px; height: 48px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
             touch-action: none; background: #fff;
         }
-        /* Vòng LED 7 màu + Điểm trắng lóe sáng (flare) ở 85%-90% */
         .led-menu-btn::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000 80%, #ffffff 90%, #ff0000 100%);
             animation: spin-fast 2.5s linear infinite; z-index: 0; pointer-events: none;
         }
         .led-menu-btn::after {
-            content: ''; position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px;
+            content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px;
             background: #ffffff; border-radius: 50%; z-index: 1; pointer-events: none;
         }
         @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* ======================================================
-           2. HIỆU ỨNG CHỮ 99K "NHỊP THỞ" (POP & VANISH)
+           2. HIỆU ỨNG CHỮ 99K "NHỊP THỞ CHẬM" 
            ====================================================== */
         .text-99k-anim {
             position: relative; z-index: 2; user-select: none; pointer-events: none;
             font-size: 15px; font-weight: 900; letter-spacing: -0.5px;
             background: linear-gradient(135deg, #9333ea, #4f46e5);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            /* Chu kỳ 4 giây: Phình to -> Giữ nguyên -> Nổ bùm -> Mất tích -> Lặp lại */
-            animation: pop-breath 4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+            /* Chu kỳ 3.5 giây: 0.5s hiện -> 2s lớn dần -> 0.5s vỡ mất -> 0.5s nghỉ */
+            animation: pop-breath-slow 3.5s ease-in-out infinite;
         }
-        @keyframes pop-breath {
+        @keyframes pop-breath-slow {
             0%   { transform: scale(0); opacity: 0; }
-            10%  { transform: scale(1.1); opacity: 1; }
-            15%  { transform: scale(1); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
-            65%  { transform: scale(1); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
-            75%  { transform: scale(1.3); opacity: 0; }
+            10%  { transform: scale(0.6); opacity: 1; }
+            70%  { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
+            85%  { transform: scale(1.4); opacity: 0; }
             100% { transform: scale(0); opacity: 0; }
         }
 
         /* ======================================================
-           3. HIỆU ỨNG SAO CHỔI (COMET TRAIL PARTICLES)
+           3. HIỆU ỨNG SAO CHỔI (TỰ ĐỔI MÀU THEO NỀN)
            ====================================================== */
         .comet-particle {
-            position: fixed; pointer-events: none; z-index: 999998; /* Nằm ngay dưới nút 999999 */
-            width: 30px; height: 30px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(147,51,234,0.6) 0%, rgba(79,70,229,0.3) 40%, transparent 70%);
-            transform: translate(-50%, -50%) scale(1); opacity: 1;
-            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-            mix-blend-mode: screen; /* Giúp vệt sáng chồng lên nhau đẹp hơn */
+            position: fixed; pointer-events: none; z-index: 999998;
+            width: 24px; height: 24px; border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1); opacity: 0.9;
+            transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.4s ease-out;
+        }
+        /* Phun trên Nền Trắng (Màu đậm: Tím, Hồng) */
+        .comet-light-bg {
+            background: radial-gradient(circle, rgba(147,51,234,0.8) 0%, rgba(236,72,153,0.5) 40%, transparent 70%);
+            mix-blend-mode: multiply;
+        }
+        /* Phun trên Nền Đen Sidebar (Màu sáng: Trắng, Cam nhạt) */
+        .comet-dark-bg {
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(253,186,116,0.6) 40%, transparent 70%);
+            mix-blend-mode: screen;
         }
 
         /* Khung định hình Nút nổi */
@@ -78,7 +84,7 @@
             position: fixed; z-index: 999999; cursor: grab;
             transition: transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .assistive-floating:active { cursor: grabbing; transform: scale(0.9); }
+        .assistive-floating:active { cursor: grabbing; transform: scale(0.92); }
     </style>
 </head>
 <body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
@@ -214,9 +220,8 @@
                 const isOpening = sidebar.classList.contains('-translate-x-full');
                 if (isOpening) {
                     sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-                    // Tự động nhảy vào đúng vị trí góc phải trên cùng
                     if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
-                        fabMobile.style.left = '215px'; fabMobile.style.top = '15px'; 
+                        fabMobile.style.left = '218px'; fabMobile.style.top = '16px'; 
                     }
                 } else {
                     sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
@@ -238,27 +243,38 @@
             }
         }
 
-        // --- CƠ CHẾ KÉO THẢ, LOCAL STORAGE VÀ HIỆU ỨNG SAO CHỔI (COMET TRAIL) ---
+        // --- CƠ CHẾ KÉO THẢ & HIỆU ỨNG SAO CHỔI THÔNG MINH ---
         let currentDraggingFab = null;
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
-        let lastSpawnTime = 0; // Bộ đếm thời gian thả sao chổi
+        let lastSpawnTime = 0; 
 
-        // Hàm tạo hạt sao chổi phát sáng
+        // Hàm tạo hạt sao chổi
         function spawnCometParticle(x, y) {
             const particle = document.createElement('div');
-            particle.className = 'comet-particle';
+            
+            // Tự động quét vùng Nền (Sidebar Đen hay Nền Trắng)
+            let isDarkBg = false;
+            const sidebar = document.getElementById('masterSidebar');
+            if (window.innerWidth >= 768 && !sidebar.classList.contains('desktop-sidebar-collapsed') && x < 280) {
+                isDarkBg = true;
+            } else if (window.innerWidth < 768 && !document.getElementById('sidebarOverlay').classList.contains('hidden')) {
+                isDarkBg = true;
+            }
+
+            // Gắn màu phù hợp
+            particle.className = `comet-particle ${isDarkBg ? 'comet-dark-bg' : 'comet-light-bg'}`;
             particle.style.left = x + 'px';
             particle.style.top = y + 'px';
             document.body.appendChild(particle);
 
-            // Bắt đầu animation thu nhỏ và mờ dần ở Frame tiếp theo
+            // Bắn animation thu nhỏ ngay lập tức
             requestAnimationFrame(() => {
-                particle.style.transform = 'translate(-50%, -50%) scale(0.1)';
+                particle.style.transform = 'translate(-50%, -50%) scale(0.05)';
                 particle.style.opacity = '0';
             });
 
-            // Dọn dẹp rác DOM sau khi animation kết thúc (500ms)
-            setTimeout(() => { if (particle.parentNode) particle.parentNode.removeChild(particle); }, 500);
+            // Biến mất cực nhanh để tạo độ bám sát (400ms)
+            setTimeout(() => { if (particle.parentNode) particle.parentNode.removeChild(particle); }, 400);
         }
 
         const onDragStart = (e, fab) => {
@@ -281,16 +297,15 @@
             
             if (hasMoved) {
                 let newLeft = startLeft + dx; let newTop = startTop + dy;
-                // Giới hạn để nút không bay ra khỏi viền màn hình
                 newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - currentDraggingFab.offsetWidth));
                 newTop = Math.max(0, Math.min(newTop, window.innerHeight - currentDraggingFab.offsetHeight));
                 
                 currentDraggingFab.style.left = newLeft + 'px';
                 currentDraggingFab.style.top = newTop + 'px';
 
-                // TÍNH TOÁN TỌA ĐỘ TÂM NÚT VÀ PHUN SAO CHỔI
+                // TÍNH TOÁN TỌA ĐỘ VÀ BẮN SAO CHỔI (Tần suất 15ms siêu sát)
                 const now = Date.now();
-                if (now - lastSpawnTime > 25) { // Cứ sau 25ms xả 1 hạt (Mượt ~40fps)
+                if (now - lastSpawnTime > 15) { 
                     let centerX = newLeft + (currentDraggingFab.offsetWidth / 2);
                     let centerY = newTop + (currentDraggingFab.offsetHeight / 2);
                     spawnCometParticle(centerX, centerY);
@@ -318,7 +333,7 @@
             }
         };
 
-        // Khởi tạo các nút
+        // Gán sự kiện và Khôi phục vị trí cũ
         document.querySelectorAll('.drag-fab').forEach(fab => {
             const savedPos = localStorage.getItem('fab_pos_' + fab.id);
             if (savedPos) {
@@ -326,8 +341,8 @@
                     const pos = JSON.parse(savedPos);
                     let l = parseInt(pos.left); let t = parseInt(pos.top);
                     if (!isNaN(l) && !isNaN(t)) {
-                        l = Math.max(0, Math.min(l, window.innerWidth - 50));
-                        t = Math.max(0, Math.min(t, window.innerHeight - 50));
+                        l = Math.max(0, Math.min(l, window.innerWidth - 48));
+                        t = Math.max(0, Math.min(t, window.innerHeight - 48));
                         fab.style.left = l + 'px'; fab.style.top = t + 'px';
                         fab.dataset.isMoved = 'true';
                     }
@@ -346,8 +361,8 @@
             document.querySelectorAll('.drag-fab').forEach(fab => {
                 if (fab.dataset.isMoved === 'true') {
                     let l = parseInt(fab.style.left); let t = parseInt(fab.style.top);
-                    if (l > window.innerWidth - 50) fab.style.left = (window.innerWidth - 50) + 'px';
-                    if (t > window.innerHeight - 50) fab.style.top = (window.innerHeight - 50) + 'px';
+                    if (l > window.innerWidth - 48) fab.style.left = (window.innerWidth - 48) + 'px';
+                    if (t > window.innerHeight - 48) fab.style.top = (window.innerHeight - 48) + 'px';
                 }
             });
         });
