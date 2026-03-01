@@ -9,45 +9,43 @@ import (
 	"os/signal"
 	"syscall"
 
-	"app/config" // Trỏ vào thư mục Config mới tạo
+	"app/config"
 	"app/core"
 	"app/routers"
 )
 
-// BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
 //go:embed giao_dien/*.html giao_dien/*/*.html
 var f embed.FS
 
 func main() {
 	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG KIẾN TRÚC LÕI V1.0...")
 
-	// 1. Khởi tạo cấu hình Server
 	config.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang() 
 	core.KhoiTaoWorkerGhiSheet()
 
-	// 2. Nạp toàn bộ dữ liệu lên RAM
-	log.Println("📦 [BOOT] Đang nạp toàn bộ Master Data lên RAM...")
-	core.NapPhanQuyen("")
-	core.NapKhachHang("")
-	core.NapDanhMuc("")
-	core.NapThuongHieu("")
-	core.NapBienLoiNhuan("")
-	core.NapNhaCungCap("")
-	core.NapMayTinh("")
-	core.NapTinNhan("")
+	// [THAY ĐỔI LỚN]: Đẩy quá trình nạp RAM vào một tiến trình chạy nền (Background Goroutine)
+	// Để Server không bị block và có thể mở Port báo cáo cho Google Cloud ngay lập tức.
+	go func() {
+		log.Println("📦 [BOOT BACKGROUND] Đang nạp toàn bộ Master Data lên RAM...")
+		core.NapPhanQuyen("")
+		core.NapKhachHang("")
+		core.NapDanhMuc("")
+		core.NapThuongHieu("")
+		core.NapBienLoiNhuan("")
+		core.NapNhaCungCap("")
+		core.NapMayTinh("")
+		core.NapTinNhan("")
+		log.Println("✅ [BOOT BACKGROUND] Nạp dữ liệu hoàn tất!")
+	}()
 
-	// 3. Khởi tạo phòng Điều phối Router
 	router := routers.SetupRouter()
 	
-	// 4. Định nghĩa một FuncMap cơ bản rỗng để Bypass lỗi Compile
-	basicFuncMap := template.FuncMap{
-		"dummy": func() string { return "" },
-	}
+	basicFuncMap := template.FuncMap{ "dummy": func() string { return "" } }
 	templ := template.Must(template.New("").Funcs(basicFuncMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// 5. Mở cổng mạng
+	// MỞ CỔNG MẠNG BÁO CÁO GOOGLE CLOUD NGAY
 	port := config.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
 	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
@@ -59,7 +57,6 @@ func main() {
 		}
 	}()
 
-	// 6. Đóng băng hệ thống an toàn khi tắt Server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
