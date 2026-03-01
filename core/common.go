@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"app/config" // ĐÃ CHUẨN HÓA
+	"app/config"
 
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
