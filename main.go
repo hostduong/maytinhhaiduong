@@ -10,27 +10,25 @@ import (
 	"syscall"
 
 	"app/cau_hinh"
-	"app/chuc_nang" // Tạm giữ để lấy hàm FuncMap (Format tiền...)
+	"app/chuc_nang" // Giữ lại để lấy funcMap (Format tiền, số...)
 	"app/core"
 	"app/routers"
+
+	"github.com/gin-gonic/gin"
 )
 
-// Khai báo nhúng toàn bộ thư mục giao diện thống nhất mới
+// BẮT BUỘC: Quét thư mục giao_dien_he_thong (bao gồm cả file nằm trực tiếp và file trong thư mục con)
 //go:embed giao_dien_he_thong/*.html giao_dien_he_thong/*/*.html
 var f embed.FS
 
 func main() {
-	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG ENTERPRISE V1.0...")
+	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG KIẾN TRÚC LÕI V1.0...")
 
-	// 1. Nạp cấu hình & Hệ sinh thái Google
 	cau_hinh.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang() 
-
-	// 2. Kích hoạt cỗ máy Hàng đợi Ghi dữ liệu kép (Write Queue)
 	core.KhoiTaoWorkerGhiSheet()
 
-	// 3. Nạp Master Data đa người thuê lên RAM (Bootstrapping)
-	log.Println("📦 [BOOT] Đang nạp toàn bộ cấu trúc dữ liệu lên RAM (In-Memory)...")
+	log.Println("📦 [BOOT] Đang nạp toàn bộ Master Data lên RAM...")
 	core.NapPhanQuyen("")
 	core.NapKhachHang("")
 	core.NapDanhMuc("")
@@ -39,17 +37,16 @@ func main() {
 	core.NapNhaCungCap("")
 	core.NapMayTinh("")
 	core.NapTinNhan("")
-	// core.NapPhieuNhap("") // Chờ sửa xong module Nhập Hàng sẽ mở ra
 
-	// 4. Lắp ráp Phòng Điều Phối & Load Giao diện
+	// Khởi tạo phòng Điều phối Router
 	router := routers.SetupRouter()
 	
-	// Nạp FuncMap (Format số, tiền...) từ code cũ của bạn
+	// Nạp hàm tiện ích cho HTML và Build UI từ Embed
 	funcMap := chuc_nang.LayBoHamHTML()
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien_he_thong/*.html", "giao_dien_he_thong/*/*.html"))
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// 5. Mở Cổng Mạng
+	// Mở cổng mạng
 	port := cau_hinh.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
 	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
@@ -61,12 +58,12 @@ func main() {
 		}
 	}()
 
-	// 6. Graceful Shutdown (Bắt tín hiệu tắt Server)
+	// Đóng băng hệ thống an toàn khi tắt Server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	
 	log.Println("\n⚠️ [SHUTDOWN] Đang tiến hành đóng băng hệ thống...")
-	core.ProcessQueue() // Ép Worker ghi nốt 100% dữ liệu đang cầm trên tay
-	log.Println("✅ [SHUTDOWN] Đóng băng thành công. Không rớt 1 byte. Tạm biệt!")
+	core.ProcessQueue() 
+	log.Println("✅ [SHUTDOWN] Đóng băng thành công! Tạm biệt.")
 }
