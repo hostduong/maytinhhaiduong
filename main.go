@@ -1,6 +1,8 @@
 package main
 
 import (
+	"embed"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -8,9 +10,14 @@ import (
 	"syscall"
 
 	"app/cau_hinh"
+	"app/chuc_nang" // Tạm giữ để lấy hàm FuncMap (Format tiền...)
 	"app/core"
 	"app/routers"
 )
+
+// Khai báo nhúng toàn bộ thư mục giao diện thống nhất mới
+//go:embed giao_dien_he_thong/*.html giao_dien_he_thong/*/*.html
+var f embed.FS
 
 func main() {
 	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG ENTERPRISE V1.0...")
@@ -19,12 +26,11 @@ func main() {
 	cau_hinh.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang() 
 
-	// 2. Kích hoạt cỗ máy Hàng đợi Ghi dữ liệu (Write Queue)
+	// 2. Kích hoạt cỗ máy Hàng đợi Ghi dữ liệu kép (Write Queue)
 	core.KhoiTaoWorkerGhiSheet()
 
 	// 3. Nạp Master Data đa người thuê lên RAM (Bootstrapping)
 	log.Println("📦 [BOOT] Đang nạp toàn bộ cấu trúc dữ liệu lên RAM (In-Memory)...")
-	// Lưu ý: Tạm truyền ID rỗng "" để test, khi xong tính năng đa Shop sẽ chạy vòng lặp nạp nhiều ShopID.
 	core.NapPhanQuyen("")
 	core.NapKhachHang("")
 	core.NapDanhMuc("")
@@ -32,19 +38,20 @@ func main() {
 	core.NapBienLoiNhuan("")
 	core.NapNhaCungCap("")
 	core.NapMayTinh("")
-	// core.NapPhieuNhap("") // Chờ ghép module Nhập Hàng
-	// core.NapTinNhan("")   // Chờ ghép module Tin Nhắn
+	core.NapTinNhan("")
+	// core.NapPhieuNhap("") // Chờ sửa xong module Nhập Hàng sẽ mở ra
 
-	// 4. Lắp ráp Phòng Điều Phối (Router & Middlewares)
+	// 4. Lắp ráp Phòng Điều Phối & Load Giao diện
 	router := routers.SetupRouter()
+	
+	// Nạp FuncMap (Format số, tiền...) từ code cũ của bạn
+	funcMap := chuc_nang.LayBoHamHTML()
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien_he_thong/*.html", "giao_dien_he_thong/*/*.html"))
+	router.SetHTMLTemplate(templ)
 
-	// (Tạm thời map thư mục HTML nếu bạn đang giữ file cũ ở ngoài, sau này sẽ move vào module)
-	// router.LoadHTMLGlob("giao_dien_he_thong/*/*.html")
-
-	// 5. Mở Cổng Mạng (Start HTTP Server)
+	// 5. Mở Cổng Mạng
 	port := cau_hinh.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
-	
 	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
 
 	go func() {
@@ -54,13 +61,12 @@ func main() {
 		}
 	}()
 
-	// 6. Graceful Shutdown (Bắt sự kiện Ctrl+C, tắt server an toàn tuyệt đối)
+	// 6. Graceful Shutdown (Bắt tín hiệu tắt Server)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	
-	log.Println("\n⚠️ [SHUTDOWN] Nhận lệnh tắt máy chủ. Đang tiến hành đóng băng hệ thống...")
-	log.Println("💾 [SHUTDOWN] Đang xả toàn bộ dữ liệu tồn đọng trong Queue xuống Google Sheets...")
-	core.ProcessQueue() // Ép con Worker ghi nốt 100% dữ liệu đang cầm trên tay
-	log.Println("✅ [SHUTDOWN] Quá trình đóng băng hoàn tất. Không rớt 1 byte dữ liệu. Tạm biệt!")
+	log.Println("\n⚠️ [SHUTDOWN] Đang tiến hành đóng băng hệ thống...")
+	core.ProcessQueue() // Ép Worker ghi nốt 100% dữ liệu đang cầm trên tay
+	log.Println("✅ [SHUTDOWN] Đóng băng thành công. Không rớt 1 byte. Tạm biệt!")
 }
