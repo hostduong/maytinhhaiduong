@@ -14,17 +14,15 @@ import (
 const (
 	TenSheetPhieuNhap        = "PHIEU_NHAP"
 	TenSheetChiTietPhieuNhap = "CHI_TIET_PHIEU_NHAP"
-	TenSheetNhaCungCap       = "NHA_CUNG_CAP"
 	TenSheetSerial           = "SERIAL_SAN_PHAM"
 
 	DongBatDau_PhieuNhap        = 2
 	DongBatDau_ChiTietPhieuNhap = 2
-	DongBatDau_NhaCungCap       = 2
 	DongBatDau_Serial           = 2
 )
 
 // ====================================================================
-// 2. TỌA ĐỘ CỘT (ĐÃ CẬP NHẬT THEO SCHEMA CHUẨN)
+// 2. TỌA ĐỘ CỘT
 // ====================================================================
 
 // --- PHIẾU NHẬP (18 Cột) ---
@@ -38,7 +36,7 @@ const (
 	CotPN_NgayHoaDon           = 6  // G
 	CotPN_UrlChungTu           = 7  // H
 	CotPN_TongTienPhieu        = 8  // I
-	CotPN_GiamGiaPhieu         = 9  // J [MỚI]
+	CotPN_GiamGiaPhieu         = 9  // J
 	CotPN_DaThanhToan          = 10 // K
 	CotPN_ConNo                = 11 // L
 	CotPN_PhuongThucThanhToan  = 12 // M
@@ -53,8 +51,8 @@ const (
 const (
 	CotCTPN_MaPhieuNhap     = 0  // A
 	CotCTPN_MaSanPham       = 1  // B
-	CotCTPN_MaSKU           = 2  // C [MỚI]
-	CotCTPN_MaNganhHang     = 3  // D [MỚI]
+	CotCTPN_MaSKU           = 2  // C
+	CotCTPN_MaNganhHang     = 3  // D
 	CotCTPN_TenSanPham      = 4  // E
 	CotCTPN_DonVi           = 5  // F
 	CotCTPN_SoLuong         = 6  // G
@@ -68,32 +66,12 @@ const (
 	CotCTPN_GhiChuDong      = 14 // O
 )
 
-// --- NHÀ CUNG CẤP (16 Cột) ---
-const (
-	CotNCC_MaNhaCungCap     = 0  // A
-	CotNCC_TenNhaCungCap    = 1  // B
-	CotNCC_DienThoai        = 2  // C
-	CotNCC_Email            = 3  // D
-	CotNCC_DiaChi           = 4  // E
-	CotNCC_MaSoThue         = 5  // F
-	CotNCC_NguoiLienHe      = 6  // G
-	CotNCC_NganHang         = 7  // H
-	CotNCC_NoCanTra         = 8  // I
-	CotNCC_TongMua          = 9  // J
-	CotNCC_HanMucCongNo     = 10 // K
-	CotNCC_TrangThai        = 11 // L
-	CotNCC_GhiChu           = 12 // M
-	CotNCC_NguoiTao         = 13 // N
-	CotNCC_NgayTao          = 14 // O
-	CotNCC_NgayCapNhat      = 15 // P
-)
-
 // --- SERIAL SẢN PHẨM (19 Cột) ---
 const (
 	CotSR_SerialIMEI             = 0  // A
 	CotSR_MaSanPham              = 1  // B
-	CotSR_MaSKU                  = 2  // C [MỚI]
-	CotSR_MaNganhHang            = 3  // D [MỚI]
+	CotSR_MaSKU                  = 2  // C
+	CotSR_MaNganhHang            = 3  // D
 	CotSR_MaNhaCungCap           = 4  // E
 	CotSR_MaPhieuNhap            = 5  // F
 	CotSR_MaPhieuXuat            = 6  // G
@@ -101,9 +79,9 @@ const (
 	CotSR_BaoHanhNhaCungCap      = 8  // I
 	CotSR_HanBaoHanhNhaCungCap   = 9  // J
 	CotSR_MaKhachHangHienTai     = 10 // K
-	CotSR_NgayNhapKho            = 11 // L [MỚI]
+	CotSR_NgayNhapKho            = 11 // L
 	CotSR_NgayXuatKho            = 12 // M
-	CotSR_GiaVonNhap             = 13 // N [MỚI]
+	CotSR_GiaVonNhap             = 13 // N
 	CotSR_KichHoatBaoHanhKhach   = 14 // O
 	CotSR_HanBaoHanhKhach        = 15 // P
 	CotSR_MaKho                  = 16 // Q
@@ -114,28 +92,6 @@ const (
 // ====================================================================
 // 3. KHAI BÁO STRUCT GIAO TIẾP JSON
 // ====================================================================
-
-type NhaCungCap struct {
-	SpreadsheetID  string `json:"-"`
-	DongTrongSheet int    `json:"-"`
-
-	MaNhaCungCap   string  `json:"ma_nha_cung_cap"`
-	TenNhaCungCap  string  `json:"ten_nha_cung_cap"`
-	DienThoai      string  `json:"dien_thoai"`
-	Email          string  `json:"email"`
-	DiaChi         string  `json:"dia_chi"`
-	MaSoThue       string  `json:"ma_so_thue"`
-	NguoiLienHe    string  `json:"nguoi_lien_he"`
-	NganHang       string  `json:"ngan_hang"`
-	NoCanTra       float64 `json:"no_can_tra"`
-	TongMua        float64 `json:"tong_mua"`
-	HanMucCongNo   float64 `json:"han_muc_cong_no"`
-	TrangThai      int     `json:"trang_thai"`
-	GhiChu         string  `json:"ghi_chu"`
-	NguoiTao       string  `json:"nguoi_tao"`
-	NgayTao        string  `json:"ngay_tao"`
-	NgayCapNhat    string  `json:"ngay_cap_nhat"`
-}
 
 type PhieuNhap struct {
 	SpreadsheetID  string `json:"-"`
@@ -214,13 +170,13 @@ type SerialSanPham struct {
 // ====================================================================
 
 var (
-	CacheNhaCungCap     = make(map[string][]*NhaCungCap)
-	CacheMapNhaCungCap  = make(map[string]*NhaCungCap) 
-
 	CachePhieuNhap      = make(map[string][]*PhieuNhap)
 	CacheMapPhieuNhap   = make(map[string]*PhieuNhap)  
 )
 
+// ====================================================================
+// 5. CÁC HÀM NẠP DỮ LIỆU TỪ GOOGLE SHEETS LÊN RAM
+// ====================================================================
 
 func NapPhieuNhap(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
@@ -306,12 +262,6 @@ func NapPhieuNhap(shopID string) {
 // 6. CÁC HÀM TIỆN ÍCH
 // ====================================================================
 
-func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	return CacheNhaCungCap[shopID]
-}
-
 func LayDanhSachPhieuNhap(shopID string) []*PhieuNhap {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
@@ -333,21 +283,4 @@ func TaoMaPhieuNhapMoi(shopID string) string {
 		}
 	}
 	return fmt.Sprintf("%s%05d", prefix, maxNum+1) 
-}
-
-func TaoMaNhaCungCapMoi(shopID string) string {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	prefix := "NCC"
-	maxNum := 0
-	list := CacheNhaCungCap[shopID]
-	for _, ncc := range list {
-		if strings.HasPrefix(ncc.MaNhaCungCap, prefix) {
-			numStr := strings.TrimPrefix(ncc.MaNhaCungCap, prefix)
-			if num, err := strconv.Atoi(numStr); err == nil {
-				if num > maxNum { maxNum = num }
-			}
-		}
-	}
-	return fmt.Sprintf("%s%03d", prefix, maxNum+1) 
 }
