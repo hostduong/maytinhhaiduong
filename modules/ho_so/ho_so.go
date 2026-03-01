@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"app/cau_hinh"
+	"app/config"
 	"app/core"
 
 	"github.com/gin-gonic/gin"
