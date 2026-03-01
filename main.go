@@ -2,20 +2,46 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"app/config"
 	"app/core"
 	"app/routers"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
+// BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
 //go:embed giao_dien/*.html giao_dien/*/*.html
 var f embed.FS
+
+// --- PHỤC HỒI BỘ HÀM HTML THẬT ĐỂ KHÔNG BỊ CRASH GIAO DIỆN ---
+func layBoHamHTML() template.FuncMap {
+	return template.FuncMap{
+		"firstImg": func(s string) string {
+			if s == "" { return "" }
+			parts := strings.Split(s, "|")
+			return strings.TrimSpace(parts[0])
+		},
+		"format_money": func(n float64) string {
+			p := message.NewPrinter(language.Vietnamese)
+			return p.Sprintf("%.0f", n)
+		},
+		"json": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+		"split": strings.Split,
+	}
+}
 
 func main() {
 	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG KIẾN TRÚC LÕI V1.0...")
@@ -24,8 +50,7 @@ func main() {
 	core.KhoiTaoNenTang() 
 	core.KhoiTaoWorkerGhiSheet()
 
-	// [THAY ĐỔI LỚN]: Đẩy quá trình nạp RAM vào một tiến trình chạy nền (Background Goroutine)
-	// Để Server không bị block và có thể mở Port báo cáo cho Google Cloud ngay lập tức.
+	// Đẩy quá trình nạp RAM xuống nền để Server không bị nghẽn
 	go func() {
 		log.Println("📦 [BOOT BACKGROUND] Đang nạp toàn bộ Master Data lên RAM...")
 		core.NapPhanQuyen("")
@@ -41,11 +66,12 @@ func main() {
 
 	router := routers.SetupRouter()
 	
-	basicFuncMap := template.FuncMap{ "dummy": func() string { return "" } }
-	templ := template.Must(template.New("").Funcs(basicFuncMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
+	// SỬ DỤNG BỘ HÀM THẬT (Fix triệt để lỗi sập Container)
+	funcMap := layBoHamHTML()
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// MỞ CỔNG MẠNG BÁO CÁO GOOGLE CLOUD NGAY
+	// Mở cổng mạng
 	port := config.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
 	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
@@ -57,6 +83,7 @@ func main() {
 		}
 	}()
 
+	// Đóng băng hệ thống an toàn khi tắt Server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
