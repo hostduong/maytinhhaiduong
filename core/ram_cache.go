@@ -46,8 +46,3 @@ var (
 	
 	// Khai báo tiếp Cache DanhMuc, SanPham, PhieuNhap tại đây...
 )
-
-// Hàm tạo khóa gộp (Chống trùng lặp trên Map phẳng)
-func TaoCompositeKey(shopID, entityID string) string {
-	return shopID + "__" + entityID
-}
