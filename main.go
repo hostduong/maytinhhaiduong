@@ -17,8 +17,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// BẮT BUỘC: Quét thư mục giao_dien_he_thong (bao gồm cả file nằm trực tiếp và file trong thư mục con)
-//go:embed giao_dien_he_thong/*.html giao_dien_he_thong/*/*.html
+// BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
+//go:embed giao_dien/*.html giao_dien/*/*.html
 var f embed.FS
 
 func main() {
