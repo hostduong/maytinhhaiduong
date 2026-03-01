@@ -1,12 +1,11 @@
-package core
+package chuc_nang_master
 
 import (
-	"app/cau_hinh"
-	"fmt"
-	"sort"
+	"net/http"
 	"strings"
-	"strconv" // Mới thêm vào
-	"sync"    // Mới thêm vào
+
+	"app/core"
+	"github.com/gin-gonic/gin"
 )
 
 // ==============================================================================
