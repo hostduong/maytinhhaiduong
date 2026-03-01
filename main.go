@@ -91,6 +91,10 @@ func main() {
 		master.POST("/api/may-tinh/save", chuc_nang_master.API_LuuMayTinhMaster)
 
 		master.GET("/cai-dat-cau-hinh", chuc_nang_master.TrangCaiDatCauHinhMaster)
+		master.POST("/api/cai-dat-cau-hinh/danh-muc/save", chuc_nang_master.API_LuuDanhMucMaster)
+		master.POST("/api/cai-dat-cau-hinh/danh-muc/sync-slots", chuc_nang_master.API_DongBoSlotDanhMucMaster)
+		master.POST("/api/cai-dat-cau-hinh/thuong-hieu/save", chuc_nang_master.API_LuuThuongHieuMaster)
+		master.POST("/api/cai-dat-cau-hinh/bien-loi-nhuan/save", chuc_nang_master.API_LuuBienLoiNhuanMaster)
 		master.POST("/api/cai-dat-cau-hinh/ncc/save", chuc_nang_master.API_LuuNhaCungCapMaster)
 	}
 
