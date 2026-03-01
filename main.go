@@ -89,6 +89,9 @@ func main() {
 		master.GET("/quan-ly-may-tinh", chuc_nang_master.TrangQuanLyMayTinhMaster)
 		master.GET("/api/may-tinh/detail/:ma_sp", chuc_nang_master.API_LayChiTietMayTinhMaster)
 		master.POST("/api/may-tinh/save", chuc_nang_master.API_LuuMayTinhMaster)
+
+		master.GET("/cai-dat-cau-hinh", chuc_nang_master.TrangCaiDatCauHinhMaster)
+		master.POST("/api/cai-dat-cau-hinh/ncc/save", chuc_nang_master.API_LuuNhaCungCapMaster)
 	}
 
 	// API Public
