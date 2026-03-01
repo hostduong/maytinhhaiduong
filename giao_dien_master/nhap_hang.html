@@ -3,10 +3,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; height: calc(100vh - 100px); }
+        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; height: calc(100vh - 100px); transition: all 0.3s ease; }
         @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; } }
         
-        .box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
+        .box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; transition: all 0.3s ease; }
         .box-header { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-weight: 800; color: #374151; display: flex; justify-content: space-between; align-items: center; }
         .box-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
         
@@ -15,15 +15,21 @@
         
         .table-nhap-hang th { background: #f8fafc; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; color: #64748b; padding: 0.75rem 1rem; border-bottom: 2px solid #e2e8f0; }
         .table-nhap-hang td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
-        .table-nhap-hang input { height: 32px; padding: 0 0.5rem; text-align: center; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 700; width: 100%; }
-        .table-nhap-hang input:focus { border-color: #8b5cf6; outline: none; }
-        .table-nhap-hang input.price-input { text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+        
+        /* Chỉnh sửa ô Số lượng */
+        .table-nhap-hang input { height: 36px; padding: 0 0.5rem; text-align: center; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; width: 100%; }
+        .table-nhap-hang input.input-qty { min-width: 60px; max-width: 80px; margin: 0 auto; display: block; font-size: 1rem; }
+        .table-nhap-hang input.price-input { text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem;}
+        .table-nhap-hang input:focus { border-color: #8b5cf6; outline: none; background: white;}
+        /* Tắt mũi tên mặc định của input number */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
         
         .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 50; max-height: 300px; overflow-y: auto; display: none; }
         .search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
         .search-item:hover, .search-item.active { background: #faf5ff; }
 
-        .btn-serial { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .btn-serial { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 6px; }
         .btn-serial.empty { background: #fef2f2; color: #e11d48; border: 1px solid #fecdd3; }
         .btn-serial.filled { background: #f0fdf4; color: #059669; border: 1px solid #a7f3d0; }
 
@@ -32,6 +38,10 @@
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        /* Nút ẩn/hiện Panel */
+        .toggle-panel-btn { display: flex; items-center; gap: 4px; font-size: 0.8rem; font-weight: bold; color: #6366f1; background: #e0e7ff; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .toggle-panel-btn:hover { background: #c7d2fe; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -40,7 +50,8 @@
             <div class="sp-item" 
                 data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}"
                 data-ten="{{ .TenSanPham }}{{ if .TenSKU }} - {{ .TenSKU }}{{ end }}" data-donvi="{{ .DonVi }}" 
-                data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-baohanh="{{ .BaoHanh }}"></div>
+                data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-baohanh="{{ .BaoHanh }}"
+                data-img="{{ .UrlHinhAnh }}"></div>
             {{ end }}
         </div>
         <div id="data_ncc">
@@ -50,14 +61,17 @@
         </div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout">
+    <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
         
-        <div class="flex-1 box-panel overflow-hidden">
+        <div class="flex-1 box-panel overflow-hidden" id="leftPanel">
             <div class="box-header bg-gradient-to-r from-slate-50 to-white">
                 <div class="flex items-center gap-2 text-indigo-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     <span class="text-xl">Chi Tiết Nhập Hàng</span>
                 </div>
+                <button onclick="toggleRightPanel()" id="btnToggle" class="toggle-panel-btn hidden lg:flex">
+                    Đóng TT Thanh toán ⯈
+                </button>
             </div>
             
             <div class="p-4 border-b border-slate-200 relative z-20">
@@ -65,31 +79,31 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="inpSearchSP" class="input-premium pl-10 text-lg border-2 border-indigo-200" placeholder="🔍 Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm..." autocomplete="off">
+                    <input type="text" id="inpSearchSP" class="input-premium pl-10 text-lg border-2 border-indigo-200 shadow-sm" placeholder="🔍 Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
                 </div>
                 <div id="dropdownSP" class="search-dropdown"></div>
             </div>
 
             <div class="box-body p-0 custom-scroll z-10 relative">
-                <table class="w-full text-left table-nhap-hang whitespace-nowrap">
+                <table class="w-full text-left table-nhap-hang whitespace-nowrap" id="tableMain">
                     <thead class="sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th class="w-12 text-center">STT</th>
-                            <th class="w-24">Mã SKU</th>
+                            <th class="w-10 text-center">STT</th>
+                            <th class="w-16 text-center">Ảnh</th> <th class="w-24">Mã SKU</th>
                             <th class="w-auto">Tên Hàng Hóa</th>
-                            <th class="w-20 text-center">ĐVT</th>
+                            <th class="w-16 text-center">ĐVT</th>
                             <th class="w-24 text-center">SL</th>
-                            <th class="w-32 text-right">Đơn Giá Nhập</th>
+                            <th class="w-28 text-right">Giá Nhập</th>
                             <th class="w-24 text-right">Chiết Khấu</th>
-                            <th class="w-36 text-right">Thành Tiền</th>
-                            <th class="w-12 text-center">✕</th>
+                            <th class="w-32 text-right">Thành Tiền</th>
+                            <th class="w-10 text-center">✕</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyChiTiet">
                         <tr id="rowEmpty" class="border-b-0">
-                            <td colspan="9" class="text-center py-12 text-slate-400 font-medium italic">
-                                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                Chưa có sản phẩm nào trong phiếu nhập.
+                            <td colspan="10" class="text-center py-16 text-slate-400 font-medium italic">
+                                <svg class="w-14 h-14 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                Chưa có sản phẩm nào trong phiếu nhập. Gõ vào ô tìm kiếm phía trên.
                             </td>
                         </tr>
                     </tbody>
@@ -97,25 +111,25 @@
             </div>
         </div>
 
-        <div class="w-full lg:w-[400px] xl:w-[450px] flex flex-col gap-4">
+        <div class="w-full lg:w-[400px] xl:w-[420px] flex flex-col gap-4 transition-all duration-300 origin-right" id="rightPanel">
             <div class="box-panel">
                 <div class="box-body space-y-4">
                     <div class="relative z-30">
-                        <label class="text-[11px] font-bold text-slate-500 uppercase">👤 Nhà Cung Cấp</label>
+                        <label class="text-[11px] font-bold text-slate-500 uppercase">👤 Nhà Cung Cấp <span class="text-red-500">*</span></label>
                         <div class="flex gap-2">
                             <div class="relative flex-1">
-                                <input type="text" id="inpSearchNCC" class="input-premium" placeholder="Tìm tên hoặc SĐT..." autocomplete="off">
+                                <input type="text" id="inpSearchNCC" class="input-premium" placeholder="Gõ tên để tìm hoặc thêm mới..." autocomplete="off">
                                 <input type="hidden" id="valMaNCC">
                                 <div id="dropdownNCC" class="search-dropdown text-sm"></div>
                             </div>
-                            <button type="button" onclick="openModalNCC()" class="w-[42px] h-[42px] bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 flex items-center justify-center font-bold transition shrink-0 border border-indigo-200">+</button>
+                            <button type="button" onclick="openModalNCC()" title="Thêm Nhà Cung Cấp" class="w-[42px] h-[42px] bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 flex items-center justify-center font-bold transition shrink-0 border border-indigo-200">+</button>
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-[11px] font-bold text-slate-500 uppercase">Mã Phiếu</label>
-                            <input type="text" class="input-premium bg-slate-100 text-slate-500 border-dashed" placeholder="Tự động" disabled>
+                            <input type="text" class="input-premium bg-slate-100 text-slate-500 border-dashed" placeholder="Tự động sinh" disabled>
                         </div>
                         <div>
                             <label class="text-[11px] font-bold text-slate-500 uppercase">Ngày Nhập</label>
@@ -130,7 +144,7 @@
                         </div>
                         <div>
                             <label class="text-[11px] font-bold text-slate-500 uppercase">Kho Nhập</label>
-                            <select id="valMaKho" class="input-premium">
+                            <select id="valMaKho" class="input-premium cursor-pointer">
                                 <option value="KHO_CHINH">Kho Chính</option>
                                 <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
                             </select>
@@ -158,10 +172,10 @@
                             <span id="lblCanTra" class="summary-val text-2xl text-indigo-700">0</span>
                         </div>
                         
-                        <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                             <div class="summary-row items-center mb-3">
                                 <span class="text-emerald-700 font-bold">Tiền trả NCC:</span> 
-                                <input type="text" id="inpDaThanhToan" class="input-premium price-input w-36 bg-white border-emerald-300 text-emerald-700 font-bold text-lg" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
+                                <input type="text" id="inpDaThanhToan" class="input-premium price-input w-36 bg-white border-emerald-400 text-emerald-700 font-bold text-lg shadow-sm" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
                             </div>
                             <div class="flex gap-2">
                                 <button type="button" class="flex-1 py-1.5 border border-indigo-500 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-bold btn-paymethod active">Tiền Mặt</button>
@@ -198,7 +212,7 @@
                 </div>
                 <textarea id="inpSerials" rows="8" class="input-premium py-3 font-mono text-sm leading-relaxed bg-slate-50" placeholder="Tít mã vạch vào đây...&#10;Mỗi mã trên 1 dòng..."></textarea>
                 <div class="mt-2 flex justify-between items-center">
-                    <span class="text-xs text-slate-400 italic">Có thể bỏ trống nếu hàng không có mã vạch</span>
+                    <span class="text-xs text-slate-400 italic">Bỏ trống nếu hàng không có mã vạch</span>
                     <div class="text-xs font-bold text-slate-500">Đã tít: <span id="lblSerialCount" class="text-emerald-600 text-base">0</span></div>
                 </div>
             </div>
@@ -231,13 +245,37 @@
     <script>
         document.getElementById('valNgayNhap').valueAsDate = new Date();
 
+        // NÚT TOGGLE RIGHT PANEL
+        let isPanelOpen = true;
+        function toggleRightPanel() {
+            const rightPanel = document.getElementById('rightPanel');
+            const btn = document.getElementById('btnToggle');
+            if(isPanelOpen) {
+                rightPanel.classList.add('hidden', 'lg:hidden'); // Giấu panel đi
+                btn.innerHTML = '⯇ Hiện Thanh toán';
+                isPanelOpen = false;
+            } else {
+                rightPanel.classList.remove('hidden', 'lg:hidden'); // Mở lại
+                btn.innerHTML = 'Đóng TT Thanh toán ⯈';
+                isPanelOpen = true;
+            }
+        }
+
+        // HÀM BÓC TÁCH ẢNH
+        function getFirstImg(str) {
+            if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
+            let arr = str.split('|');
+            return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
+        }
+
         // 1. CHUẨN BỊ DỮ LIỆU
         const dbSP = [];
         document.querySelectorAll('#data_sp .sp-item').forEach(el => {
             dbSP.push({
                 ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), 
                 ten: el.getAttribute('data-ten'), donvi: el.getAttribute('data-donvi'), 
-                gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, baohanh: el.getAttribute('data-baohanh') || ""
+                gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, baohanh: el.getAttribute('data-baohanh') || "",
+                img: el.getAttribute('data-img')
             });
         });
 
@@ -281,7 +319,7 @@
         }
 
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
-            (i) => `<div><div class="font-bold text-indigo-900 text-[15px]">${i.ten}</div><div class="text-xs text-slate-500 font-mono mt-0.5">Mã: ${i.ma_sku} | Giá: ${formatNum(i.gianhap)} ₫</div></div>`,
+            (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-10 h-10 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[15px]">${i.ten}</div><div class="text-xs text-slate-500 font-mono mt-0.5">Mã: ${i.ma_sku} | Giá: ${formatNum(i.gianhap)} ₫</div></div></div>`,
             (i) => addProductToCart(i)
         );
 
@@ -327,27 +365,27 @@
                 tongTienHang += thanhTien;
 
                 let tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition";
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 
-                // Nút Serial xuất hiện mặc định cho mọi sản phẩm
                 let st = (c.serials && c.serials.length > 0) ? 'filled' : 'empty';
                 let icon = (c.serials && c.serials.length > 0) ? '✓' : '📝';
                 let txt = (c.serials && c.serials.length > 0) ? `${c.serials.length} Serial` : '+ Thêm Serial';
-                let btnSerialHTML = `<div class="mt-1"><button onclick="openSerialModal(${idx})" class="btn-serial ${st}">${icon} ${txt}</button></div>`;
+                let btnSerialHTML = `<div><button onclick="openSerialModal(${idx})" class="btn-serial ${st}">${icon} ${txt}</button></div>`;
 
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono">${idx + 1}</td>
-                    <td class="font-mono text-xs text-indigo-600 font-bold">${c.ma_sku}</td>
-                    <td class="font-bold text-[14px]">
-                        <div class="truncate max-w-[250px]" title="${c.ten}">${c.ten}</div>
+                    <td class="text-center"><img src="${getFirstImg(c.img)}" class="w-12 h-12 object-cover rounded border border-slate-200 inline-block"></td>
+                    <td class="font-mono text-sm text-indigo-700 font-bold">${c.ma_sku}</td>
+                    <td class="font-bold text-[14px] whitespace-normal min-w-[200px]">
+                        ${c.ten}
                         ${btnSerialHTML}
                     </td>
-                    <td class="text-center text-xs">${c.donvi}</td>
-                    <td><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="bg-white"></td>
+                    <td class="text-center text-xs text-slate-500">${c.donvi}</td>
+                    <td><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty"></td>
                     <td><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input"></td>
                     <td><input type="text" value="${formatNum(c.ck)}" onchange="updateCart(${idx}, 'ck', this)" class="price-input text-orange-600 bg-orange-50 border-orange-200"></td>
                     <td class="text-right font-black text-[15px] text-indigo-700">${formatNum(thanhTien)}</td>
-                    <td class="text-center"><button onclick="removeProduct(${idx})" class="w-7 h-7 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition">✕</button></td>
+                    <td class="text-center"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition">✕</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -373,7 +411,7 @@
             elConNo.className = conNo > 0 ? "summary-val text-red-500" : "summary-val text-emerald-600";
         }
 
-        // 5. SERIAL MODAL (Đã sửa bỏ điều kiện bắt buộc)
+        // 5. SERIAL MODAL
         document.getElementById('inpSerials').addEventListener('input', function() {
             let lines = this.value.split('\n').filter(l => l.trim() !== '');
             document.getElementById('lblSerialCount').innerText = lines.length;
@@ -465,11 +503,8 @@
             };
 
             console.log("JSON Bắn về Backend:", payload);
-            
             Swal.fire({ title: 'Đang xử lý...', text: 'Vui lòng chờ hệ thống ghi dữ liệu.', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading() } });
-
-            // Giả lập xử lý - sẽ được thay bằng hàm fetch thật ở bước API
-            setTimeout(() => { Swal.fire('Tạm OK', 'JSON đã Console.log. Chuẩn bị code Golang để hứng!', 'success'); }, 1000);
+            setTimeout(() => { Swal.fire('Tạm OK', 'JSON đã Console.log. Giao diện UX đã hoàn hảo!', 'success'); }, 1000);
         }
     </script>
     {{ template "footer_master" . }}
