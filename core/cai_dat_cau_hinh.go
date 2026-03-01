@@ -38,18 +38,21 @@ type DanhMuc struct {
 
 var (
 	CacheDanhMuc    = make(map[string][]*DanhMuc)
-	CacheMapDanhMuc = make(map[string]*DanhMuc)
+	CacheMapDanhMuc = make(map[string]*DanhMuc) // Đã sửa thành Map phẳng
 )
 
 func NapDanhMuc(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, "DANH_MUC")
 	if err != nil { return }
+
 	list := []*DanhMuc{}
+
 	for i, r := range raw {
 		if i < DongBatDau_DanhMuc-1 { continue }
 		maDM := LayString(r, CotDM_MaDanhMuc)
 		if maDM == "" { continue }
+
 		dm := &DanhMuc{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
@@ -61,9 +64,13 @@ func NapDanhMuc(shopID string) {
 			Slot:           LayInt(r, CotDM_Slot),
 			TrangThai:      LayInt(r, CotDM_TrangThai),
 		}
+		
 		list = append(list, dm)
-		CacheMapDanhMuc[TaoCompositeKey(shopID, maDM)] = dm
+		
+		key := TaoCompositeKey(shopID, maDM)
+		CacheMapDanhMuc[key] = dm
 	}
+
 	KhoaHeThong.Lock()
 	CacheDanhMuc[shopID] = list
 	KhoaHeThong.Unlock()
@@ -72,22 +79,31 @@ func NapDanhMuc(shopID string) {
 func LayDanhSachDanhMuc(shopID string) []*DanhMuc {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	return CacheDanhMuc[shopID]
+	
+	if list, ok := CacheDanhMuc[shopID]; ok {
+		return list
+	}
+	return []*DanhMuc{}
 }
 
 func LayChiTietDanhMuc(shopID, maDM string) (*DanhMuc, bool) {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	dm, ok := CacheMapDanhMuc[TaoCompositeKey(shopID, maDM)]
+	
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
 	return dm, ok
 }
 
-func ThemDanhMucVaoRam(dm *DanhMuc) {
-	KhoaHeThong.Lock()
-	defer KhoaHeThong.Unlock()
-	sID := dm.SpreadsheetID
-	CacheDanhMuc[sID] = append(CacheDanhMuc[sID], dm)
-	CacheMapDanhMuc[TaoCompositeKey(sID, dm.MaDanhMuc)] = dm
+func TimMaDanhMucTheoTen(shopID, tenDM string) string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	
+	list := CacheDanhMuc[shopID]
+	for _, dm := range list {
+		if strings.EqualFold(dm.TenDanhMuc, tenDM) { return dm.MaDanhMuc }
+	}
+	return "" 
 }
 
 func LaySlotTiepTheo(shopID, maDM string) int {
@@ -119,17 +135,29 @@ func CapNhatSlotThuCong(shopID, maDM string, slotMoi int) {
 	}
 }
 
+func ThemDanhMucVaoRam(dm *DanhMuc) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	
+	sID := dm.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+	
+	CacheDanhMuc[sID] = append(CacheDanhMuc[sID], dm)
+	
+	key := TaoCompositeKey(sID, dm.MaDanhMuc)
+	CacheMapDanhMuc[key] = dm
+}
 
 // ==============================================================================
 // PHẦN 2: THƯƠNG HIỆU
 // ==============================================================================
 const (
-	DongBatDau_ThuongHieu = 11
-	CotTH_MaThuongHieu    = 0
-	CotTH_TenThuongHieu   = 1
-	CotTH_LogoUrl         = 2
-	CotTH_MoTa            = 3
-	CotTH_TrangThai       = 4
+	DongBatDau_ThuongHieu = 11 
+	CotTH_MaThuongHieu  = 0
+	CotTH_TenThuongHieu = 1
+	CotTH_LogoUrl       = 2
+	CotTH_MoTa          = 3
+	CotTH_TrangThai     = 4
 )
 
 type ThuongHieu struct {
@@ -144,18 +172,20 @@ type ThuongHieu struct {
 
 var (
 	CacheThuongHieu    = make(map[string][]*ThuongHieu)
-	CacheMapThuongHieu = make(map[string]*ThuongHieu)
+	CacheMapThuongHieu = make(map[string]*ThuongHieu) // Đã sửa thành Map phẳng
 )
 
 func NapThuongHieu(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, "THUONG_HIEU")
 	if err != nil { return }
+
 	list := []*ThuongHieu{}
 	for i, r := range raw {
 		if i < DongBatDau_ThuongHieu-1 { continue }
 		maTH := LayString(r, CotTH_MaThuongHieu)
 		if maTH == "" { continue }
+
 		th := &ThuongHieu{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
@@ -166,7 +196,8 @@ func NapThuongHieu(shopID string) {
 			TrangThai:      LayInt(r, CotTH_TrangThai),
 		}
 		list = append(list, th)
-		CacheMapThuongHieu[TaoCompositeKey(shopID, maTH)] = th
+		key := TaoCompositeKey(shopID, maTH)
+		CacheMapThuongHieu[key] = th
 	}
 	KhoaHeThong.Lock()
 	CacheThuongHieu[shopID] = list
@@ -184,7 +215,8 @@ func ThemThuongHieuVaoRam(th *ThuongHieu) {
 	defer KhoaHeThong.Unlock()
 	sID := th.SpreadsheetID
 	CacheThuongHieu[sID] = append(CacheThuongHieu[sID], th)
-	CacheMapThuongHieu[TaoCompositeKey(sID, th.MaThuongHieu)] = th
+	key := TaoCompositeKey(sID, th.MaThuongHieu)
+	CacheMapThuongHieu[key] = th
 }
 
 // ==============================================================================
@@ -192,21 +224,24 @@ func ThemThuongHieuVaoRam(th *ThuongHieu) {
 // ==============================================================================
 const (
 	DongBatDau_BienLoiNhuan = 11
-	CotBLN_KhungGiaNhap     = 0
-	CotBLN_BienLoiNhuan     = 1
-	CotBLN_TrangThai        = 2
+	CotBLN_KhungGiaNhap = 0
+	CotBLN_BienLoiNhuan = 1
+	CotBLN_TrangThai    = 2
 )
 
 type BienLoiNhuan struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
+
 	GiaTu          float64 `json:"gia_tu"`
 	KhungGiaNhap   float64 `json:"khung_gia_nhap"`
 	BienLoiNhuan   float64 `json:"bien_loi_nhuan"`
 	TrangThai      int     `json:"trang_thai"`
 }
 
-var CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan)
+var (
+	CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan)
+)
 
 func capNhatKhoangGia(list []*BienLoiNhuan) {
 	var prev float64 = 0
@@ -220,11 +255,14 @@ func NapBienLoiNhuan(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, "BIEN_LOI_NHUAN")
 	if err != nil { return }
+
 	list := []*BienLoiNhuan{}
+
 	for i, r := range raw {
 		if i < DongBatDau_BienLoiNhuan-1 { continue }
 		khungGia := LayFloat(r, CotBLN_KhungGiaNhap)
-		if khungGia <= 0 { continue }
+		if khungGia <= 0 { continue } 
+
 		bln := &BienLoiNhuan{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
@@ -234,8 +272,13 @@ func NapBienLoiNhuan(shopID string) {
 		}
 		list = append(list, bln)
 	}
-	sort.Slice(list, func(i, j int) bool { return list[i].KhungGiaNhap < list[j].KhungGiaNhap })
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
+	})
+
 	capNhatKhoangGia(list)
+
 	KhoaHeThong.Lock()
 	CacheBienLoiNhuan[shopID] = list
 	KhoaHeThong.Unlock()
@@ -244,15 +287,25 @@ func NapBienLoiNhuan(shopID string) {
 func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	return CacheBienLoiNhuan[shopID]
+	if list, ok := CacheBienLoiNhuan[shopID]; ok {
+		return list
+	}
+	return []*BienLoiNhuan{}
 }
 
 func ThemBienLoiNhuanVaoRam(bln *BienLoiNhuan) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
+	
 	sID := bln.SpreadsheetID
+	if sID == "" { sID = cau_hinh.BienCauHinh.IdFileSheet }
+	
 	list := append(CacheBienLoiNhuan[sID], bln)
-	sort.Slice(list, func(i, j int) bool { return list[i].KhungGiaNhap < list[j].KhungGiaNhap })
+	
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
+	})
+	
 	capNhatKhoangGia(list)
 	CacheBienLoiNhuan[sID] = list
 }
@@ -260,6 +313,7 @@ func ThemBienLoiNhuanVaoRam(bln *BienLoiNhuan) {
 func SuaBienLoiNhuanTrongRam(shopID string, dong int, khungGia, loiNhuan float64, trangThai int) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
+	
 	list := CacheBienLoiNhuan[shopID]
 	for _, item := range list {
 		if item.DongTrongSheet == dong {
@@ -269,33 +323,36 @@ func SuaBienLoiNhuanTrongRam(shopID string, dong int, khungGia, loiNhuan float64
 			break
 		}
 	}
-	sort.Slice(list, func(i, j int) bool { return list[i].KhungGiaNhap < list[j].KhungGiaNhap })
+	
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].KhungGiaNhap < list[j].KhungGiaNhap
+	})
 	capNhatKhoangGia(list)
 }
 
 // ==============================================================================
-// PHẦN 4: NHÀ CUNG CẤP
+// PHẦN 4: NHÀ CUNG CẤP (Code theo đúng Format chuẩn của bạn)
 // ==============================================================================
 const (
 	TenSheetNhaCungCap    = "NHA_CUNG_CAP"
 	DongBatDau_NhaCungCap = 2
 
-	CotNCC_MaNhaCungCap = 0
+	CotNCC_MaNhaCungCap  = 0
 	CotNCC_TenNhaCungCap = 1
-	CotNCC_DienThoai    = 2
-	CotNCC_Email        = 3
-	CotNCC_DiaChi       = 4
-	CotNCC_MaSoThue     = 5
-	CotNCC_NguoiLienHe  = 6
-	CotNCC_NganHang     = 7
-	CotNCC_NoCanTra     = 8
-	CotNCC_TongMua      = 9
-	CotNCC_HanMucCongNo = 10
-	CotNCC_TrangThai    = 11
-	CotNCC_GhiChu       = 12
-	CotNCC_NguoiTao     = 13
-	CotNCC_NgayTao      = 14
-	CotNCC_NgayCapNhat  = 15
+	CotNCC_DienThoai     = 2
+	CotNCC_Email         = 3
+	CotNCC_DiaChi        = 4
+	CotNCC_MaSoThue      = 5
+	CotNCC_NguoiLienHe   = 6
+	CotNCC_NganHang      = 7
+	CotNCC_NoCanTra      = 8
+	CotNCC_TongMua       = 9
+	CotNCC_HanMucCongNo  = 10
+	CotNCC_TrangThai     = 11
+	CotNCC_GhiChu        = 12
+	CotNCC_NguoiTao      = 13
+	CotNCC_NgayTao       = 14
+	CotNCC_NgayCapNhat   = 15
 )
 
 type NhaCungCap struct {
@@ -314,6 +371,9 @@ type NhaCungCap struct {
 	HanMucCongNo   float64 `json:"han_muc_cong_no"`
 	TrangThai      int    `json:"trang_thai"`
 	GhiChu         string `json:"ghi_chu"`
+	NguoiTao       string `json:"nguoi_tao"`
+	NgayTao        string `json:"ngay_tao"`
+	NgayCapNhat    string `json:"ngay_cap_nhat"`
 }
 
 var (
@@ -325,11 +385,13 @@ func NapNhaCungCap(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
 	raw, err := LoadSheetData(shopID, TenSheetNhaCungCap)
 	if err != nil { return }
+	
 	list := []*NhaCungCap{}
 	for i, r := range raw {
 		if i < DongBatDau_NhaCungCap-1 { continue }
 		maNCC := LayString(r, CotNCC_MaNhaCungCap)
 		if maNCC == "" { continue }
+		
 		ncc := &NhaCungCap{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: i + 1,
@@ -346,9 +408,13 @@ func NapNhaCungCap(shopID string) {
 			HanMucCongNo:   LayFloat(r, CotNCC_HanMucCongNo),
 			TrangThai:      LayInt(r, CotNCC_TrangThai),
 			GhiChu:         LayString(r, CotNCC_GhiChu),
+			NguoiTao:       LayString(r, CotNCC_NguoiTao),
+			NgayTao:        LayString(r, CotNCC_NgayTao),
+			NgayCapNhat:    LayString(r, CotNCC_NgayCapNhat),
 		}
 		list = append(list, ncc)
-		CacheMapNhaCungCap[TaoCompositeKey(shopID, maNCC)] = ncc
+		key := TaoCompositeKey(shopID, maNCC)
+		CacheMapNhaCungCap[key] = ncc
 	}
 	KhoaHeThong.Lock()
 	CacheNhaCungCap[shopID] = list
@@ -358,7 +424,10 @@ func NapNhaCungCap(shopID string) {
 func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap {
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
-	return CacheNhaCungCap[shopID]
+	if list, ok := CacheNhaCungCap[shopID]; ok {
+		return list
+	}
+	return []*NhaCungCap{}
 }
 
 func TaoMaNhaCungCapMoi(shopID string) string {
@@ -366,7 +435,8 @@ func TaoMaNhaCungCapMoi(shopID string) string {
 	defer KhoaHeThong.RUnlock()
 	prefix := "NCC"
 	maxNum := 0
-	for _, ncc := range CacheNhaCungCap[shopID] {
+	list := CacheNhaCungCap[shopID]
+	for _, ncc := range list {
 		if strings.HasPrefix(ncc.MaNhaCungCap, prefix) {
 			numStr := strings.TrimPrefix(ncc.MaNhaCungCap, prefix)
 			if num, err := strconv.Atoi(numStr); err == nil {
@@ -378,117 +448,127 @@ func TaoMaNhaCungCapMoi(shopID string) string {
 }
 
 // ==============================================================================
-// PHẦN 5: PHÂN QUYỀN VÀ BẢO MẬT (Đã khôi phục 100%)
+// PHẦN 5: PHÂN QUYỀN
 // ==============================================================================
 const (
-	TenSheetPhanQuyen = "PHAN_QUYEN"
-	DongBatDau_PhanQuyen = 2
-
-	CotPQ_Id           = 0
-	CotPQ_TenVaiTro    = 1
-	CotPQ_CapBac       = 2
-	CotPQ_QuyenQuanTri = 3
-	CotPQ_QuyenHangHoa = 4
-	CotPQ_QuyenDonHang = 5
-	CotPQ_TrangThai    = 6
+	DongBatDau_PhanQuyen = 11
+	CotPQ_MaChucNang    = 0
+	CotPQ_Nhom          = 1
+	CotPQ_MoTa          = 2
+	CotPQ_StartRole     = 3
 )
 
-type PhanQuyen struct {
-	Id           string `json:"id"`
-	TenVaiTro    string `json:"ten_vai_tro"`
-	CapBac       int    `json:"cap_bac"`
-	QuyenQuanTri string `json:"quyen_quan_tri"`
-	QuyenHangHoa string `json:"quyen_hang_hoa"`
-	QuyenDonHang string `json:"quyen_don_hang"`
-	TrangThai    int    `json:"trang_thai"`
-}
-
 type VaiTroInfo struct {
-	ID        string
-	Ten       string
-	CapBac    int
-	TrangThai int
+	MaVaiTro   string
+	TenVaiTro  string
+	StyleLevel int // Tầng quyền lực (0 đến 9)
+	StyleTheme int // Mã màu sắc (0 đến 9)
 }
 
 var (
-	CachePhanQuyen      = make(map[string]map[string]*PhanQuyen)
+	CachePhanQuyen      = make(map[string]map[string]map[string]bool)
 	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)
-	lockPhanQuyen       sync.RWMutex
+	mtxQuyen            sync.RWMutex
 )
 
 func NapPhanQuyen(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := LoadSheetData(shopID, TenSheetPhanQuyen)
+	raw, err := LoadSheetData(shopID, "PHAN_QUYEN")
 	if err != nil { return }
 
-	mapPQ := make(map[string]*PhanQuyen)
-	listVT := make([]VaiTroInfo, 0)
-
-	for i, r := range raw {
-		if i < DongBatDau_PhanQuyen-1 { continue }
-		id := LayString(r, CotPQ_Id)
-		if id == "" { continue }
-
-		pq := &PhanQuyen{
-			Id:           id,
-			TenVaiTro:    LayString(r, CotPQ_TenVaiTro),
-			CapBac:       LayInt(r, CotPQ_CapBac),
-			QuyenQuanTri: LayString(r, CotPQ_QuyenQuanTri),
-			QuyenHangHoa: LayString(r, CotPQ_QuyenHangHoa),
-			QuyenDonHang: LayString(r, CotPQ_QuyenDonHang),
-			TrangThai:    LayInt(r, CotPQ_TrangThai),
+	headerIndex, styleIndex := -1, -1
+	for i, row := range raw {
+		if len(row) > 0 {
+			firstCell := strings.TrimSpace(strings.ToLower(LayString(row, 0)))
+			if firstCell == "ma_chuc_nang" { headerIndex = i } else if firstCell == "style" { styleIndex = i }
 		}
-		mapPQ[id] = pq
-		listVT = append(listVT, VaiTroInfo{
-			ID:        id,
-			Ten:       pq.TenVaiTro,
-			CapBac:    pq.CapBac,
-			TrangThai: pq.TrangThai,
-		})
+	}
+	if headerIndex == -1 { return } 
+
+	tempMap := make(map[string]map[string]bool)
+	var danhSachVaiTroCuaShop []VaiTroInfo 
+	header := raw[headerIndex]
+	var listMaVaiTro []string 
+
+	for i := CotPQ_StartRole; i < len(header); i++ {
+		headerText := strings.TrimSpace(LayString(header, i))
+		if headerText == "" { continue }
+		parts := strings.Split(headerText, "|")
+		roleID := strings.ReplaceAll(strings.ToLower(strings.TrimSpace(parts[0])), " ", "_") 
+		roleName := roleID 
+		if len(parts) > 1 { roleName = strings.TrimSpace(parts[1]) }
+
+		if roleID != "" {
+			listMaVaiTro = append(listMaVaiTro, roleID)
+			tempMap[roleID] = make(map[string]bool)
+			
+			styleCode := 90
+			if styleIndex != -1 {
+				val := LayInt(raw[styleIndex], i)
+				if val >= 0 { styleCode = val } 
+			}
+			
+			var lvl, thm int
+			if styleCode >= 10 { 
+				lvl = styleCode / 10 
+				thm = styleCode % 10 
+			} else {
+				lvl = styleCode
+				switch lvl {
+				case 0: thm = 9
+				case 1: thm = 4
+				case 2: thm = 7
+				case 3: thm = 5
+				case 4: thm = 4
+				case 5: thm = 6
+				case 6: thm = 2
+				case 7: thm = 1
+				default: thm = 0
+				}
+			}
+
+			danhSachVaiTroCuaShop = append(danhSachVaiTroCuaShop, VaiTroInfo{
+				MaVaiTro: roleID, TenVaiTro: roleName, StyleLevel: lvl, StyleTheme: thm,
+			})
+		}
 	}
 
-	sort.Slice(listVT, func(i, j int) bool {
-		return listVT[i].CapBac > listVT[j].CapBac
-	})
+	for i, row := range raw {
+		if i <= headerIndex { continue }
+		maChucNang := strings.TrimSpace(LayString(row, CotPQ_MaChucNang))
+		if maChucNang == "" || maChucNang == "style" { continue } 
 
-	lockPhanQuyen.Lock()
-	CachePhanQuyen[shopID] = mapPQ
-	CacheDanhSachVaiTro[shopID] = listVT
-	lockPhanQuyen.Unlock()
+		for j, roleID := range listMaVaiTro {
+			val := LayString(row, CotPQ_StartRole+j)
+			if val == "1" || strings.ToLower(val) == "true" { tempMap[roleID][maChucNang] = true }
+		}
+	}
+
+	mtxQuyen.Lock()
+	CachePhanQuyen[shopID] = tempMap
+	CacheDanhSachVaiTro[shopID] = danhSachVaiTroCuaShop
+	mtxQuyen.Unlock()
 }
 
-func KiemTraQuyen(shopID, idVaiTro, keyQuyen string) bool {
-	if idVaiTro == "admin_root" { return true }
-	
-	lockPhanQuyen.RLock()
-	defer lockPhanQuyen.RUnlock()
-
-	mapPQ, okShop := CachePhanQuyen[shopID]
-	if !okShop { return false }
-
-	pq, okPQ := mapPQ[idVaiTro]
-	if !okPQ || pq.TrangThai != 1 { return false }
-
-	switch keyQuyen {
-	case "quan_tri": return pq.QuyenQuanTri == "xem_sua"
-	case "hang_hoa": return pq.QuyenHangHoa == "xem_sua" || pq.QuyenHangHoa == "xem"
-	case "sua_hang_hoa": return pq.QuyenHangHoa == "xem_sua"
-	case "don_hang": return pq.QuyenDonHang == "xem_sua" || pq.QuyenDonHang == "xem"
-	case "sua_don_hang": return pq.QuyenDonHang == "xem_sua"
+func KiemTraQuyen(shopID string, vaiTro string, maChucNang string) bool {
+	if vaiTro == "quan_tri_he_thong" { return true } 
+	mtxQuyen.RLock()
+	defer mtxQuyen.RUnlock()
+	vaiTro = strings.ReplaceAll(strings.ToLower(strings.TrimSpace(vaiTro)), " ", "_") 
+	if shopMap, ok := CachePhanQuyen[shopID]; ok {
+		if listQuyen, exists := shopMap[vaiTro]; exists {
+			if allowed, has := listQuyen[maChucNang]; has { return allowed }
+		}
 	}
 	return false
 }
 
-func LayCapBacVaiTro(shopID, idVaiTro string) int {
-	if idVaiTro == "admin_root" { return 9999 }
-	
-	lockPhanQuyen.RLock()
-	defer lockPhanQuyen.RUnlock()
-
-	mapPQ, okShop := CachePhanQuyen[shopID]
-	if !okShop { return 0 }
-
-	pq, okPQ := mapPQ[idVaiTro]
-	if !okPQ { return 0 }
-	return pq.CapBac
+func LayCapBacVaiTro(shopID string, maKH string, vaiTro string) int {
+	if maKH == "0000000000000000000" || vaiTro == "quan_tri_he_thong" { return 0 }
+	mtxQuyen.RLock()
+	defer mtxQuyen.RUnlock()
+	for _, v := range CacheDanhSachVaiTro[shopID] {
+		if v.MaVaiTro == vaiTro { return v.StyleLevel }
+	}
+	return 9
 }
