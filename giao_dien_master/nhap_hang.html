@@ -1,5 +1,8 @@
 {{ define "master_nhap_hang" }}
     {{ template "header_master" . }}
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -14,11 +17,10 @@
         .input-premium:focus { background-color: #ffffff; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
         
         .table-nhap-hang th { background: #f8fafc; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; color: #64748b; padding: 0.75rem 1rem; border-bottom: 2px solid #e2e8f0; }
-        .table-nhap-hang td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
+        .table-nhap-hang td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; font-weight: 600; color: #334155; }
         
         .table-nhap-hang input { height: 36px; padding: 0 0.5rem; text-align: center; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; width: 100%; }
         .table-nhap-hang input.input-qty { min-width: 60px; max-width: 80px; margin: 0 auto; display: block; font-size: 1rem; }
-        /* TĂNG MIN-WIDTH CHO Ô GIÁ NHẬP ĐỂ KHÔNG BỊ KHUẤT SỐ */
         .table-nhap-hang input.price-input { text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; min-width: 110px;}
         .table-nhap-hang input:focus { border-color: #8b5cf6; outline: none; background: white;}
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -40,6 +42,12 @@
 
         .toggle-panel-btn { display: flex; items-center; gap: 4px; font-size: 0.8rem; font-weight: bold; color: #6366f1; background: #e0e7ff; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .toggle-panel-btn:hover { background: #c7d2fe; }
+
+        /* Tùy chỉnh Tagify cho form Serial */
+        .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
+        .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+        .tagify-serial .tagify__tag { margin: 4px; }
+        .tagify-serial .tagify__tag>div { background: #e0e7ff; color: #4338ca; font-family: monospace; font-weight: bold; border-radius: 6px; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -198,20 +206,22 @@
         </div>
     </div>
 
-    <div id="modalSerial" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div id="modalSerial" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
             <div class="px-6 py-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
                 <h3 class="text-lg font-black text-indigo-800">Nhập Mã Serial / IMEI</h3>
                 <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
             <div class="p-6">
-                <div class="flex justify-between text-sm font-bold text-slate-600 mb-2">
+                <div class="flex justify-between text-sm font-bold text-slate-600 mb-3">
                     <span id="lblSerialName" class="text-indigo-600 truncate mr-4">Tên SP</span>
                     <span>SL Nhập: <span id="lblSerialReq" class="text-indigo-600 text-lg">0</span></span>
                 </div>
-                <textarea id="inpSerials" rows="8" class="input-premium py-3 font-mono text-sm leading-relaxed bg-slate-50" placeholder="Tít mã vạch vào đây...&#10;Mỗi mã trên 1 dòng..."></textarea>
-                <div class="mt-2 flex justify-between items-center">
-                    <span class="text-xs text-slate-400 italic">Bỏ trống nếu hàng không có mã vạch</span>
+                
+                <input id="inpSerials" class="tagify-serial" placeholder="Tít mã vạch hoặc Gõ mã rồi ấn Enter..." autofocus>
+                
+                <div class="mt-3 flex justify-between items-center">
+                    <span class="text-xs text-slate-400 italic">Nhấn phím Enter sau mỗi Serial</span>
                     <div class="text-xs font-bold text-slate-500">Đã tít: <span id="lblSerialCount" class="text-emerald-600 text-base">0</span></div>
                 </div>
             </div>
@@ -244,7 +254,7 @@
     <script>
         document.getElementById('valNgayNhap').valueAsDate = new Date();
 
-        // --- NÚT TOGGLE RIGHT PANEL ---
+        // NÚT TOGGLE RIGHT PANEL
         let isPanelOpen = true;
         function toggleRightPanel() {
             const rightPanel = document.getElementById('rightPanel');
@@ -260,14 +270,14 @@
             }
         }
 
-        // --- HÀM BÓC TÁCH ẢNH ---
+        // HÀM BÓC TÁCH ẢNH
         function getFirstImg(str) {
             if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             let arr = str.split('|');
             return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
         }
 
-        // --- 1. CHUẨN BỊ DỮ LIỆU ---
+        // 1. CHUẨN BỊ DỮ LIỆU
         const dbSP = [];
         document.querySelectorAll('#data_sp .sp-item').forEach(el => {
             dbSP.push({
@@ -284,7 +294,7 @@
             dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') });
         });
 
-        // --- ẨN/HIỆN ICON KÍNH LÚP KHI GÕ ---
+        // 2. LOGIC TÌM KIẾM
         const inpSearchSP = document.getElementById('inpSearchSP');
         const iconSearchSP = document.getElementById('iconSearchSP');
         inpSearchSP.addEventListener('input', function() {
@@ -299,7 +309,6 @@
             }
         });
 
-        // --- 2. LOGIC DROPDOWN SEARCH ---
         function setupAutocomplete(inputId, dropdownId, dataList, renderItem, onSelect, textAdd = "") {
             const inp = document.getElementById(inputId);
             const drop = document.getElementById(dropdownId);
@@ -309,7 +318,6 @@
                 drop.innerHTML = '';
                 if (!val) { drop.style.display = 'none'; return; }
                 
-                // Lọc trên nhiều trường
                 let matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10);
                 
                 matches.forEach(item => {
@@ -334,7 +342,6 @@
             document.addEventListener('click', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // ĐÃ CHỈNH LẠI FORMAT KẾT QUẢ TÌM KIẾM
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
             (i) => `<div class="flex items-center gap-3">
                         <img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200">
@@ -352,7 +359,7 @@
             "THÊM NCC"
         );
 
-        // --- 3. LOGIC LƯỚI GIỎ HÀNG ---
+        // 3. LOGIC LƯỚI GIỎ HÀNG
         let cart = [];
 
         function addProductToCart(sp) {
@@ -390,35 +397,34 @@
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 
-                let st = (c.serials && c.serials.length > 0) ? 'filled' : 'empty';
-                let icon = (c.serials && c.serials.length > 0) ? '✓' : '📝';
-                let txt = (c.serials && c.serials.length > 0) ? `${c.serials.length} Serial` : '+ Thêm Serial';
-                let btnSerialHTML = `<button onclick="openSerialModal(${idx})" class="btn-serial ${st}">${icon} ${txt}</button>`;
-
-                // HIỂN THỊ SERIAL DƯỚI DẠNG TAGS
                 let serialTagsHTML = "";
+                let btnSerialHTML = "";
+
+                // NẾU ĐÃ CÓ SERIAL THÌ HIỂN THỊ TAGS (Có thể Click vào tag để sửa)
                 if(c.serials && c.serials.length > 0) {
-                    let tags = c.serials.map(s => `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded text-[10px] font-mono shadow-sm">${s}</span>`).join('');
-                    serialTagsHTML = `<div class="flex flex-wrap gap-1 mt-2">${tags}</div>`;
+                    let tags = c.serials.map(s => `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-1 rounded-md text-[11px] font-mono shadow-sm cursor-pointer hover:bg-indigo-100 transition">${s}</span>`).join('');
+                    serialTagsHTML = `<div class="flex flex-wrap gap-1.5 mt-2" onclick="openSerialModal(${idx})" title="Click để sửa Serial">${tags}</div>`;
+                } else {
+                    // NẾU CHƯA CÓ THÌ HIỆN NÚT THÊM
+                    btnSerialHTML = `<div class="mt-1.5"><button onclick="openSerialModal(${idx})" class="btn-serial empty">📝 + Thêm Serial</button></div>`;
                 }
 
-                // ĐÃ XÓA CỘT MÃ SKU THEO YÊU CẦU ĐỂ GỘP VÀO TÊN SP
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono">${idx + 1}</td>
-                    <td class="text-center"><img src="${getFirstImg(c.img)}" class="w-12 h-12 object-cover rounded border border-slate-200 inline-block shadow-sm"></td>
-                    <td class="whitespace-normal min-w-[250px] py-3">
-                        <div class="font-bold text-[14px] text-slate-800 mb-1">${c.tensp}</div>
+                    <td class="text-center py-3"><img src="${getFirstImg(c.img)}" class="w-12 h-12 object-cover rounded border border-slate-200 inline-block shadow-sm"></td>
+                    <td class="whitespace-normal min-w-[280px]">
+                        <div class="font-bold text-[14.5px] text-slate-800 mb-1">${c.tensp}</div>
                         <div class="text-[11px] text-slate-500 font-normal bg-slate-100 inline-block px-1.5 py-0.5 rounded border border-slate-200">
                             <span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}
                         </div>
-                        <div class="mt-1">${btnSerialHTML}</div>
+                        ${btnSerialHTML}
                         ${serialTagsHTML}
                     </td>
-                    <td class="text-center text-xs text-slate-500 font-bold">${c.donvi}</td>
+                    <td class="text-center text-[13px] text-slate-500 font-bold">${c.donvi}</td>
                     <td><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty shadow-inner"></td>
                     <td><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input"></td>
                     <td><input type="text" value="${formatNum(c.ck)}" onchange="updateCart(${idx}, 'ck', this)" class="price-input text-orange-600 bg-orange-50 border-orange-200"></td>
-                    <td class="text-right font-black text-[15px] text-indigo-700">${formatNum(thanhTien)}</td>
+                    <td class="text-right font-black text-[16px] text-indigo-700">${formatNum(thanhTien)}</td>
                     <td class="text-center"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm">✕</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -428,7 +434,7 @@
             calcThanhToan();
         }
 
-        // --- 4. TÍNH TOÁN THANH TOÁN ---
+        // 4. TÍNH TOÁN THANH TOÁN
         function calcThanhToan() {
             let tongHang = getNum(document.getElementById('lblTongTienHang').innerText);
             let giamPhieu = getNum(document.getElementById('inpGiamGiaPhieu').value);
@@ -445,27 +451,48 @@
             elConNo.className = conNo > 0 ? "summary-val text-red-500" : "summary-val text-emerald-600";
         }
 
-        // --- 5. SERIAL MODAL ---
-        document.getElementById('inpSerials').addEventListener('input', function() {
-            let lines = this.value.split('\n').filter(l => l.trim() !== '');
-            document.getElementById('lblSerialCount').innerText = lines.length;
+        // 5. LOGIC TAGIFY CHO SERIAL MODAL
+        let tagifySerial;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Khởi tạo Tagify cho ô nhập Serial
+            tagifySerial = new Tagify(document.getElementById('inpSerials'), {
+                delimiters: ",|\n|\r", // Tạo tag khi bấm phẩy hoặc Enter
+                maxTags: 500,
+                callbacks: {
+                    add: updateSerialCount,
+                    remove: updateSerialCount
+                }
+            });
         });
+
+        function updateSerialCount() {
+            document.getElementById('lblSerialCount').innerText = tagifySerial.value.length;
+        }
 
         function openSerialModal(idx) {
             let c = cart[idx];
             document.getElementById('idxEditingSerial').value = idx;
             document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
             document.getElementById('lblSerialReq').innerText = c.sl;
-            document.getElementById('inpSerials').value = c.serials ? c.serials.join('\n') : "";
-            document.getElementById('lblSerialCount').innerText = c.serials ? c.serials.length : 0;
+            
+            // Nạp Serial cũ vào Tagify
+            tagifySerial.removeAllTags();
+            if(c.serials && c.serials.length > 0) {
+                tagifySerial.addTags(c.serials);
+            }
+            updateSerialCount();
+
             document.getElementById('modalSerial').classList.remove('hidden');
-            setTimeout(() => document.getElementById('inpSerials').focus(), 100);
+            setTimeout(() => tagifySerial.DOM.input.focus(), 100);
         }
 
         function saveSerials() {
             let idx = document.getElementById('idxEditingSerial').value;
             let req = cart[idx].sl;
-            let lines = document.getElementById('inpSerials').value.split('\n').map(l => l.trim()).filter(l => l !== '');
+            
+            // Lấy mảng value từ Tagify
+            let lines = tagifySerial.value.map(t => t.value);
             
             if(lines.length > req) {
                 Swal.fire('Quá số lượng', `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy kiểm tra lại!`, 'warning');
@@ -476,7 +503,7 @@
             renderTable();
         }
 
-        // --- 6. NHÀ CUNG CẤP MODAL ---
+        // 6. NHÀ CUNG CẤP MODAL
         function openModalNCC(tenGoiY = "") {
             document.getElementById('newNccTen').value = tenGoiY;
             document.getElementById('newNccSDT').value = "";
@@ -496,7 +523,7 @@
             document.getElementById('modalNCC').classList.add('hidden');
         }
 
-        // --- UTILS ---
+        // UTILS
         function formatNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
@@ -513,7 +540,7 @@
             });
         });
 
-        // --- 7. SUBMIT JSON LÊN SERVER ---
+        // 7. SUBMIT JSON LÊN SERVER
         async function submitPhieuNhap() {
             if(cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
             
