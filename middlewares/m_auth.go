@@ -87,8 +87,11 @@ func TuChoiTruyCap(c *gin.Context, code int, msg string) {
 	} else {
 		if code == http.StatusUnauthorized {
 			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
 		} else {
-			c.AbortWithStatusHTML(code, "<h3>⛔ "+msg+"</h3><a href='/'>Về trang chủ</a>")
+			c.Header("Content-Type", "text/html; charset=utf-8")
+			c.String(code, "<h3>⛔ "+msg+"</h3><a href='/'>Về trang chủ</a>")
+			c.Abort()
 		}
 	}
 }
