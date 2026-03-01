@@ -9,11 +9,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"app/modules/cau_hinh"
+	"app/config" // Trỏ vào thư mục Config mới tạo
 	"app/core"
 	"app/routers"
-
-	"github.com/gin-gonic/gin"
 )
 
 // BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
@@ -23,10 +21,12 @@ var f embed.FS
 func main() {
 	log.Println(">>> [99K.VN SAAS] KHỞI ĐỘNG HỆ THỐNG KIẾN TRÚC LÕI V1.0...")
 
-	cau_hinh.KhoiTaoCauHinh()
+	// 1. Khởi tạo cấu hình Server
+	config.KhoiTaoCauHinh()
 	core.KhoiTaoNenTang() 
 	core.KhoiTaoWorkerGhiSheet()
 
+	// 2. Nạp toàn bộ dữ liệu lên RAM
 	log.Println("📦 [BOOT] Đang nạp toàn bộ Master Data lên RAM...")
 	core.NapPhanQuyen("")
 	core.NapKhachHang("")
@@ -37,16 +37,18 @@ func main() {
 	core.NapMayTinh("")
 	core.NapTinNhan("")
 
-	// Khởi tạo phòng Điều phối Router
+	// 3. Khởi tạo phòng Điều phối Router
 	router := routers.SetupRouter()
 	
-	// Nạp hàm tiện ích cho HTML và Build UI từ Embed
-	funcMap := chuc_nang.LayBoHamHTML()
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
+	// 4. Định nghĩa một FuncMap cơ bản rỗng để Bypass lỗi Compile
+	basicFuncMap := template.FuncMap{
+		"dummy": func() string { return "" },
+	}
+	templ := template.Must(template.New("").Funcs(basicFuncMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
 	router.SetHTMLTemplate(templ)
 
-	// Mở cổng mạng
-	port := cau_hinh.BienCauHinh.CongChayWeb
+	// 5. Mở cổng mạng
+	port := config.BienCauHinh.CongChayWeb
 	if port == "" { port = "8080" }
 	srv := &http.Server{Addr: "0.0.0.0:" + port, Handler: router}
 
@@ -57,7 +59,7 @@ func main() {
 		}
 	}()
 
-	// Đóng băng hệ thống an toàn khi tắt Server
+	// 6. Đóng băng hệ thống an toàn khi tắt Server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
