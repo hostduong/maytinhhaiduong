@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"app/cau_hinh"
+	"app/config"
 
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
