@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"app/cau_hinh"
+	"app/config"
 	"app/core"
 
 	"github.com/gin-gonic/gin"
@@ -47,7 +47,7 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 		return
 	}
 
-	if !cau_hinh.KiemTraMatKhau(pinXacNhan, me.MaPinHash) {
+	if !config.KiemTraMatKhau(pinXacNhan, me.MaPinHash) {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
 		return
 	}
