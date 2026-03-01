@@ -221,50 +221,6 @@ var (
 	CacheMapPhieuNhap   = make(map[string]*PhieuNhap)  
 )
 
-// ====================================================================
-// 5. CÁC HÀM NẠP DỮ LIỆU TỪ GOOGLE SHEETS LÊN RAM
-// ====================================================================
-
-func NapNhaCungCap(shopID string) {
-	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := LoadSheetData(shopID, TenSheetNhaCungCap)
-	if err != nil { return }
-
-	list := []*NhaCungCap{}
-	
-	for i, r := range raw {
-		if i < DongBatDau_NhaCungCap-1 { continue }
-		maNCC := LayString(r, CotNCC_MaNhaCungCap)
-		if maNCC == "" { continue }
-
-		ncc := &NhaCungCap{
-			SpreadsheetID:  shopID,
-			DongTrongSheet: i + 1,
-			MaNhaCungCap:   maNCC,
-			TenNhaCungCap:  LayString(r, CotNCC_TenNhaCungCap),
-			DienThoai:      LayString(r, CotNCC_DienThoai),
-			Email:          LayString(r, CotNCC_Email),
-			DiaChi:         LayString(r, CotNCC_DiaChi),
-			MaSoThue:       LayString(r, CotNCC_MaSoThue),
-			NguoiLienHe:    LayString(r, CotNCC_NguoiLienHe),
-			NganHang:       LayString(r, CotNCC_NganHang),
-			NoCanTra:       LayFloat(r, CotNCC_NoCanTra),
-			TongMua:        LayFloat(r, CotNCC_TongMua),
-			HanMucCongNo:   LayFloat(r, CotNCC_HanMucCongNo),
-			TrangThai:      LayInt(r, CotNCC_TrangThai),
-			GhiChu:         LayString(r, CotNCC_GhiChu),
-			NguoiTao:       LayString(r, CotNCC_NguoiTao),
-			NgayTao:        LayString(r, CotNCC_NgayTao),
-			NgayCapNhat:    LayString(r, CotNCC_NgayCapNhat),
-		}
-		list = append(list, ncc)
-		CacheMapNhaCungCap[TaoCompositeKey(shopID, maNCC)] = ncc
-	}
-
-	KhoaHeThong.Lock()
-	CacheNhaCungCap[shopID] = list
-	KhoaHeThong.Unlock()
-}
 
 func NapPhieuNhap(shopID string) {
 	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
