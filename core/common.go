@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"app/config"
+	"app/config" // ĐÃ CHUẨN HÓA
 
+	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
-	"google.golang.org/api/drive/v3"
 )
 
 // =============================================================
@@ -22,13 +22,11 @@ import (
 // =============================================================
 
 var (
-	// Khóa an toàn bảo vệ dữ liệu RAM
 	KhoaHeThong sync.RWMutex
 	HeThongDangBan bool
 
-	// --- [MỚI] BỂ CHỨA KẾT NỐI API (CONNECTION POOL) ---
 	MapDichVuSheet = make(map[string]*sheets.Service)
-	MutexDichVu    sync.RWMutex // Khóa riêng cho Pool
+	MutexDichVu    sync.RWMutex 
 )
 
 type YeuCauGhi struct {
@@ -48,7 +46,7 @@ func KhoiTaoNenTang() {
 	log.Println("🔌 [CORE] Đang kết nối Google Sheets (API Mặc định)...")
 
 	ctx := context.Background()
-	jsonKey := config.BienCauHinh.GoogleAuthJson
+	jsonKey := config.BienCauHinh.GoogleAuthJson // ĐÃ SỬA
 
 	var srv *sheets.Service
 	var err error
@@ -66,10 +64,9 @@ func KhoiTaoNenTang() {
 		return
 	}
 
-	// Lưu API mặc định vào Pool
 	MutexDichVu.Lock()
 	MapDichVuSheet["default"] = srv
-	MapDichVuSheet[cau_hinh.BienCauHinh.IdFileSheet] = srv // Lưu cho Master Shop
+	MapDichVuSheet[config.BienCauHinh.IdFileSheet] = srv // ĐÃ SỬA
 	MutexDichVu.Unlock()
 	
 	log.Println("✅ [CORE] Khởi tạo API mặc định thành công!")
@@ -79,7 +76,6 @@ func KhoiTaoNenTang() {
 // 3. QUẢN LÝ POOL KẾT NỐI (MULTITENANT API)
 // =============================================================
 
-// KetNoiGoogleSheetRieng: Tạo đường truyền API riêng cho Shop VIP
 func KetNoiGoogleSheetRieng(shopID string, jsonKey string) {
 	if jsonKey == "" || shopID == "" { return }
 
@@ -96,17 +92,13 @@ func KetNoiGoogleSheetRieng(shopID string, jsonKey string) {
 	log.Printf("🚀 [AUTH] Kích hoạt đường truyền API Riêng (VIP) cho Shop [%s]", shopID)
 }
 
-// LayDichVuSheet: Lấy API của shop, nếu ko có thì lấy mặc định
 func LayDichVuSheet(shopID string) *sheets.Service {
 	MutexDichVu.RLock()
 	srv, ok := MapDichVuSheet[shopID]
 	MutexDichVu.RUnlock()
 
-	if ok && srv != nil {
-		return srv
-	}
+	if ok && srv != nil { return srv }
 
-	// Fallback
 	MutexDichVu.RLock()
 	defaultSrv := MapDichVuSheet["default"]
 	MutexDichVu.RUnlock()
@@ -121,16 +113,13 @@ func TaoCompositeKey(sheetID, entityID string) string {
 	return fmt.Sprintf("%s__%s", sheetID, entityID)
 }
 
-// Lấy dữ liệu thông minh (Tự tìm đúng API của Shop)
 func LoadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
 	if spreadsheetID == "" {
-		spreadsheetID = cau_hinh.BienCauHinh.IdFileSheet
+		spreadsheetID = config.BienCauHinh.IdFileSheet // ĐÃ SỬA
 	}
 
 	srv := LayDichVuSheet(spreadsheetID)
-	if srv == nil {
-		return nil, fmt.Errorf("chưa kết nối được Google Sheets API")
-	}
+	if srv == nil { return nil, fmt.Errorf("chưa kết nối được Google Sheets API") }
 
 	readRange := tenSheet + "!A:AZ"
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
@@ -140,8 +129,6 @@ func LoadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, erro
 	}
 	return resp.Values, nil
 }
-
-// --- CÁC HÀM PARSE DỮ LIỆU ---
 
 func LayString(row []interface{}, index int) string {
 	if index >= len(row) || row[index] == nil { return "" }
@@ -174,98 +161,54 @@ func LayChuoiSoNgauNhien(doDai int) string {
 	rand.Seed(time.Now().UnixNano())
 	digits := "0123456789"
 	b := make([]byte, doDai)
-	for i := range b {
-		b[i] = digits[rand.Intn(len(digits))]
-	}
+	for i := range b { b[i] = digits[rand.Intn(len(digits))] }
 	return string(b)
 }
 
-// KiemTraVaKhoiTaoSheetNganh: Kiểm tra quyền truy cập và tự động tạo Tab theo chuyên ngành
 func KiemTraVaKhoiTaoSheetNganh(shopID, spreadsheetID, authJson, chuyenNganh string) error {
-	// 1. Nạp API Riêng nếu có (Để đảm bảo dùng đúng thông tin vừa nhập)
-	if authJson != "" && spreadsheetID != "" {
-		KetNoiGoogleSheetRieng(shopID, authJson)
-	}
-
+	if authJson != "" && spreadsheetID != "" { KetNoiGoogleSheetRieng(shopID, authJson) }
 	srv := LayDichVuSheet(shopID)
-	if srv == nil {
-		return fmt.Errorf("Không thể khởi tạo kết nối Google API. Vui lòng kiểm tra lại JSON Auth.")
-	}
+	if srv == nil { return fmt.Errorf("Không thể khởi tạo kết nối Google API.") }
 
-	// 2. Chọc thử vào Google Sheet để lấy MetaData (Kiểm tra quyền)
 	resp, err := srv.Spreadsheets.Get(spreadsheetID).Fields("sheets(properties(title))").Do()
-	if err != nil {
-		return fmt.Errorf("Không thể truy cập Spreadsheet. Sai ID hoặc chưa cấp quyền Editor cho www.99k.vn@gmail.com.")
-	}
+	if err != nil { return fmt.Errorf("Không thể truy cập Spreadsheet.") }
 
-	// 3. Quy chuẩn tên Sheet (VD: may_tinh -> MAY_TINH)
 	tenTabCanTao := strings.ToUpper(chuyenNganh)
 	tabDaTonTai := false
-
 	for _, sheet := range resp.Sheets {
-		if sheet.Properties.Title == tenTabCanTao {
-			tabDaTonTai = true
-			break
-		}
+		if sheet.Properties.Title == tenTabCanTao { tabDaTonTai = true; break }
 	}
 
-	// 4. Nếu chưa có Tab -> Ra lệnh tạo ngay lập tức (Sync)
 	if !tabDaTonTai {
 		req := &sheets.BatchUpdateSpreadsheetRequest{
-			Requests: []*sheets.Request{
-				{
-					AddSheet: &sheets.AddSheetRequest{
-						Properties: &sheets.SheetProperties{
-							Title: tenTabCanTao,
-						},
-					},
-				},
-			},
+			Requests: []*sheets.Request{{AddSheet: &sheets.AddSheetRequest{Properties: &sheets.SheetProperties{Title: tenTabCanTao}}}},
 		}
-
 		_, err := srv.Spreadsheets.BatchUpdate(spreadsheetID, req).Do()
-		if err != nil {
-			return fmt.Errorf("Đã kết nối thành công nhưng hệ thống không thể tự tạo Tab '%s'. Lỗi: %v", tenTabCanTao, err)
-		}
-		log.Printf("✨ [AUTO-SETUP] Đã tự động tạo Tab '%s' cho Shop [%s]", tenTabCanTao, shopID)
+		if err != nil { return fmt.Errorf("Lỗi tạo Tab: %v", err) }
 	}
-
-	return nil // Mọi thứ ĐỀU XANH!
+	return nil
 }
 
-// KiemTraFolderDrive: Kiểm tra quyền truy cập và tính hợp lệ của Folder ID
 func KiemTraFolderDrive(folderID string, jsonKey string) error {
-	if folderID == "" {
-		return nil // Không nhập thì không kiểm tra
-	}
+	if folderID == "" { return nil }
 
 	ctx := context.Background()
 	var srv *drive.Service
 	var err error
 
-	// Khởi tạo kết nối Drive
 	if jsonKey != "" {
 		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
-	} else if cau_hinh.BienCauHinh.GoogleAuthJson != "" {
-		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(cau_hinh.BienCauHinh.GoogleAuthJson)))
+	} else if config.BienCauHinh.GoogleAuthJson != "" { // ĐÃ SỬA
+		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(config.BienCauHinh.GoogleAuthJson))) // ĐÃ SỬA
 	} else {
 		srv, err = drive.NewService(ctx, option.WithScopes(drive.DriveReadonlyScope))
 	}
 
-	if err != nil {
-		return fmt.Errorf("Lỗi cấu hình Google API, không thể kiểm tra Drive.")
-	}
+	if err != nil { return fmt.Errorf("Lỗi cấu hình Google API.") }
 
-	// Chọc thử vào Google Drive để lấy thông tin
 	f, err := srv.Files.Get(folderID).Fields("id, mimeType").Do()
-	if err != nil {
-		return fmt.Errorf("Không thể truy cập Thư mục Drive. Vui lòng kiểm tra lại ID hoặc đảm bảo đã Share quyền Editor cho www.99k.vn@gmail.com.")
-	}
+	if err != nil { return fmt.Errorf("Không thể truy cập Thư mục Drive.") }
 
-	// Đảm bảo ID cung cấp là một Thư mục chứ không phải ID của một File ảnh/File doc
-	if f.MimeType != "application/vnd.google-apps.folder" {
-		return fmt.Errorf("ID bạn nhập không phải là một Thư mục (Folder). Vui lòng copy đúng ID của Thư mục gốc.")
-	}
-
-	return nil // Xanh mượt!
+	if f.MimeType != "application/vnd.google-apps.folder" { return fmt.Errorf("ID không phải là Folder.") }
+	return nil
 }
