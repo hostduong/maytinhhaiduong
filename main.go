@@ -84,7 +84,8 @@ func main() {
 
 		master.GET("/dong-bo-sheets", chuc_nang_master.TrangDongBoSheetsMaster)
 		master.POST("/api/dong-bo-sheets", chuc_nang_master.API_NapLaiDuLieuMasterCoPIN)
-
+		
+        master.GET("/nhap-hang", chuc_nang_master.TrangNhapHangMaster)
 		master.GET("/quan-ly-may-tinh", chuc_nang_master.TrangQuanLyMayTinhMaster)
 		master.GET("/api/may-tinh/detail/:ma_sp", chuc_nang_master.API_LayChiTietMayTinhMaster)
 		master.POST("/api/may-tinh/save", chuc_nang_master.API_LuuMayTinhMaster)
