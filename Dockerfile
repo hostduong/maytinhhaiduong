@@ -9,16 +9,13 @@ RUN go build -o server main.go
 # Bước 2: Run
 FROM alpine:latest
 WORKDIR /root/
-
-# Cài đặt chứng chỉ SSL và Timezone (Cần thiết cho Go)
 RUN apk add --no-cache ca-certificates tzdata
 ENV TZ=Asia/Ho_Chi_Minh
 
-# Copy file thực thi
+# Copy file chạy (đã ngầm chứa toàn bộ HTML nhờ lệnh go:embed)
 COPY --from=builder /app/server .
 
-# CHỈ CẦN COPY THƯ MỤC STATIC (CSS/JS/IMG)
-# (HTML đã được embed trực tiếp vào file chạy 'server' nhờ tính năng go:embed)
+# Chỉ cần copy duy nhất thư mục static (vì CSS/JS cần đọc từ bên ngoài)
 COPY --from=builder /app/static ./static
 
 EXPOSE 8080
