@@ -40,6 +40,10 @@
                     <span class="text-lg">📦</span> Sản phẩm
                 </a>
 
+               <a href="/admin/nhap-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Nhập Hàng"}}bg-indigo-600 text-white font-bold shadow-md shadow-indigo-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
+    <span class="text-lg w-6 text-center">📥</span> Nhập Hàng
+</a>
+
                 <a href="/admin/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{if eq .TieuDe "Quản lý thành viên"}}bg-blue-600 text-white font-semibold shadow-md{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}">
                     <span class="text-lg">👥</span> Nhân sự
                 </a>
