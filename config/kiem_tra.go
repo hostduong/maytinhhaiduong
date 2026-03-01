@@ -1,4 +1,4 @@
-package cau_hinh
+package config
 
 import (
 	"crypto/hmac"
