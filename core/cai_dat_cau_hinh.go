@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // ==============================================================================
@@ -88,6 +89,36 @@ func ThemDanhMucVaoRam(dm *DanhMuc) {
 	CacheDanhMuc[sID] = append(CacheDanhMuc[sID], dm)
 	CacheMapDanhMuc[TaoCompositeKey(sID, dm.MaDanhMuc)] = dm
 }
+
+func LaySlotTiepTheo(shopID, maDM string) int {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
+	
+	if !ok { return 1 }
+
+	dm.Slot++ 
+	newSlot := dm.Slot
+	
+	ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_Slot, newSlot)
+	return newSlot
+}
+
+func CapNhatSlotThuCong(shopID, maDM string, slotMoi int) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+
+	key := TaoCompositeKey(shopID, maDM)
+	dm, ok := CacheMapDanhMuc[key]
+	
+	if ok && slotMoi > dm.Slot {
+		dm.Slot = slotMoi
+		ThemVaoHangCho(dm.SpreadsheetID, "DANH_MUC", dm.DongTrongSheet, CotDM_Slot, slotMoi)
+	}
+}
+
 
 // ==============================================================================
 // PHẦN 2: THƯƠNG HIỆU
@@ -347,5 +378,117 @@ func TaoMaNhaCungCapMoi(shopID string) string {
 }
 
 // ==============================================================================
-// PHẦN 5: PHÂN QUYỀN (Nếu có, bạn paste thêm code phân quyền vào đây)
+// PHẦN 5: PHÂN QUYỀN VÀ BẢO MẬT (Đã khôi phục 100%)
 // ==============================================================================
+const (
+	TenSheetPhanQuyen = "PHAN_QUYEN"
+	DongBatDau_PhanQuyen = 2
+
+	CotPQ_Id           = 0
+	CotPQ_TenVaiTro    = 1
+	CotPQ_CapBac       = 2
+	CotPQ_QuyenQuanTri = 3
+	CotPQ_QuyenHangHoa = 4
+	CotPQ_QuyenDonHang = 5
+	CotPQ_TrangThai    = 6
+)
+
+type PhanQuyen struct {
+	Id           string `json:"id"`
+	TenVaiTro    string `json:"ten_vai_tro"`
+	CapBac       int    `json:"cap_bac"`
+	QuyenQuanTri string `json:"quyen_quan_tri"`
+	QuyenHangHoa string `json:"quyen_hang_hoa"`
+	QuyenDonHang string `json:"quyen_don_hang"`
+	TrangThai    int    `json:"trang_thai"`
+}
+
+type VaiTroInfo struct {
+	ID        string
+	Ten       string
+	CapBac    int
+	TrangThai int
+}
+
+var (
+	CachePhanQuyen      = make(map[string]map[string]*PhanQuyen)
+	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)
+	lockPhanQuyen       sync.RWMutex
+)
+
+func NapPhanQuyen(shopID string) {
+	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
+	raw, err := LoadSheetData(shopID, TenSheetPhanQuyen)
+	if err != nil { return }
+
+	mapPQ := make(map[string]*PhanQuyen)
+	listVT := make([]VaiTroInfo, 0)
+
+	for i, r := range raw {
+		if i < DongBatDau_PhanQuyen-1 { continue }
+		id := LayString(r, CotPQ_Id)
+		if id == "" { continue }
+
+		pq := &PhanQuyen{
+			Id:           id,
+			TenVaiTro:    LayString(r, CotPQ_TenVaiTro),
+			CapBac:       LayInt(r, CotPQ_CapBac),
+			QuyenQuanTri: LayString(r, CotPQ_QuyenQuanTri),
+			QuyenHangHoa: LayString(r, CotPQ_QuyenHangHoa),
+			QuyenDonHang: LayString(r, CotPQ_QuyenDonHang),
+			TrangThai:    LayInt(r, CotPQ_TrangThai),
+		}
+		mapPQ[id] = pq
+		listVT = append(listVT, VaiTroInfo{
+			ID:        id,
+			Ten:       pq.TenVaiTro,
+			CapBac:    pq.CapBac,
+			TrangThai: pq.TrangThai,
+		})
+	}
+
+	sort.Slice(listVT, func(i, j int) bool {
+		return listVT[i].CapBac > listVT[j].CapBac
+	})
+
+	lockPhanQuyen.Lock()
+	CachePhanQuyen[shopID] = mapPQ
+	CacheDanhSachVaiTro[shopID] = listVT
+	lockPhanQuyen.Unlock()
+}
+
+func KiemTraQuyen(shopID, idVaiTro, keyQuyen string) bool {
+	if idVaiTro == "admin_root" { return true }
+	
+	lockPhanQuyen.RLock()
+	defer lockPhanQuyen.RUnlock()
+
+	mapPQ, okShop := CachePhanQuyen[shopID]
+	if !okShop { return false }
+
+	pq, okPQ := mapPQ[idVaiTro]
+	if !okPQ || pq.TrangThai != 1 { return false }
+
+	switch keyQuyen {
+	case "quan_tri": return pq.QuyenQuanTri == "xem_sua"
+	case "hang_hoa": return pq.QuyenHangHoa == "xem_sua" || pq.QuyenHangHoa == "xem"
+	case "sua_hang_hoa": return pq.QuyenHangHoa == "xem_sua"
+	case "don_hang": return pq.QuyenDonHang == "xem_sua" || pq.QuyenDonHang == "xem"
+	case "sua_don_hang": return pq.QuyenDonHang == "xem_sua"
+	}
+	return false
+}
+
+func LayCapBacVaiTro(shopID, idVaiTro string) int {
+	if idVaiTro == "admin_root" { return 9999 }
+	
+	lockPhanQuyen.RLock()
+	defer lockPhanQuyen.RUnlock()
+
+	mapPQ, okShop := CachePhanQuyen[shopID]
+	if !okShop { return 0 }
+
+	pq, okPQ := mapPQ[idVaiTro]
+	if !okPQ { return 0 }
+	return pq.CapBac
+}
