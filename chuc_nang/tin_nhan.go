@@ -1,4 +1,4 @@
-package chuc_nang_master
+package chuc_nang
 
 import (
 	"fmt"
