@@ -10,23 +10,28 @@ import (
 )
 
 // =============================================================
-// 1. TRANG QUẢN TRỊ CÀI ĐẶT CẤU HÌNH MASTER
+// 1. TRANG CÀI ĐẶT CẤU HÌNH MASTER
 // =============================================================
 func TrangCaiDatCauHinhMaster(c *gin.Context) {
-	// [SAAS] Lấy thông tin Shop & User
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
-	
+
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+
 	kh, _ := core.LayKhachHang(shopID, userID)
 
 	c.HTML(http.StatusOK, "master_cai_dat_cau_hinh", gin.H{
-		"TieuDe":         "Cài đặt hệ thống",
-		"NhanVien":       kh,
-		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang,
-		"QuyenHan":       kh.VaiTroQuyenHan,
-		
-		// [SAAS] Load dữ liệu theo Shop
+		"TieuDe":       "Cấu Hình Hệ Thống",
+		"NhanVien":     kh,
+		"DaDangNhap":   true,
+		"TenNguoiDung": kh.TenKhachHang,
+		"QuyenHan":     kh.VaiTroQuyenHan,
+
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(shopID),
 		"ListThuongHieu": core.LayDanhSachThuongHieu(shopID),
 		"ListBLN":        core.LayDanhSachBienLoiNhuan(shopID),
@@ -39,9 +44,11 @@ func TrangCaiDatCauHinhMaster(c *gin.Context) {
 // =============================================================
 func API_LuuDanhMucMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 	
-	if vaiTro != "admin_root" && vaiTro != "admin" {
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
@@ -56,10 +63,6 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 
 	if maDM == "" || tenDM == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã và Tên danh mục không được để trống!"})
-		return
-	}
-	if strings.ToUpper(maDM) == strings.ToUpper(dmMe) {
-		c.JSON(200, gin.H{"status": "error", "msg": "Danh mục mẹ không được trùng với chính nó!"})
 		return
 	}
 
@@ -119,9 +122,11 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 
 func API_DongBoSlotDanhMucMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 	
-	if vaiTro != "admin_root" && vaiTro != "admin" {
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
@@ -183,9 +188,11 @@ func API_DongBoSlotDanhMucMaster(c *gin.Context) {
 // =============================================================
 func API_LuuThuongHieuMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 	
-	if vaiTro != "admin_root" && vaiTro != "admin" {
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
@@ -251,9 +258,11 @@ func API_LuuThuongHieuMaster(c *gin.Context) {
 // =============================================================
 func API_LuuBienLoiNhuanMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 	
-	if vaiTro != "admin_root" && vaiTro != "admin" {
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
@@ -299,9 +308,11 @@ func API_LuuBienLoiNhuanMaster(c *gin.Context) {
 // =============================================================
 func API_LuuNhaCungCapMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	vaiTro := c.GetString("USER_ROLE")
+	userID := c.GetString("USER_ID")
 
-	if vaiTro != "admin_root" && vaiTro != "admin" {
+	// Áp dụng chuẩn bảo vệ của bạn
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
