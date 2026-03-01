@@ -2,39 +2,29 @@ package routers
 
 import (
 	"app/middlewares"
-	"app/modules/cau_hinh_he_thong"
+	"app/modules/cau_hinh" // Trỏ vào thư mục ngắn gọn
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-
-	// Phục vụ tài nguyên tĩnh
 	router.Static("/static", "./static")
 
-	// KHU VỰC WORKSPACE (Gộp chung Admin & Master)
 	workspace := router.Group("/master")
-	workspace.Use(middlewares.CheckAuth()) // [BẢO MẬT LỚP 1 & 2]
+	workspace.Use(middlewares.CheckAuth())
 	{
-		// =======================================================
-		// MODULE 1: CẤU HÌNH HỆ THỐNG
-		// =======================================================
-		cauHinh := workspace.Group("/cau-hinh-he-thong")
-		cauHinh.Use(middlewares.RequireLevel(2)) // [BẢO MẬT LỚP 5]
+		cauHinh := workspace.Group("/cau-hinh")
+		cauHinh.Use(middlewares.RequireLevel(2))
 		{
-			// Render View (Sẽ tạo ở bước sau)
-			cauHinh.GET("/", cau_hinh_he_thong.TrangCauHinhHeThongView)
+			cauHinh.GET("/", cau_hinh.TrangCauHinhView)
 
 			apiCauHinh := cauHinh.Group("/api")
-			apiCauHinh.Use(middlewares.CheckSaaSLimit("cau_hinh")) // [BẢO MẬT LỚP 3]
-
-			// API xử lý dữ liệu
+			apiCauHinh.Use(middlewares.CheckSaaSLimit("cau_hinh"))
 			apiCauHinh.POST("/nha-cung-cap/save", 
-				middlewares.RequirePermission("system.setting.edit"), // [BẢO MẬT LỚP 4]
-				cau_hinh_he_thong.API_LuuNhaCungCap,
+				middlewares.RequirePermission("system.setting.edit"), 
+				cau_hinh.API_LuuNhaCungCap,
 			)
 		}
 	}
-
 	return router
 }
