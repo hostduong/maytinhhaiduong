@@ -48,7 +48,7 @@ func KhoiTaoNenTang() {
 	log.Println("🔌 [CORE] Đang kết nối Google Sheets (API Mặc định)...")
 
 	ctx := context.Background()
-	jsonKey := cau_hinh.BienCauHinh.GoogleAuthJson
+	jsonKey := config.BienCauHinh.GoogleAuthJson
 
 	var srv *sheets.Service
 	var err error
