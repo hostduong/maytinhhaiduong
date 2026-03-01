@@ -8,25 +8,21 @@ import (
 
 // --- CẤU HÌNH HỆ THỐNG ---
 type CauHinhHeThong struct {
-	IdFileSheet    string // ID mặc định (cho shop gốc hoặc fallback)
+	IdFileSheet    string
 	CongChayWeb    string
 	GoogleAuthJson string
 }
 
 var BienCauHinh CauHinhHeThong
 
-// --- CẤU HÌNH GIỚI HẠN & BẢO MẬT ---
 const (
 	ThoiGianHetHanCookie = 30 * time.Minute
 	ThoiGianAnHan        = 5 * time.Minute
-	GioiHanNguoiDung     = 100 // request/giây
+	GioiHanNguoiDung     = 100 
 )
 
-// --- MAPPING DOMAIN -> SHEET ID (SAAS) ---
-// Key: Domain (vd: shop1.com), Value: SpreadsheetID
 var MapDomainShop = map[string]string{
-	"localhost": "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8", // Mặc định Local
-	// Sau này có thể load từ DB hoặc file JSON riêng
+	"localhost": "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8", 
 }
 
 func KhoiTaoCauHinh() {
@@ -35,8 +31,11 @@ func KhoiTaoCauHinh() {
 		idSheet = "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8"
 	}
 
+	// [QUAN TRỌNG NHẤT LÀ ĐOẠN NÀY]: Bắt buộc phải nghe theo lời Google Cloud Run
 	congWeb := os.Getenv("PORT")
-	if congWeb == "" { congWeb = "8080" }
+	if congWeb == "" { 
+		congWeb = "8080" // Chỉ dùng 8080 nếu chạy Local trên máy tính của bạn
+	}
 
 	jsonKey := os.Getenv("GOOGLE_JSON_KEY")
 	
@@ -45,5 +44,5 @@ func KhoiTaoCauHinh() {
 		CongChayWeb:    congWeb,
 		GoogleAuthJson: jsonKey,
 	}
-	log.Println("--- [CẤU HÌNH] Đã tải xong (Chế độ SaaS) ---")
+	log.Println("--- [CẤU HÌNH] Đã tải xong (Chế độ SaaS) - Port:", congWeb, "---")
 }
