@@ -447,18 +447,24 @@
         // Action NCC (Route này ném về Master theo Step 3 bên dưới)
         function openModalNCC() { document.getElementById('formNCC').reset(); document.getElementById('is_new_ncc').value = "true"; document.getElementById('titleNCC').innerText = "Thêm Nhà Cung Cấp Mới"; document.getElementById('modalNCC').classList.remove('hidden'); }
         function editNCC(ma) { const item = mapNCC[ma]; if(!item) return; document.getElementById('is_new_ncc').value = "false"; document.getElementById('ncc_ma').value = item.ma; document.getElementById('ncc_ten').value = item.ten; document.getElementById('ncc_sdt').value = item.sdt; document.getElementById('ncc_mst').value = item.mst; document.getElementById('ncc_dc').value = item.dc; document.getElementById('ncc_lh').value = item.lh; document.getElementById('ncc_nh').value = item.nh; document.getElementById('ncc_trangthai').checked = (item.tt === 1); document.getElementById('titleNCC').innerText = "Sửa Đối Tác: " + item.ma; document.getElementById('modalNCC').classList.remove('hidden'); }
-        function saveNCC() { runSubmit('/master/api/ncc/save', 'formNCC', 'btnSaveNCC', 'Lưu Đối Tác'); }
+        // Action DM
+        function saveDM() { runSubmit('/master/api/cai-dat-cau-hinh/danh-muc/save', 'formDM', 'btnSaveDM', 'Lưu Danh Mục'); }
+
+        // Action TH
+        function saveTH() { runSubmit('/master/api/cai-dat-cau-hinh/thuong-hieu/save', 'formTH', 'btnSaveTH', 'Lưu Hãng'); }
+
+        // Action NCC 
+        function saveNCC() { runSubmit('/master/api/cai-dat-cau-hinh/ncc/save', 'formNCC', 'btnSaveNCC', 'Lưu Đối Tác'); }
 
         // Action BLN
-        function openModalBLN() { document.getElementById('formBLN').reset(); document.getElementById('is_new_bln').value = "true"; document.getElementById('titleBLN').innerText = "Thêm Khung Giá Mới"; document.getElementById('modalBLN').classList.remove('hidden'); }
-        function editBLN(dong) { const item = mapBLN[dong]; if(!item) return; document.getElementById('is_new_bln').value = "false"; document.getElementById('bln_dong').value = item.dong; document.getElementById('bln_khung').value = item.khung.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); document.getElementById('bln_loi').value = item.loi; document.getElementById('bln_trangthai').checked = (item.tt === 1); document.getElementById('titleBLN').innerText = "Sửa Khung Giá"; document.getElementById('modalBLN').classList.remove('hidden'); }
-        function saveBLN() { runSubmit('/admin/api/margin/save', 'formBLN', 'btnSaveBLN', 'Lưu Khung Giá'); }
+        function saveBLN() { runSubmit('/master/api/cai-dat-cau-hinh/bien-loi-nhuan/save', 'formBLN', 'btnSaveBLN', 'Lưu Khung Giá'); }
         
         async function syncSlot() {
             const btn = document.getElementById('btnSync'); const originText = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = `Đang quét...`;
             try {
-                const res = await fetch('/admin/api/category/sync-slots', { method: 'POST' }); const data = await res.json();
+                const res = await fetch('/master/api/cai-dat-cau-hinh/danh-muc/sync-slots', { method: 'POST' }); 
+                const data = await res.json();
                 if(data.status === 'ok') Swal.fire({icon: 'success', title: 'Hoàn tất', text: data.msg, timer: 1500, showConfirmButton: false}).then(() => location.reload()); else Swal.fire('Lỗi', data.msg, 'error');
             } catch(e) { } finally { btn.disabled = false; btn.innerHTML = originText; }
         }
