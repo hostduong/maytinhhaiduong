@@ -2,61 +2,69 @@ package routers
 
 import (
 	"app/middlewares"
+	"app/modules/cau_hinh_he_thong"
+
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRouter: Cấu hình toàn bộ tuyến đường của hệ thống
+// SetupRouter: Hàm khởi tạo toàn bộ mạng lưới đường dẫn (URL) của hệ thống
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
-	// 1. Phục vụ tài nguyên tĩnh (CSS, JS, Ảnh)
+	// 1. Mở cửa cho phép tải file tĩnh (CSS, JS, Hình ảnh)
 	router.Static("/static", "./static")
 
-	// 2. KHU VỰC PUBLIC (Không cần đăng nhập)
-	public := router.Group("/")
-	{
-		// Sẽ gọi đến module Auth ở Giai đoạn 4
-		// public.GET("/login", auth_module.TrangDangNhapView)
-		// public.POST("/api/login", auth_module.API_XuLyDangNhap)
-	}
+	// ==============================================================================
+	// KHU VỰC PUBLIC (Trang chủ, Đăng nhập - Không cần bảo vệ)
+	// ==============================================================================
+	// public := router.Group("/")
+	// {
+	// 	public.GET("/login", auth_module.TrangDangNhap)
+	// }
 
-	// 3. KHU VỰC WORKSPACE (Gộp chung Admin & Master như đã chốt)
-	// Bất cứ ai đăng nhập thành công đều vào /master. Giao diện & Data hiển thị sẽ tự co giãn theo Level.
+	// ==============================================================================
+	// KHU VỰC WORKSPACE (Bên trong ứng dụng - Gộp chung Admin & Master)
+	// ==============================================================================
 	workspace := router.Group("/master")
-	workspace.Use(middlewares.CheckAuth()) // [BẢO MẬT LỚP 1 & 2]: Cookie & Status
+
+	// [MÀNG LỌC 1 & 2]: Chặn toàn bộ người lạ. Chỉ User hợp lệ & Đang hoạt động mới lọt qua.
+	workspace.Use(middlewares.CheckAuth())
 	{
-		// =======================================================
-		// MODULE 1: CẤU HÌNH HỆ THỐNG LÕI (Chỉ dành cho Master)
-		// =======================================================
+		// --------------------------------------------------------------------------
+		// MODULE 1: CẤU HÌNH HỆ THỐNG
+		// --------------------------------------------------------------------------
 		cauHinh := workspace.Group("/cau-hinh-he-thong")
-		cauHinh.Use(middlewares.RequireLevel(2)) // [BẢO MẬT LỚP 5]: Quét Cấp Bậc (Chỉ Level 0,1,2 lọt qua)
-		{
-			// Render HTML
-			// cauHinh.GET("/", cau_hinh_he_thong.TrangCauHinhHeThongView)
 
-			// Nhóm API xử lý (Gắn thêm check gói cước)
+		// [MÀNG LỌC 5]: Tường lửa cấp bậc. Chỉ có Level 0, 1, 2 mới được vào phân khu này.
+		cauHinh.Use(middlewares.RequireLevel(2))
+		{
+			// 1. API Render Giao diện Web HTML
+			cauHinh.GET("/", cau_hinh_he_thong.TrangCauHinhHeThongView)
+
+			// 2. Nhóm API Xử lý dữ liệu (Cần bảo vệ khắt khe hơn)
 			apiCauHinh := cauHinh.Group("/api")
-			apiCauHinh.Use(middlewares.CheckSaaSLimit("cau_hinh")) // [BẢO MẬT LỚP 3]: Gói cước
 
-			// Khai báo chính xác ma_chuc_nang từ file PDF
+			// [MÀNG LỌC 3]: Chặn theo dung lượng Gói cước SaaS
+			apiCauHinh.Use(middlewares.CheckSaaSLimit("cau_hinh"))
+
+			// [MÀNG LỌC 4]: Chặn theo Mã chức năng (RBAC) trên từng Nút bấm cụ thể
+			apiCauHinh.POST("/nha-cung-cap/save", 
+				middlewares.RequirePermission("system.setting.edit"), // Mã quyền dựa theo PDF
+				cau_hinh_he_thong.API_LuuNhaCungCap,
+			)
+
+			// Khai báo sẵn chỗ cho các API sau này
 			// apiCauHinh.POST("/danh-muc/save", middlewares.RequirePermission("system.setting.edit"), cau_hinh_he_thong.API_LuuDanhMuc)
-			// apiCauHinh.POST("/nha-cung-cap/save", middlewares.RequirePermission("system.setting.edit"), cau_hinh_he_thong.API_LuuNhaCungCap)
 		}
 
-		// =======================================================
-		// MODULE 2: QUẢN LÝ SẢN PHẨM (Dành cho toàn mạng lưới)
-		// =======================================================
-		sanPham := workspace.Group("/san-pham")
-		// (Không chặn Level ở đây vì Chủ Shop (Lv3) hay Thủ Kho (Lv6) đều cần vào trang này)
-		{
-			// Render HTML
-			// sanPham.GET("/", quan_ly_san_pham.TrangSanPhamView)
-
-			// Gắn quyền chi tiết cho từng nút bấm
-			// sanPham.POST("/api/create", middlewares.RequirePermission("product.create"), quan_ly_san_pham.API_TaoSanPham)
-			// sanPham.POST("/api/edit", middlewares.RequirePermission("product.edit"), quan_ly_san_pham.API_SuaSanPham)
-			// sanPham.POST("/api/delete", middlewares.RequirePermission("product.delete"), quan_ly_san_pham.API_XoaSanPham)
-		}
+		// --------------------------------------------------------------------------
+		// MODULE 2: QUẢN LÝ SẢN PHẨM (Ví dụ)
+		// --------------------------------------------------------------------------
+		// sanPham := workspace.Group("/san-pham")
+		// {
+		//     sanPham.GET("/", quan_ly_san_pham.TrangQuanLySanPhamView)
+		//     // ...
+		// }
 	}
 
 	return router
