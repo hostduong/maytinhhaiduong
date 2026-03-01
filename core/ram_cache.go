@@ -54,7 +54,7 @@ var (
 
 	// --- ĐỐI TÁC ---
 	CacheNhaCungCap    = make(map[string][]*NhaCungCap)  // Danh sách NCC
-	CacheMapNhaCungCap = make(map[string]*NhaCungCap)    // [FIX LỖI BUILD]: Tra cứu NCC nhanh
+	CacheMapNhaCungCap = make(map[string]*NhaCungCap)    // Tra cứu NCC nhanh
 
 	// --- SẢN PHẨM (NGÀNH MÁY TÍNH) ---
 	CacheSanPhamMayTinh      = make(map[string][]*SanPhamMayTinh)   // Toàn bộ SKU phẳng
@@ -69,13 +69,4 @@ var (
 	CacheTinNhan      = make(map[string][]*TinNhan)      // Danh sách tin nhắn/thông báo theo Shop
 )
 
-// ==============================================================================
-// 3. TIỆN ÍCH DỮ LIỆU
-// ==============================================================================
-
-// TaoCompositeKey: Tạo khóa gộp để lưu trữ trong các Map phẳng (Flat Map)
-// Đảm bảo dữ liệu các Shop không bao giờ bị đè lên nhau.
-// Lưu ý: Nếu hàm này đã khai báo ở common.go thì bạn có thể xóa đoạn này.
-func TaoCompositeKey(shopID, entityID string) string {
-	return shopID + "__" + entityID
-}
+// Ghi chú: Hàm TaoCompositeKey KHÔNG khai báo ở đây vì đã có trong common.go
