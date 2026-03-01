@@ -17,7 +17,6 @@ func TrangCaiDatCauHinhMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// Áp dụng chuẩn bảo vệ của bạn
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.Redirect(http.StatusFound, "/")
@@ -47,7 +46,6 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	
-	// Áp dụng chuẩn bảo vệ của bạn
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
@@ -74,9 +72,7 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 			c.JSON(200, gin.H{"status": "error", "msg": "Mã danh mục này đã tồn tại!"})
 			return
 		}
-		
 		targetRow = core.DongBatDau_DanhMuc + len(core.LayDanhSachDanhMuc(shopID))
-		
 		newDM := &core.DanhMuc{
 			SpreadsheetID:  shopID,
 			DongTrongSheet: targetRow,
@@ -96,7 +92,6 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 			return
 		}
 		targetRow = found.DongTrongSheet
-		
 		func() {
 			core.KhoaHeThong.Lock()
 			defer core.KhoaHeThong.Unlock()
@@ -115,7 +110,6 @@ func API_LuuDanhMucMaster(c *gin.Context) {
 	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_ThueVAT, thueVAT)
 	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_LoiNhuan, loiNhuan)
 	ghi(shopID, "DANH_MUC", targetRow, core.CotDM_TrangThai, trangThai)
-	
 	if isNew { ghi(shopID, "DANH_MUC", targetRow, core.CotDM_Slot, 0) }
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Danh mục thành công!"})
@@ -125,7 +119,6 @@ func API_DongBoSlotDanhMucMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	
-	// Áp dụng chuẩn bảo vệ của bạn
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
@@ -139,33 +132,23 @@ func API_DongBoSlotDanhMucMaster(c *gin.Context) {
 		maSP := strings.TrimSpace(sp.MaSanPham)
 		ketThucSo := len(maSP)
 		batDauSo := ketThucSo
-		
 		for i := len(maSP) - 1; i >= 0; i-- {
-			char := maSP[i]
-			if char >= '0' && char <= '9' {
+			if maSP[i] >= '0' && maSP[i] <= '9' {
 				batDauSo = i
-			} else {
-				break
-			}
+			} else { break }
 		}
-
 		if batDauSo < ketThucSo {
 			prefix := strings.ToUpper(maSP[0:batDauSo])
 			soStr := maSP[batDauSo:ketThucSo]
-			so, err := strconv.Atoi(soStr)
-			if err == nil {
-				if so > mapMaxSlot[prefix] {
-					mapMaxSlot[prefix] = so
-				}
+			if so, err := strconv.Atoi(soStr); err == nil {
+				if so > mapMaxSlot[prefix] { mapMaxSlot[prefix] = so }
 			}
 		}
 	}
 
 	listDM := core.LayDanhSachDanhMuc(shopID)
-
 	core.KhoaHeThong.Lock()
 	countUpdate := 0
-	
 	for _, dm := range listDM {
 		maxThucTe, coDuLieu := mapMaxSlot[dm.MaDanhMuc]
 		if coDuLieu && maxThucTe > dm.Slot {
@@ -176,11 +159,8 @@ func API_DongBoSlotDanhMucMaster(c *gin.Context) {
 	}
 	core.KhoaHeThong.Unlock()
 
-	msg := "Đã đồng bộ xong. Các bộ đếm đều chính xác."
-	if countUpdate > 0 {
-		msg = "Đã cập nhật lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục."
-	}
-
+	msg := "Đã đồng bộ xong."
+	if countUpdate > 0 { msg = "Đã cập nhật lại Slot cho " + strconv.Itoa(countUpdate) + " danh mục." }
 	c.JSON(200, gin.H{"status": "ok", "msg": msg})
 }
 
@@ -191,7 +171,6 @@ func API_LuuThuongHieuMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	
-	// Áp dụng chuẩn bảo vệ của bạn
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
@@ -254,145 +233,57 @@ func API_LuuThuongHieuMaster(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Thương hiệu thành công!"})
 }
 
-// ==============================================================================
-// PHẦN 4: NHÀ CUNG CẤP
-// ==============================================================================
-const (
-	TenSheetNhaCungCap    = "NHA_CUNG_CAP"
-	DongBatDau_NhaCungCap = 2
-
-	CotNCC_MaNhaCungCap       = 0  // A
-	CotNCC_TenNhaCungCap      = 1  // B
-	CotNCC_MaSoThue           = 2  // C
-	CotNCC_DienThoai          = 3  // D
-	CotNCC_Email              = 4  // E
-	CotNCC_KhuVuc             = 5  // F
-	CotNCC_DiaChi             = 6  // G
-	CotNCC_NguoiLienHe        = 7  // H
-	CotNCC_NganHang           = 8  // I
-	CotNCC_NhomNhaCungCap     = 9  // J
-	CotNCC_LoaiNhaCungCap     = 10 // K
-	CotNCC_DieuKhoanThanhToan = 11 // L
-	CotNCC_ChietKhauMacDinh   = 12 // M
-	CotNCC_HanMucCongNo       = 13 // N
-	CotNCC_CongNoDauKy        = 14 // O
-	CotNCC_TongMua            = 15 // P
-	CotNCC_NoCanTra           = 16 // Q
-	CotNCC_ThongTinThemJson   = 17 // R
-	CotNCC_TrangThai          = 18 // S
-	CotNCC_GhiChu             = 19 // T
-	CotNCC_NguoiTao           = 20 // U
-	CotNCC_NgayTao            = 21 // V
-	CotNCC_NgayCapNhat        = 22 // W
-)
-
-type NhaCungCap struct {
-	SpreadsheetID      string  `json:"-"`
-	DongTrongSheet     int     `json:"-"`
-	MaNhaCungCap       string  `json:"ma_nha_cung_cap"`
-	TenNhaCungCap      string  `json:"ten_nha_cung_cap"`
-	MaSoThue           string  `json:"ma_so_thue"`
-	DienThoai          string  `json:"dien_thoai"`
-	Email              string  `json:"email"`
-	KhuVuc             string  `json:"khu_vuc"`
-	DiaChi             string  `json:"dia_chi"`
-	NguoiLienHe        string  `json:"nguoi_lien_he"`
-	NganHang           string  `json:"ngan_hang"`
-	NhomNhaCungCap     string  `json:"nhom_nha_cung_cap"`
-	LoaiNhaCungCap     string  `json:"loai_nha_cung_cap"`
-	DieuKhoanThanhToan string  `json:"dieu_khoan_thanh_toan"`
-	ChietKhauMacDinh   float64 `json:"chiet_khau_mac_dinh"`
-	HanMucCongNo       float64 `json:"han_muc_cong_no"`
-	CongNoDauKy        float64 `json:"cong_no_dau_ky"`
-	TongMua            float64 `json:"tong_mua"`
-	NoCanTra           float64 `json:"no_can_tra"`
-	ThongTinThemJson   string  `json:"thong_tin_them_json"`
-	TrangThai          int     `json:"trang_thai"`
-	GhiChu             string  `json:"ghi_chu"`
-	NguoiTao           string  `json:"nguoi_tao"`
-	NgayTao            string  `json:"ngay_tao"`
-	NgayCapNhat        string  `json:"ngay_cap_nhat"`
-}
-
-var (
-	CacheNhaCungCap    = make(map[string][]*NhaCungCap)
-	CacheMapNhaCungCap = make(map[string]*NhaCungCap)
-)
-
-func NapNhaCungCap(shopID string) {
-	if shopID == "" { shopID = cau_hinh.BienCauHinh.IdFileSheet }
-	raw, err := LoadSheetData(shopID, TenSheetNhaCungCap)
-	if err != nil { return }
+// =============================================================
+// 4. API BIÊN LỢI NHUẬN
+// =============================================================
+func API_LuuBienLoiNhuanMaster(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
 	
-	list := []*NhaCungCap{}
-	for i, r := range raw {
-		if i < DongBatDau_NhaCungCap-1 { continue }
-		maNCC := LayString(r, CotNCC_MaNhaCungCap)
-		if maNCC == "" { continue }
-		
-		ncc := &NhaCungCap{
-			SpreadsheetID:      shopID,
-			DongTrongSheet:     i + 1,
-			MaNhaCungCap:       maNCC,
-			TenNhaCungCap:      LayString(r, CotNCC_TenNhaCungCap),
-			MaSoThue:           LayString(r, CotNCC_MaSoThue),
-			DienThoai:          LayString(r, CotNCC_DienThoai),
-			Email:              LayString(r, CotNCC_Email),
-			KhuVuc:             LayString(r, CotNCC_KhuVuc),
-			DiaChi:             LayString(r, CotNCC_DiaChi),
-			NguoiLienHe:        LayString(r, CotNCC_NguoiLienHe),
-			NganHang:           LayString(r, CotNCC_NganHang),
-			NhomNhaCungCap:     LayString(r, CotNCC_NhomNhaCungCap),
-			LoaiNhaCungCap:     LayString(r, CotNCC_LoaiNhaCungCap),
-			DieuKhoanThanhToan: LayString(r, CotNCC_DieuKhoanThanhToan),
-			ChietKhauMacDinh:   LayFloat(r, CotNCC_ChietKhauMacDinh),
-			HanMucCongNo:       LayFloat(r, CotNCC_HanMucCongNo),
-			CongNoDauKy:        LayFloat(r, CotNCC_CongNoDauKy),
-			TongMua:            LayFloat(r, CotNCC_TongMua),
-			NoCanTra:           LayFloat(r, CotNCC_NoCanTra),
-			ThongTinThemJson:   LayString(r, CotNCC_ThongTinThemJson),
-			TrangThai:          LayInt(r, CotNCC_TrangThai),
-			GhiChu:             LayString(r, CotNCC_GhiChu),
-			NguoiTao:           LayString(r, CotNCC_NguoiTao),
-			NgayTao:            LayString(r, CotNCC_NgayTao),
-			NgayCapNhat:        LayString(r, CotNCC_NgayCapNhat),
-		}
-		list = append(list, ncc)
-		key := TaoCompositeKey(shopID, maNCC)
-		CacheMapNhaCungCap[key] = ncc
+	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
+	if myLevel > 2 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
+		return
 	}
-	KhoaHeThong.Lock()
-	CacheNhaCungCap[shopID] = list
-	KhoaHeThong.Unlock()
-}
 
-func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	if list, ok := CacheNhaCungCap[shopID]; ok {
-		return list
-	}
-	return []*NhaCungCap{}
-}
+	khungGia, err1 := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("khung_gia_nhap"), ".", ""), 64)
+	loiNhuan, err2 := strconv.ParseFloat(c.PostForm("bien_loi_nhuan"), 64)
+	trangThai := 0; if c.PostForm("trang_thai") == "on" { trangThai = 1 }
+	isNew := c.PostForm("is_new") == "true"
+	dongCu, _ := strconv.Atoi(c.PostForm("dong_cu")) 
 
-func TaoMaNhaCungCapMoi(shopID string) string {
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	prefix := "NCC"
-	maxNum := 0
-	for _, ncc := range CacheNhaCungCap[shopID] {
-		if strings.HasPrefix(ncc.MaNhaCungCap, prefix) {
-			numStr := strings.TrimPrefix(ncc.MaNhaCungCap, prefix)
-			if num, err := strconv.Atoi(numStr); err == nil {
-				if num > maxNum { maxNum = num }
-			}
-		}
+	if err1 != nil || err2 != nil || khungGia <= 0 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Khung giá và Biên lợi nhuận phải là số hợp lệ > 0!"})
+		return
 	}
-	return fmt.Sprintf("%s%03d", prefix, maxNum+1)
+
+	var targetRow int
+
+	if isNew {
+		targetRow = core.DongBatDau_BienLoiNhuan + len(core.LayDanhSachBienLoiNhuan(shopID))
+		newBLN := &core.BienLoiNhuan{
+			SpreadsheetID:  shopID,
+			DongTrongSheet: targetRow,
+			KhungGiaNhap:   khungGia,
+			BienLoiNhuan:   loiNhuan,
+			TrangThai:      trangThai,
+		}
+		core.ThemBienLoiNhuanVaoRam(newBLN) 
+	} else {
+		targetRow = dongCu
+		core.SuaBienLoiNhuanTrongRam(shopID, dongCu, khungGia, loiNhuan, trangThai) 
+	}
+
+	ghi := core.ThemVaoHangCho
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_KhungGiaNhap, khungGia)
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_BienLoiNhuan, loiNhuan)
+	ghi(shopID, "BIEN_LOI_NHUAN", targetRow, core.CotBLN_TrangThai, trangThai)
+
+	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Khung giá thành công!"})
 }
 
 // =============================================================
-// 5. API NHÀ CUNG CẤP
+// 5. API NHÀ CUNG CẤP (CHUẨN 23 CỘT MỚI)
 // =============================================================
 func API_LuuNhaCungCapMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
@@ -404,7 +295,6 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		return
 	}
 
-	// Lấy toàn bộ 23 trường
 	maNCC := strings.TrimSpace(c.PostForm("ma_nha_cung_cap"))
 	tenNCC := strings.TrimSpace(c.PostForm("ten_nha_cung_cap"))
 	mst := strings.TrimSpace(c.PostForm("ma_so_thue"))
@@ -426,10 +316,7 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 	if thongTinJson == "" { thongTinJson = "{}" }
 	
 	ghiChu := strings.TrimSpace(c.PostForm("ghi_chu"))
-	trangThai := 0
-	if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" {
-		trangThai = 1
-	}
+	trangThai := 0; if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" { trangThai = 1 }
 	isNew := c.PostForm("is_new") == "true"
 
 	if tenNCC == "" {
@@ -463,8 +350,8 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 			ChietKhauMacDinh:   ckMacDinh,
 			HanMucCongNo:       hanMuc,
 			CongNoDauKy:        noDauKy,
-			TongMua:            0,       // Mới tạo thì tổng mua bằng 0
-			NoCanTra:           noDauKy, // Nợ cần trả ban đầu = nợ đầu kỳ
+			TongMua:            0,
+			NoCanTra:           noDauKy,
 			ThongTinThemJson:   thongTinJson,
 			TrangThai:          trangThai,
 			GhiChu:             ghiChu,
@@ -476,15 +363,12 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		core.KhoaHeThong.Lock()
 		core.CacheNhaCungCap[shopID] = append(core.CacheNhaCungCap[shopID], newNCC)
 		core.KhoaHeThong.Unlock()
-		
 		maNCC = maMoi
 
-		// Ghi các cột đặc thù lúc tạo mới
 		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_TongMua, 0)
 		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NoCanTra, noDauKy)
 		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NguoiTao, userID)
 		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NgayTao, nowStr)
-
 	} else {
 		list := core.LayDanhSachNhaCungCap(shopID)
 		var found *core.NhaCungCap
@@ -497,8 +381,6 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 			return
 		}
 		targetRow = found.DongTrongSheet
-
-		// Logic Kế toán: Nếu sửa Nợ đầu kỳ, phải bù trừ vào Nợ hiện tại
 		chenhLechNoDauKy := noDauKy - found.CongNoDauKy
 		noCanTraMoi := found.NoCanTra + chenhLechNoDauKy
 
@@ -524,7 +406,6 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		found.NgayCapNhat = nowStr
 		core.KhoaHeThong.Unlock()
 
-		// Cập nhật lại cột Nợ cần trả do thay đổi nợ đầu kỳ
 		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NoCanTra, noCanTraMoi)
 	}
 
