@@ -316,6 +316,13 @@ type SanPhamMayTinh struct {
 	NguoiCapNhat   string  `json:"nguoi_cap_nhat"`
 	NgayCapNhat    string  `json:"ngay_cap_nhat"`
 }
+// Hàm vệ tinh tạo ID duy nhất cho Sản phẩm máy tính
+func (sp *SanPhamMayTinh) LayIDDuyNhat() string {
+	if sp.MaSKU != "" {
+		return sp.MaSKU
+	}
+	return sp.MaSanPham
+}
 
 // ==============================================================================
 // CẤU TRÚC: TIN NHẮN
