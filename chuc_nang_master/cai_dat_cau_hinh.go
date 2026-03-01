@@ -398,24 +398,36 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// Áp dụng chuẩn bảo vệ của bạn
 	myLevel := core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE"))
 	if myLevel > 2 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thao tác!"})
 		return
 	}
 
+	// Lấy toàn bộ 23 trường
 	maNCC := strings.TrimSpace(c.PostForm("ma_nha_cung_cap"))
 	tenNCC := strings.TrimSpace(c.PostForm("ten_nha_cung_cap"))
+	mst := strings.TrimSpace(c.PostForm("ma_so_thue"))
 	sdt := strings.TrimSpace(c.PostForm("dien_thoai"))
 	email := strings.TrimSpace(c.PostForm("email"))
+	khuVuc := strings.TrimSpace(c.PostForm("khu_vuc"))
 	diaChi := strings.TrimSpace(c.PostForm("dia_chi"))
-	mst := strings.TrimSpace(c.PostForm("ma_so_thue"))
 	nguoiLh := strings.TrimSpace(c.PostForm("nguoi_lien_he"))
 	nganHang := strings.TrimSpace(c.PostForm("ngan_hang"))
+	nhomNCC := strings.TrimSpace(c.PostForm("nhom_nha_cung_cap"))
+	loaiNCC := strings.TrimSpace(c.PostForm("loai_nha_cung_cap"))
+	dkThanhToan := strings.TrimSpace(c.PostForm("dieu_khoan_thanh_toan"))
+
+	ckMacDinh, _ := strconv.ParseFloat(c.PostForm("chiet_khau_mac_dinh"), 64)
+	hanMuc, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("han_muc_cong_no"), ".", ""), 64)
+	noDauKy, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("cong_no_dau_ky"), ".", ""), 64)
+
+	thongTinJson := strings.TrimSpace(c.PostForm("thong_tin_them_json"))
+	if thongTinJson == "" { thongTinJson = "{}" }
+	
 	ghiChu := strings.TrimSpace(c.PostForm("ghi_chu"))
 	trangThai := 0
-	if c.PostForm("trang_thai") == "on" {
+	if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" {
 		trangThai = 1
 	}
 	isNew := c.PostForm("is_new") == "true"
@@ -426,6 +438,7 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 	}
 
 	var targetRow int
+	nowStr := time.Now().In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
 
 	if isNew {
 		maMoi := maNCC
@@ -433,18 +446,31 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		targetRow = core.DongBatDau_NhaCungCap + len(core.LayDanhSachNhaCungCap(shopID))
 
 		newNCC := &core.NhaCungCap{
-			SpreadsheetID:  shopID,
-			DongTrongSheet: targetRow,
-			MaNhaCungCap:   maMoi,
-			TenNhaCungCap:  tenNCC,
-			DienThoai:      sdt,
-			Email:          email,
-			DiaChi:         diaChi,
-			MaSoThue:       mst,
-			NguoiLienHe:    nguoiLh,
-			NganHang:       nganHang,
-			TrangThai:      trangThai,
-			GhiChu:         ghiChu,
+			SpreadsheetID:      shopID,
+			DongTrongSheet:     targetRow,
+			MaNhaCungCap:       maMoi,
+			TenNhaCungCap:      tenNCC,
+			MaSoThue:           mst,
+			DienThoai:          sdt,
+			Email:              email,
+			KhuVuc:             khuVuc,
+			DiaChi:             diaChi,
+			NguoiLienHe:        nguoiLh,
+			NganHang:           nganHang,
+			NhomNhaCungCap:     nhomNCC,
+			LoaiNhaCungCap:     loaiNCC,
+			DieuKhoanThanhToan: dkThanhToan,
+			ChietKhauMacDinh:   ckMacDinh,
+			HanMucCongNo:       hanMuc,
+			CongNoDauKy:        noDauKy,
+			TongMua:            0,       // Mới tạo thì tổng mua bằng 0
+			NoCanTra:           noDauKy, // Nợ cần trả ban đầu = nợ đầu kỳ
+			ThongTinThemJson:   thongTinJson,
+			TrangThai:          trangThai,
+			GhiChu:             ghiChu,
+			NguoiTao:           userID,
+			NgayTao:            nowStr,
+			NgayCapNhat:        nowStr,
 		}
 		
 		core.KhoaHeThong.Lock()
@@ -452,6 +478,13 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		core.KhoaHeThong.Unlock()
 		
 		maNCC = maMoi
+
+		// Ghi các cột đặc thù lúc tạo mới
+		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_TongMua, 0)
+		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NoCanTra, noDauKy)
+		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NguoiTao, userID)
+		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NgayTao, nowStr)
+
 	} else {
 		list := core.LayDanhSachNhaCungCap(shopID)
 		var found *core.NhaCungCap
@@ -465,30 +498,56 @@ func API_LuuNhaCungCapMaster(c *gin.Context) {
 		}
 		targetRow = found.DongTrongSheet
 
+		// Logic Kế toán: Nếu sửa Nợ đầu kỳ, phải bù trừ vào Nợ hiện tại
+		chenhLechNoDauKy := noDauKy - found.CongNoDauKy
+		noCanTraMoi := found.NoCanTra + chenhLechNoDauKy
+
 		core.KhoaHeThong.Lock()
 		found.TenNhaCungCap = tenNCC
+		found.MaSoThue = mst
 		found.DienThoai = sdt
 		found.Email = email
+		found.KhuVuc = khuVuc
 		found.DiaChi = diaChi
-		found.MaSoThue = mst
 		found.NguoiLienHe = nguoiLh
 		found.NganHang = nganHang
+		found.NhomNhaCungCap = nhomNCC
+		found.LoaiNhaCungCap = loaiNCC
+		found.DieuKhoanThanhToan = dkThanhToan
+		found.ChietKhauMacDinh = ckMacDinh
+		found.HanMucCongNo = hanMuc
+		found.CongNoDauKy = noDauKy
+		found.NoCanTra = noCanTraMoi
+		found.ThongTinThemJson = thongTinJson
 		found.TrangThai = trangThai
 		found.GhiChu = ghiChu
+		found.NgayCapNhat = nowStr
 		core.KhoaHeThong.Unlock()
+
+		// Cập nhật lại cột Nợ cần trả do thay đổi nợ đầu kỳ
+		core.ThemVaoHangCho(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NoCanTra, noCanTraMoi)
 	}
 
 	ghi := core.ThemVaoHangCho
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_MaNhaCungCap, maNCC)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_TenNhaCungCap, tenNCC)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_MaSoThue, mst)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_DienThoai, sdt)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_Email, email)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_KhuVuc, khuVuc)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_DiaChi, diaChi)
-	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_MaSoThue, mst)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NguoiLienHe, nguoiLh)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NganHang, nganHang)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NhomNhaCungCap, nhomNCC)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_LoaiNhaCungCap, loaiNCC)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_DieuKhoanThanhToan, dkThanhToan)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_ChietKhauMacDinh, ckMacDinh)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_HanMucCongNo, hanMuc)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_CongNoDauKy, noDauKy)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_ThongTinThemJson, thongTinJson)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_TrangThai, trangThai)
 	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_GhiChu, ghiChu)
+	ghi(shopID, core.TenSheetNhaCungCap, targetRow, core.CotNCC_NgayCapNhat, nowStr)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu Nhà cung cấp thành công!"})
 }
