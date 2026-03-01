@@ -128,6 +128,8 @@ func main() {
 		admin.POST("/api/brand/save", chuc_nang_admin.API_LuuThuongHieu)
 		admin.POST("/api/margin/save", chuc_nang_admin.API_LuuBienLoiNhuan)
 		admin.POST("/api/category/sync-slots", chuc_nang_admin.API_DongBoSlotDanhMuc)
+
+		admin.GET("/nhap-hang", chuc_nang_admin.TrangNhapHang)
 	}
 
 	port := cau_hinh.BienCauHinh.CongChayWeb
