@@ -1,4 +1,4 @@
-package chuc_nang
+package cau_hinh
 
 import (
 	"net/http"
