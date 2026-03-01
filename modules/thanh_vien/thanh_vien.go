@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"app/cau_hinh"
+	"app/config"
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
@@ -87,7 +87,7 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng thiết lập Mã PIN trước."})
 		return
 	}
-	if !cau_hinh.KiemTraMatKhau(pinXacNhan, admin.MaPinHash) {
+	if !config.KiemTraMatKhau(pinXacNhan, admin.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN xác nhận không chính xác!"})
 		return
 	}
