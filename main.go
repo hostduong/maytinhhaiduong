@@ -9,8 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"app/cau_hinh"
-	"app/chuc_nang" // Giữ lại để lấy funcMap (Format tiền, số...)
+	"app/modules/cau_hinh"
 	"app/core"
 	"app/routers"
 
