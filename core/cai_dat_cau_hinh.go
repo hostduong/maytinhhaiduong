@@ -281,7 +281,7 @@ func SuaBienLoiNhuanTrongRam(shopID string, dong int, khungGia, loiNhuan float64
 // ==============================================================================
 const (
 	TenSheetNhaCungCap    = "NHA_CUNG_CAP"
-	DongBatDau_NhaCungCap = 2
+	DongBatDau_NhaCungCap = 11
 
 	CotNCC_MaNhaCungCap       = 0  // A
 	CotNCC_TenNhaCungCap      = 1  // B
