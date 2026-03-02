@@ -6,12 +6,27 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"app/config" // Thêm thư viện cấu hình để lấy ID gốc
 )
 
 // Giữ lại Alias để các file cũ không bị lỗi "undefined"
 var ThemVaoHangCho = PushUpdate
 
+// =======================================================
+// [MỚI] LƯỚI AN TOÀN: TỰ ĐỘNG LẤY SHOP_ID MASTER NẾU RỖNG
+// =======================================================
+func layShopIDAnToan(shopID string) string {
+	if shopID == "" {
+		return config.BienCauHinh.IdFileSheet
+	}
+	return shopID
+}
+
+// --- TIỆN ÍCH TRUY XUẤT NGƯỜI DÙNG ---
+
 func LayKhachHang(shopID, userID string) (*KhachHang, bool) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	kh, ok := CacheMapKhachHang[TaoCompositeKey(shopID, userID)]
@@ -19,12 +34,14 @@ func LayKhachHang(shopID, userID string) (*KhachHang, bool) {
 }
 
 func LayDanhSachKhachHang(shopID string) []*KhachHang {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	return CacheKhachHang[shopID]
 }
 
 func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	for _, kh := range CacheKhachHang[shopID] {
@@ -36,6 +53,7 @@ func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 }
 
 func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	input = strings.ToLower(strings.TrimSpace(input))
@@ -49,6 +67,7 @@ func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 }
 
 func TaoMaKhachHangMoi(shopID string) string {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	for {
@@ -61,12 +80,13 @@ func ThemKhachHangVaoRam(kh *KhachHang) {
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
 	sID := kh.SpreadsheetID
-	if sID == "" { sID = "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8" }
+	if sID == "" { sID = config.BienCauHinh.IdFileSheet }
 	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
 	CacheMapKhachHang[TaoCompositeKey(sID, kh.MaKhachHang)] = kh
 }
 
 func LayCapBacVaiTro(shopID, userID, role string) int {
+	shopID = layShopIDAnToan(shopID)
 	if userID == "0000000000000000001" || role == "quan_tri_he_thong" { return 0 }
 	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
 	lock.RLock()
@@ -82,6 +102,7 @@ func LayCapBacVaiTro(shopID, userID, role string) int {
 // =======================================================
 
 func KiemTraQuyen(shopID, role, maChucNang string) bool {
+	shopID = layShopIDAnToan(shopID)
 	if role == "quan_tri_he_thong" { return true }
 	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
 	lock.RLock()
@@ -95,6 +116,7 @@ func KiemTraQuyen(shopID, role, maChucNang string) bool {
 }
 
 func TaoMaSPMayTinhMoi(shopID, prefix string) string {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	if prefix == "" { prefix = "SP" }
@@ -109,6 +131,7 @@ func TaoMaSPMayTinhMoi(shopID, prefix string) string {
 }
 
 func CapNhatSlotThuCong(shopID, dmMa string, slotMoi int) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
 	for _, dm := range CacheDanhMuc[shopID] {
@@ -122,14 +145,15 @@ func CapNhatSlotThuCong(shopID, dmMa string, slotMoi int) {
 	}
 }
 
-// Bổ sung Helper cho các Module khác
-func LayDanhSachSanPhamMayTinh(shopID string) []*SanPhamMayTinh { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheSanPhamMayTinh[shopID] }
-func LayDanhSachDanhMuc(shopID string) []*DanhMuc { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheDanhMuc[shopID] }
-func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheThuongHieu[shopID] }
-func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheBienLoiNhuan[shopID] }
-func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheNhaCungCap[shopID] }
+// --- Bổ sung Helper cho các Module khác ---
+func LayDanhSachSanPhamMayTinh(shopID string) []*SanPhamMayTinh { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheSanPhamMayTinh[shopID] }
+func LayDanhSachDanhMuc(shopID string) []*DanhMuc { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheDanhMuc[shopID] }
+func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheThuongHieu[shopID] }
+func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheBienLoiNhuan[shopID] }
+func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheNhaCungCap[shopID] }
 
 func LayChiTietSKUMayTinh(shopID, id string) (*SanPhamMayTinh, bool) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	sp, ok := CacheMapSKUMayTinh[TaoCompositeKey(shopID, id)]
@@ -140,6 +164,7 @@ func LayChiTietSKUMayTinh(shopID, id string) (*SanPhamMayTinh, bool) {
 }
 
 func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.RLock()
 	defer KhoaHeThong.RUnlock()
 	var rs []*TinNhan
@@ -152,6 +177,7 @@ func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
 }
 
 func ThemMoiTinNhan(shopID string, tn *TinNhan) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.Lock()
 	tn.DongTrongSheet = DongBatDau_TinNhan + len(CacheTinNhan[shopID])
 	CacheTinNhan[shopID] = append(CacheTinNhan[shopID], tn)
@@ -161,6 +187,7 @@ func ThemMoiTinNhan(shopID string, tn *TinNhan) {
 }
 
 func DanhDauDocTinNhan(shopID, userID, msgID string) {
+	shopID = layShopIDAnToan(shopID)
 	KhoaHeThong.Lock()
 	defer KhoaHeThong.Unlock()
 	for _, tn := range CacheTinNhan[shopID] {
