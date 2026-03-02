@@ -3,11 +3,10 @@ package routers
 import (
 	"net/http"
 
-	"app/middlewares"
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
+	"app/modules/hien_thi_web" // Đã cập nhật đúng theo ý bạn
 	"app/modules/ho_so"
-	"app/modules/hien_thi_web"
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
 	"app/modules/thanh_vien"
@@ -33,12 +32,12 @@ func SetupRouter() *gin.Engine {
 	router.Static("/static", "./static")
 
 	// --- KÊNH PUBLIC (Mặt tiền) ---
-	router.GET("/", home.TrangChu)
-	router.GET("/san-pham/:id", home.ChiTietSanPham)
+	router.GET("/", hien_thi_web.TrangChu)
+	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
 	// --- KHU VỰC WORKSPACE (Bên trong ứng dụng) ---
 	workspace := router.Group("/master")
-	workspace.Use(FakeAuth()) // Bật thẻ VIP để pass màn hình đăng nhập
+	workspace.Use(FakeAuth()) // Bật thẻ VIP
 	{
 		// 1. Nhóm Render Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
