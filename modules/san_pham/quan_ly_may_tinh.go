@@ -1,4 +1,4 @@
-package chuc_nang
+package san_pham
 
 import (
 	"encoding/json"
