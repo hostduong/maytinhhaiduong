@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,8 +53,10 @@ func TaoMaKhachHangMoi(shopID string) string {
 
 func ThemKhachHangVaoRam(kh *KhachHang) {
 	KhoaHeThong.Lock(); defer KhoaHeThong.Unlock()
-	CacheKhachHang[kh.SpreadsheetID] = append(CacheKhachHang[kh.SpreadsheetID], kh)
-	CacheMapKhachHang[TaoCompositeKey(kh.SpreadsheetID, kh.MaKhachHang)] = kh
+	sID := kh.SpreadsheetID
+	if sID == "" { sID = "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8" }
+	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
+	CacheMapKhachHang[TaoCompositeKey(sID, kh.MaKhachHang)] = kh
 }
 
 func LayCapBacVaiTro(shopID, userID, role string) int {
@@ -84,8 +87,8 @@ func TaoMaSPMayTinhMoi(shopID, prefix string) string {
 	max := 0
 	for _, sp := range CacheSanPhamMayTinh[shopID] {
 		if strings.HasPrefix(sp.MaSanPham, prefix) {
-			var num int; fmt.Sscanf(strings.TrimPrefix(sp.MaSanPham, prefix), "%d", &num)
-			if num > max { max = num }
+			numStr := strings.TrimPrefix(sp.MaSanPham, prefix)
+			if num, err := strconv.Atoi(numStr); err == nil && num > max { max = num }
 		}
 	}
 	return fmt.Sprintf("%s%04d", prefix, max+1)
