@@ -162,11 +162,11 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 
 	if maKH != "0000000000000000000" {
 		if passMoi := strings.TrimSpace(c.PostForm("mat_khau_moi")); passMoi != "" {
-			hash, _ := cau_hinh.HashMatKhau(passMoi); kh.MatKhauHash = hash
+			hash, _ := config.HashMatKhau(passMoi); kh.MatKhauHash = hash
 			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
 		}
 		if pinMoi := strings.TrimSpace(c.PostForm("pin_moi")); pinMoi != "" {
-			hashPin, _ := cau_hinh.HashMatKhau(pinMoi); kh.MaPinHash = hashPin
+			hashPin, _ := config.HashMatKhau(pinMoi); kh.MaPinHash = hashPin
 			core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
 		}
 	}
