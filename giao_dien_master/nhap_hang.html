@@ -15,13 +15,12 @@
         .input-premium { width: 100%; height: 40px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
         
-        /* BẢNG CHI TIẾT SẢN PHẨM: ĐÃ ÉP SÁT KHOẢNG CÁCH */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; }
-        .table-nhap-hang { width: 100%; text-align: left; min-width: 650px; }
-        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.25rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-        .table-nhap-hang td { padding: 0.75rem 0.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
+        .table-nhap-hang { width: 100%; text-align: left; min-width: 700px; }
+        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .table-nhap-hang td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
         
-        /* Input trên bảng được fix cứng độ rộng để không chiếm chỗ */
+        /* Ô nhập liệu trên bảng thu nhỏ, căn lề tự động */
         .input-qty { width: 60px; text-align: center; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #4338ca; font-weight: 800; margin: 0 auto; display: block; }
         .price-input { width: 110px; text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block;}
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -54,28 +53,27 @@
         .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
     </style>
 
-    <script>
-        const serverDrafts = {{ json .DanhSachNhaps }};
-        const rawDB_SP = {{ json .DanhSachSP }};
-        const rawDB_NCC = {{ json .DanhSachNCC }};
-
-        // Format lại dữ liệu để JS dễ xài
-        const dbSP = rawDB_SP ? rawDB_SP.map(sp => ({
-            ma_san_pham: sp.ma_san_pham || "",
-            ma_sku: sp.ma_sku || "",
-            tensp: sp.ten_san_pham || "",
-            tensku: sp.ten_sku || "",
-            donvi: sp.don_vi || "Cái",
-            gianhap: sp.gia_nhap || 0,
-            img: sp.url_hinh_anh || ""
-        })) : [];
-
-        const dbNCC = rawDB_NCC ? rawDB_NCC.map(ncc => ({
-            ma: ncc.ma_nha_cung_cap || "",
-            ten: ncc.ten_nha_cung_cap || "",
-            sdt: ncc.dien_thoai || ""
-        })) : [];
-    </script>
+    <div id="data_island" style="display:none;">
+        <div id="data_sp">
+            {{ range .DanhSachSP }}
+            <div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ urlquery .TenSanPham }}" data-tensku="{{ urlquery .TenSKU }}" data-donvi="{{ urlquery .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
+            {{ end }}
+        </div>
+        <div id="data_ncc">
+            {{ range .DanhSachNCC }}
+            <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ urlquery .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}"></div>
+            {{ end }}
+        </div>
+        <div id="data_drafts">
+            {{ range .DanhSachNhaps }}
+            <div class="draft-item" data-maphieu="{{ .MaPhieuNhap }}" data-trangthai="{{ .TrangThai }}" data-mancc="{{ .MaNhaCungCap }}" data-ngaynhap="{{ .NgayNhap }}" data-sohd="{{ .SoHoaDon }}" data-makho="{{ .MaKho }}" data-ghichu="{{ urlquery .GhiChu }}" data-giamgia="{{ printf "%.0f" .GiamGiaPhieu }}" data-datra="{{ printf "%.0f" .DaThanhToan }}" data-phuongthuc="{{ .PhuongThucThanhToan }}">
+                {{ range .ChiTiet }}
+                <div class="draft-detail" data-masku="{{ .MaSKU }}" data-sl="{{ .SoLuong }}" data-gianhap="{{ printf "%.0f" .DonGiaNhap }}"></div>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+    </div>
 
     <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
         
@@ -123,14 +121,14 @@
                     <table class="table-nhap-hang">
                         <thead class="sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th class="w-10 text-center">STT</th>
-                                <th class="w-[70px] text-center">Ảnh</th>
-                                <th class="w-auto text-left">Tên Hàng Hóa</th>
-                                <th class="w-16 text-center">ĐVT</th>
-                                <th class="w-20 text-center">Số Lượng</th>
-                                <th class="w-28 text-center">Giá Nhập</th>
-                                <th class="w-32 text-right pr-4">Thành Tiền</th>
-                                <th class="w-10 text-center">✕</th>
+                                <th class="w-[5%] text-center">STT</th>
+                                <th class="w-[10%] text-center">Ảnh</th>
+                                <th class="w-[30%] text-left">Tên Hàng Hóa</th>
+                                <th class="w-[10%] text-center">ĐVT</th>
+                                <th class="w-[12%] text-center">Số Lượng</th>
+                                <th class="w-[15%] text-right pr-4">Giá Nhập</th>
+                                <th class="w-[15%] text-right pr-4">Thành Tiền</th>
+                                <th class="w-[3%] text-center">✕</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyChiTiet">
@@ -257,6 +255,7 @@
     </div>
 
     <script>
+        function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
         function getFirstImg(str) {
             if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             let arr = str.split('|'); return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
@@ -265,41 +264,46 @@
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
+        const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: decodeGo(el.getAttribute('data-tensp')), tensku: decodeGo(el.getAttribute('data-tensku')), donvi: decodeGo(el.getAttribute('data-donvi')), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') }); });
+        const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: decodeGo(el.getAttribute('data-ten')), sdt: el.getAttribute('data-dienthoai') }); });
+
         let appTabs = {}; let currentTabId = ""; let tabCounter = 0; let tagifySerial;
 
         function getEmptyTab(id) {
             let today = new Date(); let offset = today.getTimezoneOffset() * 60000; let localISOTime = (new Date(today - offset)).toISOString().slice(0, 16);
             return {
-                id: "T" + id, ma_phieu: "", title: "Phiếu mới", status: -2, 
+                id: "T" + id, ma_phieu: "", title: "Phiếu mới", status: -2,
                 cart: [], ncc_ma: "", ncc_ten: "",
                 ngay_nhap: localISOTime.split('T')[0], so_hd: "", ma_kho: "KHO_CHINH", ghi_chu: "",
                 giam_gia: 0, da_tra: 0, phuong_thuc: "TIEN_MAT"
             };
         }
 
-        // ==========================================
         // KHỞI TẠO APP
-        // ==========================================
         document.addEventListener("DOMContentLoaded", function() {
             tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
             
-            if (typeof serverDrafts !== 'undefined' && serverDrafts && serverDrafts.length > 0) {
-                serverDrafts.forEach(d => {
+            let draftEls = document.querySelectorAll('#data_drafts .draft-item');
+            if (draftEls.length > 0) {
+                draftEls.forEach(d => {
                     tabCounter++; let tid = "T" + tabCounter;
                     let cart = [];
-                    if(d.chi_tiet && Array.isArray(d.chi_tiet)) {
-                        d.chi_tiet.forEach(ct => {
-                            let spCache = dbSP.find(s => s.ma_sku === ct.ma_sku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
-                            cart.push({ ma_sku: ct.ma_sku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: parseInt(ct.so_luong)||1, gianhap: parseFloat(ct.don_gia_nhap)||0, serials: ct.serials || [] });
-                        });
-                    }
-                    let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === d.ma_nha_cung_cap); if(nccFind) nccTen = nccFind.ten;
+                    d.querySelectorAll('.draft-detail').forEach(ct => {
+                        let masku = ct.getAttribute('data-masku');
+                        let sl = parseInt(ct.getAttribute('data-sl')) || 1;
+                        let gianhap = parseFloat(ct.getAttribute('data-gianhap')) || 0;
+                        let spCache = dbSP.find(s => s.ma_sku === masku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
+                        cart.push({ ma_sku: masku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: sl, gianhap: gianhap, serials: [] });
+                    });
+                    
+                    let mancc = d.getAttribute('data-mancc');
+                    let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === mancc); if(nccFind) nccTen = nccFind.ten;
 
                     appTabs[tid] = {
-                        id: tid, ma_phieu: d.ma_phieu_nhap, title: d.ma_phieu_nhap || "Nháp", status: d.trang_thai,
-                        cart: cart, ncc_ma: d.ma_nha_cung_cap, ncc_ten: nccTen,
-                        ngay_nhap: (d.ngay_nhap || "").split(' ')[0], so_hd: d.so_hoa_don, ma_kho: d.ma_kho || "KHO_CHINH", ghi_chu: d.ghi_chu,
-                        giam_gia: parseFloat(d.giam_gia_phieu)||0, da_tra: parseFloat(d.da_thanh_toan)||0, phuong_thuc: d.phuong_thuc_thanh_toan || "TIEN_MAT"
+                        id: tid, ma_phieu: d.getAttribute('data-maphieu'), title: d.getAttribute('data-maphieu') || "Nháp", status: parseInt(d.getAttribute('data-trangthai')),
+                        cart: cart, ncc_ma: mancc, ncc_ten: nccTen,
+                        ngay_nhap: (d.getAttribute('data-ngaynhap') || "").split(' ')[0], so_hd: d.getAttribute('data-sohd'), ma_kho: d.getAttribute('data-makho') || "KHO_CHINH", ghi_chu: decodeGo(d.getAttribute('data-ghichu')),
+                        giam_gia: parseFloat(d.getAttribute('data-giamgia'))||0, da_tra: parseFloat(d.getAttribute('data-datra'))||0, phuong_thuc: d.getAttribute('data-phuongthuc') || "TIEN_MAT"
                     };
                 });
                 currentTabId = "T1"; switchTab("T1");
@@ -406,16 +410,12 @@
             document.getElementById('inpDaThanhToan').disabled = disable; document.getElementById('inpSearchSP').disabled = disable;
         }
 
-        // ==========================================
-        // TÌM KIẾM SẢN PHẨM HOÀN HẢO - FIX ĐÈ ICON VÀ TỰ ĐÓNG SAU KHI CHỌN
-        // ==========================================
         function initSearchSP() {
             const inp = document.getElementById('inpSearchSP');
             const drop = document.getElementById('dropdownSP');
             const icon = document.getElementById('iconSearchSP');
 
             inp.addEventListener('input', function() {
-                // Hiệu ứng icon kính lúp
                 if(this.value.length > 0) { 
                     icon.style.opacity = '0'; 
                     this.classList.remove('pl-[3rem]'); this.classList.add('pl-[1rem]');
@@ -450,12 +450,11 @@
                             </div>
                         </div>`;
                     
-                    // CHỌN SẢN PHẨM: Thêm vào bảng -> Xóa trắng ô input -> Đóng menu
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
                         addProductToCart(item);
                         inp.value = ''; 
-                        inp.dispatchEvent(new Event('input')); // Gọi để reset lại Icon kính lúp
+                        inp.dispatchEvent(new Event('input')); 
                         drop.style.display = 'none'; 
                     };
                     drop.appendChild(div);
@@ -465,15 +464,10 @@
                 drop.style.display = 'block';
             });
 
-            // Nếu click lại vào ô input mà đang có chữ, xổ menu xuống lại
             inp.addEventListener('focus', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
-            // Click ra ngoài thì đóng
             document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // ==========================================
-        // TÌM KIẾM NCC HOÀN HẢO - TỰ ĐÓNG SAU KHI CHỌN
-        // ==========================================
         function initSearchNCC() {
             const inp = document.getElementById('inpSearchNCC');
             const drop = document.getElementById('dropdownNCC');
@@ -494,7 +488,6 @@
                     div.className = 'search-item';
                     div.innerHTML = `<div><div class="font-bold text-slate-800 text-[13px]">${item.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${item.ma}</span> | SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></div></div>`;
                     
-                    // CHỌN NCC: Điền tên -> Điền mã ẩn -> Save trạng thái -> Đóng menu
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
                         inp.value = item.ten; 
@@ -513,9 +506,6 @@
             document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // ==========================================
-        // LƯỚI GIỎ HÀNG VÀ TÍNH TOÁN
-        // ==========================================
         function addProductToCart(sp) {
             if(!currentTabId || !appTabs[currentTabId]) return;
             let cart = appTabs[currentTabId].cart;
@@ -614,9 +604,6 @@
             saveCurrentTabState();
         }
 
-        // ==========================================
-        // SUBMIT & API CALLS
-        // ==========================================
         function confirmSubmit(status) {
             saveCurrentTabState();
             let t = appTabs[currentTabId];
