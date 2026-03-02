@@ -6,7 +6,7 @@ import (
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
 	"app/modules/ho_so"
-	"app/modules/home"
+	"app/modules/hien_thi_web"
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
 	"app/modules/thanh_vien"
