@@ -372,27 +372,32 @@ type TinNhan struct {
 }
 
 // ==============================================================================
-// CẤU TRÚC: DANH MỤC
+// CẤU TRÚC: PHIẾU NHẬP KHÔNG GIAN (LƯU NHÁP JSON)
 // ==============================================================================
 const (
 	CotPN_MaPhieuNhap          = 0  // A
 	CotPN_MaNhaCungCap         = 1  // B
 	CotPN_MaKho                = 2  // C
 	CotPN_NgayNhap             = 3  // D
-	CotPN_TrangThai            = 4  // E
-	CotPN_SoHoaDon             = 5  // F
-	CotPN_NgayHoaDon           = 6  // G
-	CotPN_UrlChungTu           = 7  // H
-	CotPN_TongTienPhieu        = 8  // I
-	CotPN_GiamGiaPhieu         = 9  // J
-	CotPN_DaThanhToan          = 10 // K
-	CotPN_ConNo                = 11 // L
-	CotPN_PhuongThucThanhToan  = 12 // M
-	CotPN_TrangThaiThanhToan   = 13 // N
-	CotPN_GhiChu               = 14 // O
-	CotPN_NguoiTao             = 15 // P
-	CotPN_NgayTao              = 16 // Q
-	CotPN_NgayCapNhat          = 17 // R
+	CotPN_ChiTietJson          = 4  // E (Mới: Lưu mảng JSON chi tiết)
+	CotPN_TrangThai            = 5  // F (-1: Xóa, 0: Nháp, 1: Hoàn thành, 2: Chờ duyệt)
+	CotPN_SoHoaDon             = 6  // G
+	CotPN_NgayHoaDon           = 7  // H
+	CotPN_UrlChungTu           = 8  // I
+	CotPN_TongTienPhieu        = 9  // J
+	CotPN_GiamGiaPhieu         = 10 // K
+	CotPN_ChiPhiNhap           = 11 // L (Mới: Phí vận chuyển, bốc vác...)
+	CotPN_DaThanhToan          = 12 // M
+	CotPN_ConNo                = 13 // N
+	CotPN_PhuongThucThanhToan  = 14 // O
+	CotPN_TrangThaiThanhToan   = 15 // P
+	CotPN_GhiChu               = 16 // Q
+	CotPN_NguoiTao             = 17 // R
+	CotPN_NgayTao              = 18 // S
+	CotPN_NguoiDuyet           = 19 // T (Mới)
+	CotPN_NgayDuyet            = 20 // U (Mới)
+	CotPN_NguoiCapNhat         = 21 // V
+	CotPN_NgayCapNhat          = 22 // W
 )
 
 // --- CHI TIẾT PHIẾU NHẬP (15 Cột) ---
@@ -449,12 +454,14 @@ type PhieuNhap struct {
 	MaNhaCungCap         string  `json:"ma_nha_cung_cap"`
 	MaKho                string  `json:"ma_kho"`
 	NgayNhap             string  `json:"ngay_nhap"`
+	ChiTietJson          string  `json:"chi_tiet_json"` // Thêm mới
 	TrangThai            int     `json:"trang_thai"`
 	SoHoaDon             string  `json:"so_hoa_don"`
 	NgayHoaDon           string  `json:"ngay_hoa_don"`
 	UrlChungTu           string  `json:"url_chung_tu"`
 	TongTienPhieu        float64 `json:"tong_tien_phieu"`
 	GiamGiaPhieu         float64 `json:"giam_gia_phieu"`
+	ChiPhiNhap           float64 `json:"chi_phi_nhap"` // Thêm mới
 	DaThanhToan          float64 `json:"da_thanh_toan"`
 	ConNo                float64 `json:"con_no"`
 	PhuongThucThanhToan  string  `json:"phuong_thuc_thanh_toan"`
@@ -462,8 +469,12 @@ type PhieuNhap struct {
 	GhiChu               string  `json:"ghi_chu"`
 	NguoiTao             string  `json:"nguoi_tao"`
 	NgayTao              string  `json:"ngay_tao"`
+	NguoiDuyet           string  `json:"nguoi_duyet"` // Thêm mới
+	NgayDuyet            string  `json:"ngay_duyet"`  // Thêm mới
+	NguoiCapNhat         string  `json:"nguoi_cap_nhat"`
 	NgayCapNhat          string  `json:"ngay_cap_nhat"`
 	
+	// Thuộc tính này để chứa dữ liệu dạng Struct khi RAM bung JSON ra (Không lưu trực tiếp biến này xuống sheet Phiếu Nhập)
 	ChiTiet              []*ChiTietPhieuNhap `json:"chi_tiet"`
 }
 
