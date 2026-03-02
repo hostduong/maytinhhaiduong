@@ -173,3 +173,19 @@ func DanhDauDocTinNhan(shopID, userID, msgID string) {
 }
 
 func ToJSON(v interface{}) string { b, _ := json.Marshal(v); return string(b) }
+
+// LayIntStr chuyển đổi chuỗi sang số nguyên, trả về 0 nếu có lỗi
+func LayIntStr(s string) int {
+	if s == "" {
+		return 0
+	}
+	// Xóa khoảng trắng thừa nếu có
+	s = strings.TrimSpace(s)
+	
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		// Log lỗi nếu cần thiết, nhưng ở đây ta trả về 0 cho an toàn
+		return 0
+	}
+	return val
+}
