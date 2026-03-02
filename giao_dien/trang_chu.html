@@ -1,0 +1,99 @@
+{{ define "trang_chu" }}
+{{ template "header" . }}
+
+<section class="relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-purple-950 to-slate-950 text-white overflow-hidden py-24 lg:py-32 -mt-20 pt-40">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] opacity-60"></div>
+    
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/30 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8 shadow-2xl">
+            <span class="flex h-2 w-2 rounded-full bg-green-400"></span>
+            <span class="text-xs font-bold tracking-widest uppercase text-purple-200">Phiên bản Enterprise V1.0</span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 tracking-tight leading-tight">
+            Quản trị Lõi. <br />
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-fuchsia-300 to-indigo-400">Siêu Tốc Độ.</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-purple-100/70 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
+            Nền tảng SaaS duy nhất sử dụng công nghệ <b class="text-white">In-Memory Data</b> (Cache RAM đa chiều) kết hợp hàng đợi bất đồng bộ. Mở cửa hàng và Website bán hàng của bạn chỉ trong 30 giây.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            {{ if .DaDangNhap }}
+                <a href="/master/tong-quan" class="w-full sm:w-auto bg-white text-purple-950 font-black py-4 px-10 rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.2)] transition transform hover:-translate-y-1 hover:bg-slate-50 flex justify-center items-center gap-2">
+                    Vào Workspace <span class="text-xl">🚀</span>
+                </a>
+            {{ else }}
+                <a href="/register" class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-4 px-10 rounded-xl shadow-lg shadow-purple-900/50 transition transform hover:-translate-y-1 flex justify-center items-center gap-2 border border-purple-400/30">
+                    Khởi tạo Cửa hàng Miễn phí
+                </a>
+                <a href="/login" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-4 px-10 rounded-xl backdrop-blur-md transition flex justify-center items-center">
+                    Đăng nhập Hệ thống
+                </a>
+            {{ end }}
+        </div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-50 to-transparent"></div>
+</section>
+
+<section class="py-24 bg-slate-50 relative z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Kiến trúc Đẳng cấp Thế giới</h2>
+            <p class="text-slate-500 font-medium">Bỏ lại đằng sau sự chậm chạp của Database truyền thống. 99K.vn mang sức mạnh của công nghệ lõi vào tay bạn.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 bg-white rounded-[2rem] p-8 md:p-12 border border-slate-200 shadow-sm hover:shadow-xl transition duration-500 group overflow-hidden relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100 rounded-full blur-3xl -mr-20 -mt-20 transition group-hover:bg-purple-200"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-3">Granular RAM Caching</h3>
+                    <p class="text-slate-500 font-medium max-w-md leading-relaxed">Bộ nhớ đệm phân mảnh cực độ (Multi-dimensional). Đọc dữ liệu với tốc độ tính bằng <b class="text-purple-600">mili-giây</b>, không nghẽn cổ chai dù hàng vạn Shop truy cập.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-[2rem] p-8 border border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-900/20 transition duration-500 text-white group overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-slate-800 text-indigo-400 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-black mb-3">The Write Queue</h3>
+                    <p class="text-slate-400 font-medium text-sm leading-relaxed">Cơ chế xếp hàng đồng bộ hóa thông minh. Ghi dữ liệu an toàn, không lo sập Google API.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm hover:shadow-xl transition duration-500 group">
+                <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h3 class="text-xl font-black text-slate-800 mb-3">Bảo mật 5 Lớp</h3>
+                <p class="text-slate-500 font-medium text-sm leading-relaxed">Đường ống Security Pipeline tuyệt đối: Token, Trạng thái, SaaS Limit, RBAC, và Cấp bậc (Level 0-9).</p>
+            </div>
+
+            <div class="md:col-span-2 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-[2rem] p-8 md:p-12 border border-purple-100/50 shadow-sm hover:shadow-xl transition duration-500 flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-1">
+                    <span class="px-3 py-1 bg-purple-200 text-purple-800 text-xs font-bold rounded-full uppercase tracking-wider mb-4 inline-block">Mới nhất</span>
+                    <h3 class="text-2xl font-black text-slate-900 mb-3">Tự động khởi tạo Subdomain</h3>
+                    <p class="text-slate-600 font-medium leading-relaxed">Chỉ với 1 click đăng ký, hệ thống tự động giao tiếp với <b class="text-purple-600">Google Cloud Run</b> để định tuyến tên miền cửa hàng của bạn ngay lập tức.</p>
+                </div>
+                <div class="w-full md:w-auto">
+                    <div class="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 font-mono text-sm text-slate-700">
+                        <span class="text-purple-500">GET</span> https://<b class="text-slate-900">shopcuaban</b>.99k.vn
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{ template "footer" . }}
+{{ end }}
