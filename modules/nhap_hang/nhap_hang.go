@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv" // <--- THƯ VIỆN NÀY ĐÃ ĐƯỢC THÊM ĐỂ PARSE SỐ
 	"strings"
 	"time"
 
@@ -18,7 +19,6 @@ func TrangNhapHangMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// Lấy thông tin người dùng hiện tại (Để hiển thị Avatar/Tên)
 	me, ok := core.LayKhachHang(shopID, userID)
 	if !ok {
 		c.Redirect(http.StatusFound, "/login")
@@ -34,12 +34,10 @@ func TrangNhapHangMaster(c *gin.Context) {
 	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
 	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
 
-	// LẤY DANH SÁCH PHIẾU NHÁP, CHỜ DUYỆT & ĐỢI XÓA TRẢ VỀ FRONTEND (F5 không mất)
 	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RLock()
 	allPhieu := core.CachePhieuNhap[shopID]
 	var danhSachNhaps []*core.PhieuNhap
 	for _, p := range allPhieu {
-		// Chỉ lấy các phiếu chưa hoàn thành (0: Nháp, 2: Chờ duyệt, -1: Đợi xóa)
 		if p.TrangThai == 0 || p.TrangThai == 2 || p.TrangThai == -1 {
 			danhSachNhaps = append(danhSachNhaps, p)
 		}
@@ -51,7 +49,7 @@ func TrangNhapHangMaster(c *gin.Context) {
 		"NhanVien":      &meCopy,
 		"DanhSachNCC":   danhSachNCC,
 		"DanhSachSP":    danhSachSP,
-		"DanhSachNhaps": danhSachNhaps, // Ném danh sách Nháp ra Tab
+		"DanhSachNhaps": danhSachNhaps,
 	})
 }
 
@@ -66,26 +64,48 @@ type ChiTietInput struct {
 }
 
 type PhieuNhapInput struct {
-	MaPhieuNhap         string         `json:"ma_phieu_nhap"` // Trống = Tạo mới, Có mã = Cập nhật
+	MaPhieuNhap         string         `json:"ma_phieu_nhap"`
 	MaNhaCungCap        string         `json:"ma_nha_cung_cap"`
 	MaKho               string         `json:"ma_kho"`
 	NgayNhap            string         `json:"ngay_nhap"`
 	SoHoaDon            string         `json:"so_hoa_don"`
 	GhiChuPhieu         string         `json:"ghi_chu_phieu"`
 	GiamGiaPhieu        float64        `json:"giam_gia_phieu"`
-	ChiPhiNhap          float64        `json:"chi_phi_nhap"` // Mới thêm theo thiết kế chuẩn
+	ChiPhiNhap          float64        `json:"chi_phi_nhap"`
 	DaTra               float64        `json:"da_tra"`
 	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
-	TrangThai           int            `json:"trang_thai"` // -1: Xóa, 0: Nháp, 1: Hoàn thành, 2: Chờ duyệt
+	TrangThai           int            `json:"trang_thai"`
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
 // ============================================================================
-// 3. API XỬ LÝ LƯU PHIẾU NHẬP (TÍCH HỢP MAKER-CHECKER & JSON CART)
+// HÀM KIỂM TRA QUYỀN (HỖ TRỢ BYPASS CHO ADMIN)
+// ============================================================================
+func checkQuyenNhapHang(vaiTro string, userID string) bool {
+	// 1. Bypass cho các tài khoản Root/Admin
+	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || 
+	   vaiTro == "quan_tri_cua_hang" || vaiTro == "quan_tri_vien_cua_hang" || 
+	   userID == "0000000000000000001" {
+		return true
+	}
+	
+	// 2. Tương lai: Kiểm tra logic quyền mềm (VD: "stock.import") ở đây
+	// Hiện tại mặc định trả về true nếu đã lọt qua middleware
+	return true 
+}
+
+// ============================================================================
+// 3. API XỬ LÝ LƯU PHIẾU NHẬP
 // ============================================================================
 func API_LuuPhieuNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
+	vaiTro := c.GetString("USER_ROLE")
+
+	if !checkQuyenNhapHang(vaiTro, userID) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thực hiện thao tác nhập hàng!"})
+		return
+	}
 
 	var input PhieuNhapInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -101,24 +121,19 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	loc := time.FixedZone("ICT", 7*3600)
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 
-	// Lấy tên người thao tác
 	nguoiThaoTac, _ := core.LayKhachHang(shopID, userID)
 	tenNguoiThaoTac := "Hệ thống"
 	if nguoiThaoTac != nil {
 		tenNguoiThaoTac = nguoiThaoTac.TenDangNhap
 	}
 
-	// 1. Tính toán Kế toán
 	var tongTienHang float64 = 0
 	for _, ct := range input.ChiTiet {
 		tongTienHang += ct.DonGiaNhap * float64(ct.SoLuong)
 	}
 
-	// Công nợ = Tiền hàng - Giảm giá + Phí nhập - Đã trả
 	thanhToan := tongTienHang - input.GiamGiaPhieu + input.ChiPhiNhap
-	if thanhToan < 0 {
-		thanhToan = 0
-	}
+	if thanhToan < 0 { thanhToan = 0 }
 	conNo := thanhToan - input.DaTra
 
 	trangThaiThanhToan := "CHUA_THANH_TOAN"
@@ -128,11 +143,9 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		trangThaiThanhToan = "THANH_TOAN_MOT_PHAN"
 	}
 
-	// 2. Đóng gói Giỏ hàng thành chuỗi JSON
 	chiTietBytes, _ := json.Marshal(input.ChiTiet)
 	chiTietJsonStr := string(chiTietBytes)
 
-	// 3. Phân luồng: TẠO MỚI hay CẬP NHẬT
 	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Lock()
 	defer core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Unlock()
 
@@ -140,11 +153,9 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	isUpdate := false
 
 	if input.MaPhieuNhap != "" && !strings.HasPrefix(input.MaPhieuNhap, "TEMP_") {
-		// TÌM PHIẾU CŨ ĐỂ CẬP NHẬT
 		if oldPn, ok := core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, input.MaPhieuNhap)]; ok {
-			// BẢO MẬT: Nếu phiếu đã Hoàn thành, TUYỆT ĐỐI không cho sửa
 			if oldPn.TrangThai == 1 {
-				c.JSON(200, gin.H{"status": "error", "msg": "Phiếu này đã hoàn thành và được chốt sổ, không thể sửa!"})
+				c.JSON(200, gin.H{"status": "error", "msg": "Phiếu này đã hoàn thành, không thể sửa!"})
 				return
 			}
 			pn = oldPn
@@ -152,7 +163,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		}
 	}
 
-	// NẾU TẠO MỚI
 	if !isUpdate {
 		maPN := fmt.Sprintf("PN%s%s", time.Now().In(loc).Format("060102"), core.LayChuoiSoNgauNhien(4))
 		
@@ -164,16 +174,14 @@ func API_LuuPhieuNhap(c *gin.Context) {
 			PhuongThucThanhToan: input.PhuongThucThanhToan, TrangThaiThanhToan: trangThaiThanhToan, 
 			GhiChu: input.GhiChuPhieu, NguoiTao: tenNguoiThaoTac, NgayTao: nowStr, 
 			NguoiCapNhat: tenNguoiThaoTac, NgayCapNhat: nowStr,
-			ChiTiet: make([]*core.ChiTietPhieuNhap, 0), // Biến này để RAM xài
+			ChiTiet: make([]*core.ChiTietPhieuNhap, 0),
 		}
 
-		// Nếu tạo phát ăn luôn (Hoàn thành)
 		if input.TrangThai == 1 {
 			pn.NguoiDuyet = tenNguoiThaoTac
 			pn.NgayDuyet = nowStr
 		}
 
-		// Chuẩn bị mảng 23 cột đẩy xuống Queue
 		rowPN := make([]interface{}, 23)
 		rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap; rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap
 		rowPN[core.CotPN_MaKho] = pn.MaKho; rowPN[core.CotPN_NgayNhap] = pn.NgayNhap
@@ -189,7 +197,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		
 		core.PushAppend(shopID, core.TenSheetPhieuNhap, rowPN)
 		
-		// Đưa vào Cache RAM
 		core.KhoaHeThong.Lock()
 		pn.DongTrongSheet = core.DongBatDau_PhieuNhap + len(core.CachePhieuNhap[shopID])
 		core.CachePhieuNhap[shopID] = append(core.CachePhieuNhap[shopID], pn)
@@ -197,7 +204,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		core.KhoaHeThong.Unlock()
 
 	} else {
-		// NẾU CẬP NHẬT PHIẾU NHÁP CŨ
 		core.KhoaHeThong.Lock()
 		pn.MaNhaCungCap = input.MaNhaCungCap; pn.MaKho = input.MaKho; pn.NgayNhap = input.NgayNhap
 		pn.ChiTietJson = chiTietJsonStr; pn.TrangThai = input.TrangThai; pn.SoHoaDon = input.SoHoaDon
@@ -211,7 +217,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		}
 		core.KhoaHeThong.Unlock()
 
-		// Đẩy hàng loạt Update xuống Queue thay vì Append
 		r := pn.DongTrongSheet
 		sheet := core.TenSheetPhieuNhap
 		ghi := core.ThemVaoHangCho
@@ -230,10 +235,9 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		}
 	}
 
-	// 4. KHI HOÀN THÀNH (TRẠNG THÁI = 1) -> GHI XUỐNG SHEET CHI TIẾT & SERIAL
 	if input.TrangThai == 1 {
 		core.KhoaHeThong.Lock()
-		pn.ChiTiet = make([]*core.ChiTietPhieuNhap, 0) // Reset lại list RAM để bung JSON mới
+		pn.ChiTiet = make([]*core.ChiTietPhieuNhap, 0) 
 		
 		for _, item := range input.ChiTiet {
 			spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU)
@@ -242,7 +246,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 				tenSP = spCache.TenSanPham; donVi = spCache.DonVi; maSP = spCache.MaSanPham
 			}
 
-			// A. Tạo dòng Chi Tiết
 			ct := &core.ChiTietPhieuNhap{
 				SpreadsheetID: shopID, MaPhieuNhap: pn.MaPhieuNhap, MaSanPham: maSP, MaSKU: item.MaSKU,
 				TenSanPham: tenSP, DonVi: donVi, SoLuong: item.SoLuong, DonGiaNhap: item.DonGiaNhap,
@@ -258,7 +261,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 			rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
 			core.PushAppend(shopID, core.TenSheetChiTietPhieuNhap, rowCT)
 
-			// B. Tạo dòng Serial/IMEI
 			for i := 0; i < item.SoLuong; i++ {
 				imei := ""
 				if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" {
@@ -269,7 +271,7 @@ func API_LuuPhieuNhap(c *gin.Context) {
 
 				sr := &core.SerialSanPham{
 					SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU,
-					MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: pn.MaPhieuNhap, TrangThai: 1, // Hàng đã vào kho
+					MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: pn.MaPhieuNhap, TrangThai: 1, 
 					NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
 				}
 
@@ -288,7 +290,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		core.KhoaHeThong.Unlock()
 	}
 
-	// Phản hồi
 	loai := "Ghi sổ & Hoàn thành Nhập kho"
 	if input.TrangThai == 0 {
 		loai = "Đã lưu nháp Phiếu Nhập"
@@ -305,10 +306,16 @@ func API_LuuPhieuNhap(c *gin.Context) {
 func API_DoiTrangThaiPhieu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
+	vaiTro := c.GetString("USER_ROLE")
+
+	if !checkQuyenNhapHang(vaiTro, userID) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thực hiện thao tác này!"})
+		return
+	}
+
 	maPhieu := c.PostForm("ma_phieu_nhap")
-	
-	// Convert trực tiếp trong hàm, không cần core.LayIntStr
 	trangThaiStr := c.PostForm("trang_thai")
+	
 	trangThaiMoi, err := strconv.Atoi(trangThaiStr)
 	if err != nil {
 		c.JSON(400, gin.H{"status": "error", "msg": "Trạng thái không hợp lệ!"})
@@ -324,7 +331,6 @@ func API_DoiTrangThaiPhieu(c *gin.Context) {
 		return
 	}
 	
-	// BẢO MẬT: Đã hoàn thành thì không thể xóa/khôi phục bằng hàm này
 	if pn.TrangThai == 1 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Phiếu đã chốt sổ, không thể xóa hoặc thay đổi!"})
 		return
@@ -342,7 +348,6 @@ func API_DoiTrangThaiPhieu(c *gin.Context) {
 	pn.NgayCapNhat = nowStr
 	core.KhoaHeThong.Unlock()
 
-	// Ghi đè trạng thái xuống Google Sheet
 	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_TrangThai, trangThaiMoi)
 	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_NguoiCapNhat, tenNguoiThaoTac)
 	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_NgayCapNhat, nowStr)
