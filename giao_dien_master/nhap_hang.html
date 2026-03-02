@@ -15,7 +15,6 @@
         .input-premium { width: 100%; height: 40px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
         
-        /* BẢNG CHI TIẾT SẢN PHẨM: CO GIÃN THÔNG MINH */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; }
         .table-nhap-hang { width: 100%; text-align: left; }
         .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
@@ -38,7 +37,6 @@
         .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
         .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
 
-        /* TAB UI TRONG KHỐI LEFT PANEL */
         .tab-container { display: flex; gap: 4px; overflow-x: auto; flex: 1; align-items: flex-end; padding-top: 8px; }
         .tab-item { 
             padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.8rem; 
@@ -51,7 +49,8 @@
         .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
         .tab-close:hover { background: #fee2e2; color: #e11d48; }
         
-        .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* ĐÃ FIX: Bỏ display: flex ở đây để JS điều khiển */
+        .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
     </style>
 
     <script>
@@ -84,15 +83,14 @@
                         <span class="text-[15px] font-black tracking-tight uppercase hover:text-indigo-800 transition">Thêm Phiếu</span>
                     </div>
                     
-                    <div class="tab-container custom-scroll" id="tabList">
-                        </div>
+                    <div class="tab-container custom-scroll" id="tabList"></div>
 
                     <button onclick="toggleRightPanel()" id="btnToggle" class="mb-2 text-slate-500 hover:text-indigo-600 text-[12px] font-bold transition whitespace-nowrap shrink-0 hidden lg:block">
                         Đóng TT Thanh toán ⯈
                     </button>
                 </div>
                 
-                <div id="overlayDeleted" class="overlay-deleted hidden">
+                <div id="overlayDeleted" class="overlay-deleted">
                     <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-inner">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </div>
@@ -226,10 +224,10 @@
         </div>
     </div>
 
+    <div id="modalSerial" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        </div>
+
     <script>
-        // ==========================================
-        // 1. DATA & UTILS
-        // ==========================================
         function getFirstImg(str) {
             if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             let arr = str.split('|'); return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
@@ -241,9 +239,6 @@
         const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') }); });
         const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') }); });
 
-        // ==========================================
-        // 2. STATE MANAGER (ĐA TAB TÍCH HỢP LƯU NHÁP SERVER)
-        // ==========================================
         let appTabs = {}; let currentTabId = ""; let tabCounter = 0;
 
         function getEmptyTab(id) {
@@ -257,7 +252,6 @@
         }
 
         function initApp() {
-            // Nạp phiếu nháp từ Backend
             if (serverDrafts && serverDrafts.length > 0) {
                 serverDrafts.forEach(d => {
                     tabCounter++; let tid = "T" + tabCounter;
@@ -313,12 +307,12 @@
             if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
             
             let t = appTabs[id];
-            if (t.status === -2) { // Local chưa lưu gì cả -> Xóa luôn
+            if (t.status === -2) { 
                 executeCloseTab(id, keys);
-            } else if (t.status === 0) { // Nháp server -> Bắn API đổi thành -1
+            } else if (t.status === 0) { 
                 Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' })
                 .then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); });
-            } else if (t.status === -1) { // Đang ở thùng rác mà ấn X -> Ẩn tab đi thôi
+            } else if (t.status === -1) { 
                 executeCloseTab(id, keys);
             }
         }
@@ -356,17 +350,19 @@
             
             let lbl = document.getElementById('lblTrangThai');
             let overlay = document.getElementById('overlayDeleted');
+            
+            // ĐÃ FIX: Điều khiển display bằng JS thay vì add/remove class TailWind bị xung đột CSS
             if (t.status === 0) { 
                 lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; 
-                overlay.classList.add('hidden'); toggleInputs(false);
+                overlay.style.display = 'none'; toggleInputs(false);
             }
             else if (t.status === -1) { 
                 lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; 
-                overlay.classList.remove('hidden'); toggleInputs(true);
+                overlay.style.display = 'flex'; toggleInputs(true);
             }
             else { 
                 lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; 
-                overlay.classList.add('hidden'); toggleInputs(false);
+                overlay.style.display = 'none'; toggleInputs(false);
             }
             renderTable();
         }
@@ -378,9 +374,6 @@
             document.getElementById('inpDaThanhToan').disabled = disable; document.getElementById('inpSearchSP').disabled = disable;
         }
 
-        // ==========================================
-        // 3. AUTOCOMPLETE (SỬA LỖI MẤT CLICK VÀ HIỂN THỊ NCC)
-        // ==========================================
         const inpSearchSP = document.getElementById('inpSearchSP');
         const iconSearchSP = document.getElementById('iconSearchSP');
         inpSearchSP.addEventListener('input', function() {
@@ -403,7 +396,7 @@
                     const div = document.createElement('div');
                     div.className = 'search-item';
                     div.innerHTML = renderItem(item);
-                    div.onmousedown = (e) => { // Dùng mousedown để không bị blur
+                    div.onmousedown = (e) => { 
                         e.preventDefault(); 
                         onSelect(item); 
                         if(inputId === 'inpSearchSP') { inp.value = ''; inp.dispatchEvent(new Event('input')); }
@@ -416,7 +409,9 @@
                 drop.style.display = 'block';
             });
 
-            inp.addEventListener('blur', () => { drop.style.display = 'none'; });
+            document.addEventListener('mousedown', (e) => { 
+                if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; 
+            });
         }
 
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
@@ -430,7 +425,6 @@
             (i) => addProductToCart(i)
         );
 
-        // Đối với NCC, onSelect sẽ điền thẳng tên vào Input
         setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
             (i) => `<div><div class="font-bold text-slate-800 text-[13px]">${i.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${i.ma}</span> | SĐT: <b class="text-indigo-600">${i.sdt || '---'}</b></div></div>`,
             (i) => { 
@@ -440,9 +434,6 @@
             }
         );
 
-        // ==========================================
-        // 4. LƯỚI GIỎ HÀNG
-        // ==========================================
         function addProductToCart(sp) {
             let cart = appTabs[currentTabId].cart;
             let existIdx = cart.findIndex(item => item.ma_sku === sp.ma_sku);
@@ -498,9 +489,6 @@
             calcThanhToan();
         }
 
-        // ==========================================
-        // 5. TÍNH TOÁN & THANH TOÁN
-        // ==========================================
         let isPanelOpen = true;
         function toggleRightPanel() {
             const rightPanel = document.getElementById('rightPanel');
@@ -542,20 +530,12 @@
             saveCurrentTabState();
         }
 
-        // ==========================================
-        // 7. GỬI API LÊN SERVER VỚI XÁC NHẬN SWEETALERT
-        // ==========================================
         function confirmSubmit(status) {
             saveCurrentTabState();
             let t = appTabs[currentTabId];
             
             if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
-            
-            // LƯU NHÁP (0) KHÔNG CẦN KIỂM TRA NHÀ CUNG CẤP
-            if(status === 1 && !t.ncc_ma) { 
-                Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); 
-                return; 
-            }
+            if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
 
             let titleStr = status === 0 ? "Lưu Nháp Server?" : "Hoàn Thành Phiếu Nhập?";
             let textStr = status === 0 ? "Lưu lên máy chủ để xem lại trên máy khác. Chưa cộng tồn kho." : "Dữ liệu sẽ được ghi sổ và tính công nợ ngay lập tức.";
@@ -576,7 +556,7 @@
             let chiTietData = t.cart.map(c => ({ ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, serials: c.serials }));
 
             let payload = {
-                ma_phieu_nhap: t.ma_phieu, // Truyền mã phiếu lên để Backend biết là Update hay Tạo mới
+                ma_phieu_nhap: t.ma_phieu, 
                 ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd,
                 ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, da_tra: t.da_tra,
                 phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData
@@ -604,6 +584,7 @@
             let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
             Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             try {
+                // ĐẢM BẢO RẰNG BẠN ĐÃ KHAI BÁO ENDPOINT NÀY TRONG file routers/main_router.go
                 const res = await fetch('/master/api/nhap-hang/status', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
@@ -611,7 +592,7 @@
                     renderTabs(); loadTabToUI(currentTabId);
                     Swal.close();
                 } else { Swal.fire('Lỗi', data.msg, 'error'); }
-            } catch(e) { Swal.fire('Lỗi', 'Mất kết nối', 'error'); }
+            } catch(e) { Swal.fire('Lỗi', 'Mất kết nối. Vui lòng kiểm tra lại Router API.', 'error'); }
         }
 
         function restoreTab() { changeStatusAPI(currentTabId, 0); }
