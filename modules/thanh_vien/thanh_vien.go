@@ -1,4 +1,4 @@
-package chuc_nang
+package thanh_vien
 
 import (
 	"encoding/json"
