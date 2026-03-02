@@ -1,11 +1,9 @@
 package routers
 
 import (
-	"net/http"
-
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
-	"app/modules/hien_thi_web" // Đã cập nhật đúng theo ý bạn
+	"app/modules/hien_thi_web" 
 	"app/modules/ho_so"
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
