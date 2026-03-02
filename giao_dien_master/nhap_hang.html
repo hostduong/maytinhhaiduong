@@ -283,22 +283,67 @@
         }
 
         async function hoanThanhPhieu() {
-            // Validate sơ bộ
+            // 1. Validate sơ bộ
             let ncc = document.getElementById('f_ncc').value;
             if(!ncc) { Swal.fire('Lỗi', 'Vui lòng chọn Nhà cung cấp!', 'error'); return; }
             
             let rows = document.querySelectorAll('#tbodyChiTiet tr.hover-soft-row');
             if(rows.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
 
-            // Giả lập Loading mượt mà
+            // 2. Gom dữ liệu trên bảng
+            let chiTiet = [];
+            let errorQty = false;
+            rows.forEach(row => {
+                let sl = parseNumber(row.querySelector('.row-qty').value);
+                if (sl <= 0) errorQty = true;
+                chiTiet.push({
+                    ma_sku: row.querySelector('.row-sku').value,
+                    so_luong: sl,
+                    don_gia_nhap: parseNumber(row.querySelector('.row-price').value)
+                });
+            });
+
+            if (errorQty) { Swal.fire('Lỗi', 'Số lượng nhập phải lớn hơn 0!', 'error'); return; }
+
+            // 3. Đóng gói JSON Payload
+            let payload = {
+                ma_nha_cung_cap: ncc,
+                ma_kho: document.getElementById('f_kho').value,
+                ngay_nhap: document.getElementById('f_ngay_nhap').value,
+                so_hoa_don: document.getElementById('f_so_hoa_don').value,
+                ghi_chu_phieu: document.getElementById('f_ghi_chu_phieu').value,
+                giam_gia_phieu: parseNumber(document.getElementById('f_giam_gia').value),
+                phuong_thuc_thanh_toan: document.getElementById('f_phuong_thuc').value,
+                da_tra: parseNumber(document.getElementById('f_da_tra').value),
+                chi_tiet: chiTiet
+            };
+
+            // 4. Loading và gửi API
             Swal.fire({
-                title: '<div class="flex flex-col items-center gap-4"><div class="spinner-led-btn w-12 h-12 border-4"></div><span class="text-xl font-black title-gradient-purple">Đang tạo phiếu nhập...</span></div>',
+                title: '<div class="flex flex-col items-center gap-4"><div class="spinner-led-btn w-12 h-12 border-4"></div><span class="text-xl font-black title-gradient-purple">Đang mã hóa & đồng bộ...</span></div>',
                 customClass: { popup: 'swal-master-success' }, showConfirmButton: false, allowOutsideClick: false
             });
 
-            setTimeout(() => {
-                Swal.fire({ icon: 'success', title: 'Thành công', text: 'Chức năng gửi API Backend đang được hoàn thiện!', confirmButtonColor: '#9333ea' });
-            }, 1000);
+            try {
+                const res = await fetch('/master/api/nhap-hang/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
+                        html: `<div class="text-[15px] text-slate-600 font-medium px-4">Đã tạo Phiếu <b class="text-purple-600">${data.ma_phieu}</b>. Hệ thống đang ngầm ghi Serial vào Google Sheets!</div>`,
+                        customClass: { popup: 'swal-master-success' }, showConfirmButton: true, confirmButtonText: 'Nhập phiếu mới', confirmButtonColor: '#9333ea'
+                    }).then(() => { location.reload(); });
+                } else {
+                    Swal.fire('Thất bại', data.msg, 'error');
+                }
+            } catch(e) {
+                Swal.fire('Lỗi kết nối', 'Không thể đẩy dữ liệu lên máy chủ', 'error');
+            }
         }
     </script>
     {{ template "footer_master" . }}
