@@ -1,4 +1,4 @@
-package chuc_nang
+package nhap_hang
 
 import (
 	"net/http"
