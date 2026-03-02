@@ -26,8 +26,8 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	// KHU VỰC PUBLIC
 	// =======================================================
-	router.GET("/", home.TrangChu)
-	router.GET("/san-pham/:id", home.ChiTietSanPham)
+	router.GET("/", hien_thi_web.TrangChu)
+	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
 	// =======================================================
 	// KHU VỰC AUTH
