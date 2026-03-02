@@ -27,10 +27,10 @@
         .table-nhap-hang input:focus { border-color: #8b5cf6; outline: none; background: white; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* DROPDOWN TÌM KIẾM */
-        .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 50; max-height: 300px; overflow-y: auto; display: none; margin-top: 4px; }
+        /* DROPDOWN TÌM KIẾM (SỬA CSS ĐỂ KHÔNG BỊ CHÌM) */
+        .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 9999; max-height: 300px; overflow-y: auto; display: none; }
         .search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
-        .search-item:hover, .search-item.active { background: #faf5ff; }
+        .search-item:hover { background: #faf5ff; }
 
         /* NÚT SERIAL */
         .btn-serial { font-size: 0.65rem; padding: 3px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 4px; }
@@ -84,9 +84,7 @@
 
     <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
         
-        <div class="flex-1 box-panel overflow-hidden min-w-0" id="leftPanel">
-            
-            <div class="px-4 border-b border-slate-200 bg-white rounded-t-2xl flex justify-between items-end gap-4">
+        <div class="flex-1 box-panel overflow-visible min-w-0" id="leftPanel"> <div class="px-4 border-b border-slate-200 bg-white rounded-t-2xl flex justify-between items-end gap-4 overflow-hidden">
                 <div class="flex items-center gap-2 text-indigo-700 font-black mb-2 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     <span>NHẬP HÀNG</span>
@@ -100,17 +98,17 @@
                 </button>
             </div>
             
-            <div class="p-4 border-b border-slate-100 bg-white">
+            <div class="p-4 border-b border-slate-100 bg-white relative z-50">
                 <div class="relative">
                     <div id="iconSearchSP" class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200">
                         <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <input type="text" id="inpSearchSP" class="input-premium pl-10 border-indigo-200 shadow-sm" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
+                    <div id="dropdownSP" class="search-dropdown"></div>
                 </div>
-                <div id="dropdownSP" class="search-dropdown"></div>
             </div>
 
-            <div class="table-responsive-wrapper bg-white flex-1">
+            <div class="table-responsive-wrapper bg-white flex-1 rounded-b-2xl">
                 <table class="w-full min-w-[900px] text-left table-nhap-hang" id="tableMain">
                     <thead class="sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -140,7 +138,7 @@
             
             <div class="box-panel border-indigo-100 bg-indigo-50/20">
                 <div class="box-body space-y-4">
-                    <div class="relative z-30">
+                    <div class="relative z-50">
                         <label class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> Nhà Cung Cấp <span class="text-red-500">*</span>
                         </label>
@@ -277,7 +275,7 @@
         document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') }); });
 
         // ==========================================
-        // 2. STATE MANAGER (HỆ THỐNG ĐA TAB NẰM TRONG HEADER)
+        // 2. STATE MANAGER (HỆ THỐNG ĐA TAB)
         // ==========================================
         let appTabs = {}; 
         let currentTabId = 1;
@@ -376,7 +374,7 @@
         }
 
         // ==========================================
-        // 3. AUTOCOMPLETE (SỬA LỖI MẤT TÍCH KHI CLICK)
+        // 3. AUTOCOMPLETE - CỐT LÕI (SỬA LỖI MẤT CLICK)
         // ==========================================
         const inpSearchSP = document.getElementById('inpSearchSP');
         const iconSearchSP = document.getElementById('iconSearchSP');
@@ -400,12 +398,12 @@
                     const div = document.createElement('div');
                     div.className = 'search-item';
                     div.innerHTML = renderItem(item);
-                    // Dùng mousedown để bắt sự kiện trước khi input bị blur (tránh mất tích box)
-                    div.addEventListener('mousedown', (e) => { 
-                        e.preventDefault(); 
+                    // QUAN TRỌNG NHẤT LÀ ĐÂY: Dùng onmousedown thay vì click để không bị blur input
+                    div.onmousedown = (e) => { 
+                        e.preventDefault(); // Chặn việc mất focus của ô Input
                         onSelect(item); 
                         inp.value = ''; inp.dispatchEvent(new Event('input')); drop.style.display = 'none'; 
-                    });
+                    };
                     drop.appendChild(div);
                 });
 
@@ -413,7 +411,10 @@
                 drop.style.display = 'block';
             });
 
-            inp.addEventListener('blur', () => { setTimeout(() => { drop.style.display = 'none'; }, 150); });
+            // Khi click ra ngoài thì ẩn
+            document.addEventListener('mousedown', (e) => { 
+                if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; 
+            });
         }
 
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
@@ -429,11 +430,15 @@
 
         setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
             (i) => `<div><div class="font-bold text-slate-800 text-[13px]">${i.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${i.ma}</span> | SĐT: <b class="text-indigo-600">${i.sdt || '---'}</b></div></div>`,
-            (i) => { document.getElementById('inpSearchNCC').value = i.ten; document.getElementById('valMaNCC').value = i.ma; saveCurrentTabState(); }
+            (i) => { 
+                document.getElementById('inpSearchNCC').value = i.ten; 
+                document.getElementById('valMaNCC').value = i.ma; 
+                saveCurrentTabState(); 
+            }
         );
 
         // ==========================================
-        // 4. LƯỚI GIỎ HÀNG (SỬA ẢNH TO VÀ CĂN GIỮA/PHẢI)
+        // 4. LƯỚI GIỎ HÀNG
         // ==========================================
         function addProductToCart(sp) {
             let cart = appTabs[currentTabId].cart;
@@ -477,23 +482,22 @@
                     btnSerialHTML = `<div class="mt-1.5"><button onclick="openSerialModal(${idx})" class="btn-serial empty">📝 Quét Serial/IMEI</button></div>`;
                 }
 
-                // Chỉnh sửa: Ảnh to hơn, Căn giữa SL/ĐVT, Căn phải Giá/Thành tiền
                 tr.innerHTML = `
-                    <td class="text-center text-slate-400 font-mono align-top pt-4">${idx + 1}</td>
-                    <td class="text-center py-2 align-top"><img src="${getFirstImg(c.img)}" class="w-[70px] h-[70px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
-                    <td class="whitespace-normal min-w-[250px] align-top pt-3">
-                        <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight">${c.tensp}</div>
+                    <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
+                    <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[60px] h-[60px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
+                    <td class="whitespace-normal min-w-[250px] align-middle">
+                        <div class="font-bold text-[13px] text-slate-800 mb-1 leading-tight">${c.tensp}</div>
                         <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1">
                             <span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}
                         </div>
                         ${btnSerialHTML}
                         ${serialTagsHTML}
                     </td>
-                    <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-top pt-4">${c.donvi}</td>
-                    <td class="align-top pt-3"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-premium input-qty shadow-inner text-indigo-700"></td>
-                    <td class="align-top pt-3"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="input-premium price-input"></td>
-                    <td class="text-right font-black text-[15px] text-slate-800 align-top pt-4">${formatNum(thanhTien)}</td>
-                    <td class="text-center align-top pt-3"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm">✕</button></td>
+                    <td class="text-center text-[11px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
+                    <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-premium input-qty shadow-inner text-indigo-700 font-bold"></td>
+                    <td class="align-middle"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="input-premium price-input"></td>
+                    <td class="text-right font-black text-[15px] text-slate-800 align-middle">${formatNum(thanhTien)}</td>
+                    <td class="text-center align-middle"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm">✕</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -503,9 +507,8 @@
         }
 
         // ==========================================
-        // 5. TÍNH TOÁN & CÁC NÚT THANH TOÁN
+        // 5. TÍNH TOÁN & THANH TOÁN
         // ==========================================
-        let isPanelOpen = true;
         function toggleRightPanel() {
             const rightPanel = document.getElementById('rightPanel');
             const btn = document.getElementById('btnToggle');
@@ -578,11 +581,7 @@
             let lines = tagifySerial.value.map(t => t.value);
             
             if(lines.length > req) {
-                Swal.fire({
-                    icon: 'warning', title: 'Quá Số Lượng!', 
-                    text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`,
-                    confirmButtonColor: '#f97316'
-                }); return;
+                Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return;
             }
             c.serials = lines;
             document.getElementById('modalSerial').classList.add('hidden');
@@ -590,23 +589,18 @@
         }
 
         // ==========================================
-        // 7. GỬI API LÊN SERVER VỚI THÔNG BÁO SWEETALERT ĐẸP
+        // 7. SUBMIT API LÊN SERVER
         // ==========================================
         function confirmSubmit(status) {
             saveCurrentTabState();
             let t = appTabs[currentTabId];
             
             if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
-            
-            // [CHUẨN XÁC YÊU CẦU]: Chỉ kiểm tra NCC khi nhấn HOÀN THÀNH. Lưu nháp thì không cần.
-            if(status === 1 && !t.ncc_ma) { 
-                Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); 
-                return; 
-            }
+            if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
 
             let titleStr = status === 0 ? "Lưu Nháp Phiếu?" : "Hoàn Thành Phiếu Nhập?";
-            let textStr = status === 0 ? "Phiếu sẽ được lưu nháp, có thể sửa sau." : "Dữ liệu sẽ được ghi sổ và tính công nợ ngay lập tức.";
-            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành";
+            let textStr = status === 0 ? "Phiếu sẽ được lưu nháp, chưa cộng vào Tồn Kho." : "Hàng hóa sẽ được cộng vào kho ngay lập tức.";
+            let btnStr = status === 0 ? "Xác nhận Lưu nháp" : "Hoàn thành";
             let colorCls = status === 0 ? "#f97316" : "#4f46e5";
 
             Swal.fire({
@@ -630,7 +624,7 @@
                 phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData
             };
 
-            Swal.fire({ title: 'Đang đẩy dữ liệu...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
 
             try {
                 const res = await fetch('/master/api/nhap-hang/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -641,7 +635,7 @@
                     appTabs[currentTabId].ma_phieu = data.ma_phieu;
                     appTabs[currentTabId].title = data.ma_phieu; 
                     renderTabs();
-                    loadTabToUI(currentTabId); // Load lại UI để đổi label Trạng thái
+                    loadTabToUI(currentTabId); 
 
                     Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, confirmButtonColor: '#10b981' });
                 } else { Swal.fire('Thất bại', data.msg, 'error'); }
