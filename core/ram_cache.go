@@ -65,6 +65,14 @@ var (
 	CachePhieuNhap    = make(map[string][]*PhieuNhap)    // Danh sách phiếu nhập
 	CacheMapPhieuNhap = make(map[string]*PhieuNhap)      // Tra cứu: Key = ShopID__MaPN
 
+	// --- BÁN HÀNG & PHIẾU XUẤT ---
+	CachePhieuXuat    = make(map[string][]*PhieuXuat)
+	CacheMapPhieuXuat = make(map[string]*PhieuXuat)
+
+	// --- SERIAL & BẢO HÀNH ---
+	CacheSerialSanPham = make(map[string][]*SerialSanPham)
+	CacheMapSerial     = make(map[string]*SerialSanPham) // Tra cứu: Key = ShopID__SerialIMEI
+
 	// --- GIAO TIẾP ---
 	CacheTinNhan      = make(map[string][]*TinNhan)      // Danh sách tin nhắn/thông báo theo Shop
 )
