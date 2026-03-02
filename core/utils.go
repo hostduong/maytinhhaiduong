@@ -2,9 +2,14 @@ package core
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
+
+// Giữ lại Alias để các file cũ không bị lỗi "undefined"
+var ThemVaoHangCho = PushUpdate
 
 func LayKhachHang(shopID, userID string) (*KhachHang, bool) {
 	KhoaHeThong.RLock()
@@ -70,6 +75,51 @@ func LayCapBacVaiTro(shopID, userID, role string) int {
 		if v.MaVaiTro == role { return v.StyleLevel }
 	}
 	return 9
+}
+
+// =======================================================
+// CÁC HÀM PHỤC HỒI TỪ LEGACY
+// =======================================================
+
+func KiemTraQuyen(shopID, role, maChucNang string) bool {
+	if role == "quan_tri_he_thong" { return true }
+	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
+	lock.RLock()
+	defer lock.RUnlock()
+	if shopMap, ok := CachePhanQuyen[shopID]; ok {
+		if listQuyen, exists := shopMap[role]; exists {
+			if allowed, has := listQuyen[maChucNang]; has && allowed { return true }
+		}
+	}
+	return false
+}
+
+func TaoMaSPMayTinhMoi(shopID, prefix string) string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	if prefix == "" { prefix = "SP" }
+	max := 0
+	for _, sp := range CacheSanPhamMayTinh[shopID] {
+		if strings.HasPrefix(sp.MaSanPham, prefix) {
+			numStr := strings.TrimPrefix(sp.MaSanPham, prefix)
+			if num, err := strconv.Atoi(numStr); err == nil && num > max { max = num }
+		}
+	}
+	return fmt.Sprintf("%s%04d", prefix, max+1)
+}
+
+func CapNhatSlotThuCong(shopID, dmMa string, slotMoi int) {
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	for _, dm := range CacheDanhMuc[shopID] {
+		if dm.MaDanhMuc == dmMa {
+			if slotMoi > dm.Slot {
+				dm.Slot = slotMoi
+				PushUpdate(shopID, TenSheetDanhMuc, dm.DongTrongSheet, CotDM_Slot, slotMoi)
+			}
+			break
+		}
+	}
 }
 
 // Bổ sung Helper cho các Module khác
