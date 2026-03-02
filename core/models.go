@@ -512,3 +512,99 @@ type SerialSanPham struct {
 	GhiChu                   string  `json:"ghi_chu"`
 	NgayCapNhat              string  `json:"ngay_cap_nhat"`
 }
+
+// ==============================================================================
+// CẤU TRÚC: PHIẾU XUẤT BÁN HÀNG
+// ==============================================================================
+const (
+	TenSheetPhieuXuat        = "PHIEU_XUAT"
+	TenSheetChiTietPhieuXuat = "CHI_TIET_PHIEU_XUAT"
+
+	CotPX_MaPhieuXuat          = 0  
+	CotPX_LoaiXuat             = 1  
+	CotPX_NgayXuat             = 2  
+	CotPX_MaKho                = 3  
+	CotPX_MaKhachHang          = 4  
+	CotPX_TrangThai            = 5  
+	CotPX_MaVoucher            = 6  
+	CotPX_TienGiamVoucher      = 7  
+	CotPX_TongTienPhieu        = 8  
+	CotPX_LinkChungTu          = 9  
+	CotPX_DaThu                = 10 
+	CotPX_ConNo                = 11 
+	CotPX_PhuongThucThanhToan  = 12 
+	CotPX_TrangThaiThanhToan   = 13 
+	CotPX_PhiVanChuyen         = 14 
+	CotPX_NguonDonHang         = 15 
+	CotPX_ThongTinGiaoHang     = 16 
+	CotPX_GhiChu               = 17 
+	CotPX_NguoiTao             = 18 
+	CotPX_NgayTao              = 19 
+	CotPX_NgayCapNhat          = 20 
+
+	CotCTPX_MaPhieuXuat        = 0  
+	CotCTPX_MaSanPham          = 1  
+	CotCTPX_MaSKU              = 2  
+	CotCTPX_MaNganhHang        = 3  
+	CotCTPX_TenSanPham         = 4  
+	CotCTPX_DonVi              = 5  
+	CotCTPX_SoLuong            = 6  
+	CotCTPX_DonGiaBan          = 7  
+	CotCTPX_VATPercent         = 8  
+	CotCTPX_GiaSauVAT          = 9  
+	CotCTPX_ChietKhauDong      = 10 
+	CotCTPX_ThanhTienDong      = 11 
+	CotCTPX_GiaVon             = 12 
+	CotCTPX_BaoHanhThang       = 13 
+	CotCTPX_GhiChuDong         = 14 
+)
+
+type PhieuXuat struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	MaPhieuXuat          string  `json:"ma_phieu_xuat"`
+	LoaiXuat             string  `json:"loai_xuat"`
+	NgayXuat             string  `json:"ngay_xuat"`
+	MaKho                string  `json:"ma_kho"`
+	MaKhachHang          string  `json:"ma_khach_hang"`
+	TrangThai            int     `json:"trang_thai"`
+	MaVoucher            string  `json:"ma_voucher"`
+	TienGiamVoucher      float64 `json:"tien_giam_voucher"`
+	TongTienPhieu        float64 `json:"tong_tien_phieu"`
+	LinkChungTu          string  `json:"link_chung_tu"`
+	DaThu                float64 `json:"da_thu"`
+	ConNo                float64 `json:"con_no"`
+	PhuongThucThanhToan  string  `json:"phuong_thuc_thanh_toan"`
+	TrangThaiThanhToan   string  `json:"trang_thai_thanh_toan"`
+	PhiVanChuyen         float64 `json:"phi_van_chuyen"`
+	NguonDonHang         string  `json:"nguon_don_hang"`
+	ThongTinGiaoHang     string  `json:"thong_tin_giao_hang"`
+	GhiChu               string  `json:"ghi_chu"`
+	NguoiTao             string  `json:"nguoi_tao"`
+	NgayTao              string  `json:"ngay_tao"`
+	NgayCapNhat          string  `json:"ngay_cap_nhat"`
+
+	ChiTiet              []*ChiTietPhieuXuat `json:"chi_tiet"`
+}
+
+type ChiTietPhieuXuat struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	MaPhieuXuat    string  `json:"ma_phieu_xuat"`
+	MaSanPham      string  `json:"ma_san_pham"`
+	MaSKU          string  `json:"ma_sku"`
+	MaNganhHang    string  `json:"ma_nganh_hang"`
+	TenSanPham     string  `json:"ten_san_pham"`
+	DonVi          string  `json:"don_vi"`
+	SoLuong        int     `json:"so_luong"`
+	DonGiaBan      float64 `json:"don_gia_ban"`
+	VATPercent     float64 `json:"vat_percent"`
+	GiaSauVAT      float64 `json:"gia_sau_vat"`
+	ChietKhauDong  float64 `json:"chiet_khau_dong"`
+	ThanhTienDong  float64 `json:"thanh_tien_dong"`
+	GiaVon         float64 `json:"gia_von"`
+	BaoHanhThang   int     `json:"bao_hanh_thang"`
+	GhiChuDong     string  `json:"ghi_chu_dong"`
+}
