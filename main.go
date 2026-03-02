@@ -19,8 +19,8 @@ import (
 	"golang.org/x/text/message"
 )
 
-// BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
-//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_master/*.html
+// BẮT BUỘC: Quét tất cả các thư mục giao diện (Thêm cả thư mục con của master để dự phòng)
+//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_master/*.html giao_dien_master/*/*.html
 var f embed.FS
 
 // --- PHỤC HỒI BỘ HÀM HTML THẬT ĐỂ KHÔNG BỊ CRASH GIAO DIỆN ---
@@ -66,9 +66,14 @@ func main() {
 
 	router := routers.SetupRouter()
 	
-	// SỬ DỤNG BỘ HÀM THẬT (Fix triệt để lỗi sập Container)
+	// [ĐÃ SỬA TẠI ĐÂY]: Bổ sung việc Parse (Dịch) toàn bộ file trong giao_dien_master
 	funcMap := layBoHamHTML()
-	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, "giao_dien/*.html", "giao_dien/*/*.html"))
+	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, 
+		"giao_dien/*.html", 
+		"giao_dien/*/*.html",
+		"giao_dien_master/*.html",
+		"giao_dien_master/*/*.html",
+	))
 	router.SetHTMLTemplate(templ)
 
 	// Mở cổng mạng
