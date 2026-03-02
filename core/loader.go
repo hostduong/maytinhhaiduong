@@ -354,7 +354,7 @@ func NapTinNhan(shopID string) {
 func NapPhieuNhap(shopID string) {
 	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
 	
-	// Nạp Bảng Cha (Header)
+	// 1. Nạp Bảng Cha (Header)
 	rawPN, errPN := LoadSheetData(shopID, TenSheetPhieuNhap)
 	if errPN != nil { return }
 	
@@ -369,20 +369,29 @@ func NapPhieuNhap(shopID string) {
 		pn := &PhieuNhap{
 			SpreadsheetID: shopID, DongTrongSheet: i + 1, MaPhieuNhap: maPN,
 			MaNhaCungCap: LayString(r, CotPN_MaNhaCungCap), MaKho: LayString(r, CotPN_MaKho),
-			NgayNhap: LayString(r, CotPN_NgayNhap), TrangThai: LayInt(r, CotPN_TrangThai),
-			SoHoaDon: LayString(r, CotPN_SoHoaDon), NgayHoaDon: LayString(r, CotPN_NgayHoaDon),
-			UrlChungTu: LayString(r, CotPN_UrlChungTu), TongTienPhieu: LayFloat(r, CotPN_TongTienPhieu),
-			GiamGiaPhieu: LayFloat(r, CotPN_GiamGiaPhieu), DaThanhToan: LayFloat(r, CotPN_DaThanhToan),
+			NgayNhap: LayString(r, CotPN_NgayNhap), ChiTietJson: LayString(r, CotPN_ChiTietJson),
+			TrangThai: LayInt(r, CotPN_TrangThai), SoHoaDon: LayString(r, CotPN_SoHoaDon), 
+			NgayHoaDon: LayString(r, CotPN_NgayHoaDon), UrlChungTu: LayString(r, CotPN_UrlChungTu), 
+			TongTienPhieu: LayFloat(r, CotPN_TongTienPhieu), GiamGiaPhieu: LayFloat(r, CotPN_GiamGiaPhieu), 
+			ChiPhiNhap: LayFloat(r, CotPN_ChiPhiNhap), DaThanhToan: LayFloat(r, CotPN_DaThanhToan),
 			ConNo: LayFloat(r, CotPN_ConNo), PhuongThucThanhToan: LayString(r, CotPN_PhuongThucThanhToan),
 			TrangThaiThanhToan: LayString(r, CotPN_TrangThaiThanhToan), GhiChu: LayString(r, CotPN_GhiChu),
-			NguoiTao: LayString(r, CotPN_NguoiTao), NgayTao: LayString(r, CotPN_NgayTao), NgayCapNhat: LayString(r, CotPN_NgayCapNhat),
+			NguoiTao: LayString(r, CotPN_NguoiTao), NgayTao: LayString(r, CotPN_NgayTao), 
+			NguoiDuyet: LayString(r, CotPN_NguoiDuyet), NgayDuyet: LayString(r, CotPN_NgayDuyet),
+			NguoiCapNhat: LayString(r, CotPN_NguoiCapNhat), NgayCapNhat: LayString(r, CotPN_NgayCapNhat),
 			ChiTiet: make([]*ChiTietPhieuNhap, 0),
 		}
+
+		// THUẬT TOÁN ĐỌC NHÁP TỐI ƯU: Nếu là phiếu Nháp/Đợi xóa, bung từ JSON ra luôn
+		if pn.TrangThai <= 0 && pn.ChiTietJson != "" {
+			_ = json.Unmarshal([]byte(pn.ChiTietJson), &pn.ChiTiet)
+		}
+
 		listPN = append(listPN, pn)
 		mapPNLocal[maPN] = pn
 	}
 
-	// Nạp Bảng Con (Chi tiết) và ráp vào Bảng Cha
+	// 2. Nạp Bảng Con (Chi tiết) và ráp vào Bảng Cha (Chỉ dành cho Phiếu đã Hoàn Thành)
 	rawCTPN, errCTPN := LoadSheetData(shopID, TenSheetChiTietPhieuNhap)
 	if errCTPN == nil {
 		for i, r := range rawCTPN {
@@ -390,8 +399,8 @@ func NapPhieuNhap(shopID string) {
 			maPN := LayString(r, CotCTPN_MaPhieuNhap)
 			if maPN == "" { continue }
 			
-			// Chỉ lấy chi tiết nếu Phiếu Nhập cha có tồn tại
-			if parent, ok := mapPNLocal[maPN]; ok {
+			// Ráp chi tiết vào phiếu cha nếu phiếu đó có Trạng thái > 0 (Hoàn thành / Chờ duyệt)
+			if parent, ok := mapPNLocal[maPN]; ok && parent.TrangThai > 0 {
 				ct := &ChiTietPhieuNhap{
 					SpreadsheetID: shopID, DongTrongSheet: i + 1, MaPhieuNhap: maPN,
 					MaSanPham: LayString(r, CotCTPN_MaSanPham), MaSKU: LayString(r, CotCTPN_MaSKU),
@@ -407,7 +416,7 @@ func NapPhieuNhap(shopID string) {
 		}
 	}
 
-	// Đưa vào Cache RAM
+	// 3. Đưa toàn bộ vào Cache RAM
 	lock := GetSheetLock(shopID, TenSheetPhieuNhap)
 	lock.Lock(); defer lock.Unlock()
 	CachePhieuNhap[shopID] = listPN
