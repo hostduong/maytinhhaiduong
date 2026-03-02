@@ -5,17 +5,18 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; height: calc(100vh - 100px); transition: all 0.3s ease; }
+        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; height: calc(100vh - 140px); transition: all 0.3s ease; }
         @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; } }
         
         .box-header { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-weight: 800; color: #374151; display: flex; justify-content: space-between; align-items: center; }
         .box-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
         
-        .table-nhap-hang th { background: #f8fafc; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; color: #64748b; padding: 0.75rem 1rem; border-bottom: 2px solid #e2e8f0; }
-        .table-nhap-hang td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; font-weight: 600; color: #334155; }
+        .table-nhap-hang th { background: #f8fafc; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; }
+        .table-nhap-hang td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; font-weight: 600; color: #334155; }
         
-        .table-nhap-hang input.input-qty { min-width: 60px; max-width: 80px; margin: 0 auto; display: block; font-size: 1rem; text-align: center; }
-        .table-nhap-hang input.price-input { text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; min-width: 110px;}
+        /* Mở rộng ô nhập liệu và căn giữa/phải */
+        .table-nhap-hang input.input-qty { min-width: 80px; max-width: 100px; margin: 0 auto; display: block; font-size: 1rem; text-align: center; }
+        .table-nhap-hang input.price-input { text-align: center; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; min-width: 130px; width: 100%;}
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
         .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 50; max-height: 350px; overflow-y: auto; display: none; }
@@ -29,12 +30,29 @@
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600; color: #475569; }
         .summary-val { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
 
-        .toggle-panel-btn { display: flex; items-center; gap: 4px; font-size: 0.8rem; font-weight: bold; color: #6366f1; background: #e0e7ff; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .toggle-panel-btn:hover { background: #c7d2fe; }
-
         .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
         .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
         .tagify-serial .tagify__tag>div { background: #e0e7ff; color: #4338ca; font-family: monospace; font-weight: bold; border-radius: 6px; }
+
+        /* TAB SYSTEM STYLES */
+        .tab-bar-container { background: #e2e8f0; padding: 8px 16px 0 16px; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #cbd5e1; }
+        .tab-item { 
+            padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.85rem; 
+            border-radius: 12px 12px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative;
+        }
+        .tab-item:hover { background: #f8fafc; }
+        .tab-item.active { 
+            background: #ffffff; color: #7e22ce; border-color: #cbd5e1; 
+            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .tab-item.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: #ffffff;
+        }
+        .tab-close { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
+        .tab-close:hover { background: #fee2e2; color: #e11d48; }
+        .tab-add { padding: 8px 16px; color: #64748b; font-weight: 900; cursor: pointer; transition: 0.2s; border-radius: 12px 12px 0 0; }
+        .tab-add:hover { background: #e2e8f0; color: #7e22ce; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -55,23 +73,16 @@
         </div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
+    <div class="max-w-[1600px] mx-auto w-full pt-4">
+        <div class="tab-bar-container rounded-t-2xl shadow-sm" id="tabList">
+            </div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto p-4 pt-0 nhap-hang-layout" id="mainLayout">
         
-        <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50" id="leftPanel">
-            <div class="animated-border-inner flex flex-col h-full bg-white relative">
+        <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50 rounded-t-none border-t-0" id="leftPanel">
+            <div class="animated-border-inner flex flex-col h-full bg-white relative rounded-t-none">
                 <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/15 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
-                
-                <div class="box-header bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm relative z-10">
-                    <div class="flex items-center gap-3 text-purple-700">
-                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shadow-inner">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        </div>
-                        <span class="text-xl font-black tracking-tight text-gradient-animated uppercase">Chi Tiết Nhập Hàng</span>
-                    </div>
-                    <button onclick="toggleRightPanel()" id="btnToggle" class="toggle-panel-btn hidden lg:flex border border-indigo-200">
-                        Đóng TT Thanh toán ⯈
-                    </button>
-                </div>
                 
                 <div class="p-4 border-b border-purple-100 relative z-20 bg-white/50 backdrop-blur-md">
                     <div class="relative">
@@ -88,13 +99,13 @@
                         <thead class="sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th class="w-10 text-center text-purple-800 bg-purple-50">STT</th>
-                                <th class="w-16 text-center text-purple-800 bg-purple-50">Ảnh</th>
+                                <th class="w-20 text-center text-purple-800 bg-purple-50">Ảnh</th>
                                 <th class="w-auto text-purple-800 bg-purple-50">Tên Hàng Hóa</th>
                                 <th class="w-16 text-center text-purple-800 bg-purple-50">ĐVT</th>
-                                <th class="w-24 text-center text-purple-800 bg-purple-50">SL Nhập</th>
-                                <th class="w-36 text-right text-purple-800 bg-purple-50">Giá Nhập</th>
-                                <th class="w-36 text-right text-purple-800 bg-purple-50">Thành Tiền</th>
-                                <th class="w-10 text-center text-purple-800 bg-purple-50">✕</th>
+                                <th class="w-28 text-center text-purple-800 bg-purple-50">SL Nhập</th>
+                                <th class="w-40 text-center text-purple-800 bg-purple-50">Giá Nhập</th>
+                                <th class="w-40 text-center text-purple-800 bg-purple-50">Thành Tiền</th>
+                                <th class="w-12 text-center text-purple-800 bg-purple-50">✕</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyChiTiet" class="bg-white/60">
@@ -125,23 +136,23 @@
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Mã Phiếu</label>
-                            <input type="text" class="input-premium bg-slate-100 text-slate-500 border-dashed font-mono text-sm" placeholder="Tự động sinh" disabled>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Trạng thái Phiếu</label>
+                            <span id="lblTrangThai" class="px-3 py-1.5 bg-slate-100 text-slate-500 font-bold text-xs rounded-lg border border-slate-200 block text-center">Đang soạn</span>
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ngày Nhập</label>
-                            <input type="date" id="valNgayNhap" class="input-premium font-mono text-[13px]">
+                            <input type="date" id="valNgayNhap" class="input-premium font-mono text-[13px]" onchange="saveCurrentTabState()">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Số HĐ (VAT)</label>
-                            <input type="text" id="valSoHoaDon" class="input-premium text-sm font-bold" placeholder="Ký hiệu HĐ...">
+                            <input type="text" id="valSoHoaDon" class="input-premium text-sm font-bold" placeholder="Ký hiệu HĐ..." onchange="saveCurrentTabState()">
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Kho Nhập</label>
-                            <select id="valMaKho" class="input-premium cursor-pointer text-sm font-bold bg-indigo-50 border-indigo-200 text-indigo-800">
+                            <select id="valMaKho" class="input-premium cursor-pointer text-sm font-bold bg-indigo-50 border-indigo-200 text-indigo-800" onchange="saveCurrentTabState()">
                                 <option value="KHO_CHINH">Kho Chính</option>
                                 <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
                             </select>
@@ -150,7 +161,7 @@
                     
                     <div>
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ghi chú phiếu</label>
-                        <textarea id="valGhiChu" rows="2" class="input-premium py-2 text-sm" placeholder="Ghi chú nội bộ..."></textarea>
+                        <textarea id="valGhiChu" rows="2" class="input-premium py-2 text-sm" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
                     </div>
                 </div>
             </div>
@@ -175,8 +186,8 @@
                                 <input type="text" id="inpDaThanhToan" class="input-premium price-input w-40 bg-white border-emerald-400 text-emerald-700 font-black text-xl shadow-sm" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
                             </div>
                             <div class="flex gap-2">
-                                <button type="button" class="flex-1 py-2 border border-emerald-500 bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm btn-paymethod active">Tiền Mặt</button>
-                                <button type="button" class="flex-1 py-2 border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-xs font-bold transition shadow-sm btn-paymethod">Chuyển Khoản</button>
+                                <button type="button" class="flex-1 py-2 border border-emerald-500 bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm btn-paymethod active" onclick="setPhuongThuc('TIEN_MAT')">Tiền Mặt</button>
+                                <button type="button" class="flex-1 py-2 border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 rounded-lg text-xs font-bold transition shadow-sm btn-paymethod" onclick="setPhuongThuc('CHUYEN_KHOAN')">Chuyển Khoản</button>
                                 <input type="hidden" id="valPhuongThuc" value="TIEN_MAT">
                             </div>
                         </div>
@@ -187,10 +198,17 @@
                         </div>
                     </div>
 
-                    <button onclick="hoanThanhPhieu()" class="w-full mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-[15px] py-4 rounded-xl shadow-xl shadow-purple-600/30 transform transition active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                        Lưu Phiếu Nhập
-                    </button>
+                    <div class="mt-6 flex flex-col gap-3">
+                        <div class="flex gap-3">
+                            <button onclick="confirmSubmit(0)" class="flex-1 bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-bold text-sm py-3.5 rounded-xl shadow-sm transition active:scale-95 text-center">
+                                📝 Lưu Nháp
+                            </button>
+                            <button onclick="confirmSubmit(1)" class="flex-[2] bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-[15px] py-3.5 rounded-xl shadow-xl shadow-purple-600/30 transform transition active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                Hoàn Thành
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,45 +242,139 @@
     </div>
 
     <script>
-        document.getElementById('valNgayNhap').valueAsDate = new Date();
-
-        let isPanelOpen = true;
-        function toggleRightPanel() {
-            const rightPanel = document.getElementById('rightPanel');
-            const btn = document.getElementById('btnToggle');
-            if(isPanelOpen) {
-                rightPanel.classList.add('hidden', 'lg:hidden'); 
-                btn.innerHTML = '⯇ Hiện Thanh toán';
-                isPanelOpen = false;
-            } else {
-                rightPanel.classList.remove('hidden', 'lg:hidden'); 
-                btn.innerHTML = 'Đóng TT Thanh toán ⯈';
-                isPanelOpen = true;
-            }
-        }
-
+        // ==========================================
+        // 1. DATA & UTILS
+        // ==========================================
         function getFirstImg(str) {
-            if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
+            if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2260%22%20height%3D%2260%22%3E%3Crect%20width%3D%2260%22%20height%3D%2260%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             let arr = str.split('|');
-            return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
+            return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2260%22%20height%3D%2260%22%3E%3Crect%20width%3D%2260%22%20height%3D%2260%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
         }
+        function formatNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
+        function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
         const dbSP = [];
         document.querySelectorAll('#data_sp .sp-item').forEach(el => {
-            dbSP.push({
-                ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), 
-                tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), 
-                donvi: el.getAttribute('data-donvi'), 
-                gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, 
-                img: el.getAttribute('data-img')
-            });
+            dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') });
         });
-
         const dbNCC = [];
-        document.querySelectorAll('#data_ncc .ncc-item').forEach(el => {
-            dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') });
-        });
+        document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') }); });
 
+        // ==========================================
+        // 2. STATE MANAGER (HỆ THỐNG ĐA TAB)
+        // ==========================================
+        let appTabs = {}; // Lưu trữ dữ liệu từng tab
+        let currentTabId = 1;
+        let tabCounter = 1;
+
+        function getEmptyTab(id) {
+            let today = new Date(); let offset = today.getTimezoneOffset() * 60000; let localISOTime = (new Date(today - offset)).toISOString().slice(0, 16);
+            return {
+                id: id, title: "Phiếu mới", status: -1, // -1: Mới, 0: Nháp, 1: Hoàn thành
+                cart: [],
+                ncc_ma: "", ncc_ten: "",
+                ngay_nhap: localISOTime.split('T')[0], so_hd: "", ma_kho: "KHO_CHINH", ghi_chu: "",
+                giam_gia: 0, da_tra: 0, phuong_thuc: "TIEN_MAT"
+            };
+        }
+
+        function initApp() {
+            appTabs[1] = getEmptyTab(1);
+            loadTabToUI(1);
+            renderTabs();
+        }
+
+        function renderTabs() {
+            let html = "";
+            for (let id in appTabs) {
+                let isActive = (id == currentTabId) ? "active" : "";
+                let icon = appTabs[id].status === 0 ? "📝" : "📄";
+                html += `<div class="tab-item ${isActive}" onclick="switchTab(${id})">
+                            ${icon} ${appTabs[id].title}
+                            <span class="tab-close" onclick="event.stopPropagation(); closeTab(${id})">✖</span>
+                         </div>`;
+            }
+            html += `<div class="tab-add" onclick="addNewTab()">+ Thêm Phiếu</div>`;
+            document.getElementById('tabList').innerHTML = html;
+        }
+
+        function addNewTab() {
+            tabCounter++;
+            appTabs[tabCounter] = getEmptyTab(tabCounter);
+            switchTab(tabCounter);
+        }
+
+        function switchTab(id) {
+            if(currentTabId) saveCurrentTabState(); // Lưu trạng thái tab cũ trước khi nhảy
+            currentTabId = id;
+            loadTabToUI(id);
+            renderTabs();
+        }
+
+        function closeTab(id) {
+            let keys = Object.keys(appTabs);
+            if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 tab!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
+            
+            let tab = appTabs[id];
+            if (tab.status === 0) {
+                // Xóa nháp
+                Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Dữ liệu nháp chưa được lưu sẽ mất.", showCancelButton: true, confirmButtonText: 'Xóa luôn', cancelButtonText: 'Giữ lại' })
+                .then((result) => {
+                    if (result.isConfirmed) { executeCloseTab(id, keys); }
+                });
+            } else if (tab.cart.length > 0 && tab.status === -1) {
+                Swal.fire({ title: 'Hủy phiếu đang soạn?', text: "Phiếu này có dữ liệu nhưng chưa lưu. Xác nhận đóng?", showCancelButton: true, confirmButtonText: 'Đóng thẻ', cancelButtonText: 'Hủy' })
+                .then((result) => {
+                    if (result.isConfirmed) { executeCloseTab(id, keys); }
+                });
+            } else { executeCloseTab(id, keys); }
+        }
+
+        function executeCloseTab(id, keys) {
+            delete appTabs[id];
+            if (currentTabId == id) {
+                let remainingKeys = Object.keys(appTabs);
+                switchTab(remainingKeys[remainingKeys.length - 1]); // Nhảy về tab cuối
+            } else { renderTabs(); }
+        }
+
+        function saveCurrentTabState() {
+            if(!currentTabId || !appTabs[currentTabId]) return;
+            appTabs[currentTabId].ncc_ma = document.getElementById('valMaNCC').value;
+            appTabs[currentTabId].ncc_ten = document.getElementById('inpSearchNCC').value;
+            appTabs[currentTabId].ngay_nhap = document.getElementById('valNgayNhap').value;
+            appTabs[currentTabId].so_hd = document.getElementById('valSoHoaDon').value;
+            appTabs[currentTabId].ma_kho = document.getElementById('valMaKho').value;
+            appTabs[currentTabId].ghi_chu = document.getElementById('valGhiChu').value;
+            appTabs[currentTabId].giam_gia = getNum(document.getElementById('inpGiamGiaPhieu').value);
+            appTabs[currentTabId].da_tra = getNum(document.getElementById('inpDaThanhToan').value);
+            appTabs[currentTabId].phuong_thuc = document.getElementById('valPhuongThuc').value;
+        }
+
+        function loadTabToUI(id) {
+            let t = appTabs[id];
+            document.getElementById('valMaNCC').value = t.ncc_ma;
+            document.getElementById('inpSearchNCC').value = t.ncc_ten;
+            document.getElementById('valNgayNhap').value = t.ngay_nhap;
+            document.getElementById('valSoHoaDon').value = t.so_hd;
+            document.getElementById('valMaKho').value = t.ma_kho;
+            document.getElementById('valGhiChu').value = t.ghi_chu;
+            document.getElementById('inpGiamGiaPhieu').value = formatNum(t.giam_gia);
+            document.getElementById('inpDaThanhToan').value = formatNum(t.da_tra);
+            setPhuongThuc(t.phuong_thuc);
+            
+            // Render Label trạng thái
+            let lbl = document.getElementById('lblTrangThai');
+            if (t.status === 0) { lbl.className = "px-3 py-1.5 bg-orange-100 text-orange-600 font-bold text-xs rounded-lg border border-orange-200 block text-center"; lbl.innerText = "Đã Lưu Nháp"; }
+            else { lbl.className = "px-3 py-1.5 bg-slate-100 text-slate-500 font-bold text-xs rounded-lg border border-slate-200 block text-center"; lbl.innerText = "Đang soạn"; }
+
+            renderTable();
+        }
+
+        // ==========================================
+        // 3. AUTOCOMPLETE (SỬA LỖI MOUSEDOWN)
+        // ==========================================
         const inpSearchSP = document.getElementById('inpSearchSP');
         const iconSearchSP = document.getElementById('iconSearchSP');
         inpSearchSP.addEventListener('input', function() {
@@ -285,18 +397,20 @@
                     const div = document.createElement('div');
                     div.className = 'search-item';
                     div.innerHTML = renderItem(item);
-                    div.onclick = () => { onSelect(item); inp.value = ''; inp.dispatchEvent(new Event('input')); drop.style.display = 'none'; };
+                    // [SỬA LỖI MẤT TÍCH]: Dùng mousedown thay vì click để bắt sự kiện trước khi input bị blur
+                    div.onmousedown = (e) => { 
+                        e.preventDefault(); 
+                        onSelect(item); 
+                        inp.value = ''; inp.dispatchEvent(new Event('input')); drop.style.display = 'none'; 
+                    };
                     drop.appendChild(div);
                 });
 
-                // [CẨM NANG]: KHÔNG CHO PHÉP THÊM MỚI Ở ĐÂY NỮA
-                if (matches.length === 0) {
-                    drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`;
-                }
+                if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
                 drop.style.display = 'block';
             });
 
-            document.addEventListener('click', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
+            inp.addEventListener('blur', () => { drop.style.display = 'none'; });
         }
 
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
@@ -304,7 +418,7 @@
                         <img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200">
                         <div>
                             <div class="font-bold text-indigo-900 text-[15px]">${i.tensp}</div>
-                            <div class="text-xs text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> <span class="mx-1 text-slate-300">|</span> ${i.tensku || 'Bản tiêu chuẩn'} <span class="mx-1 text-slate-300">|</span> Giá: <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div>
+                            <div class="text-xs text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | Giá: <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div>
                         </div>
                     </div>`,
             (i) => addProductToCart(i)
@@ -312,21 +426,24 @@
 
         setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
             (i) => `<div><div class="font-bold text-slate-800 text-[14px]">${i.ten}</div><div class="text-[11px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${i.ma}</span> | SĐT: <b class="text-indigo-600">${i.sdt || '---'}</b></div></div>`,
-            (i) => { document.getElementById('inpSearchNCC').value = i.ten; document.getElementById('valMaNCC').value = i.ma; }
+            (i) => { document.getElementById('inpSearchNCC').value = i.ten; document.getElementById('valMaNCC').value = i.ma; saveCurrentTabState(); }
         );
 
-        let cart = [];
-
+        // ==========================================
+        // 4. LƯỚI GIỎ HÀNG
+        // ==========================================
         function addProductToCart(sp) {
+            let cart = appTabs[currentTabId].cart;
             let existIdx = cart.findIndex(item => item.ma_sku === sp.ma_sku);
-            if(existIdx > -1) { cart[existIdx].sl += 1;
-            } else { cart.push({ ...sp, sl: 1, serials: [] }); }
+            if(existIdx > -1) { cart[existIdx].sl += 1; } 
+            else { cart.push({ ...sp, sl: 1, serials: [] }); }
             renderTable();
         }
 
-        function removeProduct(idx) { cart.splice(idx, 1); renderTable(); }
+        function removeProduct(idx) { appTabs[currentTabId].cart.splice(idx, 1); renderTable(); }
 
         function updateCart(idx, field, elm) {
+            let cart = appTabs[currentTabId].cart;
             let val = elm.value;
             if(field === 'sl') { cart[idx].sl = parseInt(val) || 1; }
             if(field === 'gianhap') { cart[idx].gianhap = getNum(val); elm.value = formatNum(cart[idx].gianhap); }
@@ -334,6 +451,7 @@
         }
 
         function renderTable() {
+            let cart = appTabs[currentTabId].cart;
             const tbody = document.getElementById('tbodyChiTiet');
             document.getElementById('rowEmpty').style.display = cart.length === 0 ? 'table-row' : 'none';
             Array.from(tbody.children).forEach(tr => { if(tr.id !== 'rowEmpty') tr.remove(); });
@@ -347,8 +465,7 @@
                 let tr = document.createElement('tr');
                 tr.className = "hover-soft-row border-b border-slate-100";
                 
-                let serialTagsHTML = "";
-                let btnSerialHTML = "";
+                let serialTagsHTML = ""; let btnSerialHTML = "";
 
                 if(c.serials && c.serials.length > 0) {
                     let tags = c.serials.map(s => `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded text-[11px] font-mono shadow-sm cursor-pointer hover:bg-indigo-100 transition">${s}</span>`).join('');
@@ -357,9 +474,10 @@
                     btnSerialHTML = `<div class="mt-1.5"><button onclick="openSerialModal(${idx})" class="btn-serial empty">📝 Quét Serial/IMEI</button></div>`;
                 }
 
+                // CĂN GIỮA VÀ FIX ẢNH TO: Đã áp dụng ở đây
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
-                    <td class="text-center py-3 align-middle"><img src="${getFirstImg(c.img)}" class="w-12 h-12 object-cover rounded border border-slate-200 inline-block shadow-sm"></td>
+                    <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[70px] h-[70px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
                     <td class="whitespace-normal min-w-[280px] align-middle">
                         <div class="font-bold text-[14.5px] text-slate-800 mb-1">${c.tensp}</div>
                         <div class="text-[11px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200">
@@ -369,9 +487,9 @@
                         ${serialTagsHTML}
                     </td>
                     <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
-                    <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-premium input-qty shadow-inner text-indigo-700"></td>
-                    <td class="align-middle"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="input-premium price-input"></td>
-                    <td class="text-right font-black text-[16px] text-purple-700 align-middle">${formatNum(thanhTien)}</td>
+                    <td class="text-center align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-premium input-qty shadow-inner text-indigo-700"></td>
+                    <td class="text-center align-middle"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="input-premium price-input"></td>
+                    <td class="text-center font-black text-[16px] text-purple-700 align-middle">${formatNum(thanhTien)}</td>
                     <td class="text-center align-middle"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm">✕</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -379,6 +497,20 @@
 
             document.getElementById('lblTongTienHang').innerText = formatNum(tongTienHang);
             calcThanhToan();
+        }
+
+        // ==========================================
+        // 5. TÍNH TOÁN THANH TOÁN
+        // ==========================================
+        function setPhuongThuc(pt) {
+            document.querySelectorAll('.btn-paymethod').forEach(b => {
+                b.classList.remove('border-emerald-500', 'bg-emerald-500', 'text-white');
+                b.classList.add('border-slate-300', 'bg-white', 'text-slate-600');
+            });
+            event.target.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
+            event.target.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
+            document.getElementById('valPhuongThuc').value = pt;
+            saveCurrentTabState();
         }
 
         function calcThanhToan() {
@@ -395,23 +527,22 @@
             let elConNo = document.getElementById('lblConNo');
             elConNo.innerText = formatNum(conNo);
             elConNo.className = conNo > 0 ? "summary-val text-red-500" : "summary-val text-emerald-600";
+            saveCurrentTabState();
         }
 
+        // ==========================================
+        // 6. TAGIFY SERIAL
+        // ==========================================
         let tagifySerial;
         document.addEventListener("DOMContentLoaded", function() {
-            tagifySerial = new Tagify(document.getElementById('inpSerials'), {
-                delimiters: ",|\n|\r", 
-                maxTags: 500,
-                callbacks: { add: updateSerialCount, remove: updateSerialCount }
-            });
+            tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
+            initApp(); // Khởi tạo Tab đầu tiên
         });
 
-        function updateSerialCount() {
-            document.getElementById('lblSerialCount').innerText = tagifySerial.value.length;
-        }
+        function updateSerialCount() { document.getElementById('lblSerialCount').innerText = tagifySerial.value.length; }
 
         function openSerialModal(idx) {
-            let c = cart[idx];
+            let c = appTabs[currentTabId].cart[idx];
             document.getElementById('idxEditingSerial').value = idx;
             document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
             document.getElementById('lblSerialReq').innerText = c.sl;
@@ -426,7 +557,8 @@
 
         function saveSerials() {
             let idx = document.getElementById('idxEditingSerial').value;
-            let req = cart[idx].sl;
+            let c = appTabs[currentTabId].cart[idx];
+            let req = c.sl;
             let lines = tagifySerial.value.map(t => t.value);
             
             if(lines.length > req) {
@@ -438,104 +570,69 @@
                 });
                 return;
             }
-            cart[idx].serials = lines;
+            c.serials = lines;
             document.getElementById('modalSerial').classList.add('hidden');
             renderTable();
         }
 
-        function formatNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-        function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
-        function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
-
-        document.querySelectorAll('.btn-paymethod').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.btn-paymethod').forEach(b => {
-                    b.classList.remove('border-emerald-500', 'bg-emerald-500', 'text-white');
-                    b.classList.add('border-slate-300', 'bg-white', 'text-slate-600');
-                });
-                this.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
-                this.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
-                document.getElementById('valPhuongThuc').value = this.innerText === "Tiền Mặt" ? "TIEN_MAT" : "CHUYEN_KHOAN";
-            });
-        });
-
-        async function hoanThanhPhieu() {
-            if(cart.length === 0) { 
-                Swal.fire({
-                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Cảnh Báo!</span></div>',
-                    html: `<div class="text-[15px] text-orange-900 font-medium px-4">Phiếu nhập chưa có sản phẩm nào! Vui lòng chọn sản phẩm cần nhập.</div>`,
-                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                    buttonsStyling: false, confirmButtonText: 'Đã hiểu'
-                });
-                return; 
-            }
+        // ==========================================
+        // 7. GỬI API LÊN SERVER
+        // ==========================================
+        function confirmSubmit(status) {
+            saveCurrentTabState();
+            let t = appTabs[currentTabId];
             
-            let mancc = document.getElementById('valMaNCC').value;
-            let tenncc = document.getElementById('inpSearchNCC').value;
-            if(!mancc) { 
-                Swal.fire({
-                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Thiếu Thông Tin</span></div>',
-                    html: `<div class="text-[15px] text-orange-900 font-medium px-4">Vui lòng tìm và chọn đúng một Nhà Cung Cấp có sẵn trong hệ thống!</div>`,
-                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                    buttonsStyling: false, confirmButtonText: 'Đã hiểu'
-                });
-                return; 
-            }
+            if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
+            if(!t.ncc_ma) { Swal.fire('Thiếu thông tin', 'Vui lòng chọn Nhà Cung Cấp!', 'error'); return; }
 
-            let chiTietData = cart.map(c => ({
-                ma_sku: c.ma_sku,
-                so_luong: c.sl,
-                don_gia_nhap: c.gianhap
+            let titleStr = status === 0 ? "Lưu Nháp Phiếu?" : "Hoàn Thành Phiếu Nhập?";
+            let textStr = status === 0 ? "Phiếu sẽ được lưu nháp, chưa cộng tồn kho." : "Dữ liệu sẽ được ghi sổ và cộng vào Tồn Kho ngay lập tức.";
+            let btnStr = status === 0 ? "Xác nhận Lưu nháp" : "Xác nhận Hoàn thành";
+            let colorCls = status === 0 ? "from-orange-500 to-red-500" : "from-purple-600 to-indigo-600";
+
+            Swal.fire({
+                title: `<div class="flex flex-col items-center gap-3"><span class="text-2xl font-black">${titleStr}</span></div>`,
+                html: `<div class="text-[15px] text-slate-600 font-medium px-4">${textStr}</div>`,
+                showCancelButton: true,
+                confirmButtonText: btnStr,
+                cancelButtonText: 'Hủy',
+                customClass: { confirmButton: `bg-gradient-to-r ${colorCls} text-white font-bold rounded-xl px-6 py-2.5`, cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 ml-2' },
+                buttonsStyling: false,
+            }).then((result) => {
+                if (result.isConfirmed) { executeSubmit(status); }
+            });
+        }
+
+        async function executeSubmit(status) {
+            let t = appTabs[currentTabId];
+            let chiTietData = t.cart.map(c => ({
+                ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, serials: c.serials
             }));
 
             let payload = {
-                ma_nha_cung_cap: mancc,
-                ma_kho: document.getElementById('valMaKho').value,
-                ngay_nhap: document.getElementById('valNgayNhap').value,
-                so_hoa_don: document.getElementById('valSoHoaDon').value,
-                ghi_chu_phieu: document.getElementById('valGhiChu').value,
-                giam_gia_phieu: getNum(document.getElementById('inpGiamGiaPhieu').value),
-                da_tra: getNum(document.getElementById('inpDaThanhToan').value),
-                phuong_thuc_thanh_toan: document.getElementById('valPhuongThuc').value,
-                chi_tiet: chiTietData
+                ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd,
+                ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, da_tra: t.da_tra,
+                phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData
             };
 
-            Swal.fire({
-                title: '<div class="flex flex-col items-center gap-4"><div class="spinner-led-btn w-12 h-12 border-4"></div><span class="text-xl font-black title-gradient-purple">Đang đẩy dữ liệu lên máy chủ...</span></div>',
-                customClass: { popup: 'swal-master-success' }, showConfirmButton: false, allowOutsideClick: false
-            });
+            Swal.fire({ title: 'Đang đẩy dữ liệu...', showConfirmButton: false, allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
 
             try {
-                const res = await fetch('/master/api/nhap-hang/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
+                const res = await fetch('/master/api/nhap-hang/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await res.json();
+                
                 if(data.status === 'ok') {
+                    appTabs[currentTabId].status = status;
+                    appTabs[currentTabId].ma_phieu = data.ma_phieu;
+                    appTabs[currentTabId].title = data.ma_phieu; // Đổi tên tab thành mã phiếu
+                    renderTabs();
+
                     Swal.fire({
-                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
-                        html: `<div class="text-[15px] text-slate-600 font-medium px-4">Đã tạo Phiếu Nhập <b class="text-purple-600">${data.ma_phieu}</b>.</div>`,
-                        customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                        buttonsStyling: false, showConfirmButton: true, confirmButtonText: 'Nhập phiếu mới'
-                    }).then(() => { location.reload(); });
-                } else {
-                    Swal.fire({
-                        title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
-                        html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`,
-                        customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                        buttonsStyling: false, confirmButtonText: 'Đã hiểu'
+                        icon: 'success', title: 'Thành Công', text: data.msg,
+                        confirmButtonText: 'Đã hiểu', confirmButtonColor: '#9333ea'
                     });
-                }
-            } catch(e) {
-                Swal.fire({
-                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Mất Kết Nối</span></div>',
-                    html: `<div class="text-[15px] text-orange-900 font-medium px-4">Không thể đẩy dữ liệu lên máy chủ!</div>`,
-                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                    buttonsStyling: false, confirmButtonText: 'Đóng lại'
-                });
-            }
+                } else { Swal.fire('Thất bại', data.msg, 'error'); }
+            } catch(e) { Swal.fire('Lỗi kết nối', 'Không thể đẩy dữ liệu lên máy chủ', 'error'); }
         }
     </script>
     {{ template "footer_master" . }}
