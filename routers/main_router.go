@@ -5,8 +5,8 @@ import (
 	"app/modules/auth"
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
+	"app/modules/hien_thi_web" 
 	"app/modules/ho_so"
-	"app/modules/hien_thi_web"
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
 	"app/modules/thanh_vien"
@@ -26,8 +26,8 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	// KHU VỰC PUBLIC
 	// =======================================================
-	router.GET("/", hien_thi_web.TrangChu)
-	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
+	router.GET("/", hien_thi_web.TrangChu) 
+	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham) 
 
 	// =======================================================
 	// KHU VỰC AUTH
@@ -65,7 +65,8 @@ func SetupRouter() *gin.Engine {
 		// Giao diện Yêu cầu Cấp bậc Quản trị (Level 0, 1, 2)
 		cauHinhUI := workspace.Group("/cau-hinh")
 		cauHinhUI.Use(middlewares.RequireLevel(2))
-		cauHinhUI.GET("/", cau_hinh.TrangCauHinhView)
+		// [ĐÃ SỬA] Trả lại đúng tên hàm gốc của bạn:
+		cauHinhUI.GET("/", cau_hinh.TrangCaiDatCauHinhMaster) 
 
 		thanhVienUI := workspace.Group("/thanh-vien")
 		thanhVienUI.Use(middlewares.RequireLevel(2))
@@ -85,7 +86,7 @@ func SetupRouter() *gin.Engine {
 			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
 			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
 
-			// [LƯỚI THÉP RBAC CẨM NANG]: Kiểm tra quyền chuẩn xác cho từng nhóm hành động
+			// [LƯỚI THÉP RBAC CẨM NANG]
 			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
 			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
 
