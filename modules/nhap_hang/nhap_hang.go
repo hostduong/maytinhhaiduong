@@ -3,26 +3,19 @@ package nhap_hang
 import (
 	"fmt"
 	"net/http"
-	"strings" // <-- Đã bổ sung thư viện này
+	"strings"
 	"time"
 
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
 
-// ============================================================================
-// 1. RENDER GIAO DIỆN HTML
-// ============================================================================
 func TrangNhapHangMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// Lấy thông tin người dùng hiện tại (Để hiển thị Avatar/Tên trên Header & Sidebar)
 	me, ok := core.LayKhachHang(shopID, userID)
-	if !ok {
-		c.Redirect(http.StatusFound, "/login")
-		return
-	}
+	if !ok { c.Redirect(http.StatusFound, "/login"); return }
 	meCopy := *me
 
 	meCopy.StyleLevel = core.LayCapBacVaiTro(shopID, userID, meCopy.VaiTroQuyenHan)
@@ -30,21 +23,29 @@ func TrangNhapHangMaster(c *gin.Context) {
 		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9
 	}
 
-	// Lấy dữ liệu Master Data ném ra form Nhập hàng
 	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
 	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
 
+	// LẤY DANH SÁCH PHIẾU NHÁP & ĐỢI XÓA ĐỂ TRẢ VỀ FRONTEND (F5 không mất)
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RLock()
+	allPhieu := core.CachePhieuNhap[shopID]
+	var danhSachNhaps []*core.PhieuNhap
+	for _, p := range allPhieu {
+		if p.TrangThai <= 0 { // 0 là Nháp, -1 là Đợi xóa
+			danhSachNhaps = append(danhSachNhaps, p)
+		}
+	}
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RUnlock()
+
 	c.HTML(http.StatusOK, "master_nhap_hang", gin.H{
-		"TieuDe":      "Nhập Hàng",
-		"NhanVien":    &meCopy,
-		"DanhSachNCC": danhSachNCC,
-		"DanhSachSP":  danhSachSP,
+		"TieuDe":        "Nhập Hàng",
+		"NhanVien":      &meCopy,
+		"DanhSachNCC":   danhSachNCC,
+		"DanhSachSP":    danhSachSP,
+		"DanhSachNhaps": danhSachNhaps, // Dữ liệu nạp lên Tab
 	})
 }
 
-// ============================================================================
-// 2. CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN
-// ============================================================================
 type ChiTietInput struct {
 	MaSKU      string   `json:"ma_sku"`
 	SoLuong    int      `json:"so_luong"`
@@ -53,167 +54,132 @@ type ChiTietInput struct {
 }
 
 type PhieuNhapInput struct {
+	MaPhieuNhap         string         `json:"ma_phieu_nhap"` // Thêm để biết là update hay tạo mới
 	MaNhaCungCap        string         `json:"ma_nha_cung_cap"`
 	MaKho               string         `json:"ma_kho"`
 	NgayNhap            string         `json:"ngay_nhap"`
 	SoHoaDon            string         `json:"so_hoa_don"`
 	GhiChuPhieu         string         `json:"ghi_chu_phieu"`
 	GiamGiaPhieu        float64        `json:"giam_gia_phieu"`
-	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
 	DaTra               float64        `json:"da_tra"`
+	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
 	TrangThai           int            `json:"trang_thai"`
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
-// ============================================================================
-// 3. API XỬ LÝ LƯU PHIẾU NHẬP
-// ============================================================================
 func API_LuuPhieuNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
 	var input PhieuNhapInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(400, gin.H{"status": "error", "msg": "Dữ liệu đầu vào không hợp lệ!"})
-		return
-	}
+	if err := c.ShouldBindJSON(&input); err != nil { c.JSON(400, gin.H{"status": "error", "msg": "Dữ liệu không hợp lệ!"}); return }
+	if len(input.ChiTiet) == 0 { c.JSON(200, gin.H{"status": "error", "msg": "Phiếu nhập chưa có sản phẩm!"}); return }
 
-	if len(input.ChiTiet) == 0 {
-		c.JSON(200, gin.H{"status": "error", "msg": "Phiếu nhập chưa có sản phẩm nào!"})
-		return
-	}
+	loc := time.FixedZone("ICT", 7*3600); nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 
-	loc := time.FixedZone("ICT", 7*3600)
-	now := time.Now().In(loc)
-	nowStr := now.Format("2006-01-02 15:04:05")
-
-	// 1. Tự động sinh Mã Phiếu Nhập
-	maPN := fmt.Sprintf("PN%s%s", now.Format("060102"), core.LayChuoiSoNgauNhien(4))
-
-	// 2. Tính toán tổng tiền
 	var tongTienHang float64 = 0
-	for _, ct := range input.ChiTiet {
-		tongTienHang += ct.DonGiaNhap * float64(ct.SoLuong)
-	}
+	for _, ct := range input.ChiTiet { tongTienHang += ct.DonGiaNhap * float64(ct.SoLuong) }
 
-	thanhToan := tongTienHang - input.GiamGiaPhieu
-	if thanhToan < 0 {
-		thanhToan = 0
-	}
+	thanhToan := tongTienHang - input.GiamGiaPhieu; if thanhToan < 0 { thanhToan = 0 }
 	conNo := thanhToan - input.DaTra
-
 	trangThaiThanhToan := "CHUA_THANH_TOAN"
-	if input.DaTra >= thanhToan && thanhToan > 0 {
-		trangThaiThanhToan = "DA_THANH_TOAN"
-	} else if input.DaTra > 0 {
-		trangThaiThanhToan = "THANH_TOAN_MOT_PHAN"
+	if input.DaTra >= thanhToan && thanhToan > 0 { trangThaiThanhToan = "DA_THANH_TOAN" } else if input.DaTra > 0 { trangThaiThanhToan = "THANH_TOAN_MOT_PHAN" }
+
+	nguoiTao, _ := core.LayKhachHang(shopID, userID); tenNguoiTao := "Hệ thống"; if nguoiTao != nil { tenNguoiTao = nguoiTao.TenDangNhap }
+
+	// NẾU CÓ MÃ PHIẾU CŨ -> TẠM THỜI TỪ CHỐI UPDATE CHI TIẾT (Tránh lỗi Queue). Yêu cầu tạo phiếu mới.
+	// (Vì update 1 list chi tiết xuống Google Sheet bằng Queue khá phức tạp, ta sẽ tối ưu sau).
+	if input.MaPhieuNhap != "" && !strings.HasPrefix(input.MaPhieuNhap, "TEMP_") {
+		// Chỉ cho phép update nếu đang là nháp
+		// Để an toàn 100% trong bản này, ta cứ sinh phiếu mới và đánh dấu phiếu nháp cũ là -1
+		go func() {
+			core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RLock()
+			oldPn, ok := core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, input.MaPhieuNhap)]
+			core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RUnlock()
+			if ok && oldPn.TrangThai == 0 {
+				core.KhoaHeThong.Lock()
+				oldPn.TrangThai = -1
+				core.KhoaHeThong.Unlock()
+				core.PushUpdate(shopID, core.TenSheetPhieuNhap, oldPn.DongTrongSheet, core.CotPN_TrangThai, -1)
+			}
+		}()
 	}
 
-	nguoiTao, _ := core.LayKhachHang(shopID, userID)
-	tenNguoiTao := "Hệ thống"
-	if nguoiTao != nil {
-		tenNguoiTao = nguoiTao.TenDangNhap
-	}
+	maPN := fmt.Sprintf("PN%s%s", time.Now().In(loc).Format("060102"), core.LayChuoiSoNgauNhien(4))
 
-	// 3. Khởi tạo Object Phiếu Nhập
 	pn := &core.PhieuNhap{
-		SpreadsheetID: shopID, MaPhieuNhap: maPN, MaNhaCungCap: input.MaNhaCungCap, MaKho: input.MaKho,
-		NgayNhap: input.NgayNhap, TrangThai: input.TrangThai, SoHoaDon: input.SoHoaDon, NgayHoaDon: "", UrlChungTu: "",
-		TongTienPhieu: tongTienHang, GiamGiaPhieu: input.GiamGiaPhieu, DaThanhToan: input.DaTra, ConNo: conNo,
-		PhuongThucThanhToan: input.PhuongThucThanhToan, TrangThaiThanhToan: trangThaiThanhToan,
-		GhiChu: input.GhiChuPhieu, NguoiTao: tenNguoiTao, NgayTao: nowStr, NgayCapNhat: nowStr,
+		SpreadsheetID: shopID, MaPhieuNhap: maPN, MaNhaCungCap: input.MaNhaCungCap, MaKho: input.MaKho, NgayNhap: input.NgayNhap, TrangThai: input.TrangThai,
+		SoHoaDon: input.SoHoaDon, TongTienPhieu: tongTienHang, GiamGiaPhieu: input.GiamGiaPhieu, DaThanhToan: input.DaTra, ConNo: conNo,
+		PhuongThucThanhToan: input.PhuongThucThanhToan, TrangThaiThanhToan: trangThaiThanhToan, GhiChu: input.GhiChuPhieu, NguoiTao: tenNguoiTao, NgayTao: nowStr, NgayCapNhat: nowStr,
 		ChiTiet: make([]*core.ChiTietPhieuNhap, 0),
 	}
 
-	// Đẩy Header vào Queue
 	rowPN := make([]interface{}, 22)
-	rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap
-	rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap
-	rowPN[core.CotPN_MaKho] = pn.MaKho
-	rowPN[core.CotPN_NgayNhap] = pn.NgayNhap
-	rowPN[core.CotPN_TrangThai] = pn.TrangThai
-	rowPN[core.CotPN_SoHoaDon] = pn.SoHoaDon
-	rowPN[core.CotPN_TongTienPhieu] = pn.TongTienPhieu
-	rowPN[core.CotPN_GiamGiaPhieu] = pn.GiamGiaPhieu
-	rowPN[core.CotPN_DaThanhToan] = pn.DaThanhToan
-	rowPN[core.CotPN_ConNo] = pn.ConNo
-	rowPN[core.CotPN_PhuongThucThanhToan] = pn.PhuongThucThanhToan
-	rowPN[core.CotPN_TrangThaiThanhToan] = pn.TrangThaiThanhToan
-	rowPN[core.CotPN_GhiChu] = pn.GhiChu
-	rowPN[core.CotPN_NguoiTao] = pn.NguoiTao
-	rowPN[core.CotPN_NgayTao] = pn.NgayTao
-	rowPN[core.CotPN_NgayCapNhat] = pn.NgayCapNhat
+	rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap; rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap; rowPN[core.CotPN_MaKho] = pn.MaKho
+	rowPN[core.CotPN_NgayNhap] = pn.NgayNhap; rowPN[core.CotPN_TrangThai] = pn.TrangThai; rowPN[core.CotPN_SoHoaDon] = pn.SoHoaDon
+	rowPN[core.CotPN_TongTienPhieu] = pn.TongTienPhieu; rowPN[core.CotPN_GiamGiaPhieu] = pn.GiamGiaPhieu; rowPN[core.CotPN_DaThanhToan] = pn.DaThanhToan
+	rowPN[core.CotPN_ConNo] = pn.ConNo; rowPN[core.CotPN_PhuongThucThanhToan] = pn.PhuongThucThanhToan; rowPN[core.CotPN_TrangThaiThanhToan] = pn.TrangThaiThanhToan
+	rowPN[core.CotPN_GhiChu] = pn.GhiChu; rowPN[core.CotPN_NguoiTao] = pn.NguoiTao; rowPN[core.CotPN_NgayTao] = pn.NgayTao; rowPN[core.CotPN_NgayCapNhat] = pn.NgayCapNhat
 	core.PushAppend(shopID, core.TenSheetPhieuNhap, rowPN)
 
-	// 4. Xử lý Chi tiết & Sinh Serial
 	core.KhoaHeThong.Lock()
 	for _, item := range input.ChiTiet {
-		spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU)
-		tenSP, donVi, maSP := "Sản phẩm không xác định", "Cái", ""
-		if ok && spCache != nil {
-			tenSP = spCache.TenSanPham
-			donVi = spCache.DonVi
-			maSP = spCache.MaSanPham
-		}
+		spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU); tenSP, donVi, maSP := "SP Không xác định", "Cái", ""
+		if ok && spCache != nil { tenSP = spCache.TenSanPham; donVi = spCache.DonVi; maSP = spCache.MaSanPham }
 
 		ct := &core.ChiTietPhieuNhap{
-			SpreadsheetID: shopID, MaPhieuNhap: maPN, MaSanPham: maSP, MaSKU: item.MaSKU,
-			TenSanPham: tenSP, DonVi: donVi, SoLuong: item.SoLuong, DonGiaNhap: item.DonGiaNhap,
-			ThanhTienDong: item.DonGiaNhap * float64(item.SoLuong), GiaVonThucTe: item.DonGiaNhap,
+			SpreadsheetID: shopID, MaPhieuNhap: maPN, MaSanPham: maSP, MaSKU: item.MaSKU, TenSanPham: tenSP, DonVi: donVi,
+			SoLuong: item.SoLuong, DonGiaNhap: item.DonGiaNhap, ThanhTienDong: item.DonGiaNhap * float64(item.SoLuong), GiaVonThucTe: item.DonGiaNhap,
 		}
 		pn.ChiTiet = append(pn.ChiTiet, ct)
 
 		rowCT := make([]interface{}, 15)
-		rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap
-		rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham
-		rowCT[core.CotCTPN_MaSKU] = ct.MaSKU
-		rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham
-		rowCT[core.CotCTPN_DonVi] = ct.DonVi
-		rowCT[core.CotCTPN_SoLuong] = ct.SoLuong
-		rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap
-		rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong
-		rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
+		rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap; rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham; rowCT[core.CotCTPN_MaSKU] = ct.MaSKU
+		rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham; rowCT[core.CotCTPN_DonVi] = ct.DonVi; rowCT[core.CotCTPN_SoLuong] = ct.SoLuong
+		rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap; rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong; rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
 		core.PushAppend(shopID, core.TenSheetChiTietPhieuNhap, rowCT)
 
 		for i := 0; i < item.SoLuong; i++ {
-			imei := ""
-			if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" {
-				imei = strings.TrimSpace(item.Serials[i])
-			} else {
-				imei = fmt.Sprintf("SN%s%s", now.Format("060102"), core.LayChuoiSoNgauNhien(6))
-			}
-
+			imei := ""; if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" { imei = strings.TrimSpace(item.Serials[i]) } else { imei = fmt.Sprintf("SN%s%s", time.Now().Format("060102"), core.LayChuoiSoNgauNhien(6)) }
 			sr := &core.SerialSanPham{
-				SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU,
-				MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN, TrangThai: input.TrangThai,
-				NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
+				SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU, MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN,
+				TrangThai: input.TrangThai, NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
 			}
-
-			core.CacheSerialSanPham[shopID] = append(core.CacheSerialSanPham[shopID], sr)
-			core.CacheMapSerial[core.TaoCompositeKey(shopID, imei)] = sr
-
-			rowSR := make([]interface{}, 19)
-			rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI
-			rowSR[core.CotSR_MaSanPham] = sr.MaSanPham
-			rowSR[core.CotSR_MaSKU] = sr.MaSKU
-			rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap
-			rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap
-			rowSR[core.CotSR_TrangThai] = sr.TrangThai
-			rowSR[core.CotSR_NgayNhapKho] = sr.NgayNhapKho
-			rowSR[core.CotSR_GiaVonNhap] = sr.GiaVonNhap
-			rowSR[core.CotSR_MaKho] = sr.MaKho
-			rowSR[core.CotSR_NgayCapNhat] = sr.NgayCapNhat
+			core.CacheSerialSanPham[shopID] = append(core.CacheSerialSanPham[shopID], sr); core.CacheMapSerial[core.TaoCompositeKey(shopID, imei)] = sr
+			rowSR := make([]interface{}, 19); rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI; rowSR[core.CotSR_MaSanPham] = sr.MaSanPham; rowSR[core.CotSR_MaSKU] = sr.MaSKU
+			rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap; rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap; rowSR[core.CotSR_TrangThai] = sr.TrangThai
+			rowSR[core.CotSR_NgayNhapKho] = sr.NgayNhapKho; rowSR[core.CotSR_GiaVonNhap] = sr.GiaVonNhap; rowSR[core.CotSR_MaKho] = sr.MaKho; rowSR[core.CotSR_NgayCapNhat] = sr.NgayCapNhat
 			core.PushAppend(shopID, core.TenSheetSerial, rowSR)
 		}
 	}
-
-	core.CachePhieuNhap[shopID] = append(core.CachePhieuNhap[shopID], pn)
-	core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, maPN)] = pn
+	core.CachePhieuNhap[shopID] = append(core.CachePhieuNhap[shopID], pn); core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, maPN)] = pn
 	core.KhoaHeThong.Unlock()
 
-	loai := "Hoàn thành Nhập kho"
-	if input.TrangThai == 0 {
-		loai = "Lưu nháp Phiếu Nhập"
-	}
+	loai := "Hoàn thành Nhập kho"; if input.TrangThai == 0 { loai = "Lưu nháp Phiếu Nhập" }
 	c.JSON(200, gin.H{"status": "ok", "msg": loai + " thành công!", "ma_phieu": maPN})
+}
+
+// API Đổi trạng thái (Xóa nháp -> -1, Khôi phục -> 0)
+func API_DoiTrangThaiPhieu(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	maPhieu := c.PostForm("ma_phieu_nhap")
+	trangThaiMoi := core.LayIntStr(c.PostForm("trang_thai"))
+
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Lock()
+	defer core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Unlock()
+
+	pn, ok := core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, maPhieu)]
+	if !ok { c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy phiếu!"}); return }
+	
+	if pn.TrangThai == 1 { c.JSON(200, gin.H{"status": "error", "msg": "Không thể xóa phiếu đã hoàn thành!"}); return }
+
+	core.KhoaHeThong.Lock()
+	pn.TrangThai = trangThaiMoi
+	pn.NgayCapNhat = time.Now().In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
+	core.KhoaHeThong.Unlock()
+
+	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_TrangThai, trangThaiMoi)
+	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_NgayCapNhat, pn.NgayCapNhat)
+
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã cập nhật trạng thái phiếu!"})
 }
