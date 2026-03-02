@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"app/middlewares"
+	"app/middlewares" // Sử dụng thật sự màng lọc bảo mật
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
 	"app/modules/hien_thi_web"
@@ -15,35 +15,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FakeAuth: Giả lập đăng nhập nhanh để bạn vào xem Dashboard (Cấp thẻ Level 0)
-func FakeAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("SHOP_ID", "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8")
-		c.Set("USER_ID", "0000000000000000001") 
-		c.Set("USER_ROLE", "quan_tri_he_thong")
-		c.Set("USER_LEVEL", 0)
-		c.Next()
-	}
-}
-
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
 	// =======================================================
-	// KHU VỰC PUBLIC (Khách hàng truy cập tự do)
+	// KHU VỰC PUBLIC (Mặt tiền: Khách hàng truy cập tự do)
 	// =======================================================
 	router.GET("/", hien_thi_web.TrangChu)
 	router.GET("/login", hien_thi_web.TrangDangNhap)
 	router.GET("/register", hien_thi_web.TrangDangKy)
 	router.GET("/forgot-password", hien_thi_web.TrangQuenMatKhau)
 	router.GET("/verify", hien_thi_web.TrangXacThucOTP)
+	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
 	// =======================================================
-	// KHU VỰC WORKSPACE (Bên trong ứng dụng - Đã bật FakeAuth)
+	// KHU VỰC WORKSPACE (Bên trong ứng dụng - BẢO MẬT 5 LỚP)
 	// =======================================================
 	workspace := router.Group("/master")
-	workspace.Use(FakeAuth()) 
+	
+	// SỬ DỤNG AUTH THẬT: Kiểm tra Cookie -> RAM Cache (Sheet KHACH_HANG)
+	workspace.Use(middlewares.CheckAuth()) 
 	{
 		// 1. Nhóm Render Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
