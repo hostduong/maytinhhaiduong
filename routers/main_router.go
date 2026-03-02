@@ -2,7 +2,7 @@ package routers
 
 import (
 	"app/middlewares"
-	"app/modules/auth" // Kéo module Auth mới vào
+	"app/modules/auth"
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
 	"app/modules/hien_thi_web"
@@ -20,14 +20,17 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
+	// [QUAN TRỌNG]: Lễ tân Đứng ở cửa lớn, soi Domain và cấp SHOP_ID cho MỌI request
+	router.Use(middlewares.IdentifyTenant())
+
 	// =======================================================
-	// KHU VỰC PUBLIC (Trang chủ & View SP)
+	// KHU VỰC PUBLIC (Trang chủ & View SP - Không cần soát vé)
 	// =======================================================
 	router.GET("/", hien_thi_web.TrangChu)
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
 	// =======================================================
-	// KHU VỰC AUTH (Đăng nhập, Đăng ký, Quên mật khẩu)
+	// KHU VỰC AUTH (Đăng nhập, Đăng ký - Không cần soát vé)
 	// =======================================================
 	router.GET("/login", auth.TrangDangNhap)
 	router.GET("/register", auth.TrangDangKy)
@@ -47,7 +50,7 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// KHU VỰC WORKSPACE (Bảo mật 5 Lớp theo Cẩm nang)
+	// KHU VỰC WORKSPACE (Bảo vệ đứng ở đây soát vé)
 	// =======================================================
 	workspace := router.Group("/master")
 	workspace.Use(middlewares.CheckAuth())
