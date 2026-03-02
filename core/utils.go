@@ -3,47 +3,25 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
-
-	"app/config" // Thêm thư viện cấu hình để lấy ID gốc
 )
 
-// Giữ lại Alias để các file cũ không bị lỗi "undefined"
 var ThemVaoHangCho = PushUpdate
 
-// =======================================================
-// [MỚI] LƯỚI AN TOÀN: TỰ ĐỘNG LẤY SHOP_ID MASTER NẾU RỖNG
-// =======================================================
-func layShopIDAnToan(shopID string) string {
-	if shopID == "" {
-		return config.BienCauHinh.IdFileSheet
-	}
-	return shopID
-}
-
-// --- TIỆN ÍCH TRUY XUẤT NGƯỜI DÙNG ---
-
 func LayKhachHang(shopID, userID string) (*KhachHang, bool) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	kh, ok := CacheMapKhachHang[TaoCompositeKey(shopID, userID)]
 	return kh, ok
 }
 
 func LayDanhSachKhachHang(shopID string) []*KhachHang {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	return CacheKhachHang[shopID]
 }
 
 func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	for _, kh := range CacheKhachHang[shopID] {
 		if info, ok := kh.RefreshTokens[cookie]; ok {
 			if time.Now().Unix() <= info.ExpiresAt { return kh, true }
@@ -53,13 +31,11 @@ func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 }
 
 func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	input = strings.ToLower(strings.TrimSpace(input))
 	for _, kh := range CacheKhachHang[shopID] {
 		if strings.ToLower(kh.TenDangNhap) == input || (kh.Email != "" && strings.ToLower(kh.Email) == input) {
-			if kh.MaKhachHang == "0000000000000000000" { return nil, false } // Chặn Bot Login
+			if kh.MaKhachHang == "0000000000000000000" { return nil, false } 
 			return kh, true
 		}
 	}
@@ -67,9 +43,7 @@ func TimKhachHangTheoUserOrEmail(shopID, input string) (*KhachHang, bool) {
 }
 
 func TaoMaKhachHangMoi(shopID string) string {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	for {
 		id := LayChuoiSoNgauNhien(19)
 		if _, exist := CacheMapKhachHang[TaoCompositeKey(shopID, id)]; !exist { return id }
@@ -77,36 +51,25 @@ func TaoMaKhachHangMoi(shopID string) string {
 }
 
 func ThemKhachHangVaoRam(kh *KhachHang) {
-	KhoaHeThong.Lock()
-	defer KhoaHeThong.Unlock()
-	sID := kh.SpreadsheetID
-	if sID == "" { sID = config.BienCauHinh.IdFileSheet }
-	CacheKhachHang[sID] = append(CacheKhachHang[sID], kh)
-	CacheMapKhachHang[TaoCompositeKey(sID, kh.MaKhachHang)] = kh
+	KhoaHeThong.Lock(); defer KhoaHeThong.Unlock()
+	CacheKhachHang[kh.SpreadsheetID] = append(CacheKhachHang[kh.SpreadsheetID], kh)
+	CacheMapKhachHang[TaoCompositeKey(kh.SpreadsheetID, kh.MaKhachHang)] = kh
 }
 
 func LayCapBacVaiTro(shopID, userID, role string) int {
-	shopID = layShopIDAnToan(shopID)
 	if userID == "0000000000000000001" || role == "quan_tri_he_thong" { return 0 }
 	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
-	lock.RLock()
-	defer lock.RUnlock()
+	lock.RLock(); defer lock.RUnlock()
 	for _, v := range CacheDanhSachVaiTro[shopID] {
 		if v.MaVaiTro == role { return v.StyleLevel }
 	}
 	return 9
 }
 
-// =======================================================
-// CÁC HÀM PHỤC HỒI TỪ LEGACY
-// =======================================================
-
 func KiemTraQuyen(shopID, role, maChucNang string) bool {
-	shopID = layShopIDAnToan(shopID)
 	if role == "quan_tri_he_thong" { return true }
 	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
-	lock.RLock()
-	defer lock.RUnlock()
+	lock.RLock(); defer lock.RUnlock()
 	if shopMap, ok := CachePhanQuyen[shopID]; ok {
 		if listQuyen, exists := shopMap[role]; exists {
 			if allowed, has := listQuyen[maChucNang]; has && allowed { return true }
@@ -116,58 +79,43 @@ func KiemTraQuyen(shopID, role, maChucNang string) bool {
 }
 
 func TaoMaSPMayTinhMoi(shopID, prefix string) string {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	if prefix == "" { prefix = "SP" }
 	max := 0
 	for _, sp := range CacheSanPhamMayTinh[shopID] {
 		if strings.HasPrefix(sp.MaSanPham, prefix) {
-			numStr := strings.TrimPrefix(sp.MaSanPham, prefix)
-			if num, err := strconv.Atoi(numStr); err == nil && num > max { max = num }
+			var num int; fmt.Sscanf(strings.TrimPrefix(sp.MaSanPham, prefix), "%d", &num)
+			if num > max { max = num }
 		}
 	}
 	return fmt.Sprintf("%s%04d", prefix, max+1)
 }
 
 func CapNhatSlotThuCong(shopID, dmMa string, slotMoi int) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.Lock()
-	defer KhoaHeThong.Unlock()
+	KhoaHeThong.Lock(); defer KhoaHeThong.Unlock()
 	for _, dm := range CacheDanhMuc[shopID] {
 		if dm.MaDanhMuc == dmMa {
-			if slotMoi > dm.Slot {
-				dm.Slot = slotMoi
-				PushUpdate(shopID, TenSheetDanhMuc, dm.DongTrongSheet, CotDM_Slot, slotMoi)
-			}
+			if slotMoi > dm.Slot { dm.Slot = slotMoi; PushUpdate(shopID, TenSheetDanhMuc, dm.DongTrongSheet, CotDM_Slot, slotMoi) }
 			break
 		}
 	}
 }
 
-// --- Bổ sung Helper cho các Module khác ---
-func LayDanhSachSanPhamMayTinh(shopID string) []*SanPhamMayTinh { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheSanPhamMayTinh[shopID] }
-func LayDanhSachDanhMuc(shopID string) []*DanhMuc { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheDanhMuc[shopID] }
-func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheThuongHieu[shopID] }
-func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheBienLoiNhuan[shopID] }
-func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { shopID = layShopIDAnToan(shopID); KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheNhaCungCap[shopID] }
+func LayDanhSachSanPhamMayTinh(shopID string) []*SanPhamMayTinh { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheSanPhamMayTinh[shopID] }
+func LayDanhSachDanhMuc(shopID string) []*DanhMuc { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheDanhMuc[shopID] }
+func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheThuongHieu[shopID] }
+func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheBienLoiNhuan[shopID] }
+func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); return CacheNhaCungCap[shopID] }
 
 func LayChiTietSKUMayTinh(shopID, id string) (*SanPhamMayTinh, bool) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock()
 	sp, ok := CacheMapSKUMayTinh[TaoCompositeKey(shopID, id)]
-	if !ok {
-		for _, s := range CacheSanPhamMayTinh[shopID] { if s.Slug == id && s.TrangThai == 1 { return s, true } }
-	}
+	if !ok { for _, s := range CacheSanPhamMayTinh[shopID] { if s.Slug == id && s.TrangThai == 1 { return s, true } } }
 	return sp, ok
 }
 
 func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.RLock()
-	defer KhoaHeThong.RUnlock()
-	var rs []*TinNhan
+	KhoaHeThong.RLock(); defer KhoaHeThong.RUnlock(); var rs []*TinNhan
 	for _, tn := range CacheTinNhan[shopID] {
 		if tn.NguoiNhanID == userID || tn.NguoiGuiID == userID { rs = append(rs, tn); continue }
 		if tn.LoaiTinNhan == "ALL" { rs = append(rs, tn); continue }
@@ -177,28 +125,16 @@ func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
 }
 
 func ThemMoiTinNhan(shopID string, tn *TinNhan) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.Lock()
-	tn.DongTrongSheet = DongBatDau_TinNhan + len(CacheTinNhan[shopID])
-	CacheTinNhan[shopID] = append(CacheTinNhan[shopID], tn)
-	KhoaHeThong.Unlock()
-	rowData := []interface{}{ tn.MaTinNhan, tn.LoaiTinNhan, tn.NguoiGuiID, tn.NguoiNhanID, tn.TieuDe, tn.NoiDung, "", tn.ThamChieuID, tn.ReplyChoID, tn.NgayTao, "[]", "" }
-	PushAppend(shopID, TenSheetTinNhan, rowData)
+	KhoaHeThong.Lock(); tn.DongTrongSheet = DongBatDau_TinNhan + len(CacheTinNhan[shopID]); CacheTinNhan[shopID] = append(CacheTinNhan[shopID], tn); KhoaHeThong.Unlock()
+	PushAppend(shopID, TenSheetTinNhan, []interface{}{ tn.MaTinNhan, tn.LoaiTinNhan, tn.NguoiGuiID, tn.NguoiNhanID, tn.TieuDe, tn.NoiDung, "", tn.ThamChieuID, tn.ReplyChoID, tn.NgayTao, "[]", "" })
 }
 
 func DanhDauDocTinNhan(shopID, userID, msgID string) {
-	shopID = layShopIDAnToan(shopID)
-	KhoaHeThong.Lock()
-	defer KhoaHeThong.Unlock()
+	KhoaHeThong.Lock(); defer KhoaHeThong.Unlock()
 	for _, tn := range CacheTinNhan[shopID] {
 		if tn.MaTinNhan == msgID {
-			daDoc := false
-			for _, u := range tn.NguoiDoc { if u == userID { daDoc = true; break } }
-			if !daDoc {
-				tn.NguoiDoc = append(tn.NguoiDoc, userID)
-				b, _ := json.Marshal(tn.NguoiDoc)
-				PushUpdate(shopID, TenSheetTinNhan, tn.DongTrongSheet, CotTN_NguoiDocJson, string(b))
-			}
+			daDoc := false; for _, u := range tn.NguoiDoc { if u == userID { daDoc = true; break } }
+			if !daDoc { tn.NguoiDoc = append(tn.NguoiDoc, userID); b, _ := json.Marshal(tn.NguoiDoc); PushUpdate(shopID, TenSheetTinNhan, tn.DongTrongSheet, CotTN_NguoiDocJson, string(b)) }
 			break
 		}
 	}
