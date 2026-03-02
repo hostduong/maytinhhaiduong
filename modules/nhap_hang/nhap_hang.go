@@ -7,38 +7,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TrangNhapHangMaster hiển thị giao diện tạo phiếu nhập cho Super Admin (Master)
 func TrangNhapHangMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	kh, found := core.LayKhachHang(shopID, userID)
-	if !found || kh == nil {
+	// 1. Lấy thông tin người dùng hiện tại (Để hiển thị Avatar/Tên trên Header & Sidebar)
+	me, ok := core.LayKhachHang(shopID, userID)
+	if !ok {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
+	meCopy := *me
 
-	// Lấy danh sách Dữ liệu Lõi từ RAM Cache để mớm xuống giao diện (JS)
-	listSP := core.LayDanhSachSanPhamMayTinh(shopID)
-	listNCC := core.LayDanhSachNhaCungCap(shopID)
-
-	// Lọc danh sách SP: Chỉ lấy những phiên bản đang được Bán (TrangThai == 1)
-	var dsSanPhamGoiY []*core.SanPhamMayTinh
-	for _, sp := range listSP {
-		if sp.TrangThai == 1 {
-			dsSanPhamGoiY = append(dsSanPhamGoiY, sp)
-		}
+	// Bổ sung Level & Theme cho user để render icon trên giao diện (giống bên thành viên)
+	meCopy.StyleLevel = core.LayCapBacVaiTro(shopID, userID, meCopy.VaiTroQuyenHan)
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9
 	}
 
-	// Trỏ đúng vào template master_nhap_hang
+	// 2. Lấy dữ liệu Master Data ném ra form Nhập hàng (Lấy từ RAM siêu tốc)
+	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
+	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
+
+	// 3. Render giao diện
 	c.HTML(http.StatusOK, "master_nhap_hang", gin.H{
-		"TieuDe":       "Nhập Hàng",
-		"NhanVien":     kh,
-		"DaDangNhap":   true,
-		"TenNguoiDung": kh.TenKhachHang,
-		"QuyenHan":     kh.VaiTroQuyenHan,
-		
-		"DanhSachSP":   dsSanPhamGoiY,
-		"DanhSachNCC":  listNCC,
+		"TieuDe":      "Nhập Hàng", // Tên này phải khớp với menu bên Sidebar để nó sáng màu Tím lên
+		"NhanVien":    &meCopy,
+		"DanhSachNCC": danhSachNCC,
+		"DanhSachSP":  danhSachSP,
 	})
 }
