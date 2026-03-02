@@ -5,8 +5,8 @@ import (
 	"app/modules/auth"
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
-	"app/modules/hien_thi_web"
 	"app/modules/ho_so"
+	"app/modules/home"
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
 	"app/modules/thanh_vien"
@@ -20,17 +20,17 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
-	// [QUAN TRỌNG]: Lễ tân Đứng ở cửa lớn, soi Domain và cấp SHOP_ID cho MỌI request
+	// Lễ tân phân luồng Domain
 	router.Use(middlewares.IdentifyTenant())
 
 	// =======================================================
-	// KHU VỰC PUBLIC (Trang chủ & View SP - Không cần soát vé)
+	// KHU VỰC PUBLIC
 	// =======================================================
-	router.GET("/", hien_thi_web.TrangChu)
-	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
+	router.GET("/", home.TrangChu)
+	router.GET("/san-pham/:id", home.ChiTietSanPham)
 
 	// =======================================================
-	// KHU VỰC AUTH (Đăng nhập, Đăng ký - Không cần soát vé)
+	// KHU VỰC AUTH
 	// =======================================================
 	router.GET("/login", auth.TrangDangNhap)
 	router.GET("/register", auth.TrangDangKy)
@@ -50,35 +50,53 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// KHU VỰC WORKSPACE (Bảo vệ đứng ở đây soát vé)
+	// KHU VỰC WORKSPACE (Bảo vệ 5 lớp)
 	// =======================================================
 	workspace := router.Group("/master")
 	workspace.Use(middlewares.CheckAuth())
 	{
+		// 1. Nhóm Load Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
-		workspace.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
 		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
 		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
 		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
-		workspace.GET("/thanh-vien", thanh_vien.TrangQuanLyThanhVienMaster)
 		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
 
+		// Giao diện Yêu cầu Cấp bậc Quản trị (Level 0, 1, 2)
 		cauHinhUI := workspace.Group("/cau-hinh")
 		cauHinhUI.Use(middlewares.RequireLevel(2))
-		cauHinhUI.GET("", cau_hinh.TrangCaiDatCauHinhMaster)
+		cauHinhUI.GET("/", cau_hinh.TrangCauHinhView)
 
+		thanhVienUI := workspace.Group("/thanh-vien")
+		thanhVienUI.Use(middlewares.RequireLevel(2))
+		thanhVienUI.GET("/", thanh_vien.TrangQuanLyThanhVienMaster)
+
+		dongBoUI := workspace.Group("/dong-bo-sheets")
+		dongBoUI.Use(middlewares.RequireLevel(2))
+		dongBoUI.GET("/", dong_bo_sheets.TrangDongBoSheetsMaster)
+
+		// 2. Nhóm Gọi API Xử lý Dữ liệu
 		api := workspace.Group("/api")
 		{
-			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", cau_hinh.API_LuuNhaCungCap)
-			api.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
+			// API Không giới hạn quyền (Cá nhân tự đổi)
 			api.POST("/ho-so", ho_so.API_LuuHoSoMaster)
 			api.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
 			api.POST("/change-pin", ho_so.API_DoiMaPinMaster)
-			api.POST("/may-tinh/save", san_pham.API_LuuMayTinhMaster)
-			api.POST("/thanh-vien/save", thanh_vien.API_LuuThanhVienMaster)
-			api.POST("/thanh-vien/send-msg", thanh_vien.API_GuiTinNhanMaster)
 			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
 			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
+
+			// [LƯỚI THÉP RBAC CẨM NANG]: Kiểm tra quyền chuẩn xác cho từng nhóm hành động
+			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
+			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
+
+			// Các API Yêu cầu Cấp bậc Hệ thống
+			apiAdmin := api.Group("")
+			apiAdmin.Use(middlewares.RequireLevel(2))
+			{
+				apiAdmin.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
+				apiAdmin.POST("/thanh-vien/save", thanh_vien.API_LuuThanhVienMaster)
+				apiAdmin.POST("/thanh-vien/send-msg", thanh_vien.API_GuiTinNhanMaster)
+			}
 		}
 	}
 
