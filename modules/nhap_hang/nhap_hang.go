@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv" // <--- THƯ VIỆN NÀY ĐÃ ĐƯỢC THÊM ĐỂ PARSE SỐ
 	"strings"
 	"time"
 
