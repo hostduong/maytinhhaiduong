@@ -30,6 +30,7 @@ func TrangQuenMatKhau(c *gin.Context) {
 
 func TrangXacThucOTP(c *gin.Context) {
 	userName := ""
-	if kh, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), c.Cookie("session_token")); ok { userName = kh.TenDangNhap }
+	cookie, _ := c.Cookie("session_token")
+	if kh, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), cookie); ok { userName = kh.TenDangNhap }
 	c.HTML(http.StatusOK, "xac_thuc_otp", gin.H{"TieuDe": "Xác thực OTP", "User": userName})
 }
