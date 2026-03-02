@@ -108,11 +108,11 @@ func API_DoiMatKhauMaster(c *gin.Context) {
 		return
 	}
 
-	if !cau_hinh.KiemTraMatKhau(passCu, kh.MatKhauHash) {
+	if !config.KiemTraMatKhau(passCu, kh.MatKhauHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mật khẩu hiện tại không đúng!"})
 		return
 	}
-	if !cau_hinh.KiemTraDinhDangMatKhau(passMoi) {
+	if !config.KiemTraDinhDangMatKhau(passMoi) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mật khẩu mới không hợp lệ!"})
 		return
 	}
@@ -141,11 +141,11 @@ func API_DoiMaPinMaster(c *gin.Context) {
 		return
 	}
 
-	if !cau_hinh.KiemTraMatKhau(pinCu, kh.MaPinHash) {
+	if !config.KiemTraMatKhau(pinCu, kh.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN hiện tại không đúng!"})
 		return
 	}
-	if !cau_hinh.KiemTraMaPin(pinMoi) {
+	if !config.KiemTraMaPin(pinMoi) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN mới không hợp lệ!"})
 		return
 	}
