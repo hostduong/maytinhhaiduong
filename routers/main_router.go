@@ -89,6 +89,7 @@ func SetupRouter() *gin.Engine {
 			// [LƯỚI THÉP RBAC CẨM NANG]
 			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
 			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
+			api.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
 
 			// Các API Yêu cầu Cấp bậc Hệ thống
 			apiAdmin := api.Group("")
