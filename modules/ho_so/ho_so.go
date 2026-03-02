@@ -117,7 +117,7 @@ func API_DoiMatKhauMaster(c *gin.Context) {
 		return
 	}
 
-	hash, _ := cau_hinh.HashMatKhau(passMoi)
+	hash, _ := config.HashMatKhau(passMoi)
 	core.KhoaHeThong.Lock()
 	kh.MatKhauHash = hash
 	core.KhoaHeThong.Unlock()
@@ -150,7 +150,7 @@ func API_DoiMaPinMaster(c *gin.Context) {
 		return
 	}
 
-	hash, _ := cau_hinh.HashMatKhau(pinMoi)
+	hash, _ := config.HashMatKhau(pinMoi)
 	core.KhoaHeThong.Lock()
 	kh.MaPinHash = hash
 	core.KhoaHeThong.Unlock()
