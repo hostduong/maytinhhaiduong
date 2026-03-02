@@ -2,39 +2,68 @@ package routers
 
 import (
 	"net/http"
+
+	"app/middlewares"
 	"app/modules/cau_hinh"
+	"app/modules/dong_bo_sheets"
+	"app/modules/ho_so"
+	"app/modules/hien_thi_web"
+	"app/modules/nhap_hang"
+	"app/modules/san_pham"
+	"app/modules/thanh_vien"
+	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
+
 	"github.com/gin-gonic/gin"
 )
 
-// FakeAuth: Màng lọc giả lập đăng nhập để test Giao diện
-// Nó tự động cấp thẻ Founder (Level 0) cho bạn
+// FakeAuth: Giả lập đăng nhập nhanh để bạn vào xem UI ngay (Cấp thẻ Level 0)
 func FakeAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("SHOP_ID", "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8")
 		c.Set("USER_ID", "0000000000000000001") // ID của Sáng lập viên
 		c.Set("USER_ROLE", "quan_tri_he_thong")
+		c.Set("USER_LEVEL", 0)
 		c.Next()
 	}
 }
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	
-	// Phục vụ CSS, JS, Ảnh
 	router.Static("/static", "./static")
 
-	// Vào trang chủ sẽ tự động nảy sang Dashboard
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/master/tong-quan")
-	})
+	// --- KÊNH PUBLIC (Mặt tiền) ---
+	router.GET("/", home.TrangChu)
+	router.GET("/san-pham/:id", home.ChiTietSanPham)
 
-	// Khu vực làm việc
+	// --- KHU VỰC WORKSPACE (Bên trong ứng dụng) ---
 	workspace := router.Group("/master")
-	workspace.Use(FakeAuth()) // Quẹt thẻ VIP ở đây
+	workspace.Use(FakeAuth()) // Bật thẻ VIP để pass màn hình đăng nhập
 	{
+		// 1. Nhóm Render Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
 		workspace.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
+		workspace.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
+		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
+		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
+		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
+		workspace.GET("/thanh-vien", thanh_vien.TrangQuanLyThanhVienMaster)
+		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
+
+		// 2. Nhóm Nhận Request AJAX (APIs)
+		api := workspace.Group("/api")
+		{
+			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", cau_hinh.API_LuuNhaCungCap)
+			api.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
+			api.POST("/ho-so", ho_so.API_LuuHoSoMaster)
+			api.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
+			api.POST("/change-pin", ho_so.API_DoiMaPinMaster)
+			api.POST("/may-tinh/save", san_pham.API_LuuMayTinhMaster)
+			api.POST("/thanh-vien/save", thanh_vien.API_LuuThanhVienMaster)
+			api.POST("/thanh-vien/send-msg", thanh_vien.API_GuiTinNhanMaster)
+			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
+			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
+		}
 	}
 
 	return router
