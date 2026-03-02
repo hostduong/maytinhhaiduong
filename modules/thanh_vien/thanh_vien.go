@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
 	"app/config"
 	"app/core"
 	"github.com/gin-gonic/gin"
@@ -28,6 +29,17 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
 
+	// [FIX LỖI MÀU CHÍNH LÀ Ở ĐÂY] 
+	// Đưa đoạn Fallback lên TRƯỚC để tạo mảng màu, nếu RAM chưa có
+	if len(listVaiTro) == 0 {
+		listVaiTro = []core.VaiTroInfo{
+			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Quản trị hệ thống", StyleLevel: 0, StyleTheme: 9},
+			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
+			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
+			{MaVaiTro: "quan_tri_cua_hang", TenVaiTro: "Quản trị cửa hàng", StyleLevel: 3, StyleTheme: 5},
+		}
+	}
+
 	mapStyle := make(map[string]core.VaiTroInfo)
 	for _, v := range listVaiTro { mapStyle[v.MaVaiTro] = v }
 
@@ -35,7 +47,9 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	for _, kh := range listAll {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
-		if khCopy.MaKhachHang == "0000000000000000000" {
+		
+		// Ép cứng giao diện VIP cho Bot (000) và Boss Tổng (001)
+		if khCopy.MaKhachHang == "0000000000000000000" || khCopy.MaKhachHang == "0000000000000000001" || khCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
 			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
 		} else {
 			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok {
@@ -50,16 +64,11 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	meCopy := *me
 	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok {
 		meCopy.StyleLevel, meCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme
-	} else { meCopy.StyleLevel = 9 }
-	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { meCopy.StyleLevel = 0 }
-
-	if len(listVaiTro) == 0 {
-		listVaiTro = []core.VaiTroInfo{
-			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Quản trị hệ thống", StyleLevel: 0, StyleTheme: 9},
-			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
-			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
-			{MaVaiTro: "quan_tri_cua_hang", TenVaiTro: "Quản trị cửa hàng", StyleLevel: 3, StyleTheme: 5},
-		}
+	} else { 
+		meCopy.StyleLevel, meCopy.StyleTheme = 9, 0 
+	}
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { 
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9 
 	}
 
 	c.HTML(http.StatusOK, "master_thanh_vien", gin.H{
@@ -109,16 +118,13 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		return
 	}
 
-	// [ĐÃ SỬA]: MIỄN TRỪ KIỂM TRA CẤP BẬC NẾU TÀI KHOẢN BỊ SỬA LÀ BOT (ID 000)
 	if maKH != "0000000000000000000" {
-		// Dành cho người dùng thật: Luật "Không được sửa người ngang hàng hoặc cấp cao hơn"
 		if userID != maKH && myLevel >= targetLevel {
 			c.JSON(200, gin.H{"status": "error", "msg": "Lỗi: Bạn không có quyền chỉnh sửa cấp trên hoặc người ngang hàng!"})
 			return
 		}
 	}
 
-	// Chặn việc tự phong tước hoặc nâng quyền người khác cao hơn mình
 	if newRole != "" && newRole != kh.VaiTroQuyenHan {
 		newLevel := core.LayCapBacVaiTro(shopID, "", newRole)
 		if newLevel <= myLevel && myLevel != 0 {
