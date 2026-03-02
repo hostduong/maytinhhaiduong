@@ -14,15 +14,16 @@
         
         .input-premium { width: 100%; height: 40px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
-        .input-premium:disabled { background-color: #f8fafc; color: #94a3b8; cursor: not-allowed; }
         
+        /* BẢNG CHI TIẾT SẢN PHẨM: ĐÃ ÉP SÁT KHOẢNG CÁCH */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; }
-        .table-nhap-hang { width: 100%; text-align: left; }
-        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-        .table-nhap-hang td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
+        .table-nhap-hang { width: 100%; text-align: left; min-width: 650px; }
+        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.25rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .table-nhap-hang td { padding: 0.75rem 0.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
         
-        .input-qty { min-width: 50px; max-width: 80px; text-align: center; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #4338ca; font-weight: 800; width: 100%; margin: 0 auto; display: block; }
-        .price-input { text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; min-width: 90px; width: 100%; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0 0.5rem; font-weight: 800;}
+        /* Input trên bảng được fix cứng độ rộng để không chiếm chỗ */
+        .input-qty { width: 60px; text-align: center; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #4338ca; font-weight: 800; margin: 0 auto; display: block; }
+        .price-input { width: 110px; text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.95rem; height: 36px; border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block;}
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
         .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 9999; max-height: 300px; overflow-y: auto; display: none; }
@@ -55,19 +56,26 @@
 
     <script>
         const serverDrafts = {{ json .DanhSachNhaps }};
+        const rawDB_SP = {{ json .DanhSachSP }};
+        const rawDB_NCC = {{ json .DanhSachNCC }};
+
+        // Format lại dữ liệu để JS dễ xài
+        const dbSP = rawDB_SP ? rawDB_SP.map(sp => ({
+            ma_san_pham: sp.ma_san_pham || "",
+            ma_sku: sp.ma_sku || "",
+            tensp: sp.ten_san_pham || "",
+            tensku: sp.ten_sku || "",
+            donvi: sp.don_vi || "Cái",
+            gianhap: sp.gia_nhap || 0,
+            img: sp.url_hinh_anh || ""
+        })) : [];
+
+        const dbNCC = rawDB_NCC ? rawDB_NCC.map(ncc => ({
+            ma: ncc.ma_nha_cung_cap || "",
+            ten: ncc.ten_nha_cung_cap || "",
+            sdt: ncc.dien_thoai || ""
+        })) : [];
     </script>
-    <div id="data_island" style="display:none;">
-        <div id="data_sp">
-            {{ range .DanhSachSP }}
-            <div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_ncc">
-            {{ range .DanhSachNCC }}
-            <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}"></div>
-            {{ end }}
-        </div>
-    </div>
 
     <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
         
@@ -103,26 +111,26 @@
 
                 <div class="p-4 border-b border-purple-50 bg-white relative z-20">
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-opacity duration-200" id="iconSearchSP">
                             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
+                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm transition-all" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
                         <div id="dropdownSP" class="search-dropdown"></div>
                     </div>
                 </div>
 
                 <div class="table-responsive-wrapper flex-1 custom-scroll bg-white relative z-10">
-                    <table class="table-nhap-hang min-w-[700px]">
+                    <table class="table-nhap-hang">
                         <thead class="sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th class="w-[5%] text-center">STT</th>
-                                <th class="w-[10%] text-center">Ảnh</th>
-                                <th class="w-[30%] text-left">Tên Hàng Hóa</th>
-                                <th class="w-[10%] text-center">ĐVT</th>
-                                <th class="w-[12%] text-center">Số Lượng</th>
-                                <th class="w-[15%] text-right pr-4">Giá Nhập</th>
-                                <th class="w-[15%] text-right pr-4">Thành Tiền</th>
-                                <th class="w-[3%] text-center">✕</th>
+                                <th class="w-10 text-center">STT</th>
+                                <th class="w-[70px] text-center">Ảnh</th>
+                                <th class="w-auto text-left">Tên Hàng Hóa</th>
+                                <th class="w-16 text-center">ĐVT</th>
+                                <th class="w-20 text-center">Số Lượng</th>
+                                <th class="w-28 text-center">Giá Nhập</th>
+                                <th class="w-32 text-right pr-4">Thành Tiền</th>
+                                <th class="w-10 text-center">✕</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyChiTiet">
@@ -138,7 +146,7 @@
             </div>
         </div>
 
-        <div class="w-full lg:w-[360px] xl:w-[400px] flex flex-col gap-4 transition-all duration-300 origin-right shrink-0" id="rightPanel">
+        <div class="w-full lg:w-[340px] xl:w-[380px] flex flex-col gap-4 transition-all duration-300 origin-right shrink-0" id="rightPanel">
             <div class="box-panel border-indigo-100 bg-indigo-50/10">
                 <div class="box-body space-y-4">
                     <div class="relative z-50">
@@ -178,12 +186,12 @@
             </div>
 
             <div class="box-panel flex-1 shadow-md">
-                <div class="box-body flex flex-col justify-between">
+                <div class="box-body flex flex-col justify-between h-full">
                     <div>
                         <div class="summary-row"><span>Tổng tiền hàng:</span> <span id="lblTongTienHang" class="summary-val text-slate-800">0</span></div>
                         <div class="summary-row items-center">
                             <span>Giảm giá phiếu:</span> 
-                            <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-32 h-8 text-sm text-rose-600 bg-rose-50 border-rose-200 text-right" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
+                            <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-28 h-8 text-sm text-rose-600 bg-rose-50 border-rose-200 m-0" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
                         </div>
                         <div class="my-4 border-t border-slate-200"></div>
                         <div class="summary-row text-indigo-800 mb-6">
@@ -194,7 +202,7 @@
                         <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
                             <div class="summary-row items-center mb-3">
                                 <span class="text-emerald-800 font-bold uppercase text-xs tracking-wide">Tiền đã trả:</span> 
-                                <input type="text" id="inpDaThanhToan" class="input-premium price-input w-36 bg-white border-emerald-400 text-emerald-700 font-black text-lg shadow-sm text-right" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
+                                <input type="text" id="inpDaThanhToan" class="input-premium price-input w-32 bg-white border-emerald-400 text-emerald-700 font-black text-lg shadow-sm m-0" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
                             </div>
                             <div class="flex gap-2">
                                 <button type="button" class="flex-1 py-1.5 border border-emerald-500 bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm btn-paymethod active" onclick="setPhuongThuc('TIEN_MAT')">Tiền Mặt</button>
@@ -257,22 +265,21 @@
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') }); });
-        const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai') }); });
-
         let appTabs = {}; let currentTabId = ""; let tabCounter = 0; let tagifySerial;
 
         function getEmptyTab(id) {
             let today = new Date(); let offset = today.getTimezoneOffset() * 60000; let localISOTime = (new Date(today - offset)).toISOString().slice(0, 16);
             return {
-                id: "T" + id, ma_phieu: "", title: "Phiếu mới", status: -2,
+                id: "T" + id, ma_phieu: "", title: "Phiếu mới", status: -2, 
                 cart: [], ncc_ma: "", ncc_ten: "",
                 ngay_nhap: localISOTime.split('T')[0], so_hd: "", ma_kho: "KHO_CHINH", ghi_chu: "",
                 giam_gia: 0, da_tra: 0, phuong_thuc: "TIEN_MAT"
             };
         }
 
-        // Khởi tạo hệ thống an toàn
+        // ==========================================
+        // KHỞI TẠO APP
+        // ==========================================
         document.addEventListener("DOMContentLoaded", function() {
             tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
             
@@ -295,13 +302,13 @@
                         giam_gia: parseFloat(d.giam_gia_phieu)||0, da_tra: parseFloat(d.da_thanh_toan)||0, phuong_thuc: d.phuong_thuc_thanh_toan || "TIEN_MAT"
                     };
                 });
-                switchTab("T1");
+                currentTabId = "T1"; switchTab("T1");
             } else {
                 addNewTab();
             }
 
-            setupAutocompleteSP();
-            setupAutocompleteNCC();
+            initSearchSP();
+            initSearchNCC();
         });
 
         function renderTabs() {
@@ -399,33 +406,56 @@
             document.getElementById('inpDaThanhToan').disabled = disable; document.getElementById('inpSearchSP').disabled = disable;
         }
 
-        // TÌM KIẾM SẢN PHẨM HOÀN HẢO
-        function setupAutocompleteSP() {
+        // ==========================================
+        // TÌM KIẾM SẢN PHẨM HOÀN HẢO - FIX ĐÈ ICON VÀ TỰ ĐÓNG SAU KHI CHỌN
+        // ==========================================
+        function initSearchSP() {
             const inp = document.getElementById('inpSearchSP');
             const drop = document.getElementById('dropdownSP');
+            const icon = document.getElementById('iconSearchSP');
 
             inp.addEventListener('input', function() {
+                // Hiệu ứng icon kính lúp
+                if(this.value.length > 0) { 
+                    icon.style.opacity = '0'; 
+                    this.classList.remove('pl-[3rem]'); this.classList.add('pl-[1rem]');
+                } else { 
+                    icon.style.opacity = '1'; 
+                    this.classList.remove('pl-[1rem]'); this.classList.add('pl-[3rem]'); 
+                }
+
                 const val = this.value.toLowerCase().trim();
                 drop.innerHTML = '';
                 if (!val) { drop.style.display = 'none'; return; }
                 
-                let matches = dbSP.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10);
+                let matches = dbSP.filter(item => 
+                    (item.ma_sku && item.ma_sku.toLowerCase().includes(val)) ||
+                    (item.tensp && item.tensp.toLowerCase().includes(val)) ||
+                    (item.tensku && item.tensku.toLowerCase().includes(val))
+                ).slice(0, 10);
                 
                 matches.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'search-item';
-                    div.innerHTML = `<div class="flex items-center gap-3">
-                                        <img src="${getFirstImg(item.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200">
-                                        <div>
-                                            <div class="font-bold text-indigo-900 text-[14px]">${item.tensp}</div>
-                                            <div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${item.ma_sku}</span> | ${item.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(item.gianhap)} ₫</strong></div>
-                                        </div>
-                                    </div>`;
-                    // Dùng mousedown để click an toàn, sau đó xóa input và đóng menu
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${getFirstImg(item.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200">
+                            <div>
+                                <div class="font-bold text-indigo-900 text-[14px]">${item.tensp}</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    <span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${item.ma_sku}</span> | 
+                                    ${item.tensku || 'Tiêu chuẩn'} | 
+                                    <strong class="text-emerald-600">${formatNum(item.gianhap)} ₫</strong>
+                                </div>
+                            </div>
+                        </div>`;
+                    
+                    // CHỌN SẢN PHẨM: Thêm vào bảng -> Xóa trắng ô input -> Đóng menu
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
-                        try { addProductToCart(item); } catch(err) { console.error(err); }
-                        inp.value = '';
+                        addProductToCart(item);
+                        inp.value = ''; 
+                        inp.dispatchEvent(new Event('input')); // Gọi để reset lại Icon kính lúp
                         drop.style.display = 'none'; 
                     };
                     drop.appendChild(div);
@@ -435,12 +465,16 @@
                 drop.style.display = 'block';
             });
 
+            // Nếu click lại vào ô input mà đang có chữ, xổ menu xuống lại
             inp.addEventListener('focus', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
-            inp.addEventListener('blur', () => { drop.style.display = 'none'; });
+            // Click ra ngoài thì đóng
+            document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // TÌM KIẾM NCC HOÀN HẢO
-        function setupAutocompleteNCC() {
+        // ==========================================
+        // TÌM KIẾM NCC HOÀN HẢO - TỰ ĐÓNG SAU KHI CHỌN
+        // ==========================================
+        function initSearchNCC() {
             const inp = document.getElementById('inpSearchNCC');
             const drop = document.getElementById('dropdownNCC');
 
@@ -449,13 +483,18 @@
                 drop.innerHTML = '';
                 if (!val) { drop.style.display = 'none'; return; }
                 
-                let matches = dbNCC.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10);
+                let matches = dbNCC.filter(item => 
+                    (item.ten && item.ten.toLowerCase().includes(val)) ||
+                    (item.sdt && item.sdt.toLowerCase().includes(val)) ||
+                    (item.ma && item.ma.toLowerCase().includes(val))
+                ).slice(0, 10);
                 
                 matches.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'search-item';
                     div.innerHTML = `<div><div class="font-bold text-slate-800 text-[13px]">${item.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${item.ma}</span> | SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></div></div>`;
                     
+                    // CHỌN NCC: Điền tên -> Điền mã ẩn -> Save trạng thái -> Đóng menu
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
                         inp.value = item.ten; 
@@ -471,10 +510,12 @@
             });
 
             inp.addEventListener('focus', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
-            inp.addEventListener('blur', () => { drop.style.display = 'none'; });
+            document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // LƯỚI GIỎ HÀNG
+        // ==========================================
+        // LƯỚI GIỎ HÀNG VÀ TÍNH TOÁN
+        // ==========================================
         function addProductToCart(sp) {
             if(!currentTabId || !appTabs[currentTabId]) return;
             let cart = appTabs[currentTabId].cart;
@@ -512,7 +553,7 @@
                 
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
-                    <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[70px] h-[70px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
+                    <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[60px] h-[60px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
                     <td class="whitespace-normal align-middle">
                         <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight line-clamp-2">${c.tensp}</div>
                         <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1">
@@ -573,6 +614,9 @@
             saveCurrentTabState();
         }
 
+        // ==========================================
+        // SUBMIT & API CALLS
+        // ==========================================
         function confirmSubmit(status) {
             saveCurrentTabState();
             let t = appTabs[currentTabId];
