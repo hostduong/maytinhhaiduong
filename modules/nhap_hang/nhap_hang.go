@@ -306,7 +306,14 @@ func API_DoiTrangThaiPhieu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	maPhieu := c.PostForm("ma_phieu_nhap")
-	trangThaiMoi := core.LayIntStr(c.PostForm("trang_thai"))
+	
+	// Convert trực tiếp trong hàm, không cần core.LayIntStr
+	trangThaiStr := c.PostForm("trang_thai")
+	trangThaiMoi, err := strconv.Atoi(trangThaiStr)
+	if err != nil {
+		c.JSON(400, gin.H{"status": "error", "msg": "Trạng thái không hợp lệ!"})
+		return
+	}
 
 	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Lock()
 	defer core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Unlock()
@@ -317,7 +324,7 @@ func API_DoiTrangThaiPhieu(c *gin.Context) {
 		return
 	}
 	
-	// BẢO MẬT: Đã hoàn thành thì không thể xóa/khôi phục bằng hàm này (Cần quy trình Trả Hàng)
+	// BẢO MẬT: Đã hoàn thành thì không thể xóa/khôi phục bằng hàm này
 	if pn.TrangThai == 1 {
 		c.JSON(200, gin.H{"status": "error", "msg": "Phiếu đã chốt sổ, không thể xóa hoặc thay đổi!"})
 		return
