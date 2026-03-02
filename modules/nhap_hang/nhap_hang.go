@@ -1,4 +1,49 @@
-// --- CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN ---
+package nhap_hang
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+
+	"app/core"
+	"github.com/gin-gonic/gin"
+)
+
+// ============================================================================
+// 1. RENDER GIAO DIỆN HTML
+// ============================================================================
+func TrangNhapHangMaster(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
+
+	// Lấy thông tin người dùng hiện tại (Để hiển thị Avatar/Tên trên Header & Sidebar)
+	me, ok := core.LayKhachHang(shopID, userID)
+	if !ok {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+	meCopy := *me
+
+	meCopy.StyleLevel = core.LayCapBacVaiTro(shopID, userID, meCopy.VaiTroQuyenHan)
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9
+	}
+
+	// Lấy dữ liệu Master Data ném ra form Nhập hàng
+	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
+	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
+
+	c.HTML(http.StatusOK, "master_nhap_hang", gin.H{
+		"TieuDe":      "Nhập Hàng",
+		"NhanVien":    &meCopy,
+		"DanhSachNCC": danhSachNCC,
+		"DanhSachSP":  danhSachSP,
+	})
+}
+
+// ============================================================================
+// 2. CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN
+// ============================================================================
 type ChiTietInput struct {
 	MaSKU      string  `json:"ma_sku"`
 	SoLuong    int     `json:"so_luong"`
@@ -17,7 +62,9 @@ type PhieuNhapInput struct {
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
-// --- API XỬ LÝ LƯU PHIẾU NHẬP ---
+// ============================================================================
+// 3. API XỬ LÝ LƯU PHIẾU NHẬP
+// ============================================================================
 func API_LuuPhieuNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
