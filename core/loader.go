@@ -349,3 +349,100 @@ func NapTinNhan(shopID string) {
 	lock.Lock(); defer lock.Unlock()
 	CacheTinNhan[shopID] = list
 }
+
+// 9. NẠP KHO HÀNG (Phiếu Nhập + Chi Tiết Phiếu Nhập)
+func NapPhieuNhap(shopID string) {
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	
+	// Nạp Bảng Cha (Header)
+	rawPN, errPN := LoadSheetData(shopID, TenSheetPhieuNhap)
+	if errPN != nil { return }
+	
+	listPN := []*PhieuNhap{}
+	mapPNLocal := make(map[string]*PhieuNhap) // Map cục bộ để ráp Chi tiết siêu tốc
+	
+	for i, r := range rawPN {
+		if i < 10 { continue } // Bỏ qua 10 dòng đầu (Tiêu đề)
+		maPN := LayString(r, CotPN_MaPhieuNhap)
+		if maPN == "" { continue }
+		
+		pn := &PhieuNhap{
+			SpreadsheetID: shopID, DongTrongSheet: i + 1, MaPhieuNhap: maPN,
+			MaNhaCungCap: LayString(r, CotPN_MaNhaCungCap), MaKho: LayString(r, CotPN_MaKho),
+			NgayNhap: LayString(r, CotPN_NgayNhap), TrangThai: LayInt(r, CotPN_TrangThai),
+			SoHoaDon: LayString(r, CotPN_SoHoaDon), NgayHoaDon: LayString(r, CotPN_NgayHoaDon),
+			UrlChungTu: LayString(r, CotPN_UrlChungTu), TongTienPhieu: LayFloat(r, CotPN_TongTienPhieu),
+			GiamGiaPhieu: LayFloat(r, CotPN_GiamGiaPhieu), DaThanhToan: LayFloat(r, CotPN_DaThanhToan),
+			ConNo: LayFloat(r, CotPN_ConNo), PhuongThucThanhToan: LayString(r, CotPN_PhuongThucThanhToan),
+			TrangThaiThanhToan: LayString(r, CotPN_TrangThaiThanhToan), GhiChu: LayString(r, CotPN_GhiChu),
+			NguoiTao: LayString(r, CotPN_NguoiTao), NgayTao: LayString(r, CotPN_NgayTao), NgayCapNhat: LayString(r, CotPN_NgayCapNhat),
+			ChiTiet: make([]*ChiTietPhieuNhap, 0),
+		}
+		listPN = append(listPN, pn)
+		mapPNLocal[maPN] = pn
+	}
+
+	// Nạp Bảng Con (Chi tiết) và ráp vào Bảng Cha
+	rawCTPN, errCTPN := LoadSheetData(shopID, TenSheetChiTietPhieuNhap)
+	if errCTPN == nil {
+		for i, r := range rawCTPN {
+			if i < 10 { continue }
+			maPN := LayString(r, CotCTPN_MaPhieuNhap)
+			if maPN == "" { continue }
+			
+			// Chỉ lấy chi tiết nếu Phiếu Nhập cha có tồn tại
+			if parent, ok := mapPNLocal[maPN]; ok {
+				ct := &ChiTietPhieuNhap{
+					SpreadsheetID: shopID, DongTrongSheet: i + 1, MaPhieuNhap: maPN,
+					MaSanPham: LayString(r, CotCTPN_MaSanPham), MaSKU: LayString(r, CotCTPN_MaSKU),
+					MaNganhHang: LayString(r, CotCTPN_MaNganhHang), TenSanPham: LayString(r, CotCTPN_TenSanPham),
+					DonVi: LayString(r, CotCTPN_DonVi), SoLuong: LayInt(r, CotCTPN_SoLuong),
+					DonGiaNhap: LayFloat(r, CotCTPN_DonGiaNhap), VATPercent: LayFloat(r, CotCTPN_VATPercent),
+					GiaSauVAT: LayFloat(r, CotCTPN_GiaSauVAT), ChietKhauDong: LayFloat(r, CotCTPN_ChietKhauDong),
+					ThanhTienDong: LayFloat(r, CotCTPN_ThanhTienDong), GiaVonThucTe: LayFloat(r, CotCTPN_GiaVonThucTe),
+					BaoHanhThang: LayInt(r, CotCTPN_BaoHanhThang), GhiChuDong: LayString(r, CotCTPN_GhiChuDong),
+				}
+				parent.ChiTiet = append(parent.ChiTiet, ct)
+			}
+		}
+	}
+
+	// Đưa vào Cache RAM
+	lock := GetSheetLock(shopID, TenSheetPhieuNhap)
+	lock.Lock(); defer lock.Unlock()
+	CachePhieuNhap[shopID] = listPN
+	for _, pn := range listPN { CacheMapPhieuNhap[TaoCompositeKey(shopID, pn.MaPhieuNhap)] = pn }
+}
+
+// 10. NẠP SERIAL SẢN PHẨM
+func NapSerial(shopID string) {
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	raw, err := LoadSheetData(shopID, TenSheetSerial)
+	if err != nil { return }
+	
+	list := []*SerialSanPham{}
+	for i, r := range raw {
+		if i < 10 { continue }
+		imei := LayString(r, CotSR_SerialIMEI)
+		if imei == "" { continue }
+		
+		sr := &SerialSanPham{
+			SpreadsheetID: shopID, DongTrongSheet: i + 1, SerialIMEI: imei,
+			MaSanPham: LayString(r, CotSR_MaSanPham), MaSKU: LayString(r, CotSR_MaSKU),
+			MaNganhHang: LayString(r, CotSR_MaNganhHang), MaNhaCungCap: LayString(r, CotSR_MaNhaCungCap),
+			MaPhieuNhap: LayString(r, CotSR_MaPhieuNhap), MaPhieuXuat: LayString(r, CotSR_MaPhieuXuat),
+			TrangThai: LayInt(r, CotSR_TrangThai), BaoHanhNhaCungCap: LayInt(r, CotSR_BaoHanhNhaCungCap),
+			HanBaoHanhNhaCungCap: LayString(r, CotSR_HanBaoHanhNhaCungCap), MaKhachHangHienTai: LayString(r, CotSR_MaKhachHangHienTai),
+			NgayNhapKho: LayString(r, CotSR_NgayNhapKho), NgayXuatKho: LayString(r, CotSR_NgayXuatKho),
+			GiaVonNhap: LayFloat(r, CotSR_GiaVonNhap), KichHoatBaoHanhKhach: LayString(r, CotSR_KichHoatBaoHanhKhach),
+			HanBaoHanhKhach: LayString(r, CotSR_HanBaoHanhKhach), MaKho: LayString(r, CotSR_MaKho),
+			GhiChu: LayString(r, CotSR_GhiChu), NgayCapNhat: LayString(r, CotSR_NgayCapNhat),
+		}
+		list = append(list, sr)
+	}
+
+	lock := GetSheetLock(shopID, TenSheetSerial)
+	lock.Lock(); defer lock.Unlock()
+	CacheSerialSanPham[shopID] = list
+	for _, sr := range list { CacheMapSerial[TaoCompositeKey(shopID, sr.SerialIMEI)] = sr }
+}
