@@ -375,6 +375,7 @@ type TinNhan struct {
 // CẤU TRÚC: PHIẾU NHẬP KHÔNG GIAN (LƯU NHÁP JSON)
 // ==============================================================================
 const (
+	DongBatDau_PhieuNhap       = 11
 	CotPN_MaPhieuNhap          = 0  // A
 	CotPN_MaNhaCungCap         = 1  // B
 	CotPN_MaKho                = 2  // C
