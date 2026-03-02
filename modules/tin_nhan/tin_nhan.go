@@ -1,4 +1,4 @@
-package chuc_nang
+package tin_nhan
 
 import (
 	"fmt"
