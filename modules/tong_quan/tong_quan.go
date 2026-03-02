@@ -1,4 +1,4 @@
-package chuc_nang
+package tong_quan
 
 import (
 	"net/http"
