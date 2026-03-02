@@ -1,0 +1,23 @@
+{{ define "trang_chu" }}
+{{ template "header" . }}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-950 text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] opacity-60"></div>
+    <div class="relative z-10 text-center px-6">
+        <div class="inline-block mb-6 p-4 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl shadow-purple-500/30">
+            <svg class="w-16 h-16 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-fuchsia-200 to-white">99K.vn Platform</h1>
+        <p class="text-lg md:text-xl text-purple-200/80 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">Hệ sinh thái quản trị lõi dành riêng cho chuỗi bán lẻ. Vận hành siêu tốc trên công nghệ In-Memory Data.</p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="/login" class="bg-white text-purple-900 font-black py-4 px-10 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition transform hover:-translate-y-1 hover:bg-slate-50 flex items-center justify-center gap-2">
+                Đăng Nhập Hệ Thống
+            </a>
+            <a href="/register" class="bg-purple-600/30 border border-purple-400/50 backdrop-blur-sm text-white font-bold py-4 px-10 rounded-2xl hover:bg-purple-600/50 transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                Mở Cửa Hàng Mới
+            </a>
+        </div>
+    </div>
+</div>
+{{ template "footer" . }}
+{{ end }}
