@@ -1,7 +1,8 @@
 package routers
 
 import (
-	"app/middlewares" // Sử dụng thật sự màng lọc bảo mật
+	"app/middlewares"
+	"app/modules/auth" // Kéo module Auth mới vào
 	"app/modules/cau_hinh"
 	"app/modules/dong_bo_sheets"
 	"app/modules/hien_thi_web"
@@ -20,26 +21,38 @@ func SetupRouter() *gin.Engine {
 	router.Static("/static", "./static")
 
 	// =======================================================
-	// KHU VỰC PUBLIC (Mặt tiền: Khách hàng truy cập tự do)
+	// KHU VỰC PUBLIC (Trang chủ & View SP)
 	// =======================================================
 	router.GET("/", hien_thi_web.TrangChu)
-	router.GET("/login", hien_thi_web.TrangDangNhap)
-	router.GET("/register", hien_thi_web.TrangDangKy)
-	router.GET("/forgot-password", hien_thi_web.TrangQuenMatKhau)
-	router.GET("/verify", hien_thi_web.TrangXacThucOTP)
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
 	// =======================================================
-	// KHU VỰC WORKSPACE (Bên trong ứng dụng - BẢO MẬT 5 LỚP)
+	// KHU VỰC AUTH (Đăng nhập, Đăng ký, Quên mật khẩu)
+	// =======================================================
+	router.GET("/login", auth.TrangDangNhap)
+	router.GET("/register", auth.TrangDangKy)
+	router.GET("/forgot-password", auth.TrangQuenMatKhau)
+	router.GET("/verify", auth.TrangXacThucOTP)
+	router.GET("/logout", auth.API_Logout)
+
+	router.POST("/login", auth.API_Login)
+	router.POST("/register", auth.API_Register)
+
+	apiAuth := router.Group("/api/auth")
+	{
+		apiAuth.POST("/verify-register", auth.API_Verify)
+		apiAuth.POST("/send-otp", auth.API_SendOtp)
+		apiAuth.POST("/reset-by-pin", auth.API_ResetByPin)
+		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
+	}
+
+	// =======================================================
+	// KHU VỰC WORKSPACE (Bảo mật 5 Lớp theo Cẩm nang)
 	// =======================================================
 	workspace := router.Group("/master")
-	
-	// SỬ DỤNG AUTH THẬT: Kiểm tra Cookie -> RAM Cache (Sheet KHACH_HANG)
-	workspace.Use(middlewares.CheckAuth()) 
+	workspace.Use(middlewares.CheckAuth())
 	{
-		// 1. Nhóm Render Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
-		workspace.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
 		workspace.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
 		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
 		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
@@ -47,7 +60,10 @@ func SetupRouter() *gin.Engine {
 		workspace.GET("/thanh-vien", thanh_vien.TrangQuanLyThanhVienMaster)
 		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
 
-		// 2. Nhóm Nhận Request AJAX (APIs)
+		cauHinhUI := workspace.Group("/cau-hinh")
+		cauHinhUI.Use(middlewares.RequireLevel(2))
+		cauHinhUI.GET("", cau_hinh.TrangCaiDatCauHinhMaster)
+
 		api := workspace.Group("/api")
 		{
 			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", cau_hinh.API_LuuNhaCungCap)
