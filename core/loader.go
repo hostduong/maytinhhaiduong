@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"sort"
+	"strconv"
 	"strings"
 
 	"app/config"
@@ -16,7 +17,7 @@ func napDataGeneric(shopID, sheetName string, target interface{}) [][]interface{
 	return raw
 }
 
-// 1. NẠP PHÂN QUYỀN
+// 1. NẠP PHÂN QUYỀN (ĐÃ NÂNG CẤP THUẬT TOÁN ĐỌC STYLE/LEVEL)
 func NapPhanQuyen(shopID string) {
 	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
 	raw := napDataGeneric(shopID, TenSheetPhanQuyen, nil)
@@ -26,7 +27,12 @@ func NapPhanQuyen(shopID string) {
 	for i, row := range raw {
 		if len(row) > 0 {
 			firstCell := strings.TrimSpace(strings.ToLower(LayString(row, 0)))
-			if firstCell == "ma_chuc_nang" { headerIndex = i } else if firstCell == "style" { styleIndex = i }
+			if firstCell == "ma_chuc_nang" { 
+				headerIndex = i 
+			// [FIX]: Hỗ trợ nhận diện cả chữ "level" theo thiết kế file PDF của bạn
+			} else if firstCell == "style" || firstCell == "level" { 
+				styleIndex = i 
+			}
 		}
 	}
 	if headerIndex == -1 { return }
@@ -48,10 +54,16 @@ func NapPhanQuyen(shopID string) {
 			listMaVaiTro = append(listMaVaiTro, roleID)
 			tempMap[roleID] = make(map[string]bool)
 			
-			styleCode := 90
+			styleCode := 90 // Mặc định Level 9, Màu 0 (Xám)
+			
 			if styleIndex != -1 {
-				val := LayInt(raw[styleIndex], i)
-				if val >= 0 { styleCode = val }
+				// [BẢO MẬT]: Đọc dưới dạng chuỗi trước để tránh ô trống bị hiểu thành số 0 (Boss)
+				valStr := LayString(raw[styleIndex], i)
+				if valStr != "" {
+					if parsedVal, err := strconv.Atoi(valStr); err == nil {
+						styleCode = parsedVal
+					}
+				}
 			}
 			
 			var lvl, thm int
@@ -76,7 +88,7 @@ func NapPhanQuyen(shopID string) {
 	for i, row := range raw {
 		if i <= headerIndex { continue }
 		maChucNang := strings.TrimSpace(LayString(row, CotPQ_MaChucNang))
-		if maChucNang == "" || maChucNang == "style" { continue }
+		if maChucNang == "" || maChucNang == "style" || maChucNang == "level" { continue }
 
 		for j, roleID := range listMaVaiTro {
 			val := LayString(row, CotPQ_StartRole+j)
@@ -93,7 +105,7 @@ func NapPhanQuyen(shopID string) {
 
 // 2. NẠP KHÁCH HÀNG (FULL CỘT TỪ FILE CŨ)
 func NapKhachHang(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet } // FIX LỖI CACHE RỖNG TẠI ĐÂY
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
 	raw := napDataGeneric(shopID, TenSheetKhachHang, nil)
 	if raw == nil { return }
 	list := []*KhachHang{}
