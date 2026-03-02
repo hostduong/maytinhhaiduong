@@ -1,32 +1,131 @@
 {{ define "header" }}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ if .TieuDe }}{{ .TieuDe }} - {{ end }}Hệ Sinh Thái 99K.vn</title>
+    <title>{{ if .TieuDe }}{{ .TieuDe }} - {{ end }}Nền tảng 99K.vn</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
-            -webkit-tap-highlight-color: transparent; 
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Hiệu ứng Logo thừa kế từ Master */
+        .logo-premium-icon {
+            position: relative; background: linear-gradient(135deg, #9333ea, #6366f1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            overflow: hidden;
         }
-        /* Loại bỏ viền xanh khó chịu khi focus trên Mobile */
-        input, button, textarea, select { outline: none !important; }
+        .logo-premium-icon::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent);
+            transform: skewX(-25deg); animation: logo-sweep-shine 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes logo-sweep-shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        
+        .logo-premium-text-light {
+            background: linear-gradient(to right, #4c1d95, #9333ea, #4f46e5, #4c1d95);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: text-shine-logo 4s linear infinite;
+        }
+        @keyframes text-shine-logo { to { background-position: 200% center; } }
+
+        /* Nút Gradient bóng bẩy */
+        .btn-premium {
+            background: linear-gradient(135deg, #9333ea, #4f46e5);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3); transition: all 0.3s ease;
+        }
+        .btn-premium:hover { box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5); transform: translateY(-2px); }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col relative selection:bg-purple-200 selection:text-purple-900">
+
+    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 transition-all duration-300" id="publicNavbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-[12px] logo-premium-icon flex items-center justify-center text-white group-hover:scale-105 transition transform shadow-md">
+                        <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <span class="text-[22px] font-black logo-premium-text-light tracking-tight">99K<span class="text-purple-600">.vn</span></span>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-8 font-semibold text-sm text-slate-600">
+                    <a href="/" class="hover:text-purple-600 transition">Sản phẩm</a>
+                    <a href="#" class="hover:text-purple-600 transition">Giải pháp</a>
+                    <a href="#" class="hover:text-purple-600 transition">Bảng giá</a>
+                    <a href="#" class="hover:text-purple-600 transition">Tài liệu</a>
+                </nav>
+
+                <div class="hidden md:flex items-center gap-4">
+                    {{ if .DaDangNhap }}
+                        <a href="/master/tong-quan" class="font-bold text-sm text-slate-700 hover:text-purple-600 transition flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">👤</span>
+                            Vào Workspace
+                        </a>
+                    {{ else }}
+                        <a href="/login" class="font-bold text-sm text-slate-600 hover:text-purple-600 transition px-4 py-2">Đăng nhập</a>
+                        <a href="/register" class="btn-premium text-white font-bold text-sm px-6 py-2.5 rounded-xl flex items-center gap-2">
+                            Mở Cửa Hàng
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    {{ end }}
+                </div>
+
+                <button class="md:hidden text-slate-600 hover:text-purple-600 focus:outline-none p-2">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col pt-20 relative z-10">
 {{ end }}
 
-
 {{ define "footer" }}
-    <footer class="mt-auto py-6 text-center text-slate-400 text-sm font-medium z-10 relative">
-        <p>© 2026 Nền tảng SaaS <span class="font-black text-purple-600">99K.vn</span>. All rights reserved.</p>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200/60 pt-16 pb-8 relative z-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <a href="/" class="flex items-center gap-3 group mb-4">
+                        <div class="w-8 h-8 rounded-lg logo-premium-icon flex items-center justify-center text-white shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <span class="text-xl font-black text-slate-800 tracking-tight">99K.vn</span>
+                    </a>
+                    <p class="text-slate-500 text-sm leading-relaxed max-w-sm mb-6">
+                        Nền tảng SaaS quản trị lõi doanh nghiệp bán lẻ. Vận hành siêu tốc độ với kiến trúc In-Memory Data và hạ tầng Google Cloud.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-4 uppercase text-xs tracking-wider">Sản phẩm</h4>
+                    <ul class="space-y-3 text-sm text-slate-500 font-medium">
+                        <li><a href="#" class="hover:text-purple-600 transition">Quản lý Kho hàng</a></li>
+                        <li><a href="#" class="hover:text-purple-600 transition">POS Bán hàng</a></li>
+                        <li><a href="#" class="hover:text-purple-600 transition">Website B2C</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-4 uppercase text-xs tracking-wider">Công ty</h4>
+                    <ul class="space-y-3 text-sm text-slate-500 font-medium">
+                        <li><a href="#" class="hover:text-purple-600 transition">Về chúng tôi</a></li>
+                        <li><a href="#" class="hover:text-purple-600 transition">Bảo mật</a></li>
+                        <li><a href="#" class="hover:text-purple-600 transition">Điều khoản</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-slate-400 text-sm font-medium">© 2026 Hệ sinh thái 99K.vn. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">Hệ thống đang hoạt động tốt</span>
+                </div>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
