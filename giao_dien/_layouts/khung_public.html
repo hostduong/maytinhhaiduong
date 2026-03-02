@@ -4,15 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ if .TieuDe }}{{ .TieuDe }}{{ else }}99K.vn - Nền Tảng Doanh Nghiệp{{ end }}</title>
+    <title>{{ if .TieuDe }}{{ .TieuDe }} - {{ end }}Hệ Sinh Thái 99K.vn</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        /* Loại bỏ viền xanh khó chịu khi focus trên Mobile */
+        input, button, textarea, select { outline: none !important; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
 {{ end }}
 
+
 {{ define "footer" }}
+    <footer class="mt-auto py-6 text-center text-slate-400 text-sm font-medium z-10 relative">
+        <p>© 2026 Nền tảng SaaS <span class="font-black text-purple-600">99K.vn</span>. All rights reserved.</p>
+    </footer>
 </body>
 </html>
 {{ end }}
