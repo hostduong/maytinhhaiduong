@@ -3,6 +3,7 @@ package nhap_hang
 import (
 	"fmt"
 	"net/http"
+	"strings" // <-- Đã bổ sung thư viện này
 	"time"
 
 	"app/core"
@@ -45,10 +46,10 @@ func TrangNhapHangMaster(c *gin.Context) {
 // 2. CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN
 // ============================================================================
 type ChiTietInput struct {
-	MaSKU      string  `json:"ma_sku"`
-	SoLuong    int     `json:"so_luong"`
-	DonGiaNhap float64 `json:"don_gia_nhap"`
-	Serials    []string `json:"serials"` // Bổ sung mảng nhận Serial cho từng SP
+	MaSKU      string   `json:"ma_sku"`
+	SoLuong    int      `json:"so_luong"`
+	DonGiaNhap float64  `json:"don_gia_nhap"`
+	Serials    []string `json:"serials"`
 }
 
 type PhieuNhapInput struct {
@@ -60,7 +61,7 @@ type PhieuNhapInput struct {
 	GiamGiaPhieu        float64        `json:"giam_gia_phieu"`
 	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
 	DaTra               float64        `json:"da_tra"`
-	TrangThai           int            `json:"trang_thai"` // 1: Hoàn thành, 0: Lưu nháp
+	TrangThai           int            `json:"trang_thai"`
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
@@ -96,7 +97,9 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	}
 
 	thanhToan := tongTienHang - input.GiamGiaPhieu
-	if thanhToan < 0 { thanhToan = 0 }
+	if thanhToan < 0 {
+		thanhToan = 0
+	}
 	conNo := thanhToan - input.DaTra
 
 	trangThaiThanhToan := "CHUA_THANH_TOAN"
@@ -108,9 +111,11 @@ func API_LuuPhieuNhap(c *gin.Context) {
 
 	nguoiTao, _ := core.LayKhachHang(shopID, userID)
 	tenNguoiTao := "Hệ thống"
-	if nguoiTao != nil { tenNguoiTao = nguoiTao.TenDangNhap }
+	if nguoiTao != nil {
+		tenNguoiTao = nguoiTao.TenDangNhap
+	}
 
-	// 3. Khởi tạo Object Phiếu Nhập (Lấy trạng thái từ Frontend: 1 hoặc 0)
+	// 3. Khởi tạo Object Phiếu Nhập
 	pn := &core.PhieuNhap{
 		SpreadsheetID: shopID, MaPhieuNhap: maPN, MaNhaCungCap: input.MaNhaCungCap, MaKho: input.MaKho,
 		NgayNhap: input.NgayNhap, TrangThai: input.TrangThai, SoHoaDon: input.SoHoaDon, NgayHoaDon: "", UrlChungTu: "",
@@ -122,11 +127,22 @@ func API_LuuPhieuNhap(c *gin.Context) {
 
 	// Đẩy Header vào Queue
 	rowPN := make([]interface{}, 22)
-	rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap; rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap; rowPN[core.CotPN_MaKho] = pn.MaKho
-	rowPN[core.CotPN_NgayNhap] = pn.NgayNhap; rowPN[core.CotPN_TrangThai] = pn.TrangThai; rowPN[core.CotPN_SoHoaDon] = pn.SoHoaDon
-	rowPN[core.CotPN_TongTienPhieu] = pn.TongTienPhieu; rowPN[core.CotPN_GiamGiaPhieu] = pn.GiamGiaPhieu; rowPN[core.CotPN_DaThanhToan] = pn.DaThanhToan
-	rowPN[core.CotPN_ConNo] = pn.ConNo; rowPN[core.CotPN_PhuongThucThanhToan] = pn.PhuongThucThanhToan; rowPN[core.CotPN_TrangThaiThanhToan] = pn.TrangThaiThanhToan
-	rowPN[core.CotPN_GhiChu] = pn.GhiChu; rowPN[core.CotPN_NguoiTao] = pn.NguoiTao; rowPN[core.CotPN_NgayTao] = pn.NgayTao; rowPN[core.CotPN_NgayCapNhat] = pn.NgayCapNhat
+	rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap
+	rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap
+	rowPN[core.CotPN_MaKho] = pn.MaKho
+	rowPN[core.CotPN_NgayNhap] = pn.NgayNhap
+	rowPN[core.CotPN_TrangThai] = pn.TrangThai
+	rowPN[core.CotPN_SoHoaDon] = pn.SoHoaDon
+	rowPN[core.CotPN_TongTienPhieu] = pn.TongTienPhieu
+	rowPN[core.CotPN_GiamGiaPhieu] = pn.GiamGiaPhieu
+	rowPN[core.CotPN_DaThanhToan] = pn.DaThanhToan
+	rowPN[core.CotPN_ConNo] = pn.ConNo
+	rowPN[core.CotPN_PhuongThucThanhToan] = pn.PhuongThucThanhToan
+	rowPN[core.CotPN_TrangThaiThanhToan] = pn.TrangThaiThanhToan
+	rowPN[core.CotPN_GhiChu] = pn.GhiChu
+	rowPN[core.CotPN_NguoiTao] = pn.NguoiTao
+	rowPN[core.CotPN_NgayTao] = pn.NgayTao
+	rowPN[core.CotPN_NgayCapNhat] = pn.NgayCapNhat
 	core.PushAppend(shopID, core.TenSheetPhieuNhap, rowPN)
 
 	// 4. Xử lý Chi tiết & Sinh Serial
@@ -148,15 +164,19 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		pn.ChiTiet = append(pn.ChiTiet, ct)
 
 		rowCT := make([]interface{}, 15)
-		rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap; rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham; rowCT[core.CotCTPN_MaSKU] = ct.MaSKU
-		rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham; rowCT[core.CotCTPN_DonVi] = ct.DonVi; rowCT[core.CotCTPN_SoLuong] = ct.SoLuong
-		rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap; rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong; rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
+		rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap
+		rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham
+		rowCT[core.CotCTPN_MaSKU] = ct.MaSKU
+		rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham
+		rowCT[core.CotCTPN_DonVi] = ct.DonVi
+		rowCT[core.CotCTPN_SoLuong] = ct.SoLuong
+		rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap
+		rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong
+		rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
 		core.PushAppend(shopID, core.TenSheetChiTietPhieuNhap, rowCT)
 
-		// Tự động sinh hoặc lấy Serial do người dùng quét
 		for i := 0; i < item.SoLuong; i++ {
 			imei := ""
-			// Nếu người dùng có quét serial và vị trí i nằm trong khoảng, lấy mã của họ. Nếu không tự động sinh
 			if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" {
 				imei = strings.TrimSpace(item.Serials[i])
 			} else {
@@ -165,17 +185,24 @@ func API_LuuPhieuNhap(c *gin.Context) {
 
 			sr := &core.SerialSanPham{
 				SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU,
-				MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN, TrangThai: input.TrangThai, // Trạng thái Serial đi theo trạng thái Phiếu Nhập
+				MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN, TrangThai: input.TrangThai,
 				NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
 			}
-			
+
 			core.CacheSerialSanPham[shopID] = append(core.CacheSerialSanPham[shopID], sr)
 			core.CacheMapSerial[core.TaoCompositeKey(shopID, imei)] = sr
 
 			rowSR := make([]interface{}, 19)
-			rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI; rowSR[core.CotSR_MaSanPham] = sr.MaSanPham; rowSR[core.CotSR_MaSKU] = sr.MaSKU
-			rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap; rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap; rowSR[core.CotSR_TrangThai] = sr.TrangThai
-			rowSR[core.CotSR_NgayNhapKho] = sr.NgayNhapKho; rowSR[core.CotSR_GiaVonNhap] = sr.GiaVonNhap; rowSR[core.CotSR_MaKho] = sr.MaKho; rowSR[core.CotSR_NgayCapNhat] = sr.NgayCapNhat
+			rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI
+			rowSR[core.CotSR_MaSanPham] = sr.MaSanPham
+			rowSR[core.CotSR_MaSKU] = sr.MaSKU
+			rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap
+			rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap
+			rowSR[core.CotSR_TrangThai] = sr.TrangThai
+			rowSR[core.CotSR_NgayNhapKho] = sr.NgayNhapKho
+			rowSR[core.CotSR_GiaVonNhap] = sr.GiaVonNhap
+			rowSR[core.CotSR_MaKho] = sr.MaKho
+			rowSR[core.CotSR_NgayCapNhat] = sr.NgayCapNhat
 			core.PushAppend(shopID, core.TenSheetSerial, rowSR)
 		}
 	}
@@ -185,6 +212,8 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	core.KhoaHeThong.Unlock()
 
 	loai := "Hoàn thành Nhập kho"
-	if input.TrangThai == 0 { loai = "Lưu nháp Phiếu Nhập" }
+	if input.TrangThai == 0 {
+		loai = "Lưu nháp Phiếu Nhập"
+	}
 	c.JSON(200, gin.H{"status": "ok", "msg": loai + " thành công!", "ma_phieu": maPN})
 }
