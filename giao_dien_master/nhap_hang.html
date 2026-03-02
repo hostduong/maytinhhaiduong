@@ -15,7 +15,6 @@
         .input-premium { width: 100%; height: 40px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
         
-        /* BẢNG CHI TIẾT SẢN PHẨM: Đã ép sát khoảng cách */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; }
         .table-nhap-hang { width: 100%; text-align: left; min-width: 650px; }
         .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.25rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
@@ -53,29 +52,23 @@
         .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
     </style>
 
+    <script>
+        let serverDrafts = [];
+        try {
+            let rawDrafts = {{ json .DanhSachNhaps }};
+            if (rawDrafts) serverDrafts = rawDrafts;
+        } catch(e) { console.error("Không có phiếu nháp", e); }
+    </script>
+
     <div id="data_island" style="display:none;">
         <div id="data_sp">
             {{ range .DanhSachSP }}
-            <div class="sp-item" 
-                data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}"
-                data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" 
-                data-donvi="{{ .DonVi }}" 
-                data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
+            <div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
             {{ end }}
         </div>
         <div id="data_ncc">
             {{ range .DanhSachNCC }}
             <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}"></div>
-            {{ end }}
-        </div>
-        
-        <div id="data_drafts">
-            {{ range .DanhSachNhaps }}
-            <div class="draft-item" data-maphieu="{{ .MaPhieuNhap }}" data-trangthai="{{ .TrangThai }}" data-mancc="{{ .MaNhaCungCap }}" data-ngaynhap="{{ .NgayNhap }}" data-sohd="{{ .SoHoaDon }}" data-makho="{{ .MaKho }}" data-ghichu="{{ .GhiChu }}" data-giamgia="{{ printf "%.0f" .GiamGiaPhieu }}" data-datra="{{ printf "%.0f" .DaThanhToan }}" data-phuongthuc="{{ .PhuongThucThanhToan }}">
-                {{ range .ChiTiet }}
-                <div class="draft-detail" data-masku="{{ .MaSKU }}" data-sl="{{ .SoLuong }}" data-gianhap="{{ printf "%.0f" .DonGiaNhap }}"></div>
-                {{ end }}
-            </div>
             {{ end }}
         </div>
     </div>
@@ -117,7 +110,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-opacity duration-200" id="iconSearchSP">
                             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm transition-all" style="padding-left: 2.75rem;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
+                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm transition-all" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
                         <div id="dropdownSP" class="search-dropdown"></div>
                     </div>
                 </div>
@@ -268,26 +261,26 @@
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        // BƯỚC 1: NẠP DỮ LIỆU Y HỆT FILE CŨ CỦA BẠN
+        // BỎ DECODEGO -> TRÁNH HOÀN TOÀN URIERROR
         const dbSP = []; 
         document.querySelectorAll('#data_sp .sp-item').forEach(el => { 
             dbSP.push({ 
-                ma_san_pham: el.getAttribute('data-masp'), 
-                ma_sku: el.getAttribute('data-masku'), 
-                tensp: el.getAttribute('data-tensp'), 
-                tensku: el.getAttribute('data-tensku'), 
-                donvi: el.getAttribute('data-donvi'), 
+                ma_san_pham: el.getAttribute('data-masp') || "", 
+                ma_sku: el.getAttribute('data-masku') || "", 
+                tensp: el.getAttribute('data-tensp') || "", 
+                tensku: el.getAttribute('data-tensku') || "", 
+                donvi: el.getAttribute('data-donvi') || "Cái", 
                 gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, 
-                img: el.getAttribute('data-img') 
+                img: el.getAttribute('data-img') || "" 
             }); 
         });
 
         const dbNCC = []; 
         document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { 
             dbNCC.push({ 
-                ma: el.getAttribute('data-mancc'), 
-                ten: el.getAttribute('data-ten'), 
-                sdt: el.getAttribute('data-dienthoai') 
+                ma: el.getAttribute('data-mancc') || "", 
+                ten: el.getAttribute('data-ten') || "", 
+                sdt: el.getAttribute('data-dienthoai') || "" 
             }); 
         });
 
@@ -303,107 +296,133 @@
             };
         }
 
-        // BƯỚC 2: KHỞI TẠO HỆ THỐNG AN TOÀN TRONG DOMContentLoaded
-        document.addEventListener("DOMContentLoaded", function() {
-            tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
-            
-            // Nạp Drafts an toàn từ DOM
-            let draftEls = document.querySelectorAll('#data_drafts .draft-item');
-            if (draftEls.length > 0) {
-                draftEls.forEach(d => {
+        function initApp() {
+            if (typeof serverDrafts !== 'undefined' && serverDrafts && serverDrafts.length > 0) {
+                serverDrafts.forEach(d => {
                     tabCounter++; let tid = "T" + tabCounter;
                     let cart = [];
-                    d.querySelectorAll('.draft-detail').forEach(ct => {
-                        let masku = ct.getAttribute('data-masku');
-                        let sl = parseInt(ct.getAttribute('data-sl')) || 1;
-                        let gianhap = parseFloat(ct.getAttribute('data-gianhap')) || 0;
-                        let spCache = dbSP.find(s => s.ma_sku === masku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
-                        cart.push({ ma_sku: masku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: sl, gianhap: gianhap, serials: [] });
-                    });
-                    
-                    let mancc = d.getAttribute('data-mancc');
-                    let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === mancc); if(nccFind) nccTen = nccFind.ten;
+                    if(d.chi_tiet && Array.isArray(d.chi_tiet)) {
+                        d.chi_tiet.forEach(ct => {
+                            let spCache = dbSP.find(s => s.ma_sku === ct.ma_sku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
+                            cart.push({ ma_sku: ct.ma_sku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: parseInt(ct.so_luong)||1, gianhap: parseFloat(ct.don_gia_nhap)||0, serials: ct.serials || [] });
+                        });
+                    }
+                    let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === d.ma_nha_cung_cap); if(nccFind) nccTen = nccFind.ten;
 
                     appTabs[tid] = {
-                        id: tid, ma_phieu: d.getAttribute('data-maphieu'), title: d.getAttribute('data-maphieu') || "Nháp", status: parseInt(d.getAttribute('data-trangthai')),
-                        cart: cart, ncc_ma: mancc, ncc_ten: nccTen,
-                        ngay_nhap: (d.getAttribute('data-ngaynhap') || "").split(' ')[0], so_hd: d.getAttribute('data-sohd'), ma_kho: d.getAttribute('data-makho') || "KHO_CHINH", ghi_chu: d.getAttribute('data-ghichu'),
-                        giam_gia: parseFloat(d.getAttribute('data-giamgia'))||0, da_tra: parseFloat(d.getAttribute('data-datra'))||0, phuong_thuc: d.getAttribute('data-phuongthuc') || "TIEN_MAT"
+                        id: tid, ma_phieu: d.ma_phieu_nhap, title: d.ma_phieu_nhap || "Nháp", status: d.trang_thai,
+                        cart: cart, ncc_ma: d.ma_nha_cung_cap, ncc_ten: nccTen,
+                        ngay_nhap: (d.ngay_nhap || "").split(' ')[0], so_hd: d.so_hoa_don, ma_kho: d.ma_kho || "KHO_CHINH", ghi_chu: d.ghi_chu,
+                        giam_gia: parseFloat(d.giam_gia_phieu)||0, da_tra: parseFloat(d.da_thanh_toan)||0, phuong_thuc: d.phuong_thuc_thanh_toan || "TIEN_MAT"
                     };
                 });
                 currentTabId = "T1"; switchTab("T1");
             } else {
                 addNewTab();
             }
+        }
 
-            // Gọi hàm setup Tìm kiếm
-            setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
-                (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[14px]">${i.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div></div></div>`,
-                (i) => {
-                    addProductToCart(i);
-                    // LỖI 2 ĐÃ FIX: Xóa chữ xong đóng bảng
-                    let inp = document.getElementById('inpSearchSP');
-                    inp.value = '';
-                    inp.dispatchEvent(new Event('input')); // Khôi phục icon kính lúp
-                }
-            );
+        // LỖI 2 ĐÃ FIX: CHỌN XONG TỰ ĐÓNG, CLICK LẠI TỰ XỔ RA
+        function initSearchSP() {
+            const inp = document.getElementById('inpSearchSP');
+            const drop = document.getElementById('dropdownSP');
+            const icon = document.getElementById('iconSearchSP');
 
-            setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
-                (i) => `<div><div class="font-bold text-slate-800 text-[13px]">${i.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${i.ma}</span> | SĐT: <b class="text-indigo-600">${i.sdt || '---'}</b></div></div>`,
-                (i) => { 
-                    document.getElementById('inpSearchNCC').value = i.ten; 
-                    document.getElementById('valMaNCC').value = i.ma; 
-                    saveCurrentTabState(); 
-                }
-            );
-        });
-
-        // BƯỚC 3: HÀM TÌM KIẾM ĐƯỢC VIẾT LẠI HOÀN TOÀN ĐỂ FIX LỖI ĐÓNG MỞ
-        function setupAutocomplete(inputId, dropdownId, dataList, renderItem, onSelect) {
-            const inp = document.getElementById(inputId); 
-            const drop = document.getElementById(dropdownId);
-            
             inp.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim(); 
+                if(this.value.length > 0) { 
+                    icon.style.opacity = '0'; 
+                    this.style.paddingLeft = '1rem'; 
+                } else { 
+                    icon.style.opacity = '1'; 
+                    this.style.paddingLeft = '3rem'; 
+                }
+
+                const val = this.value.toLowerCase().trim();
                 drop.innerHTML = '';
                 if (!val) { drop.style.display = 'none'; return; }
                 
-                // Hiệu ứng kính lúp cho ô Sản Phẩm
-                if(inputId === 'inpSearchSP') {
-                    let icon = document.getElementById('iconSearchSP');
-                    if(val.length > 0) { icon.style.opacity = '0'; this.style.paddingLeft = '1rem'; } 
-                    else { icon.style.opacity = '1'; this.style.paddingLeft = '2.75rem'; }
-                }
-                
-                let matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10);
+                let matches = dbSP.filter(item => 
+                    (item.ma_sku && item.ma_sku.toLowerCase().includes(val)) ||
+                    (item.tensp && item.tensp.toLowerCase().includes(val)) ||
+                    (item.tensku && item.tensku.toLowerCase().includes(val))
+                ).slice(0, 10);
                 
                 matches.forEach(item => {
-                    const div = document.createElement('div'); 
-                    div.className = 'search-item'; 
-                    div.innerHTML = renderItem(item);
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${getFirstImg(item.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200">
+                            <div>
+                                <div class="font-bold text-indigo-900 text-[14px]">${item.tensp}</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    <span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${item.ma_sku}</span> | 
+                                    ${item.tensku || 'Tiêu chuẩn'} | 
+                                    <strong class="text-emerald-600">${formatNum(item.gianhap)} ₫</strong>
+                                </div>
+                            </div>
+                        </div>`;
+                    
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
-                        onSelect(item);
-                        drop.style.display = 'none'; // CHỌN XONG ĐÓNG LUÔN
+                        addProductToCart(item);
+                        inp.value = ''; 
+                        inp.dispatchEvent(new Event('input')); // Reset Icon kính lúp
+                        drop.style.display = 'none'; // CHỌN XONG TỰ ĐÓNG
                     };
                     drop.appendChild(div);
                 });
+
                 if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
                 drop.style.display = 'block';
             });
 
-            // LỖI 2 ĐÃ FIX: Click lại vào ô thì mở ra
+            // Click vào ô đang có chữ thì XỔ XUỐNG LẠI
             inp.addEventListener('focus', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
             inp.addEventListener('click', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
-
-            // Click ra ngoài thì đóng
+            // Click ra ngoài thì ĐÓNG
             document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
+        function initSearchNCC() {
+            const inp = document.getElementById('inpSearchNCC');
+            const drop = document.getElementById('dropdownNCC');
 
-        // ==========================================
-        // CÁC HÀM XỬ LÝ GIAO DIỆN KHÁC (NGUYÊN BẢN)
-        // ==========================================
+            inp.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim();
+                drop.innerHTML = '';
+                if (!val) { drop.style.display = 'none'; return; }
+                
+                let matches = dbNCC.filter(item => 
+                    (item.ten && item.ten.toLowerCase().includes(val)) ||
+                    (item.sdt && item.sdt.toLowerCase().includes(val)) ||
+                    (item.ma && item.ma.toLowerCase().includes(val))
+                ).slice(0, 10);
+                
+                matches.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `<div><div class="font-bold text-slate-800 text-[13px]">${item.ten}</div><div class="text-[10px] font-mono text-slate-500 mt-1"><span class="bg-slate-100 px-1 rounded">${item.ma}</span> | SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></div></div>`;
+                    
+                    div.onmousedown = (e) => { 
+                        e.preventDefault(); 
+                        inp.value = item.ten; 
+                        document.getElementById('valMaNCC').value = item.ma; 
+                        saveCurrentTabState(); 
+                        drop.style.display = 'none'; // CHỌN XONG TỰ ĐÓNG
+                    };
+                    drop.appendChild(div);
+                });
+
+                if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
+                drop.style.display = 'block';
+            });
+
+            inp.addEventListener('focus', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
+            inp.addEventListener('click', function() { if (this.value.trim().length > 0) this.dispatchEvent(new Event('input')); });
+            document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
+        }
+
         function renderTabs() {
             let html = "";
             for (let id in appTabs) {
@@ -411,7 +430,11 @@
                 let isActive = (id === currentTabId) ? "active" : "";
                 let icon = t.status === -1 ? "🗑️" : (t.status === 0 ? "📝" : "📄");
                 let colorClass = t.status === -1 ? "text-red-500" : "";
-                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span></div>`;
+                
+                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">
+                            ${icon} ${t.title}
+                            <span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span>
+                         </div>`;
             }
             document.getElementById('tabList').innerHTML = html;
         }
@@ -426,15 +449,22 @@
         function closeTab(id) {
             let keys = Object.keys(appTabs);
             if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
+            
             let t = appTabs[id];
-            if (t.status === -2) { executeCloseTab(id, keys); } 
-            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
-            else if (t.status === -1) { executeCloseTab(id, keys); }
+            if (t.status === -2) { 
+                executeCloseTab(id, keys);
+            } else if (t.status === 0) { 
+                Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' })
+                .then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); });
+            } else if (t.status === -1) { 
+                executeCloseTab(id, keys);
+            }
         }
 
         function executeCloseTab(id, keys) {
             delete appTabs[id];
-            if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } else { renderTabs(); }
+            if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } 
+            else { renderTabs(); }
         }
 
         function saveCurrentTabState() {
@@ -453,42 +483,63 @@
         function loadTabToUI(id) {
             let t = appTabs[id];
             if(!t) return;
-            document.getElementById('valMaNCC').value = t.ncc_ma; document.getElementById('inpSearchNCC').value = t.ncc_ten;
-            document.getElementById('valNgayNhap').value = t.ngay_nhap; document.getElementById('valSoHoaDon').value = t.so_hd;
-            document.getElementById('valMaKho').value = t.ma_kho; document.getElementById('valGhiChu').value = t.ghi_chu;
-            document.getElementById('inpGiamGiaPhieu').value = formatNum(t.giam_gia); document.getElementById('inpDaThanhToan').value = formatNum(t.da_tra);
+            document.getElementById('valMaNCC').value = t.ncc_ma;
+            document.getElementById('inpSearchNCC').value = t.ncc_ten;
+            document.getElementById('valNgayNhap').value = t.ngay_nhap;
+            document.getElementById('valSoHoaDon').value = t.so_hd;
+            document.getElementById('valMaKho').value = t.ma_kho;
+            document.getElementById('valGhiChu').value = t.ghi_chu;
+            document.getElementById('inpGiamGiaPhieu').value = formatNum(t.giam_gia);
+            document.getElementById('inpDaThanhToan').value = formatNum(t.da_tra);
             setPhuongThuc(t.phuong_thuc);
             
-            let lbl = document.getElementById('lblTrangThai'); let overlay = document.getElementById('overlayDeleted');
-            if (t.status === 0) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; overlay.style.display = 'none'; toggleInputs(false); }
-            else if (t.status === -1) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; overlay.style.display = 'flex'; toggleInputs(true); }
-            else { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; overlay.style.display = 'none'; toggleInputs(false); }
+            let lbl = document.getElementById('lblTrangThai');
+            let overlay = document.getElementById('overlayDeleted');
+            
+            if (t.status === 0) { 
+                lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; 
+                overlay.style.display = 'none'; toggleInputs(false);
+            }
+            else if (t.status === -1) { 
+                lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; 
+                overlay.style.display = 'flex'; toggleInputs(true);
+            }
+            else { 
+                lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; 
+                overlay.style.display = 'none'; toggleInputs(false);
+            }
             renderTable();
         }
 
         function toggleInputs(disable) {
-            ['inpSearchNCC', 'valNgayNhap', 'valSoHoaDon', 'valMaKho', 'valGhiChu', 'inpGiamGiaPhieu', 'inpDaThanhToan', 'inpSearchSP'].forEach(id => document.getElementById(id).disabled = disable);
+            document.getElementById('inpSearchNCC').disabled = disable; document.getElementById('valNgayNhap').disabled = disable;
+            document.getElementById('valSoHoaDon').disabled = disable; document.getElementById('valMaKho').disabled = disable;
+            document.getElementById('valGhiChu').disabled = disable; document.getElementById('inpGiamGiaPhieu').disabled = disable;
+            document.getElementById('inpDaThanhToan').disabled = disable; document.getElementById('inpSearchSP').disabled = disable;
         }
 
         function addProductToCart(sp) {
             if(!currentTabId || !appTabs[currentTabId]) return;
             let cart = appTabs[currentTabId].cart;
             let existIdx = cart.findIndex(item => item.ma_sku === sp.ma_sku);
-            if(existIdx > -1) { cart[existIdx].sl += 1; } else { cart.push({ ...sp, sl: 1, serials: [] }); }
+            if(existIdx > -1) { cart[existIdx].sl += 1; } 
+            else { cart.push({ ...sp, sl: 1, serials: [] }); }
             renderTable();
         }
 
         function removeProduct(idx) { appTabs[currentTabId].cart.splice(idx, 1); renderTable(); }
 
         function updateCart(idx, field, elm) {
-            let cart = appTabs[currentTabId].cart; let val = elm.value;
+            let cart = appTabs[currentTabId].cart;
+            let val = elm.value;
             if(field === 'sl') { cart[idx].sl = parseInt(val) || 1; }
             if(field === 'gianhap') { cart[idx].gianhap = getNum(val); elm.value = formatNum(cart[idx].gianhap); }
             renderTable();
         }
 
         function renderTable() {
-            let t = appTabs[currentTabId]; if(!t) return;
+            let t = appTabs[currentTabId];
+            if(!t) return;
             const tbody = document.getElementById('tbodyChiTiet');
             document.getElementById('rowEmpty').style.display = t.cart.length === 0 ? 'table-row' : 'none';
             Array.from(tbody.children).forEach(tr => { if(tr.id !== 'rowEmpty') tr.remove(); });
@@ -496,14 +547,20 @@
             let tongTienHang = 0; let isReadonly = (t.status === -1) ? "disabled" : "";
 
             t.cart.forEach((c, idx) => {
-                let thanhTien = (c.sl * c.gianhap); tongTienHang += thanhTien;
-                let tr = document.createElement('tr'); tr.className = "hover-soft-row border-b border-slate-100";
+                let thanhTien = (c.sl * c.gianhap);
+                tongTienHang += thanhTien;
+
+                let tr = document.createElement('tr');
+                tr.className = "hover-soft-row border-b border-slate-100";
+                
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
                     <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[60px] h-[60px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
                     <td class="whitespace-normal align-middle">
                         <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight line-clamp-2">${c.tensp}</div>
-                        <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1"><span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}</div>
+                        <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1">
+                            <span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}
+                        </div>
                     </td>
                     <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
                     <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty shadow-inner text-indigo-700 font-bold" ${isReadonly}></td>
@@ -513,55 +570,109 @@
                 `;
                 tbody.appendChild(tr);
             });
-            document.getElementById('lblTongTienHang').innerText = formatNum(tongTienHang); calcThanhToan();
+
+            document.getElementById('lblTongTienHang').innerText = formatNum(tongTienHang);
+            calcThanhToan();
         }
 
         let isPanelOpen = true;
         function toggleRightPanel() {
-            const rightPanel = document.getElementById('rightPanel'); const btn = document.getElementById('btnToggle');
-            if(isPanelOpen) { rightPanel.classList.add('hidden', 'lg:hidden'); btn.innerHTML = '⯇ Hiện Thanh toán'; isPanelOpen = false; } 
-            else { rightPanel.classList.remove('hidden', 'lg:hidden'); btn.innerHTML = 'Đóng TT Thanh toán ⯈'; isPanelOpen = true; }
+            const rightPanel = document.getElementById('rightPanel');
+            const btn = document.getElementById('btnToggle');
+            if(isPanelOpen) {
+                rightPanel.classList.add('hidden', 'lg:hidden'); 
+                btn.innerHTML = '⯇ Hiện Thanh toán'; isPanelOpen = false;
+            } else {
+                rightPanel.classList.remove('hidden', 'lg:hidden'); 
+                btn.innerHTML = 'Đóng TT Thanh toán ⯈'; isPanelOpen = true;
+            }
         }
 
         function setPhuongThuc(pt) {
             if (appTabs[currentTabId].status === -1) return;
-            document.querySelectorAll('.btn-paymethod').forEach(b => { b.classList.remove('border-emerald-500', 'bg-emerald-500', 'text-white'); b.classList.add('border-slate-300', 'bg-white', 'text-slate-600'); });
-            event.target.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white'); event.target.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
-            document.getElementById('valPhuongThuc').value = pt; saveCurrentTabState();
-        }
-
-        function calcThanhToan() {
-            let tongHang = getNum(document.getElementById('lblTongTienHang').innerText); let giamPhieu = getNum(document.getElementById('inpGiamGiaPhieu').value);
-            let canTra = tongHang - giamPhieu; if (canTra < 0) canTra = 0; document.getElementById('lblCanTra').innerText = formatNum(canTra);
-            let daTra = getNum(document.getElementById('inpDaThanhToan').value); let conNo = canTra - daTra;
-            let elConNo = document.getElementById('lblConNo'); elConNo.innerText = formatNum(conNo); elConNo.className = conNo > 0 ? "summary-val text-red-500" : "summary-val text-emerald-600";
+            document.querySelectorAll('.btn-paymethod').forEach(b => {
+                b.classList.remove('border-emerald-500', 'bg-emerald-500', 'text-white');
+                b.classList.add('border-slate-300', 'bg-white', 'text-slate-600');
+            });
+            event.target.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
+            event.target.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
+            document.getElementById('valPhuongThuc').value = pt;
             saveCurrentTabState();
         }
 
+        function calcThanhToan() {
+            let tongHang = getNum(document.getElementById('lblTongTienHang').innerText);
+            let giamPhieu = getNum(document.getElementById('inpGiamGiaPhieu').value);
+            
+            let canTra = tongHang - giamPhieu; if (canTra < 0) canTra = 0;
+            document.getElementById('lblCanTra').innerText = formatNum(canTra);
+
+            let daTra = getNum(document.getElementById('inpDaThanhToan').value);
+            let conNo = canTra - daTra;
+            
+            let elConNo = document.getElementById('lblConNo');
+            elConNo.innerText = formatNum(conNo);
+            elConNo.className = conNo > 0 ? "summary-val text-red-500" : "summary-val text-emerald-600";
+            saveCurrentTabState();
+        }
+
+        // ==========================================
+        // LỖI 3,4,5 ĐÃ FIX: CHẠY HÀM TRỰC TIẾP NGAY SAU KHI HTML TẢI XONG
+        // ĐẢM BẢO CHẮC CHẮN NÚT BẤM HOẠT ĐỘNG
+        // ==========================================
+        try { initApp(); } catch(e) { console.error("Lỗi initApp:", e); addNewTab(); }
+        try { initSearchSP(); } catch(e) { console.error("Lỗi initSearchSP:", e); }
+        try { initSearchNCC(); } catch(e) { console.error("Lỗi initSearchNCC:", e); }
+        try { 
+            tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
+        } catch(e) { console.error("Lỗi Tagify:", e); }
+
+
         function confirmSubmit(status) {
-            saveCurrentTabState(); let t = appTabs[currentTabId]; if(!t) return;
+            saveCurrentTabState();
+            let t = appTabs[currentTabId];
+            if(!t) {
+                Swal.fire('Lỗi', 'Dữ liệu phiếu đang bận. Hãy ấn F5!', 'error'); return;
+            }
+            
             if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
             if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
 
             let titleStr = status === 0 ? "Lưu Nháp Server?" : "Hoàn Thành Phiếu Nhập?";
             let textStr = status === 0 ? "Lưu lên máy chủ để xem lại trên máy khác. Chưa cộng tồn kho." : "Dữ liệu sẽ được ghi sổ và tính công nợ ngay lập tức.";
-            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành"; let colorCls = status === 0 ? "#f97316" : "#4f46e5";
+            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành";
+            let colorCls = status === 0 ? "#f97316" : "#4f46e5";
 
-            Swal.fire({ title: titleStr, text: textStr, icon: 'question', showCancelButton: true, confirmButtonText: btnStr, cancelButtonText: 'Hủy', confirmButtonColor: colorCls, cancelButtonColor: '#94a3b8' })
-            .then((result) => { if (result.isConfirmed) { executeSubmit(status); } });
+            Swal.fire({
+                title: titleStr, text: textStr, icon: 'question',
+                showCancelButton: true, confirmButtonText: btnStr, cancelButtonText: 'Hủy',
+                confirmButtonColor: colorCls, cancelButtonColor: '#94a3b8'
+            }).then((result) => {
+                if (result.isConfirmed) { executeSubmit(status); }
+            });
         }
 
         async function executeSubmit(status) {
             let t = appTabs[currentTabId];
             let chiTietData = t.cart.map(c => ({ ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, serials: c.serials }));
-            let payload = { ma_phieu_nhap: t.ma_phieu, ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd, ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, da_tra: t.da_tra, phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData };
+
+            let payload = {
+                ma_phieu_nhap: t.ma_phieu, 
+                ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd,
+                ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, da_tra: t.da_tra,
+                phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData
+            };
 
             Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
             try {
                 const res = await fetch('/master/api/nhap-hang/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await res.json();
+                
                 if(data.status === 'ok') {
-                    appTabs[currentTabId].status = status; appTabs[currentTabId].ma_phieu = data.ma_phieu; appTabs[currentTabId].title = data.ma_phieu; 
+                    appTabs[currentTabId].status = status;
+                    appTabs[currentTabId].ma_phieu = data.ma_phieu;
+                    appTabs[currentTabId].title = data.ma_phieu; 
                     renderTabs(); loadTabToUI(currentTabId); 
                     Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, confirmButtonColor: '#10b981' });
                 } else { Swal.fire('Thất bại', data.msg, 'error'); }
@@ -569,30 +680,52 @@
         }
 
         async function changeStatusAPI(tabId, newStatus) {
-            let t = appTabs[tabId]; let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
+            let t = appTabs[tabId];
+            let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
             Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             try {
                 const res = await fetch('/master/api/nhap-hang/status', { method: 'POST', body: fd });
                 const data = await res.json();
-                if(data.status === 'ok') { t.status = newStatus; renderTabs(); loadTabToUI(currentTabId); Swal.close(); } else { Swal.fire('Lỗi', data.msg, 'error'); }
+                if(data.status === 'ok') {
+                    t.status = newStatus;
+                    renderTabs(); loadTabToUI(currentTabId);
+                    Swal.close();
+                } else { Swal.fire('Lỗi', data.msg, 'error'); }
             } catch(e) { Swal.fire('Lỗi', 'Mất kết nối. Vui lòng kiểm tra lại Router API.', 'error'); }
         }
 
         function restoreTab() { changeStatusAPI(currentTabId, 0); }
         
         function updateSerialCount() { document.getElementById('lblSerialCount').innerText = tagifySerial.value.length; }
+
         function openSerialModal(idx) {
-            let c = appTabs[currentTabId].cart[idx]; document.getElementById('idxEditingSerial').value = idx;
-            document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : ''); document.getElementById('lblSerialReq').innerText = c.sl;
-            tagifySerial.removeAllTags(); if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); } updateSerialCount();
-            document.getElementById('modalSerial').classList.remove('hidden'); setTimeout(() => tagifySerial.DOM.input.focus(), 100);
+            let c = appTabs[currentTabId].cart[idx];
+            document.getElementById('idxEditingSerial').value = idx;
+            document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
+            document.getElementById('lblSerialReq').innerText = c.sl;
+            
+            tagifySerial.removeAllTags();
+            if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); }
+            updateSerialCount();
+
+            document.getElementById('modalSerial').classList.remove('hidden');
+            setTimeout(() => tagifySerial.DOM.input.focus(), 100);
         }
 
         function saveSerials() {
-            let idx = document.getElementById('idxEditingSerial').value; let c = appTabs[currentTabId].cart[idx]; let req = c.sl; let lines = tagifySerial.value.map(t => t.value);
-            if(lines.length > req) { Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return; }
-            c.serials = lines; document.getElementById('modalSerial').classList.add('hidden'); renderTable();
+            let idx = document.getElementById('idxEditingSerial').value;
+            let c = appTabs[currentTabId].cart[idx];
+            let req = c.sl;
+            let lines = tagifySerial.value.map(t => t.value);
+            
+            if(lines.length > req) {
+                Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return;
+            }
+            c.serials = lines;
+            document.getElementById('modalSerial').classList.add('hidden');
+            renderTable();
         }
+
     </script>
     {{ template "footer_master" . }}
 {{ end }}
