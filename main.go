@@ -20,7 +20,7 @@ import (
 )
 
 // BẮT BUỘC: Quét thư mục giao_dien (bao gồm cả file nằm trực tiếp và file trong thư mục con)
-//go:embed giao_dien/*.html giao_dien/*/*.html
+//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_master/*.html
 var f embed.FS
 
 // --- PHỤC HỒI BỘ HÀM HTML THẬT ĐỂ KHÔNG BỊ CRASH GIAO DIỆN ---
