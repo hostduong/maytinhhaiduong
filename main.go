@@ -61,6 +61,8 @@ func main() {
 		core.NapNhaCungCap("")
 		core.NapMayTinh("")
 		core.NapTinNhan("")
+		core.NapPhieuNhap("")
+		core.NapSerial("")
 		log.Println("✅ [BOOT BACKGROUND] Nạp dữ liệu hoàn tất!")
 	}()
 
