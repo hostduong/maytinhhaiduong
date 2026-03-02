@@ -1,4 +1,4 @@
-package chuc_nang
+package hien_thi_web
 
 import (
 	"encoding/json"
