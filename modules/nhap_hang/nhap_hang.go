@@ -48,6 +48,7 @@ type ChiTietInput struct {
 	MaSKU      string  `json:"ma_sku"`
 	SoLuong    int     `json:"so_luong"`
 	DonGiaNhap float64 `json:"don_gia_nhap"`
+	Serials    []string `json:"serials"` // Bổ sung mảng nhận Serial cho từng SP
 }
 
 type PhieuNhapInput struct {
@@ -59,6 +60,7 @@ type PhieuNhapInput struct {
 	GiamGiaPhieu        float64        `json:"giam_gia_phieu"`
 	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
 	DaTra               float64        `json:"da_tra"`
+	TrangThai           int            `json:"trang_thai"` // 1: Hoàn thành, 0: Lưu nháp
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
@@ -108,10 +110,10 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	tenNguoiTao := "Hệ thống"
 	if nguoiTao != nil { tenNguoiTao = nguoiTao.TenDangNhap }
 
-	// 3. Khởi tạo Object Phiếu Nhập (Header)
+	// 3. Khởi tạo Object Phiếu Nhập (Lấy trạng thái từ Frontend: 1 hoặc 0)
 	pn := &core.PhieuNhap{
 		SpreadsheetID: shopID, MaPhieuNhap: maPN, MaNhaCungCap: input.MaNhaCungCap, MaKho: input.MaKho,
-		NgayNhap: input.NgayNhap, TrangThai: 1, SoHoaDon: input.SoHoaDon, NgayHoaDon: "", UrlChungTu: "",
+		NgayNhap: input.NgayNhap, TrangThai: input.TrangThai, SoHoaDon: input.SoHoaDon, NgayHoaDon: "", UrlChungTu: "",
 		TongTienPhieu: tongTienHang, GiamGiaPhieu: input.GiamGiaPhieu, DaThanhToan: input.DaTra, ConNo: conNo,
 		PhuongThucThanhToan: input.PhuongThucThanhToan, TrangThaiThanhToan: trangThaiThanhToan,
 		GhiChu: input.GhiChuPhieu, NguoiTao: tenNguoiTao, NgayTao: nowStr, NgayCapNhat: nowStr,
@@ -128,7 +130,7 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	core.PushAppend(shopID, core.TenSheetPhieuNhap, rowPN)
 
 	// 4. Xử lý Chi tiết & Sinh Serial
-	core.KhoaHeThong.Lock() // Khóa RAM để thao tác an toàn
+	core.KhoaHeThong.Lock()
 	for _, item := range input.ChiTiet {
 		spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU)
 		tenSP, donVi, maSP := "Sản phẩm không xác định", "Cái", ""
@@ -138,37 +140,38 @@ func API_LuuPhieuNhap(c *gin.Context) {
 			maSP = spCache.MaSanPham
 		}
 
-		thanhTienDong := item.DonGiaNhap * float64(item.SoLuong)
-		giaVonThucTe := item.DonGiaNhap // Tương lai có thể chia tỉ lệ giảm giá phiếu vào đây
-
 		ct := &core.ChiTietPhieuNhap{
 			SpreadsheetID: shopID, MaPhieuNhap: maPN, MaSanPham: maSP, MaSKU: item.MaSKU,
 			TenSanPham: tenSP, DonVi: donVi, SoLuong: item.SoLuong, DonGiaNhap: item.DonGiaNhap,
-			ThanhTienDong: thanhTienDong, GiaVonThucTe: giaVonThucTe,
+			ThanhTienDong: item.DonGiaNhap * float64(item.SoLuong), GiaVonThucTe: item.DonGiaNhap,
 		}
 		pn.ChiTiet = append(pn.ChiTiet, ct)
 
-		// Đẩy dòng Chi tiết vào Queue
 		rowCT := make([]interface{}, 15)
 		rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap; rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham; rowCT[core.CotCTPN_MaSKU] = ct.MaSKU
 		rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham; rowCT[core.CotCTPN_DonVi] = ct.DonVi; rowCT[core.CotCTPN_SoLuong] = ct.SoLuong
 		rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap; rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong; rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe
 		core.PushAppend(shopID, core.TenSheetChiTietPhieuNhap, rowCT)
 
-		// TỰ ĐỘNG SINH SERIAL CHO TỪNG SẢN PHẨM NHẬP (Ví dụ: Nhập 5 => Sinh 5 Serial)
+		// Tự động sinh hoặc lấy Serial do người dùng quét
 		for i := 0; i < item.SoLuong; i++ {
-			imei := fmt.Sprintf("SN%s%s", now.Format("060102"), core.LayChuoiSoNgauNhien(6))
+			imei := ""
+			// Nếu người dùng có quét serial và vị trí i nằm trong khoảng, lấy mã của họ. Nếu không tự động sinh
+			if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" {
+				imei = strings.TrimSpace(item.Serials[i])
+			} else {
+				imei = fmt.Sprintf("SN%s%s", now.Format("060102"), core.LayChuoiSoNgauNhien(6))
+			}
+
 			sr := &core.SerialSanPham{
 				SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU,
-				MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN, TrangThai: 1, // 1 = Đang trong kho
-				NgayNhapKho: input.NgayNhap, GiaVonNhap: giaVonThucTe, MaKho: input.MaKho, NgayCapNhat: nowStr,
+				MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: maPN, TrangThai: input.TrangThai, // Trạng thái Serial đi theo trạng thái Phiếu Nhập
+				NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
 			}
 			
-			// Lưu vào RAM
 			core.CacheSerialSanPham[shopID] = append(core.CacheSerialSanPham[shopID], sr)
 			core.CacheMapSerial[core.TaoCompositeKey(shopID, imei)] = sr
 
-			// Đẩy Serial vào Queue
 			rowSR := make([]interface{}, 19)
 			rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI; rowSR[core.CotSR_MaSanPham] = sr.MaSanPham; rowSR[core.CotSR_MaSKU] = sr.MaSKU
 			rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap; rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap; rowSR[core.CotSR_TrangThai] = sr.TrangThai
@@ -177,10 +180,11 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		}
 	}
 
-	// Cập nhật Cache Phiếu Nhập
 	core.CachePhieuNhap[shopID] = append(core.CachePhieuNhap[shopID], pn)
 	core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, maPN)] = pn
 	core.KhoaHeThong.Unlock()
 
-	c.JSON(200, gin.H{"status": "ok", "msg": "Tạo Phiếu Nhập và Khởi tạo Serial thành công!", "ma_phieu": maPN})
+	loai := "Hoàn thành Nhập kho"
+	if input.TrangThai == 0 { loai = "Lưu nháp Phiếu Nhập" }
+	c.JSON(200, gin.H{"status": "ok", "msg": loai + " thành công!", "ma_phieu": maPN})
 }
