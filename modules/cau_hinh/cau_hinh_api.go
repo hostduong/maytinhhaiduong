@@ -26,7 +26,9 @@ func API_LuuNhaCungCap(c *gin.Context) {
 		TenNhaCungCap: strings.TrimSpace(c.PostForm("ten_nha_cung_cap")), MaSoThue: strings.TrimSpace(c.PostForm("ma_so_thue")),
 		DienThoai: strings.TrimSpace(c.PostForm("dien_thoai")), Email: strings.TrimSpace(c.PostForm("email")),
 		KhuVuc: strings.TrimSpace(c.PostForm("khu_vuc")), DiaChi: strings.TrimSpace(c.PostForm("dia_chi")),
-		NguoiLienHe: strings.TrimSpace(c.PostForm("nguoi_lien_he")), NganHang: strings.TrimSpace(c.PostForm("ngan_hang")),
+		NguoiLienHe: strings.TrimSpace(c.PostForm("nguoi_lien_he")), 
+		AnhDaiDien: strings.TrimSpace(c.PostForm("anh_dai_dien")), // Đã thêm
+		NganHang: strings.TrimSpace(c.PostForm("ngan_hang")),
 		NhomNhaCungCap: strings.TrimSpace(c.PostForm("nhom_nha_cung_cap")), LoaiNhaCungCap: strings.TrimSpace(c.PostForm("loai_nha_cung_cap")),
 		DieuKhoanThanhToan: strings.TrimSpace(c.PostForm("dieu_khoan_thanh_toan")), ChietKhauMacDinh: ck,
 		HanMucCongNo: hanMuc, CongNoDauKy: noDauKy, ThongTinThemJson: js, TrangThai: tt,
