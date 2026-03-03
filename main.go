@@ -20,7 +20,7 @@ import (
 )
 
 // BẮT BUỘC: Quét tất cả các thư mục giao diện
-//go:embed themes/*/*.html themes/*/*/*.html
+//go:embed themes/*.html themes/*/*.html
 var f embed.FS
 
 // --- PHỤC HỒI BỘ HÀM HTML THẬT ĐỂ KHÔNG BỊ CRASH GIAO DIỆN ---
