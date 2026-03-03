@@ -621,3 +621,58 @@ type ChiTietPhieuXuat struct {
 	BaoHanhThang   int     `json:"bao_hanh_thang"`
 	GhiChuDong     string  `json:"ghi_chu_dong"`
 }
+
+
+// Định nghĩa thêm hằng số tên Sheet ở đầu file (Chỗ hằng số TenSheet)
+// TenSheetGoiDichVu = "GOI_DICH_VU"
+
+// ==============================================================================
+// CẤU TRÚC: GÓI DỊCH VỤ SAAS
+// ==============================================================================
+const (
+	DongBatDau_GoiDichVu = 11
+
+	CotGDV_MaGoi              = 0  // A
+	CotGDV_TenGoi             = 1  // B
+	CotGDV_LoaiGoi            = 2  // C
+	CotGDV_ThoiHanNgay        = 3  // D
+	CotGDV_GiaNiemYet         = 4  // E
+	CotGDV_GiaBan             = 5  // F
+	CotGDV_MaCodeKichHoatJson = 6  // G
+	CotGDV_GioiHanJson        = 7  // H
+	CotGDV_MoTa               = 8  // I
+	CotGDV_NhanHienThi        = 9  // J
+	CotGDV_NgayBatDau         = 10 // K
+	CotGDV_NgayKetThuc        = 11 // L
+	CotGDV_SoLuongConLai      = 12 // M
+	CotGDV_TrangThai          = 13 // N
+)
+
+// Cấu trúc để bóc tách JSON Cột G (Mã Code Khuyến Mãi)
+type CodeKichHoat struct {
+	Code     string  `json:"code"`
+	GiamTien float64 `json:"giam_tien"`
+	SoLuong  int     `json:"so_luong"` // -1 là không giới hạn
+}
+
+// Cấu trúc dữ liệu chính của Gói Dịch Vụ
+type GoiDichVu struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	MaGoi              string          `json:"ma_goi"`
+	TenGoi             string          `json:"ten_goi"`
+	LoaiGoi            string          `json:"loai_goi"`
+	ThoiHanNgay        int             `json:"thoi_han_ngay"`
+	GiaNiemYet         float64         `json:"gia_niem_yet"`
+	GiaBan             float64         `json:"gia_ban"`
+	MaCodeKichHoatJson string          `json:"-"` // Giữ lại chuỗi thô để ghi sheet
+	DanhSachCode       []CodeKichHoat  `json:"danh_sach_code"` // Mảng thông minh đã được Parse
+	GioiHanJson        string          `json:"gioi_han_json"`
+	MoTa               string          `json:"mo_ta"`
+	NhanHienThi        string          `json:"nhan_hien_thi"`
+	NgayBatDau         string          `json:"ngay_bat_dau"`
+	NgayKetThuc        string          `json:"ngay_ket_thuc"`
+	SoLuongConLai      int             `json:"so_luong_con_lai"`
+	TrangThai          int             `json:"trang_thai"`
+}
