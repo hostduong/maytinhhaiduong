@@ -19,8 +19,8 @@ import (
 	"golang.org/x/text/message"
 )
 
-// BẮT BUỘC: Quét tất cả các thư mục giao diện (Thêm cả thư mục con của master để dự phòng)
-//go:embed giao_dien/*.html giao_dien/*/*.html giao_dien_master/*.html giao_dien_master/*/*.html
+// BẮT BUỘC: Quét tất cả các thư mục giao diện
+//go:embed themes/*/*.html themes/*/*/*.html
 var f embed.FS
 
 // --- PHỤC HỒI BỘ HÀM HTML THẬT ĐỂ KHÔNG BỊ CRASH GIAO DIỆN ---
@@ -68,13 +68,13 @@ func main() {
 
 	router := routers.SetupRouter()
 	
-	// [ĐÃ SỬA TẠI ĐÂY]: Bổ sung việc Parse (Dịch) toàn bộ file trong giao_dien_master
+	// Chỉ đường cho máy chủ tìm thư mục themes mới
 	funcMap := layBoHamHTML()
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, 
-		"giao_dien/*.html", 
-		"giao_dien/*/*.html",
-		"giao_dien_master/*.html",
-		"giao_dien_master/*/*.html",
+		"themes/default/*.html", 
+		"themes/template_master/*.html",
+		// Sau này có thêm theme mới thì cứ thêm 1 dòng vào đây:
+		// "themes/template_may_tinh/*.html",
 	))
 	router.SetHTMLTemplate(templ)
 
