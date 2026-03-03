@@ -55,6 +55,7 @@ func main() {
 		log.Println("📦 [BOOT BACKGROUND] Đang nạp toàn bộ Master Data lên RAM...")
 		core.NapPhanQuyen("")
 		core.NapKhachHang("")
+		core.NapGoiDichVu("")
 		core.NapDanhMuc("")
 		core.NapThuongHieu("")
 		core.NapBienLoiNhuan("")
