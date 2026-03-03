@@ -1,0 +1,113 @@
+{{ define "portal_khach_hang" }}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .TieuDe }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/master_ui.css"> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-900">
+
+    <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-6xl font-black text-gradient-animated mb-4">Chọn Gói Cước Khởi Nghiệp</h1>
+            <p class="text-slate-500 text-lg font-bold uppercase tracking-widest">Sức mạnh công nghệ trong tầm tay bạn</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            <div class="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-4 text-orange-700 shadow-sm">
+                <div class="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center font-black">!</div>
+                <div class="text-sm font-bold">Gói Advanced đang giảm giá 20% hôm nay!</div>
+            </div>
+            <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-4 text-blue-700 shadow-sm">
+                <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center font-black">i</div>
+                <div class="text-sm font-bold">Bạn đang trong thời gian dùng thử bản miễn phí.</div>
+            </div>
+            <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-4 text-emerald-700 shadow-sm">
+                <div class="w-10 h-10 bg-emerald-200 rounded-full flex items-center justify-center font-black">✓</div>
+                <div class="text-sm font-bold">Kích hoạt nhanh chóng trong 30 giây.</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {{ range .ListGoi }}
+            <div class="{{ if .NhanHienThi }}animated-border-wrapper shadow-2xl shadow-purple-300/50 scale-105 z-10{{ else }}bg-white border border-slate-200 rounded-[1.5rem] shadow-sm hover:shadow-xl transition duration-300{{ end }} flex flex-col h-full">
+                
+                <div class="{{ if .NhanHienThi }}animated-border-inner bg-white{{ end }} p-8 flex-1 flex flex-col h-full rounded-[calc(1.5rem-2px)]">
+                    
+                    {{ if .NhanHienThi }}
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <span class="badge-animated-wrap theme-9 tier-s !mt-0 !mr-0">
+                            <span class="badge-inner !py-1 !px-4">{{ .NhanHienThi }}</span>
+                        </span>
+                    </div>
+                    {{ end }}
+
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">{{ .TenGoi }}</h3>
+                        <div class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">{{ .MaGoi }}</div>
+                        
+                        <div class="mt-6 flex items-baseline justify-center gap-1">
+                            <span class="text-4xl font-black text-slate-900 tracking-tighter">{{ format_money .GiaBan }}₫</span>
+                            <span class="text-slate-400 font-bold text-sm">/{{ .ThoiHanNgay }} ngày</span>
+                        </div>
+                        {{ if gt .GiaNiemYet 0.0 }}
+                        <div class="text-slate-300 line-through font-bold text-sm mt-1">{{ format_money .GiaNiemYet }}₫</div>
+                        {{ end }}
+                    </div>
+
+                    <div class="space-y-4 mb-10 flex-1">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-600 text-sm font-bold">Khởi tạo nhanh chóng</span>
+                        </div>
+                        </div>
+
+                    <button onclick="dangKyGoi('{{ .MaGoi }}', '{{ .GiaBan }}')" class="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition transform active:scale-95 shadow-lg 
+                        {{ if .NhanHienThi }}
+                        bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-200 hover:from-purple-700 hover:to-indigo-700
+                        {{ else if eq .GiaBan 0.0 }}
+                        bg-slate-100 text-slate-600 hover:bg-slate-200
+                        {{ else }}
+                        bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50
+                        {{ end }}">
+                        {{ if eq .GiaBan 0.0 }}Dùng Thử Ngay{{ else }}Đăng Ký Mua{{ end }}
+                    </button>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+
+    </div>
+
+    <script>
+        function dangKyGoi(maGoi, giaBan) {
+            if (giaBan == 0) {
+                Swal.fire({
+                    title: '<span class="text-2xl font-black title-gradient-purple">Xác nhận dùng thử?</span>',
+                    text: "Bạn sẽ được khởi tạo Subdomain và Database miễn phí trong 3 ngày.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý khởi tạo',
+                    cancelButtonText: 'Để sau',
+                    customClass: { popup: 'swal-animated-purple' }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/khach-hang/khoi-tao?goi=" + maGoi;
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Thông báo thanh toán',
+                    text: 'Chức năng nạp tiền và quét mã QR đang được tích hợp.',
+                    icon: 'info'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+{{ end }}
