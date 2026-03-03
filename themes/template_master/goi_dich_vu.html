@@ -1,0 +1,253 @@
+{{ define "master_goi_dich_vu" }}
+    {{ template "header_master" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div id="data_island" style="display:none;">
+        <div id="data_gdv">
+            {{ range .ListGoi }}
+                <div class="gdv-item" 
+                    data-ma="{{ .MaGoi }}" 
+                    data-ten="{{ urlquery .TenGoi }}" 
+                    data-loai="{{ .LoaiGoi }}" 
+                    data-han="{{ .ThoiHanNgay }}" 
+                    data-nyet="{{ .GiaNiemYet }}" 
+                    data-ban="{{ .GiaBan }}" 
+                    data-codes="{{ urlquery .MaCodeKichHoatJson }}" 
+                    data-limit="{{ urlquery .GioiHanJson }}" 
+                    data-mota="{{ urlquery .MoTa }}" 
+                    data-nhan="{{ urlquery .NhanHienThi }}" 
+                    data-conlai="{{ .SoLuongConLai }}" 
+                    data-tt="{{ .TrangThai }}">
+                </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto p-4 md:p-6">
+        <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
+            <div class="animated-border-inner bg-white flex flex-col min-h-[75vh]">
+                
+                <div class="p-4 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50/50 gap-3">
+                    <div class="relative flex-1 md:w-80 max-w-md">
+                        <input type="text" id="searchGDV" onkeyup="filterTable()" placeholder="🔍 Tìm tên hoặc mã gói cước..." class="input-premium h-[42px] border-purple-200 shadow-sm">
+                    </div>
+                    <button type="button" onclick="openModalGDV()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-black shadow-lg shadow-purple-200 flex items-center gap-2 transition active:scale-95 uppercase tracking-widest text-xs">
+                        ✚ Tạo Gói Mới
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto flex-1 custom-scroll">
+                    <table class="table-nhap-hang w-full">
+                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6">Mã / Tên Gói</th>
+                                <th class="text-center">Loại / Thời hạn</th>
+                                <th class="text-right">Giá Niêm Yết</th>
+                                <th class="text-right text-purple-600">Giá Bán Thật</th>
+                                <th class="text-center">Mã Khuyến Mãi</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center pr-6">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyGDV" class="divide-y divide-slate-100">
+                            {{ range .ListGoi }}
+                            <tr class="hover-soft-row">
+                                <td class="px-6 py-4">
+                                    <span class="font-bold text-purple-900 font-mono block text-xs tracking-tighter">{{ .MaGoi }}</span>
+                                    <span class="font-black text-[15px] text-slate-800">{{ .TenGoi }}</span>
+                                    {{ if .NhanHienThi }}<span class="ml-2 px-1.5 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-black rounded uppercase">{{ .NhanHienThi }}</span>{{ end }}
+                                </td>
+                                <td class="py-4 text-center">
+                                    <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[11px] font-bold">{{ .LoaiGoi }}</span>
+                                    <span class="block text-xs font-medium text-slate-400 mt-1">{{ .ThoiHanNgay }} Ngày</span>
+                                </td>
+                                <td class="py-4 text-right text-slate-400 line-through text-xs">{{ format_money .GiaNiemYet }} ₫</td>
+                                <td class="py-4 text-right font-black text-purple-700 text-lg">{{ format_money .GiaBan }} ₫</td>
+                                <td class="py-4 text-center">
+                                    <span class="px-2 py-1 bg-purple-50 text-purple-600 rounded-lg border border-purple-100 font-black text-[11px]">
+                                        {{ len .DanhSachCode }} Mã
+                                    </span>
+                                </td>
+                                <td class="py-4 text-center">
+                                    {{ if eq .TrangThai 1 }}<span class="text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md text-[11px] border border-blue-100">Đang Bán</span>
+                                    {{ else }}<span class="text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded-md text-[11px] border border-slate-200">Đang Ẩn</span>{{ end }}
+                                </td>
+                                <td class="py-4 text-center pr-6">
+                                    <button onclick="editGDV('{{ .MaGoi }}')" class="text-purple-600 hover:text-white border border-purple-200 hover:bg-purple-600 px-4 py-1.5 rounded-lg font-bold transition text-xs shadow-sm">Chi tiết</button>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalGDV" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-5xl transform transition-all overflow-hidden border border-purple-100 flex flex-col max-h-[95vh]">
+            <div class="px-8 py-5 border-b border-purple-50 flex justify-between items-center bg-purple-50/30 shrink-0">
+                <h3 class="text-xl font-black title-gradient-purple" id="titleGDV">Cấu Hình Gói Dịch Vụ</h3>
+                <button type="button" onclick="closeModalGDV()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white text-slate-400 hover:text-red-500 shadow-sm transition text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto custom-scroll shrink h-full bg-white">
+                <form id="formGDV" class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8" autocomplete="off">
+                    <input type="hidden" name="is_new" id="is_new_gdv" value="true">
+                    
+                    <div class="space-y-6">
+                        <h4 class="font-black text-purple-700 border-b-2 border-purple-100 pb-2 mb-4 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 1. Thông số Gói Cước
+                        </h4>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label>Mã Gói (ID) *</label><input type="text" name="ma_goi" id="g_ma" class="input-premium uppercase font-black text-indigo-700" placeholder="PRO_1Y"></div>
+                            <div><label>Loại Gói</label><select name="loai_goi" id="g_loai" class="input-premium font-bold"><option value="MAIN">Gói Chính (Thời hạn)</option><option value="ADDON">Gói Mua Thêm (Dung lượng)</option></select></div>
+                        </div>
+
+                        <div><label>Tên Gói Hiển Thị *</label><input type="text" name="ten_goi" id="g_ten" class="input-premium font-black text-lg text-slate-800" placeholder="Gói Pro 1 Năm"></div>
+
+                        <div class="grid grid-cols-2 gap-4 p-5 bg-purple-50/50 rounded-2xl border border-purple-100">
+                            <div><label class="text-purple-700">Thời hạn (Ngày)</label><input type="number" name="thoi_han_ngay" id="g_han" class="input-premium text-center font-black text-purple-700" value="30"></div>
+                            <div><label class="text-purple-700">Giá Niêm Yết (Gạch ngang)</label><input type="text" name="gia_niem_yet" id="g_nyet" class="input-premium font-bold text-slate-400 text-right" onkeyup="formatCurrency(this)"></div>
+                            <div class="col-span-2 mt-2"><label class="text-indigo-700 font-black">Giá Bán Thật (Thu Tiền) *</label><input type="text" name="gia_ban" id="g_ban" class="input-premium font-black text-indigo-700 text-right text-2xl" onkeyup="formatCurrency(this)" value="0"></div>
+                        </div>
+
+                        <div><label>Giới hạn SaaS (JSON) *</label><textarea name="gioi_han_json" id="g_limit" rows="3" class="input-premium font-mono text-xs text-blue-600 bg-slate-50" placeholder='{"max_san_pham": 1000, "max_nhan_vien": 5}'></textarea></div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <h4 class="font-black text-purple-700 border-b-2 border-purple-100 pb-2 mb-4 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2z"></path></svg> 2. Chiến Dịch & Mã Code
+                        </h4>
+
+                        <div><label>Nhãn nổi bật (Badge)</label><input type="text" name="nhan_hien_thi" id="g_nhan" class="input-premium font-bold text-orange-600" placeholder="Best Seller, Giảm 50%..."></div>
+
+                        <div class="p-5 bg-indigo-50/30 rounded-2xl border border-indigo-100">
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="mb-0 text-indigo-800">Danh sách mã Code khuyến mãi</label>
+                                <button type="button" onclick="addCodeRow()" class="text-[10px] font-black bg-indigo-600 text-white px-2 py-1 rounded-md hover:bg-indigo-700 transition uppercase tracking-wider">+ Thêm Mã</button>
+                            </div>
+                            <div id="codeHub" class="space-y-2 max-h-[250px] overflow-y-auto custom-scroll pr-2">
+                                </div>
+                            <input type="hidden" name="codes_json" id="g_codes_json">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label>Số lượng bán tối đa</label><input type="number" name="so_luong_con_lai" id="g_conlai" class="input-premium text-center font-bold" value="-1" title="-1 là vô hạn"></div>
+                            <div class="flex items-center pt-6"><label class="flex items-center cursor-pointer mb-0"><input type="checkbox" name="trang_thai" id="g_tt" class="w-6 h-6 text-purple-600 rounded-lg mr-3" checked> <span class="font-black text-slate-700 text-sm">Cho phép bán</span></label></div>
+                        </div>
+
+                        <div><label>Mô tả gói (Dùng dấu | để ngắt dòng)</label><textarea name="mo_ta" id="g_mota" rows="2" class="input-premium text-sm" placeholder="Hỗ trợ 24/7 | Backup hàng ngày | ..."></textarea></div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-4 shrink-0">
+                <button type="button" onclick="closeModalGDV()" class="px-8 py-3 font-bold text-slate-500 hover:bg-slate-200 rounded-2xl transition">Hủy Bỏ</button>
+                <button type="button" id="btnSaveGDV" onclick="saveGDV()" class="px-12 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-purple-200 transition transform hover:-translate-y-1 active:scale-95 text-lg uppercase tracking-widest">
+                    Lưu Cấu Hình
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
+        function formatNum(num) { return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : ''; }
+        function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
+        function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
+
+        const mapGDV = {}; 
+        document.querySelectorAll('#data_gdv .gdv-item').forEach(el => { 
+            let ma = el.getAttribute('data-ma'); 
+            if(ma) mapGDV[ma] = { 
+                ma: ma, ten: decodeGo(el.getAttribute('data-ten')), loai: el.getAttribute('data-loai'),
+                han: el.getAttribute('data-han'), nyet: parseFloat(el.getAttribute('data-nyet'))||0,
+                ban: parseFloat(el.getAttribute('data-ban'))||0, codes: decodeGo(el.getAttribute('data-codes')),
+                limit: decodeGo(el.getAttribute('data-limit')), mota: decodeGo(el.getAttribute('data-mota')),
+                nhan: decodeGo(el.getAttribute('data-nhan')), conlai: el.getAttribute('data-conlai'),
+                tt: parseInt(el.getAttribute('data-tt'))||0 
+            }; 
+        });
+
+        // QUẢN LÝ DYNAMIC CODE ROWS
+        function addCodeRow(code = "", giam = 0, sl = -1) {
+            const container = document.getElementById('codeHub');
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-2 animate-[fadeIn_0.2s_ease-out] bg-white p-2 rounded-xl border border-indigo-50 shadow-sm group";
+            div.innerHTML = `
+                <input type="text" class="c-code input-premium !p-2 !h-9 uppercase !text-xs font-black !border-indigo-100 flex-1" placeholder="Mã Code" value="${code}">
+                <input type="text" class="c-giam input-premium !p-2 !h-9 !text-xs font-black !border-indigo-100 w-24 text-right text-emerald-600" placeholder="Giảm VNĐ" value="${formatNum(giam)}" onkeyup="formatCurrency(this)">
+                <input type="number" class="c-sl input-premium !p-2 !h-9 !text-xs font-black !border-indigo-100 w-16 text-center" placeholder="Lượt" value="${sl}" title="Số lượt dùng, -1 là vô hạn">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-300 hover:text-red-500 transition px-2 font-bold">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function buildCodesJson() {
+            let rs = [];
+            document.querySelectorAll('#codeHub > div').forEach(row => {
+                let c = row.querySelector('.c-code').value.trim();
+                let g = getNum(row.querySelector('.c-giam').value);
+                let s = parseInt(row.querySelector('.c-sl').value);
+                if(c) rs.push({ code: c.toUpperCase(), giam_tien: g, so_luong: isNaN(s) ? -1 : s });
+            });
+            return JSON.stringify(rs);
+        }
+
+        function openModalGDV() { 
+            document.getElementById('formGDV').reset(); 
+            document.getElementById('codeHub').innerHTML = "";
+            document.getElementById('is_new_gdv').value = "true"; 
+            document.getElementById('g_ma').readOnly = false;
+            document.getElementById('modalGDV').classList.remove('hidden'); 
+        }
+
+        function editGDV(ma) {
+            const g = mapGDV[ma]; if(!g) return;
+            document.getElementById('is_new_gdv').value = "false";
+            document.getElementById('g_ma').value = g.ma; document.getElementById('g_ma').readOnly = true;
+            document.getElementById('g_ten').value = g.ten; document.getElementById('g_loai').value = g.loai;
+            document.getElementById('g_han').value = g.han; document.getElementById('g_nyet').value = formatNum(g.nyet);
+            document.getElementById('g_ban').value = formatNum(g.ban); document.getElementById('g_limit').value = g.limit;
+            document.getElementById('g_mota').value = g.mota; document.getElementById('g_nhan').value = g.nhan;
+            document.getElementById('g_conlai').value = g.conlai; document.getElementById('g_tt').checked = (g.tt === 1);
+            
+            // Nạp Code Rows
+            document.getElementById('codeHub').innerHTML = "";
+            if(g.codes) {
+                try {
+                    let list = JSON.parse(g.codes);
+                    list.forEach(c => addCodeRow(c.code, c.giam_tien, c.so_luong));
+                } catch(e) {}
+            }
+            document.getElementById('modalGDV').classList.remove('hidden');
+        }
+
+        function closeModalGDV() { document.getElementById('modalGDV').classList.add('hidden'); }
+
+        async function saveGDV() {
+            const btn = document.getElementById('btnSaveGDV');
+            btn.disabled = true; btn.innerHTML = "Đang đồng bộ RAM...";
+            
+            // Build JSON từ các dòng Code trước khi gửi
+            document.getElementById('g_codes_json').value = buildCodesJson();
+
+            try {
+                const res = await fetch('/master/api/goi-dich-vu/save', { method: 'POST', body: new FormData(document.getElementById('formGDV')) });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    Swal.fire({ icon: 'success', title: 'Thành công', text: 'Gói dịch vụ đã được chốt và đẩy xuống Queue.', showConfirmButton: false, timer: 1500 }).then(() => location.reload());
+                } else {
+                    Swal.fire('Thất bại', data.msg, 'error');
+                    btn.disabled = false; btn.innerHTML = "Lưu Cấu Hình";
+                }
+            } catch(e) { btn.disabled = false; btn.innerHTML = "Lưu Cấu Hình"; }
+        }
+
+        function filterTable() { const q = document.getElementById('searchGDV').value.toLowerCase(); document.querySelectorAll('#tbodyGDV tr').forEach(tr => { tr.style.display = tr.innerText.toLowerCase().includes(q) ? "" : "none"; }); }
+    </script>
+
+    {{ template "footer_master" . }}
+{{ end }}
