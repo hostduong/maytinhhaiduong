@@ -468,3 +468,65 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     animation: text-shine-logo 4s linear infinite;
 }
 @keyframes text-shine-logo { to { background-position: 200% center; } }
+
+/* ==============================================================
+   21. UI CHUẨN MỰC CHO ERP (NHẬP HÀNG, XUẤT HÀNG, SẢN PHẨM)
+   ============================================================== */
+
+/* --- A. BẢNG DỮ LIỆU PRO MAX (Bóng bẩy, bo tròn) --- */
+.erp-table-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem; /* Bo góc 16px */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.erp-table { width: 100%; text-align: left; min-width: 1000px; border-collapse: separate; border-spacing: 0; }
+.erp-table th {
+    background: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.7rem; font-weight: 800;
+    padding: 0.85rem 0.75rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; position: sticky; top: 0; z-index: 10;
+}
+.erp-table td { padding: 0.75rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; font-weight: 600; transition: background 0.2s; }
+.erp-table tr:hover td { background-color: #faf5ff; } /* Rê chuột dòng chuyển sang Tím nhạt */
+
+/* --- B. INPUT TRONG BẢNG (Nhỏ gọn, Tím Focus) --- */
+.input-cell {
+    width: 100%; height: 34px; border-radius: 0.5rem; border: 1.5px solid #cbd5e1;
+    background: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0 0.5rem;
+    transition: all 0.2s ease; outline: none; color: #1e293b;
+}
+.input-cell:hover { border-color: #a855f7; }
+.input-cell:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); background: #ffffff; }
+.input-cell:disabled, .input-cell[readonly] { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+.input-cell-qty { text-align: center; color: #4f46e5; }
+.input-cell-price { text-align: right; color: #059669; background: #f0fdf4; border-color: #a7f3d0; }
+.input-cell-price:focus { background: #ffffff; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+
+/* --- C. THANH TAB DẠNG FOLDER (Tuyệt đẹp) --- */
+.erp-tab-container { display: flex; gap: 4px; align-items: flex-end; border-bottom: 1px solid #e2e8f0; padding: 0 1rem; }
+.erp-tab {
+    padding: 0.6rem 1.25rem; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.85rem;
+    border-radius: 0.75rem 0.75rem 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    border: 1px solid #e2e8f0; border-bottom: none; transition: all 0.2s ease; position: relative; margin-bottom: -1px;
+}
+.erp-tab:hover { background: #e2e8f0; color: #475569; }
+.erp-tab.active { background: #ffffff; color: #9333ea; box-shadow: 0 -4px 10px rgba(0,0,0,0.02); z-index: 2; border-color: #e2e8f0; border-top-color: #d8b4fe; border-top-width: 2px; }
+.erp-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #ffffff; z-index: 3; }
+.erp-tab-close { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.2s; color: #94a3b8; }
+.erp-tab-close:hover { background: #fee2e2; color: #ef4444; }
+
+/* --- D. DROPDOWN TÌM KIẾM --- */
+.erp-search-dropdown {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #ffffff;
+    border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 0.5rem;
+}
+.erp-search-item { padding: 0.75rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: background 0.2s; margin-bottom: 2px; }
+.erp-search-item:last-child { margin-bottom: 0; }
+.erp-search-item:hover, .erp-search-item.active { background: #faf5ff; }
+
+/* --- E. TRẠNG THÁI LỖI/THÀNH CÔNG CHO FORM --- */
+.input-state-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; color: #b91c1c !important;}
+.input-state-success { border-color: #10b981 !important; background-color: #f0fdf4 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important; color: #047857 !important;}
