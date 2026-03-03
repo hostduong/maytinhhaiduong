@@ -16,6 +16,9 @@ import (
 type Service struct { repo Repo }
 
 func (s *Service) Login(shopID, dinhDanh, pass, userAgent string, ghiNho bool) (string, string, error) {
+	// BỨC TƯỜNG LỬA
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return "", "", err }
+
 	if dinhDanh == "admin" { return "", "", errors.New("Tài khoản không tồn tại!") }
 	kh, ok := s.repo.FindByUserOrEmail(shopID, dinhDanh)
 	if !ok { return "", "", errors.New("Tài khoản không tồn tại!") }
@@ -32,7 +35,6 @@ func (s *Service) Login(shopID, dinhDanh, pass, userAgent string, ghiNho bool) (
 	core.KhoaHeThong.Lock()
 	if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]core.TokenInfo) }
 	
-	// Dọn dẹp & Giới hạn 5 Thiết bị
 	nowUnix := time.Now().Unix()
 	for key, info := range kh.RefreshTokens { if info.ExpiresAt < nowUnix { delete(kh.RefreshTokens, key) } }
 	if len(kh.RefreshTokens) >= 5 {
@@ -49,6 +51,9 @@ func (s *Service) Login(shopID, dinhDanh, pass, userAgent string, ghiNho bool) (
 }
 
 func (s *Service) Register(shopID, theme, hoTen, user, email, pass, maPin, dienThoai, ngaySinh, gioiTinhStr, userAgent string) (string, string, string, error) {
+	// BỨC TƯỜNG LỬA
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return "", "", "", err }
+
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
@@ -100,6 +105,8 @@ func (s *Service) Register(shopID, theme, hoTen, user, email, pass, maPin, dienT
 }
 
 func (s *Service) VerifyOTPAndActivate(shopID, userID, otp string) error {
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return err }
+
 	kh, ok := s.repo.FindByUserOrEmail(shopID, userID)
 	if !ok || !core.KiemTraOTP(shopID+"_"+kh.TenDangNhap, otp) { return errors.New("Mã OTP không đúng hoặc đã hết hạn!") }
 
@@ -112,8 +119,10 @@ func (s *Service) VerifyOTPAndActivate(shopID, userID, otp string) error {
 }
 
 func (s *Service) SendOtp(shopID, dinhDanh string) error {
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return err }
+
 	kh, ok := s.repo.FindByUserOrEmail(shopID, dinhDanh)
-	if !ok { return nil } // Giả vờ thành công để chống dò tài khoản
+	if !ok { return nil }
 	if kh.Email == "" || !strings.Contains(kh.Email, "@") { return errors.New("Tài khoản này chưa cập nhật Email, vui lòng dùng PIN.") }
 
 	okLimit, msg := core.KiemTraRateLimit(kh.Email)
@@ -126,6 +135,8 @@ func (s *Service) SendOtp(shopID, dinhDanh string) error {
 }
 
 func (s *Service) ResetByOtp(shopID, dinhDanh, otp, passMoi string) error {
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return err }
+
 	kh, ok := s.repo.FindByUserOrEmail(shopID, dinhDanh)
 	if !ok || !core.KiemTraOTP(shopID+"_"+kh.TenDangNhap, otp) { return errors.New("Mã OTP không đúng hoặc đã hết hạn!") }
 	hash, _ := config.HashMatKhau(passMoi); core.KhoaHeThong.Lock(); kh.MatKhauHash = hash; core.KhoaHeThong.Unlock()
@@ -133,6 +144,8 @@ func (s *Service) ResetByOtp(shopID, dinhDanh, otp, passMoi string) error {
 }
 
 func (s *Service) ResetByPin(shopID, dinhDanh, pinInput, passMoi string) error {
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return err }
+
 	kh, ok := s.repo.FindByUserOrEmail(shopID, dinhDanh)
 	if !ok || !config.KiemTraMatKhau(pinInput, kh.MaPinHash) { return errors.New("Tài khoản hoặc mã PIN không chính xác!") }
 	hash, _ := config.HashMatKhau(passMoi); core.KhoaHeThong.Lock(); kh.MatKhauHash = hash; core.KhoaHeThong.Unlock()
