@@ -5,6 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
+        /* TOÀN BỘ CSS CHỐNG CACHE TRÌNH DUYỆT */
         .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
         @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
         
@@ -14,15 +15,17 @@
         .input-premium { width: 100%; height: 36px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 13px; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
         
+        /* BẢNG DỮ LIỆU: CƠ CHẾ LÒ XO (SHRINK-TO-FIT & FLEX-GROW) */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; padding-bottom: 8px; }
         .table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
         .table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         
-        .table-nhap-hang { width: 100%; text-align: left; min-width: 750px; }
+        .table-nhap-hang { width: 100%; text-align: left; } 
         .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 10px; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; }
         .table-nhap-hang td { padding: 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
         .hover-soft-row:hover td { background-color: #f8fafc; }
         
+        /* Ô INPUT ĐỒNG BỘ MÀU SLATE VÀ ÉP CÂN NHỎ GỌN */
         .input-cell-qty, .input-cell-bh { 
             width: 55px; text-align: center; height: 30px; 
             border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;
@@ -35,6 +38,7 @@
         .input-cell-qty:focus, .input-cell-bh:focus, .price-input:focus { border-color: #9333ea; background: #ffffff; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
+        /* DROPDOWN TÌM KIẾM ĐẸP */
         .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 4px; }
         .search-item { padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid transparent; margin-bottom: 2px;}
         .search-item:hover, .search-item.active { background: #faf5ff; border-color: #f3e8ff; }
@@ -42,38 +46,42 @@
         .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
         .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
 
-        /* ==============================================================
-           ĐÃ FIX TAB PHIẾU: BỎ VIỀN LED, CHỈNH TÍM ĐẬM CHỮ TRẮNG
-           ============================================================== */
+        /* TAB UI: PHIẾU KHÁC MÀU XÁM ĐẬM, PHIẾU ĐANG CHỌN MÀU TÍM */
         .tab-container { display: flex; gap: 6px; align-items: flex-end; }
         .erp-tab-item { 
-            padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 12px; 
+            padding: 8px 16px; background: #cbd5e1; color: #475569; font-weight: 700; font-size: 12px; 
             border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
-            transition: all 0.2s; border: 1px solid #e2e8f0; border-bottom: none; position: relative; white-space: nowrap;
+            transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
         }
-        .erp-tab-item:hover { background: #e2e8f0; }
+        .erp-tab-item:hover { background: #94a3b8; color: #ffffff; }
         
-        /* Tab Active Chuẩn: Tím Khối */
         .erp-tab-item.active { 
-            background: #9333ea !important; /* Tím rực như nút hoàn thành */
-            color: #ffffff !important; z-index: 10; 
-            border-color: #9333ea !important;
-            box-shadow: 0 -4px 10px rgba(147, 51, 234, 0.2);
+            background: #ffffff; color: #9333ea; z-index: 10; overflow: hidden;
+            border-color: transparent !important; box-shadow: 0 -4px 10px rgba(147, 51, 234, 0.1);
         }
+        .erp-tab-item.active::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
+            animation: spin-slow 4s linear infinite; z-index: 0; pointer-events: none;
+        }
+        .erp-tab-item.active::after {
+            content: ''; position: absolute; top: 1.5px; left: 1.5px; right: 1.5px; bottom: -2px;
+            background: #ffffff; z-index: 1; border-radius: 9px 9px 0 0;
+        }
+        .erp-tab-item > * { position: relative; z-index: 2; }
         
         .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
-        .erp-tab-item.active .tab-close { color: #ffffff; opacity: 0.8; }
-        .erp-tab-item.active .tab-close:hover { background: rgba(255,255,255,0.25); opacity: 1; }
+        .erp-tab-item.active .tab-close { color: #d8b4fe; }
+        .erp-tab-item.active .tab-close:hover { background: #f3e8ff; color: #9333ea; }
         .erp-tab-item:not(.active) .tab-close:hover { background: #fee2e2; color: #e11d48; }
         
         .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
         .btn-serial { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
         
-        /* ĐÃ FIX: NÚT THÔNG MINH CHO VAT, GIẢM GIÁ, PHÍ NHẬP */
         .smart-input-wrap { position: relative; display: flex; align-items: center; }
-        .smart-input-btn { background: #ffffff; color: #64748b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px dashed #cbd5e1; }
-        .smart-input-btn:hover { background: #f1f5f9; color: #334155; border-style: solid; border-color: #94a3b8; }
-        .smart-input-field { display: none; align-items: center; gap: 6px; }
+        .smart-input-btn { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px dashed #cbd5e1; }
+        .smart-input-btn:hover { background: #e2e8f0; color: #334155; border-style: solid; }
+        .smart-input-field { display: none; }
         .smart-input-wrap.active .smart-input-btn { display: none; }
         .smart-input-wrap.active .smart-input-field { display: flex; }
     </style>
@@ -149,34 +157,28 @@
                         <span id="lblTongTienHang" class="font-black text-slate-800 text-[14px]">0</span>
                     </div>
                     
-                    <div class="flex items-center border-l border-slate-300 pl-4 shrink-0 smart-input-wrap" id="wrapVat">
-                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapVat').classList.add('active'); document.getElementById('inpVatPercent').focus();">+ Thêm VAT</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">VAT:</span>
-                            <div class="flex items-center bg-white border border-slate-300 rounded shadow-inner h-7 overflow-hidden focus-within:border-purple-500 transition">
-                                <input type="number" id="inpVatPercent" class="w-[36px] h-full text-center font-bold text-purple-700 outline-none p-0 m-0 text-[13px]" value="0" min="0" max="100" onfocus="if(this.value=='0')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="calcThanhToan()" onchange="calcThanhToan()">
-                                <span class="bg-slate-100 h-full px-1.5 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">%</span>
-                            </div>
-                            <span id="lblTienVat" class="font-bold text-rose-500 text-[13px] hidden ml-1">0</span>
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpVatPercent').value='0'; calcThanhToan(); document.getElementById('wrapVat').classList.remove('active');">✕</button>
+                    <div class="flex items-center gap-2 border-l border-slate-300 pl-4 shrink-0">
+                        <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px]">VAT:</span> 
+                        <div class="flex items-center bg-white border border-slate-300 rounded shadow-inner h-7 overflow-hidden focus-within:border-purple-500 transition">
+                            <input type="number" id="inpVatPercent" class="w-[40px] h-full text-center font-bold text-purple-700 outline-none p-0 m-0 text-[13px]" value="0" min="0" max="100" onfocus="if(this.value=='0')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="calcThanhToan()" onchange="calcThanhToan()">
+                            <span class="bg-slate-100 h-full px-1.5 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">%</span>
                         </div>
+                        <span id="lblTienVat" class="font-bold text-rose-500 text-[13px] hidden">0</span>
                     </div>
 
-                    <div class="flex items-center border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapGiamGia">
-                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapGiamGia').classList.add('active'); document.getElementById('inpGiamGiaPhieu').focus();">+ Giảm giá</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">Giảm giá:</span>
+                    <div class="flex items-center gap-2 border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapGiamGia">
+                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapGiamGia').classList.add('active'); document.getElementById('inpGiamGiaPhieu').focus();">Nhập KM</button>
+                        <div class="smart-input-field items-center gap-1">
                             <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-[85px] h-7 text-[13px] text-emerald-600 bg-emerald-50 border-emerald-200 shadow-inner m-0 px-2" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpGiamGiaPhieu').value='0'; calcThanhToan(); document.getElementById('wrapGiamGia').classList.remove('active');">✕</button>
+                            <button type="button" class="text-slate-400 hover:text-red-500 p-1" onclick="document.getElementById('inpGiamGiaPhieu').value='0'; calcThanhToan(); document.getElementById('wrapGiamGia').classList.remove('active');">✕</button>
                         </div>
                     </div>
 
-                    <div class="flex items-center border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapChiPhi">
-                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapChiPhi').classList.add('active'); document.getElementById('inpChiPhiNhap').focus();">+ Phí nhập</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">Phí nhập:</span>
+                    <div class="flex items-center gap-2 border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapChiPhi">
+                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapChiPhi').classList.add('active'); document.getElementById('inpChiPhiNhap').focus();">Thêm phí</button>
+                        <div class="smart-input-field items-center gap-1">
                             <input type="text" id="inpChiPhiNhap" class="input-premium price-input w-[85px] h-7 text-[13px] text-amber-600 bg-amber-50 border-amber-200 shadow-inner m-0 px-2" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpChiPhiNhap').value='0'; calcThanhToan(); document.getElementById('wrapChiPhi').classList.remove('active');">✕</button>
+                            <button type="button" class="text-slate-400 hover:text-red-500 p-1" onclick="document.getElementById('inpChiPhiNhap').value='0'; calcThanhToan(); document.getElementById('wrapChiPhi').classList.remove('active');">✕</button>
                         </div>
                     </div>
                     
@@ -184,7 +186,7 @@
 
                     <div class="flex items-center gap-2 shrink-0">
                         <span class="text-purple-800 font-black text-[12px] uppercase tracking-wider">Cần Trả:</span> 
-                        <span id="lblCanTra" class="font-black text-purple-700 text-[18px]">0</span>
+                        <span id="lblCanTra" class="font-black text-purple-700 text-[16px]">0</span>
                     </div>
                 </div>
             </div>
@@ -238,7 +240,7 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Kho Nhập</label>
-                        <select id="valMaKho" class="input-premium cursor-pointer text-[12px] font-bold text-purple-800 bg-slate-50 px-2 h-[36px] w-full" onchange="saveCurrentTabState()">
+                        <select id="valMaKho" class="input-premium cursor-pointer text-[12px] font-bold text-purple-800 bg-slate-50 px-2 h-[36px]" style="width: 100% !important;" onchange="saveCurrentTabState()">
                             <option value="KHO_CHINH">Kho Chính</option>
                             <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
                         </select>
@@ -246,17 +248,17 @@
                 </div>
 
                 <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-2.5 shadow-inner mt-1">
-                    <div class="flex justify-between items-center gap-2">
+                    <div class="flex justify-between items-center gap-2 w-full">
                         <span class="text-emerald-800 font-bold text-[11px] uppercase tracking-wider shrink-0">Đã trả:</span>
-                        <div class="flex items-center gap-1.5 flex-1 justify-end">
-                            <input type="text" id="inpDaThanhToan" class="input-premium price-input h-8 text-[13px] text-emerald-700 border-emerald-300 font-black m-0 p-0 pr-2 text-right transition-all" style="width: 80px; min-width: 80px; max-width: 150px;" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" oninput="resizeInput(this)" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <select id="valPhuongThuc" class="input-premium min-w-[115px] w-auto pr-6 h-8 text-[11px] font-bold m-0 bg-emerald-500 border-emerald-600 text-white cursor-pointer shadow-sm rounded-lg shrink-0 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-no-repeat bg-[position:right_8px_center]" onchange="saveCurrentTabState()">
-                                <option value="TIEN_MAT" class="bg-white text-slate-800">Tiền Mặt</option>
-                                <option value="CHUYEN_KHOAN" class="bg-white text-slate-800">Chuyển Khoản</option>
+                        <div class="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                            <input type="text" id="inpDaThanhToan" class="input-premium price-input flex-1 min-w-0 h-8 text-[13px] text-emerald-700 border-emerald-300 font-black m-0 p-0 pr-2 text-right shadow-inner" style="width: 100% !important;" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
+                            <select id="valPhuongThuc" class="input-premium cursor-pointer text-[12px] font-bold text-slate-700 bg-white border-emerald-300 px-2 h-8 shrink-0 shadow-sm" style="width: auto !important; padding-right: 24px;" onchange="saveCurrentTabState()">
+                                <option value="TIEN_MAT">Tiền Mặt</option>
+                                <option value="CHUYEN_KHOAN">Chuyển Khoản</option>
                             </select>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center border-t border-emerald-200/60 pt-2">
+                    <div class="flex justify-between items-center border-t border-emerald-200/60 pt-2 w-full">
                         <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Công nợ:</span>
                         <span id="lblConNo" class="font-black text-[14px] text-slate-600">0</span>
                     </div>
@@ -314,13 +316,6 @@
         function formatNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
-        
-        // HÀM TỰ KÉO DÀI INPUT ĐÃ TRẢ
-        function resizeInput(el) {
-            let val = el.value || "";
-            let newWidth = 80 + (val.length > 5 ? (val.length - 5) * 8 : 0);
-            el.style.width = Math.min(newWidth, 150) + "px";
-        }
 
         const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img'), baohanh: parseInt(el.getAttribute('data-baohanh')) || 0 }); });
         const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai'), masothue: el.getAttribute('data-masothue'), diachi: el.getAttribute('data-diachi') }); });
@@ -412,7 +407,6 @@
             let elDaTra = document.getElementById('inpDaThanhToan'); 
             if(elDaTra) { 
                 elDaTra.value = formatNum(t.da_tra); 
-                resizeInput(elDaTra); // Cập nhật width khi load tab
             }
             let elPt = document.getElementById('valPhuongThuc'); if(elPt) elPt.value = t.phuong_thuc || 'TIEN_MAT';
             
@@ -584,12 +578,6 @@
             }
         }
 
-        function setPhuongThuc(pt) {
-            if (appTabs[currentTabId] && appTabs[currentTabId].status === -1) return;
-            let valP = document.getElementById('valPhuongThuc'); if(valP) valP.value = pt;
-            saveCurrentTabState();
-        }
-
         function calcThanhToan() {
             let elTong = document.getElementById('lblTongTienHang'); 
             let elGiam = document.getElementById('inpGiamGiaPhieu');
@@ -636,7 +624,6 @@
         function addNewTab() { tabCounter++; let nId = "T" + tabCounter; appTabs[nId] = getEmptyTab(tabCounter); switchTab(nId); }
         function switchTab(id) { if(currentTabId && appTabs[currentTabId]) saveCurrentTabState(); currentTabId = id; loadTabToUI(id); renderTabs(); }
         
-        // ĐÃ CHUẨN HÓA POPUP SWEETALERT BẢN MỚI
         function closeTab(id) {
             let keys = Object.keys(appTabs);
             if (keys.length === 1) { 
