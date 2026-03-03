@@ -9,6 +9,8 @@ import (
 func checkLogin(c *gin.Context) bool {
 	cookie, _ := c.Cookie("session_token")
 	if cookie != "" {
+		// Bức tường lửa: Chặn việc RAM trống làm văng user
+		_ = core.EnsureKhachHangLoaded(c.GetString("SHOP_ID"))
 		if _, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), cookie); ok { return true }
 	}
 	return false
@@ -31,6 +33,7 @@ func TrangQuenMatKhau(c *gin.Context) {
 func TrangXacThucOTP(c *gin.Context) {
 	userName := ""
 	cookie, _ := c.Cookie("session_token")
+	_ = core.EnsureKhachHangLoaded(c.GetString("SHOP_ID"))
 	if kh, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), cookie); ok { userName = kh.TenDangNhap }
 	c.HTML(http.StatusOK, "xac_thuc_otp", gin.H{"TieuDe": "Xác thực OTP", "User": userName})
 }
