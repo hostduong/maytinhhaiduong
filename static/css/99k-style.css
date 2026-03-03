@@ -469,3 +469,86 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 @keyframes text-shine-logo { to { background-position: 200% center; } }
 
+/* ==============================================================
+   21. MODULE KHO & NHẬP HÀNG (UI PRO MAX)
+   ============================================================== */
+
+/* Layout & Box */
+.nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
+@media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
+.box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
+.box-body { padding: 1.25rem; }
+
+/* Bảng Dữ Liệu Co Giãn Đều */
+.table-responsive-wrapper { overflow-x: auto; width: 100%; padding-bottom: 8px; }
+.table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
+.table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+.table-nhap-hang { width: 100%; text-align: left; } 
+.table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 10px; font-weight: 800; color: #64748b; padding: 0.75rem 0.25rem; border-bottom: 2px solid #e2e8f0; }
+.table-nhap-hang td { padding: 0.5rem 0.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
+.hover-soft-row:hover td { background-color: #f8fafc; }
+
+/* Ô Input trong bảng */
+.input-cell-qty, .input-cell-bh { 
+    width: 55px; text-align: center; height: 30px; 
+    border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;
+    background: #f8fafc; color: #475569 !important; transition: all 0.2s; 
+}
+.price-input { 
+    min-width: 85px; width: 100%; max-width: 120px; text-align: right; color: #047857; background: #ecfdf5; 
+    border: 1px solid #a7f3d0; font-size: 13px; height: 30px; border-radius: 0.5rem; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block; transition: all 0.2s;
+}
+.input-cell-qty:focus, .input-cell-bh:focus, .price-input:focus { border-color: #9333ea; background: #ffffff; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
+
+/* Nút Serial Thông Minh */
+.btn-serial { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 4px; }
+
+/* ====================================
+   🔥 TAB UI MÀU TÍM PRO MAX
+   ==================================== */
+.tab-container { display: flex; gap: 6px; align-items: flex-end; }
+.erp-tab-item { 
+    padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 12px; /* Tab thường: Màu xám nhạt sang trọng */
+    border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
+}
+.erp-tab-item:hover { background: #e2e8f0; color: #334155; }
+
+/* Tab Active: Nền tím nhạt, chữ tím đậm, viền LED xoay */
+.erp-tab-item.active { 
+    background: #f3e8ff !important; color: #7e22ce !important; z-index: 10; overflow: hidden;
+    border-color: transparent !important; box-shadow: 0 -4px 10px rgba(147, 51, 234, 0.15);
+}
+.erp-tab-item.active::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
+    animation: spin-slow 4s linear infinite; z-index: 0; pointer-events: none;
+}
+.erp-tab-item.active::after {
+    content: ''; position: absolute; top: 1.5px; left: 1.5px; right: 1.5px; bottom: -2px;
+    background: #f3e8ff; /* Nền ruột trùng với nền Tab */
+    z-index: 1; border-radius: 9px 9px 0 0;
+}
+.erp-tab-item > * { position: relative; z-index: 2; }
+
+/* Nút Close trên Tab */
+.tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
+.erp-tab-item.active .tab-close { color: #a855f7; }
+.erp-tab-item.active .tab-close:hover { background: #e9d5ff; color: #7e22ce; }
+.erp-tab-item:not(.active) .tab-close:hover { background: #fee2e2; color: #e11d48; }
+
+/* Dropdown Tìm Kiếm */
+.erp-search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 4px; }
+.erp-search-item { padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid transparent; margin-bottom: 2px;}
+.erp-search-item:hover, .erp-search-item.active { background: #faf5ff; border-color: #f3e8ff; }
+.tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
+.tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
+
+/* Misc */
+.overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
+.smart-input-wrap { position: relative; display: flex; align-items: center; }
+.smart-input-btn { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px dashed #cbd5e1; }
+.smart-input-btn:hover { background: #e2e8f0; color: #334155; border-style: solid; }
+.smart-input-field { display: none; }
+.smart-input-wrap.active .smart-input-btn { display: none; }
+.smart-input-wrap.active .smart-input-field { display: flex; }
