@@ -41,6 +41,7 @@ func SetupRouter() *gin.Engine {
 
 	router.POST("/login", auth.API_Login)
 	router.POST("/register", auth.API_Register)
+	router.GET("/khach-hang", hien_thi_web.TrangCongPortalKhachHang)
 
 	apiAuth := router.Group("/api/auth")
 	{
