@@ -3,269 +3,182 @@
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
-        @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
-        
-        .box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
-        .box-body { padding: 1.25rem; }
-        
-        .input-premium { width: 100%; height: 38px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.85rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
-        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
-        
-        /* BẢNG CHI TIẾT SẢN PHẨM: CO GIÃN THÔNG MINH */
-        .table-responsive-wrapper { overflow-x: auto; width: 100%; }
-        .table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
-        .table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        
-        .table-nhap-hang { width: 100%; text-align: left; min-width: 900px; }
-        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-        .table-nhap-hang td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
-        
-        .input-qty { width: 100%; min-width: 50px; max-width: 70px; text-align: center; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #4338ca; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;}
-        .input-bh { width: 100%; min-width: 50px; max-width: 70px; text-align: center; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #d97706; font-weight: 800; margin: 0 auto; display: block; background: #fffbeb; font-size: 13px;}
-        .price-input { width: 100%; min-width: 100px; max-width: 130px; text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.9rem; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block;}
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 9999; max-height: 300px; overflow-y: auto; display: none; }
-        .search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
-        .search-item:hover, .search-item.active { background: #faf5ff; }
-
-        .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
-        .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
-
-        .tab-container { display: flex; gap: 4px; align-items: flex-end; }
-        .tab-item { 
-            padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.8rem; 
-            border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
-            transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
-        }
-        .tab-item:hover { background: #e2e8f0; }
-        .tab-item.active { background: #ffffff; color: #4f46e5; z-index: 10; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
-        .tab-item.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:3px; background:#ffffff; z-index:20; }
-        .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
-        .tab-close:hover { background: #fee2e2; color: #e11d48; }
-        
-        .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
-        
-        .btn-serial { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 6px; }
-    </style>
 
     <div id="data_island" style="display:none;">
-        <div id="data_sp">
-            {{ range .DanhSachSP }}
-            <div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_ncc">
-            {{ range .DanhSachNCC }}
-            <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}" data-masothue="{{ .MaSoThue }}" data-diachi="{{ .DiaChi }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_drafts">
-            {{ range .DanhSachNhaps }}
-            <div class="draft-item" data-maphieu="{{ .MaPhieuNhap }}" data-trangthai="{{ .TrangThai }}" data-mancc="{{ .MaNhaCungCap }}" data-ngaynhap="{{ .NgayNhap }}" data-sohd="{{ .SoHoaDon }}" data-makho="{{ .MaKho }}" data-ghichu="{{ .GhiChu }}" data-giamgia="{{ printf "%.0f" .GiamGiaPhieu }}" data-datra="{{ printf "%.0f" .DaThanhToan }}" data-phuongthuc="{{ .PhuongThucThanhToan }}">
-                {{ range .ChiTiet }}
-                <div class="draft-detail" data-masku="{{ .MaSKU }}" data-sl="{{ .SoLuong }}" data-gianhap="{{ printf "%.0f" .DonGiaNhap }}" data-bh="{{ .BaoHanhThang }}" data-vat="{{ printf "%.0f" .VATPercent }}"></div>
-                {{ end }}
-            </div>
-            {{ end }}
-        </div>
+        <script>const serverDrafts = {{ json .DanhSachNhaps }};</script>
+        <div id="data_sp">{{ range .DanhSachSP }}<div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>{{ end }}</div>
+        <div id="data_ncc">{{ range .DanhSachNCC }}<div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}" data-masothue="{{ .MaSoThue }}" data-diachi="{{ .DiaChi }}"></div>{{ end }}</div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
+    <div class="max-w-[1600px] mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-100px)]">
         
-        <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50 min-w-0 flex flex-col" id="leftPanel">
-            <div class="animated-border-inner flex flex-col h-full bg-white relative rounded-[1rem] overflow-hidden border-none">
-                <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
+        <div class="flex-1 flex flex-col min-w-0 bg-white rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden" id="leftPanel">
+            
+            <div class="bg-slate-50/80 pt-3 px-2 flex items-end justify-between border-b border-slate-200">
+                <div class="erp-tab-container custom-scroll overflow-x-auto flex-1" id="tabList"></div>
+                <div class="flex items-center gap-1.5 text-purple-600 hover:text-purple-800 font-bold mb-[8px] mx-3 shrink-0 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-purple-100 transition" onclick="addNewTab()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="text-[12px] tracking-tight uppercase">Thêm Phiếu</span>
+                </div>
+            </div>
+
+            <div class="p-5 border-b border-purple-50 bg-white relative z-20 shrink-0">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-opacity duration-200" id="iconSearchSP">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="inpSearchSP" class="input-premium border-purple-200 shadow-sm transition-all focus:ring-4 focus:ring-purple-500/10 text-base h-12" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
+                    <div id="dropdownSP" class="erp-search-dropdown custom-scroll"></div>
+                </div>
+            </div>
+
+            <div class="erp-table-wrapper flex-1 border-none rounded-none shadow-none m-0 pb-0">
+                <table class="erp-table" id="tableMain">
+                    <thead>
+                        <tr>
+                            <th class="w-10 text-center">STT</th>
+                            <th class="w-20 text-center">Ảnh</th>
+                            <th class="w-auto min-w-[200px] text-left">Tên Hàng Hóa</th>
+                            <th class="w-[70px] text-center">ĐVT</th>
+                            <th class="w-[80px] text-center">BH (Tháng)</th>
+                            <th class="w-[100px] text-center">SL Nhập</th>
+                            <th class="w-[130px] text-right">Giá Nhập</th>
+                            <th class="w-[150px] text-right pr-6">Thành Tiền</th>
+                            <th class="w-10 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyChiTiet">
+                        <tr id="rowEmpty"><td colspan="9" class="text-center py-20 text-slate-400 italic">Chưa có sản phẩm trong phiếu.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-slate-50 border-t border-slate-200 p-4 shrink-0 flex flex-col md:flex-row items-end md:items-center justify-between gap-4 z-20 relative">
+                <div class="flex items-center gap-4 text-sm font-bold text-slate-500">
+                    <div class="flex items-center gap-2">
+                        <span>Giảm giá:</span>
+                        <input type="text" id="inpGiamGiaPhieu" class="input-cell input-cell-price w-28 text-rose-600 bg-rose-50 border-rose-200 m-0 h-9" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
+                    </div>
+                    <div class="flex items-center gap-2 border-l border-slate-300 pl-4">
+                        <span>VAT:</span>
+                        <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden h-9 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-200 transition">
+                            <input type="number" id="inpVatPercent" class="w-12 h-full text-center font-bold text-purple-700 outline-none m-0 p-0" value="0" min="0" max="100" onchange="calcThanhToan()">
+                            <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200">%</span>
+                        </div>
+                        <span id="lblTienVat" class="text-purple-600 ml-1 min-w-[60px] text-right">0</span>
+                    </div>
+                </div>
                 
-                <div class="px-4 border-b border-slate-200 bg-slate-50/80 flex items-end relative z-10 pt-2 overflow-x-auto custom-scroll shrink-0">
-                    <div class="tab-container flex shrink-0" id="tabList"></div>
-                    <div class="flex items-center gap-1.5 text-indigo-500 hover:text-indigo-700 font-bold mb-[6px] ml-2 shrink-0 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition" onclick="addNewTab()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                        <span class="text-[12px] tracking-tight uppercase">Thêm</span>
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Tổng Tiền Hàng</span>
+                        <span id="lblTongTienHang" class="font-black text-slate-700 text-lg">0</span>
                     </div>
-                    <div class="flex-1 min-w-[20px]"></div>
-                    <button onclick="toggleRightPanel()" id="btnToggle" class="mb-[8px] text-slate-400 hover:text-indigo-600 text-[11px] font-bold transition whitespace-nowrap shrink-0 uppercase tracking-widest flex items-center gap-1">
-                        Đóng TT Phiếu ⯈
-                    </button>
-                </div>
-                
-                <div id="overlayDeleted" class="overlay-deleted">
-                    <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </div>
-                    <h3 class="text-2xl font-black text-red-600 mb-2">Phiếu đã đưa vào Thùng rác</h3>
-                    <p class="text-slate-500 font-medium mb-6">Trạng thái: Đợi xóa. Dữ liệu vẫn được bảo lưu.</p>
-                    <button onclick="restoreTab()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/30 transition transform hover:-translate-y-1">
-                        Khôi phục phiếu này
-                    </button>
-                </div>
-
-                <div class="p-3 border-b border-purple-50 bg-white relative z-20 shrink-0">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-opacity duration-200" id="iconSearchSP">
-                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm transition-all" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
-                        <div id="dropdownSP" class="search-dropdown"></div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[11px] font-black text-purple-700 uppercase tracking-widest">Cần Trả NCC</span>
+                        <span id="lblCanTra" class="font-black text-purple-700 text-2xl">0</span>
                     </div>
                 </div>
+            </div>
 
-                <div class="table-responsive-wrapper flex-1 bg-white relative z-10 pb-0">
-                    <table class="table-nhap-hang" id="tableMain">
-                        <thead class="sticky top-0 z-10 shadow-sm">
-                            <tr>
-                                <th class="w-10 text-center">STT</th>
-                                <th class="w-[60px] text-center">Ảnh</th>
-                                <th class="w-auto min-w-[200px] text-left">Tên Hàng Hóa</th>
-                                <th class="w-[60px] text-center">ĐVT</th>
-                                <th class="w-[80px] text-center">BH (Tháng)</th>
-                                <th class="w-[90px] text-center">SL Nhập</th>
-                                <th class="w-[120px] text-center">Giá Nhập</th>
-                                <th class="w-[130px] text-right pr-4">Thành Tiền</th>
-                                <th class="w-8 text-center">✕</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyChiTiet">
-                            <tr id="rowEmpty" class="border-b-0">
-                                <td colspan="9" class="text-center py-24 text-slate-400 font-medium italic">
-                                    <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                    Chưa có sản phẩm.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="bg-slate-50 border-t border-slate-200 p-4 shrink-0 flex flex-col items-end gap-2.5 z-20 relative">
-                    
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                        <span class="text-slate-500 font-bold text-[13px] uppercase tracking-wider">Tổng tiền hàng:</span> 
-                        <span id="lblTongTienHang" class="font-black text-slate-800 text-[14px] min-w-[120px] text-right">0</span>
-                    </div>
-
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                        <div class="flex items-center gap-2">
-                            <span class="text-slate-500 font-bold text-[12px] uppercase tracking-wider">VAT:</span> 
-                            <input type="number" id="inpVatPercent" class="input-premium w-14 h-8 text-center text-[13px] p-0 shadow-inner border-slate-300 m-0" value="0" min="0" max="100" onchange="calcThanhToan()">
-                            <span class="text-slate-500 font-bold text-[13px]">%</span>
-                            <span id="lblTienVat" class="font-bold text-indigo-600 text-[14px] ml-1 bg-indigo-50 px-2 rounded border border-indigo-100 min-w-[80px] text-right inline-block">0</span>
-                        </div>
-                        <div class="flex items-center gap-2 border-l border-slate-300 pl-4">
-                            <span class="text-slate-500 font-bold text-[12px] uppercase tracking-wider">Giảm giá:</span> 
-                            <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-28 h-8 text-[14px] text-rose-600 bg-rose-50 border-rose-200 shadow-inner m-0" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end border-t border-slate-200 pt-2 mt-1">
-                        <span class="text-indigo-800 font-black text-[13px] uppercase tracking-wider">Cần Trả:</span> 
-                        <span id="lblCanTra" class="font-black text-indigo-700 text-[16px] min-w-[120px] text-right">0</span>
-                    </div>
-
-                </div>
+            <div id="overlayDeleted" class="overlay-deleted rounded-2xl">
+                <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-3"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+                <h3 class="text-xl font-black text-red-600 mb-1">Phiếu Đã Bị Xóa</h3>
+                <button onclick="restoreTab()" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">Khôi phục phiếu này</button>
             </div>
         </div>
 
-        <div class="animated-border-wrapper w-full lg:w-[320px] xl:w-[340px] shrink-0 shadow-xl shadow-purple-200/50 rounded-[1rem] h-fit transition-all duration-300 origin-right" id="rightPanel">
-            <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col space-y-4 rounded-[1rem] relative z-10 border border-transparent">
-                
-                <div class="relative z-50">
-                    <label class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">Nhà Cung Cấp <span class="text-red-500">*</span></label>
-                    <div class="relative w-full">
-                        <input type="text" id="inpSearchNCC" class="input-premium border-indigo-200 bg-slate-50 text-[13px]" placeholder="Gõ tên tìm kiếm..." autocomplete="off">
-                        <input type="hidden" id="valMaNCC">
-                        <div id="dropdownNCC" class="search-dropdown text-sm"></div>
+        <div class="w-full lg:w-[320px] xl:w-[340px] flex flex-col gap-6 shrink-0 transition-all duration-300" id="rightPanel">
+            
+            <div class="animated-border-wrapper shadow-lg shadow-purple-200/40">
+                <div class="animated-border-inner p-5 space-y-4">
+                    <div class="relative z-50">
+                        <label class="text-[11px] font-black text-purple-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            Nhà Cung Cấp <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative w-full">
+                            <input type="text" id="inpSearchNCC" class="input-premium border-purple-200 bg-purple-50/30 focus:bg-white" placeholder="Tìm kiếm..." autocomplete="off">
+                            <input type="hidden" id="valMaNCC">
+                            <div id="dropdownNCC" class="erp-search-dropdown text-sm"></div>
+                        </div>
+                        
+                        <div id="nccDetails" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-600 shadow-inner space-y-1">
+                            <div class="flex justify-between"><span class="font-bold text-slate-400">MST</span><span id="lblNCC_MST" class="font-mono font-bold text-slate-800"></span></div>
+                            <div class="flex justify-between"><span class="font-bold text-slate-400">ĐT</span><span id="lblNCC_SDT" class="font-bold text-purple-600"></span></div>
+                            <div class="pt-1 mt-1 border-t border-slate-200/60"><span class="font-bold text-slate-400 block mb-0.5">Địa Chỉ</span><span id="lblNCC_DiaChi" class="leading-snug font-medium text-slate-700"></span></div>
+                        </div>
                     </div>
                     
-                    <div id="nccDetails" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 shadow-inner">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Mã Số Thuế</span>
-                            <span id="lblNCC_MST" class="font-mono font-bold text-slate-800"></span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase mb-1 block">Trạng thái</label>
+                            <div id="lblTrangThai" class="input-premium bg-slate-50 text-slate-500 flex items-center justify-center font-bold text-[11px] h-[38px] border-dashed">Đang soạn</div>
                         </div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Điện Thoại</span>
-                            <span id="lblNCC_SDT" class="font-bold text-indigo-600"></span>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase mb-1 block">Ngày Nhập</label>
+                            <input type="date" id="valNgayNhap" class="input-premium font-mono text-[12px] bg-slate-50 px-2 h-[38px]" onchange="saveCurrentTabState()">
                         </div>
-                        <div class="flex flex-col mt-2 pt-2 border-t border-slate-200/60">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px] mb-0.5">Địa Chỉ</span>
-                            <span id="lblNCC_DiaChi" class="leading-snug text-slate-700 font-medium"></span>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase mb-1 block">Số HĐ (VAT)</label>
+                            <input type="text" id="valSoHoaDon" class="input-premium text-[13px] font-bold h-[38px]" placeholder="Ký hiệu..." onchange="saveCurrentTabState()">
                         </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Trạng thái</label>
-                        <div id="lblTrangThai" class="input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] h-[36px]" style="border-style: dashed;">Đang soạn</div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ngày Nhập</label>
-                        <input type="date" id="valNgayNhap" class="input-premium font-mono text-[12px] bg-slate-50 px-2 h-[36px]" onchange="saveCurrentTabState()">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Số HĐ (VAT)</label>
-                        <input type="text" id="valSoHoaDon" class="input-premium text-[13px] font-bold bg-slate-50 h-[36px]" placeholder="Ký hiệu..." onchange="saveCurrentTabState()">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Kho Nhập</label>
-                        <select id="valMaKho" class="input-premium cursor-pointer text-[12px] font-bold text-indigo-800 bg-slate-50 px-2 h-[36px]" onchange="saveCurrentTabState()">
-                            <option value="KHO_CHINH">Kho Chính</option>
-                            <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-2.5 shadow-inner mt-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-emerald-800 font-bold text-[11px] uppercase tracking-wider">Đã trả:</span>
-                        <div class="flex items-center gap-1.5">
-                            <input type="text" id="inpDaThanhToan" class="input-premium price-input w-28 h-8 text-[14px] text-emerald-700 border-emerald-300 font-black m-0 p-0 pr-2" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <select id="valPhuongThuc" class="input-premium w-[80px] h-8 text-[11px] font-bold px-1 m-0 bg-emerald-500 border-emerald-600 text-white cursor-pointer shadow-sm rounded-lg" onchange="saveCurrentTabState()">
-                                <option value="TIEN_MAT" class="bg-white text-slate-800">Tiền Mặt</option>
-                                <option value="CHUYEN_KHOAN" class="bg-white text-slate-800">CKhoản</option>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase mb-1 block">Kho Nhập</label>
+                            <select id="valMaKho" class="input-premium cursor-pointer text-[12px] font-bold text-purple-800 h-[38px] px-2" onchange="saveCurrentTabState()">
+                                <option value="KHO_CHINH">Kho Chính</option>
+                                <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
                             </select>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center border-t border-emerald-200/60 pt-2">
-                        <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Công nợ:</span>
-                        <span id="lblConNo" class="font-black text-[14px] text-slate-600">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4">
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl shadow-inner space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-emerald-800 font-black text-[11px] uppercase tracking-widest">Đã Trả NCC:</span>
+                        <input type="text" id="inpDaThanhToan" class="input-premium w-32 h-9 text-[15px] text-emerald-700 border-emerald-300 font-black text-right p-0 pr-2 shadow-inner" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-emerald-800 font-black text-[11px] uppercase tracking-widest">Nguồn:</span>
+                        <select id="valPhuongThuc" class="input-premium w-32 h-9 text-[12px] font-bold bg-emerald-500 border-emerald-600 text-white cursor-pointer shadow-sm" onchange="saveCurrentTabState()">
+                            <option value="TIEN_MAT" class="bg-white text-slate-800">Tiền Mặt</option>
+                            <option value="CHUYEN_KHOAN" class="bg-white text-slate-800">Chuyển Khoản</option>
+                        </select>
+                    </div>
+                    <div class="pt-3 border-t border-emerald-200/60 flex justify-between items-center">
+                        <span class="text-slate-500 font-black text-[11px] uppercase tracking-widest">Tính Công Nợ:</span>
+                        <span id="lblConNo" class="font-black text-[16px] text-slate-600">0</span>
                     </div>
                 </div>
-                
-                <div class="mt-1">
+
+                <div>
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ghi chú phiếu</label>
-                    <textarea id="valGhiChu" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-[13px] focus:border-indigo-500 outline-none transition resize-none shadow-inner" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
+                    <textarea id="valGhiChu" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-[13px] focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition resize-none shadow-inner" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
                 </div>
 
-                <div class="mt-2 flex gap-3 pt-3 border-t border-slate-100">
-                    <button onclick="confirmSubmit(0)" class="flex-1 bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold text-[13px] py-3 rounded-xl shadow-sm transition active:scale-95 text-center">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="confirmSubmit(0)" class="flex-1 bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-bold text-[13px] py-3.5 rounded-xl shadow-sm transition active:scale-95 text-center">
                         Lưu Nháp
                     </button>
-                    <button onclick="confirmSubmit(1)" class="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[13px] py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
+                    <button onclick="confirmSubmit(1)" class="flex-[2] bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-[13px] py-3.5 rounded-xl shadow-md shadow-purple-500/30 transition active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         Hoàn Thành
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div id="modalSerial" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-white/20">
-            <div class="px-6 py-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
-                <h3 class="text-base font-black text-indigo-800 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Quét Serial / IMEI</h3>
+            <div class="px-6 py-4 bg-purple-50 border-b border-purple-100 flex justify-between items-center">
+                <h3 class="text-base font-black text-purple-800 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Quét Serial / IMEI</h3>
                 <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="text-slate-400 hover:text-red-500 transition text-2xl font-bold">&times;</button>
             </div>
             <div class="p-6">
-                <div class="flex justify-between text-sm font-bold text-slate-600 mb-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <span id="lblSerialName" class="text-indigo-700 truncate mr-4">Tên SP</span>
+                <div class="flex justify-between text-sm font-bold text-slate-600 mb-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span id="lblSerialName" class="text-purple-700 truncate mr-4">Tên SP</span>
                     <span class="shrink-0">Cần quét: <span id="lblSerialReq" class="text-rose-600 font-black text-lg bg-rose-100 px-2 py-0.5 rounded">0</span></span>
                 </div>
                 <input id="inpSerials" class="tagify-serial text-base" placeholder="Tít mã vạch hoặc Gõ mã rồi ấn Enter..." autofocus>
@@ -275,8 +188,8 @@
                 </div>
             </div>
             <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="px-5 py-2 font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition">Đóng</button>
-                <button onclick="saveSerials()" class="px-6 py-2 font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition transform active:scale-95">Xác Nhận</button>
+                <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="px-5 py-2.5 font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl transition">Đóng</button>
+                <button onclick="saveSerials()" class="px-6 py-2.5 font-black text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-md transition transform active:scale-95">Xác Nhận</button>
             </div>
             <input type="hidden" id="idxEditingSerial">
         </div>
@@ -347,9 +260,9 @@
             let elPt = document.getElementById('valPhuongThuc'); if(elPt) elPt.value = t.phuong_thuc || 'TIEN_MAT';
             
             let lbl = document.getElementById('lblTrangThai'); let overlay = document.getElementById('overlayDeleted');
-            if (t.status === 0) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px] h-[36px]"; lbl.innerText = "Lưu Nháp Server"; overlay.style.display = 'none'; toggleInputs(false); }
-            else if (t.status === -1) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px] h-[36px]"; lbl.innerText = "Đợi Xóa"; overlay.style.display = 'flex'; toggleInputs(true); }
-            else { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed h-[36px]"; lbl.innerText = "Đang soạn (Local)"; overlay.style.display = 'none'; toggleInputs(false); }
+            if (t.status === 0) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px] h-[38px]"; lbl.innerText = "Lưu Nháp Server"; overlay.style.display = 'none'; toggleInputs(false); }
+            else if (t.status === -1) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px] h-[38px]"; lbl.innerText = "Đợi Xóa"; overlay.style.display = 'flex'; toggleInputs(true); }
+            else { lbl.className = "input-premium bg-slate-50 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed h-[38px]"; lbl.innerText = "Đang soạn (Local)"; overlay.style.display = 'none'; toggleInputs(false); }
             renderTable();
         }
 
@@ -366,7 +279,7 @@
                 else { matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10); }
                 
                 matches.forEach(item => {
-                    const div = document.createElement('div'); div.className = 'search-item'; div.innerHTML = renderItem(item);
+                    const div = document.createElement('div'); div.className = 'erp-search-item'; div.innerHTML = renderItem(item);
                     div.onmousedown = (e) => { 
                         e.preventDefault(); 
                         if(currentTabId && appTabs[currentTabId]) {
@@ -385,14 +298,8 @@
             document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        const iconSearchSP = document.getElementById('iconSearchSP');
-        document.getElementById('inpSearchSP').addEventListener('input', function() {
-            if(this.value.length > 0) { iconSearchSP.style.opacity = '0'; this.classList.remove('pl-[3rem]'); this.classList.add('pl-[1rem]'); } 
-            else { iconSearchSP.style.opacity = '1'; this.classList.remove('pl-[1rem]'); this.classList.add('pl-[3rem]'); }
-        });
-
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
-            (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[14px]">${i.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div></div></div>`,
+            (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded-lg shadow-sm border border-slate-200"><div><div class="font-bold text-slate-800 text-[14px]">${i.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-purple-600 bg-purple-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div></div></div>`,
             (i) => addProductToCart(i)
         );
 
@@ -401,9 +308,9 @@
                 <div class="flex flex-col gap-1">
                     <div class="font-bold text-slate-800 text-[13px]">${item.ten}</div>
                     <div class="text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                        <span class="bg-indigo-50 px-1 rounded text-indigo-700 font-bold">${item.ma}</span>
+                        <span class="bg-purple-50 px-1 rounded text-purple-700 font-bold">${item.ma}</span>
                         <span>MST: <b>${item.masothue || '---'}</b></span>
-                        <span>SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></span>
+                        <span>SĐT: <b class="text-purple-600">${item.sdt || '---'}</b></span>
                     </div>
                     <div class="text-[10px] text-slate-500 truncate" title="${item.diachi || ''}">📍 ${item.diachi || 'Chưa cập nhật địa chỉ'}</div>
                 </div>`,
@@ -442,26 +349,26 @@
 
             t.cart.forEach((c, idx) => {
                 let thanhTien = (c.sl * c.gianhap); tongTienHang += thanhTien;
-                let tr = document.createElement('tr'); tr.className = "hover-soft-row border-b border-slate-100";
+                let tr = document.createElement('tr'); tr.className = "hover-soft-row";
                 
-                let serialBtnCls = (c.serials && c.serials.length > 0) ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200";
+                let serialBtnCls = (c.serials && c.serials.length > 0) ? "bg-purple-100 text-purple-700 border-purple-200" : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200";
                 let serialCount = c.serials ? c.serials.length : 0;
 
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
-                    <td class="text-center py-2.5 align-middle"><div class="w-14 h-14 min-w-[3.5rem] mx-auto bg-slate-100 rounded border border-slate-200"><img src="${getFirstImg(c.img)}" class="w-full h-full object-cover"></div></td>
-                    <td class="whitespace-normal align-middle w-auto min-w-[200px]">
+                    <td class="text-center py-2.5 align-middle"><div class="w-14 h-14 min-w-[3.5rem] mx-auto bg-slate-100 rounded-xl border border-slate-200 overflow-hidden"><img src="${getFirstImg(c.img)}" class="w-full h-full object-cover"></div></td>
+                    <td class="whitespace-normal align-middle w-full min-w-[250px]">
                         <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight">${c.tensp}</div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200"><span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}</span>
+                            <span class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded-lg border border-slate-200"><span class="font-bold text-purple-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}</span>
                             <button onclick="openSerialModal(${idx})" class="btn-serial border ${serialBtnCls}" ${isReadonly}>🎫 Serial: ${serialCount} / ${c.sl}</button>
                         </div>
                     </td>
                     <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
-                    <td class="align-middle"><input type="number" min="0" value="${c.baohanh || 0}" onchange="updateCart(${idx}, 'baohanh', this)" class="input-bh shadow-inner" ${isReadonly} title="Bảo hành (tháng)"></td>
-                    <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty shadow-inner text-indigo-700 font-bold" ${isReadonly}></td>
-                    <td class="align-middle pr-4"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input" ${isReadonly}></td>
-                    <td class="text-right font-black text-[14px] text-slate-800 align-middle pr-4">${formatNum(thanhTien)}</td>
+                    <td class="align-middle"><input type="number" min="0" value="${c.baohanh || 0}" onchange="updateCart(${idx}, 'baohanh', this)" class="input-cell input-cell-qty" ${isReadonly} title="Bảo hành (tháng)"></td>
+                    <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-cell input-cell-qty" ${isReadonly}></td>
+                    <td class="align-middle"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="input-cell input-cell-price" ${isReadonly}></td>
+                    <td class="text-right font-black text-[14px] text-slate-800 align-middle pr-6">${formatNum(thanhTien)}</td>
                     <td class="text-center align-middle"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm" ${isReadonly}>✕</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -470,7 +377,6 @@
             calcThanhToan();
         }
 
-        // TÍNH TOÁN FONT NHỎ XINH (14px)
         function calcThanhToan() {
             let elTong = document.getElementById('lblTongTienHang'); 
             let elGiam = document.getElementById('inpGiamGiaPhieu');
@@ -492,22 +398,19 @@
             let elDaTra = document.getElementById('inpDaThanhToan'); if(!elDaTra) return;
             let daTra = getNum(elDaTra.value); let conNo = canTra - daTra;
             let elConNo = document.getElementById('lblConNo');
-            if(elConNo) { elConNo.innerText = formatNum(conNo); elConNo.className = conNo > 0 ? "font-black text-red-500 text-[14px]" : "font-black text-slate-600 text-[14px]"; }
+            if(elConNo) { elConNo.innerText = formatNum(conNo); elConNo.className = conNo > 0 ? "font-black text-red-500 text-[16px]" : "font-black text-slate-600 text-[16px]"; }
             saveCurrentTabState();
         }
 
-        let isPanelOpen = true;
         function toggleRightPanel() {
-            const rightPanel = document.getElementById('rightPanel'); const btn = document.getElementById('btnToggle');
-            if(isPanelOpen) { 
-                if(rightPanel) rightPanel.classList.add('hidden', 'lg:hidden'); 
-                if(btn) btn.innerHTML = '⯇ Mở TT Phiếu'; 
-                isPanelOpen = false; 
-            } 
-            else { 
-                if(rightPanel) rightPanel.classList.remove('hidden', 'lg:hidden'); 
-                if(btn) btn.innerHTML = 'Đóng TT Phiếu ⯈'; 
-                isPanelOpen = true; 
+            const rightPanel = document.getElementById('rightPanel'); 
+            const btn = document.getElementById('btnToggle');
+            if(rightPanel.classList.contains('hidden')) { 
+                rightPanel.classList.remove('hidden', 'lg:hidden'); 
+                btn.innerHTML = 'Đóng TT Phiếu ⯈'; 
+            } else { 
+                rightPanel.classList.add('hidden', 'lg:hidden'); 
+                btn.innerHTML = '⯇ Mở TT Phiếu'; 
             }
         }
 
@@ -518,7 +421,7 @@
                 let isActive = (id === currentTabId) ? "active" : "";
                 let icon = t.status === -1 ? "🗑️" : (t.status === 0 ? "📝" : "📄");
                 let colorClass = t.status === -1 ? "text-red-500" : "";
-                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span></div>`;
+                html += `<div class="erp-tab ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="erp-tab-close ml-1" onclick="event.stopPropagation(); closeTab('${id}')">✕</span></div>`;
             }
             document.getElementById('tabList').innerHTML = html;
         }
@@ -530,7 +433,7 @@
             if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
             let t = appTabs[id];
             if (t.status === -2) { executeCloseTab(id, keys); } 
-            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
+            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa', customClass: {popup: 'swal-animated-purple'} }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
             else if (t.status === -1) { executeCloseTab(id, keys); }
         }
         function executeCloseTab(id, keys) { delete appTabs[id]; if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } else { renderTabs(); } }
@@ -538,13 +441,13 @@
         function confirmSubmit(status) {
             saveCurrentTabState(); let t = appTabs[currentTabId]; if(!t) { Swal.fire('Lỗi', 'Hệ thống chưa tải xong dữ liệu!', 'error'); return; }
             if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
-            if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
+            if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#9333ea' }); return; }
 
             let titleStr = status === 0 ? "Lưu Nháp Server?" : "Hoàn Thành Phiếu Nhập?";
             let textStr = status === 0 ? "Lưu lên máy chủ để xem lại trên máy khác. Chưa cộng tồn kho." : "Dữ liệu sẽ được ghi sổ và tính công nợ ngay lập tức.";
-            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành"; let colorCls = status === 0 ? "#f97316" : "#4f46e5";
+            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành"; let colorCls = status === 0 ? "#f97316" : "#9333ea";
 
-            Swal.fire({ title: titleStr, text: textStr, icon: 'question', showCancelButton: true, confirmButtonText: btnStr, cancelButtonText: 'Hủy', confirmButtonColor: colorCls, cancelButtonColor: '#94a3b8' })
+            Swal.fire({ title: titleStr, text: textStr, icon: 'question', showCancelButton: true, confirmButtonText: btnStr, cancelButtonText: 'Hủy', confirmButtonColor: colorCls, customClass: {popup: 'swal-animated-purple'} })
             .then((result) => { if (result.isConfirmed) { executeSubmit(status); } });
         }
 
@@ -554,21 +457,21 @@
             let chiTietData = t.cart.map(c => ({ ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, bao_hanh_thang: c.baohanh, vat_percent: globalVat, serials: c.serials }));
             let payload = { ma_phieu_nhap: t.ma_phieu, ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd, ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, chi_phi_nhap: 0, da_tra: t.da_tra, phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData };
 
-            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, customClass: {popup: 'swal-animated-purple'}, didOpen: () => { Swal.showLoading() } });
             try {
                 const res = await fetch('/master/api/nhap-hang/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await res.json();
                 if(data.status === 'ok') {
                     appTabs[currentTabId].status = status; appTabs[currentTabId].ma_phieu = data.ma_phieu; appTabs[currentTabId].title = data.ma_phieu; 
                     renderTabs(); loadTabToUI(currentTabId); 
-                    Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, confirmButtonColor: '#10b981' });
+                    Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, confirmButtonColor: '#10b981', customClass: {popup: 'swal-animated-purple'} });
                 } else { Swal.fire('Thất bại', data.msg, 'error'); }
             } catch(e) { Swal.fire('Lỗi kết nối', 'Không thể đẩy dữ liệu lên máy chủ', 'error'); }
         }
 
         async function changeStatusAPI(tabId, newStatus) {
-            let t = appTabs[currentTabId]; let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
-            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            let t = appTabs[tabId]; let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
+            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, customClass: {popup: 'swal-animated-purple'}, didOpen: () => { Swal.showLoading() } });
             try {
                 const res = await fetch('/master/api/nhap-hang/status', { method: 'POST', body: fd });
                 const data = await res.json();
@@ -590,7 +493,7 @@
         function saveSerials() {
             let elIdx = document.getElementById('idxEditingSerial'); if(!elIdx) return;
             let idx = elIdx.value; let c = appTabs[currentTabId].cart[idx]; let req = c.sl; let lines = tagifySerial ? tagifySerial.value.map(t => t.value) : [];
-            if(lines.length > req) { Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return; }
+            if(lines.length > req) { Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#9333ea' }); return; }
             c.serials = lines; let modal = document.getElementById('modalSerial'); if(modal) modal.classList.add('hidden'); renderTable();
         }
 
