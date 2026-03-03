@@ -508,15 +508,16 @@ input::-ms-reveal, input::-ms-clear { display: none; }
    ==================================== */
 .tab-container { display: flex; gap: 6px; align-items: flex-end; }
 
-/* Tab chưa chọn: Nền xám nhạt, chữ xám đậm */
+/* Tab chưa chọn: Nền xám nhạt (Slate-100), chữ xám nhạt (Slate-500) - Đồng bộ hệ thống */
 .erp-tab-item { 
-    padding: 8px 16px; background: #e2e8f0; color: #475569; font-weight: 700; font-size: 12px; 
+    padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 12px; 
     border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
     transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
 }
-.erp-tab-item:hover { background: #cbd5e1; color: #334155; }
+/* Khi rê chuột vào tab chưa chọn */
+.erp-tab-item:hover { background: #e2e8f0; color: #334155; }
 
-/* Tab Đang chọn: Nền TÍM, Chữ TRẮNG - Đã xóa mọi Layer LED */
+/* Tab Đang chọn: Nền TÍM, Chữ TRẮNG */
 .erp-tab-item.active { 
     background: #9333ea !important; /* Tím rực như nút hoàn thành */
     color: #ffffff !important; 
@@ -527,12 +528,12 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 .erp-tab-item.active .tab-close:hover { background: #7e22ce; color: #ffffff; }
 
 .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
-.erp-tab-item:not(.active) .tab-close:hover { background: #94a3b8; color: #ffffff; }
+.erp-tab-item:not(.active) .tab-close:hover { background: #e2e8f0; color: #ef4444; }
 
 /* Dropdown Tìm Kiếm */
 .erp-search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 4px; }
-.erp-search-item { padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid transparent; margin-bottom: 2px;}
-.erp-search-item:hover, .erp-search-item.active { background: #faf5ff; border-color: #f3e8ff; }
+.search-item { padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid transparent; margin-bottom: 2px;}
+.search-item:hover, .search-item.active { background: #faf5ff; border-color: #f3e8ff; }
 .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
 .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
 
