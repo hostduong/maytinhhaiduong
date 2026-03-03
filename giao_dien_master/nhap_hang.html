@@ -15,7 +15,7 @@
         .input-premium { width: 100%; height: 40px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
         
-        /* BẢNG CHI TIẾT SẢN PHẨM */
+        /* BẢNG CHI TIẾT SẢN PHẨM: ĐÃ ÉP SÁT KHOẢNG CÁCH NHƯ ẢNH MẪU */
         .table-responsive-wrapper { overflow-x: auto; width: 100%; padding-bottom: 8px; }
         .table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
         .table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
@@ -33,13 +33,15 @@
         .search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
         .search-item:hover, .search-item.active { background: #faf5ff; }
 
+        .btn-serial { font-size: 0.65rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 4px; }
+        .btn-serial.empty { background: #fef2f2; color: #e11d48; border: 1px solid #fecdd3; }
+
         .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.9rem; font-weight: 600; color: #475569; }
         .summary-val { font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
 
         .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
         .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
 
-        /* TAB UI TRONG KHỐI LEFT PANEL */
         .tab-container { display: flex; gap: 4px; align-items: flex-end; }
         .tab-item { 
             padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.8rem; 
@@ -55,6 +57,9 @@
         .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
     </style>
 
+    <script>
+        const serverDrafts = {{ json .DanhSachNhaps }};
+    </script>
     <div id="data_island" style="display:none;">
         <div id="data_sp">
             {{ range .DanhSachSP }}
@@ -64,15 +69,6 @@
         <div id="data_ncc">
             {{ range .DanhSachNCC }}
             <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}" data-masothue="{{ .MaSoThue }}" data-diachi="{{ .DiaChi }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_drafts">
-            {{ range .DanhSachNhaps }}
-            <div class="draft-item" data-maphieu="{{ .MaPhieuNhap }}" data-trangthai="{{ .TrangThai }}" data-mancc="{{ .MaNhaCungCap }}" data-ngaynhap="{{ .NgayNhap }}" data-sohd="{{ .SoHoaDon }}" data-makho="{{ .MaKho }}" data-ghichu="{{ .GhiChu }}" data-giamgia="{{ printf "%.0f" .GiamGiaPhieu }}" data-datra="{{ printf "%.0f" .DaThanhToan }}" data-phuongthuc="{{ .PhuongThucThanhToan }}">
-                {{ range .ChiTiet }}
-                <div class="draft-detail" data-masku="{{ .MaSKU }}" data-sl="{{ .SoLuong }}" data-gianhap="{{ printf "%.0f" .DonGiaNhap }}"></div>
-                {{ end }}
-            </div>
             {{ end }}
         </div>
     </div>
@@ -91,7 +87,7 @@
                         <span class="text-[12px] tracking-tight uppercase">Thêm</span>
                     </div>
 
-                    <div class="flex-1"></div>
+                    <div class="flex-1 min-w-[20px]"></div>
                     <button onclick="toggleRightPanel()" id="btnToggle" class="mb-[10px] text-slate-400 hover:text-indigo-600 text-[11px] font-bold transition whitespace-nowrap shrink-0 hidden lg:block uppercase tracking-widest">
                         Đóng TT Thanh toán ⯈
                     </button>
@@ -146,10 +142,10 @@
             </div>
         </div>
 
-        <div class="w-full lg:w-[340px] xl:w-[380px] flex flex-col gap-4 shrink-0" id="rightPanel">
+        <div class="w-full lg:w-[340px] xl:w-[380px] flex flex-col gap-4 shrink-0 transition-all duration-300 origin-right" id="rightPanel">
             
-            <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
-                <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col space-y-4">
+            <div class="animated-border-wrapper shadow-xl shadow-purple-200/50 rounded-[1rem]">
+                <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col space-y-4 rounded-[1rem] relative z-10 border border-transparent">
                     <div class="relative z-50">
                         <label class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">Nhà Cung Cấp <span class="text-red-500">*</span></label>
                         <div class="relative w-full">
@@ -181,18 +177,18 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ngày Nhập</label>
-                            <input type="date" id="valNgayNhap" class="input-premium font-mono text-[13px] bg-slate-50" onchange="saveCurrentTabState()">
+                            <input type="date" id="valNgayNhap" class="input-premium font-mono text-[13px]" onchange="saveCurrentTabState()">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Số HĐ (VAT)</label>
-                            <input type="text" id="valSoHoaDon" class="input-premium text-sm font-bold bg-slate-50" placeholder="Ký hiệu HĐ..." onchange="saveCurrentTabState()">
+                            <input type="text" id="valSoHoaDon" class="input-premium text-sm font-bold" placeholder="Ký hiệu HĐ..." onchange="saveCurrentTabState()">
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Kho Nhập</label>
-                            <select id="valMaKho" class="input-premium cursor-pointer text-sm font-bold text-indigo-800 bg-slate-50" onchange="saveCurrentTabState()">
+                            <select id="valMaKho" class="input-premium cursor-pointer text-sm font-bold text-indigo-800" onchange="saveCurrentTabState()">
                                 <option value="KHO_CHINH">Kho Chính</option>
                                 <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
                             </select>
@@ -201,13 +197,13 @@
                     
                     <div class="mt-2">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ghi chú phiếu</label>
-                        <textarea id="valGhiChu" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:border-indigo-500 outline-none transition" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
+                        <textarea id="valGhiChu" rows="2" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm focus:border-indigo-500 outline-none transition" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50">
-                <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col justify-between h-full">
+            <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50 rounded-[1rem]">
+                <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col justify-between h-full rounded-[1rem] relative z-10 border border-transparent">
                     <div>
                         <div class="summary-row"><span>Tổng tiền hàng:</span> <span id="lblTongTienHang" class="summary-val text-slate-800">0</span></div>
                         <div class="summary-row items-center">
@@ -286,30 +282,10 @@
         function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
         function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
 
-        const dbSP = []; 
-        document.querySelectorAll('#data_sp .sp-item').forEach(el => { 
-            dbSP.push({ 
-                ma_san_pham: el.getAttribute('data-masp'), 
-                ma_sku: el.getAttribute('data-masku'), 
-                tensp: el.getAttribute('data-tensp'), 
-                tensku: el.getAttribute('data-tensku'), 
-                donvi: el.getAttribute('data-donvi'), 
-                gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, 
-                img: el.getAttribute('data-img') 
-            }); 
-        });
-
-        // FIX: Đọc thêm Masothue và Diachi
-        const dbNCC = []; 
-        document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { 
-            dbNCC.push({ 
-                ma: el.getAttribute('data-mancc'), 
-                ten: el.getAttribute('data-ten'), 
-                sdt: el.getAttribute('data-dienthoai'),
-                masothue: el.getAttribute('data-masothue'),
-                diachi: el.getAttribute('data-diachi')
-            }); 
-        });
+        const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') }); });
+        
+        // ĐÃ FIX: Lấy thêm dữ liệu MST, Địa chỉ
+        const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai'), masothue: el.getAttribute('data-masothue'), diachi: el.getAttribute('data-diachi') }); });
 
         let appTabs = {}; let currentTabId = ""; let tabCounter = 0; let tagifySerial;
 
@@ -342,7 +318,7 @@
             let elMaNCC = document.getElementById('valMaNCC'); if(elMaNCC) elMaNCC.value = t.ncc_ma;
             let elSearchNCC = document.getElementById('inpSearchNCC'); if(elSearchNCC) elSearchNCC.value = t.ncc_ten;
             
-            // FIX: Cập nhật Khung chi tiết NCC
+            // ĐÃ FIX: Cập nhật hộp thông tin NCC
             let nccDetailsBox = document.getElementById('nccDetails');
             if (t.ncc_ma && nccDetailsBox) {
                 let ncc = dbNCC.find(n => n.ma === t.ncc_ma);
@@ -364,168 +340,77 @@
             setPhuongThuc(t.phuong_thuc);
             
             let lbl = document.getElementById('lblTrangThai'); let overlay = document.getElementById('overlayDeleted');
-            if (t.status === 0) { 
-                if(lbl) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; }
-                if(overlay) overlay.style.display = 'none'; toggleInputs(false);
-            }
-            else if (t.status === -1) { 
-                if(lbl) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; }
-                if(overlay) overlay.style.display = 'flex'; toggleInputs(true);
-            }
-            else { 
-                if(lbl) { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; }
-                if(overlay) overlay.style.display = 'none'; toggleInputs(false);
-            }
+            if (t.status === 0) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; overlay.style.display = 'none'; toggleInputs(false); }
+            else if (t.status === -1) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; overlay.style.display = 'flex'; toggleInputs(true); }
+            else { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; overlay.style.display = 'none'; toggleInputs(false); }
             renderTable();
         }
 
         function toggleInputs(disable) {
-            ['inpSearchNCC', 'valNgayNhap', 'valSoHoaDon', 'valMaKho', 'valGhiChu', 'inpGiamGiaPhieu', 'inpDaThanhToan', 'inpSearchSP'].forEach(id => { let el = document.getElementById(id); if(el) el.disabled = disable; });
+            ['inpSearchNCC', 'valNgayNhap', 'valSoHoaDon', 'valMaKho', 'valGhiChu', 'inpGiamGiaPhieu', 'inpDaThanhToan', 'inpSearchSP'].forEach(id => {let el = document.getElementById(id); if(el) el.disabled = disable;});
         }
 
-        function initSearchSP() {
-            const inpSP = document.getElementById('inpSearchSP');
-            const dropSP = document.getElementById('dropdownSP');
-            const iconSP = document.getElementById('iconSearchSP');
-
-            inpSP.addEventListener('input', function() {
-                if(this.value.length > 0) { 
-                    iconSP.style.opacity = '0'; this.style.setProperty('padding-left', '1rem', 'important'); 
-                } else { 
-                    iconSP.style.opacity = '1'; this.style.setProperty('padding-left', '3rem', 'important'); 
-                }
-
-                const val = this.value.toLowerCase().trim();
-                dropSP.innerHTML = '';
+        // ĐÃ FIX: CHỌN SP XONG ĐÓNG KHUNG, CLICK LẠI VÀO Ô TỰ ĐỘNG XỔ XUỐNG
+        function setupAutocomplete(inputId, dropdownId, dataList, renderItem, onSelect) {
+            const inp = document.getElementById(inputId); const drop = document.getElementById(dropdownId);
+            
+            inp.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim(); drop.innerHTML = '';
                 
                 let matches = [];
-                if (!val) { matches = dbSP.slice(0, 10); } 
-                else {
-                    matches = dbSP.filter(item => 
-                        (item.ma_sku && item.ma_sku.toLowerCase().includes(val)) || (item.tensp && item.tensp.toLowerCase().includes(val)) || (item.tensku && item.tensku.toLowerCase().includes(val))
-                    ).slice(0, 10);
+                if (!val) { 
+                    matches = dataList.slice(0, 10); 
+                } else {
+                    matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10);
                 }
                 
                 matches.forEach(item => {
-                    const div = document.createElement('div'); div.className = 'search-item';
-                    div.innerHTML = `<div class="flex items-center gap-3"><img src="${getFirstImg(item.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[14px]">${item.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${item.ma_sku}</span> | ${item.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(item.gianhap)} ₫</strong></div></div></div>`;
-                    
+                    const div = document.createElement('div'); div.className = 'search-item'; div.innerHTML = renderItem(item);
                     div.onmousedown = (e) => { 
-                        e.preventDefault(); 
-                        if(currentTabId && appTabs[currentTabId]) {
-                            addProductToCart(item);
-                            inpSP.value = ''; inpSP.dispatchEvent(new Event('input')); 
-                            dropSP.style.display = 'none'; 
-                        }
+                        e.preventDefault(); onSelect(item);
+                        if(inputId === 'inpSearchSP') { inp.value = ''; inp.dispatchEvent(new Event('input')); }
+                        drop.style.display = 'none'; 
                     };
-                    dropSP.appendChild(div);
+                    drop.appendChild(div);
                 });
-                if (matches.length === 0) { dropSP.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
-                dropSP.style.display = 'block';
+                if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
+                drop.style.display = 'block';
             });
-
-            inpSP.addEventListener('focus', function() { this.dispatchEvent(new Event('input')); });
-            inpSP.addEventListener('click', function() { this.dispatchEvent(new Event('input')); });
-            document.addEventListener('mousedown', (e) => { if (!inpSP.contains(e.target) && !dropSP.contains(e.target)) dropSP.style.display = 'none'; });
+            inp.addEventListener('focus', function() { this.dispatchEvent(new Event('input')); });
+            inp.addEventListener('click', function() { this.dispatchEvent(new Event('input')); });
+            document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
         }
 
-        // FIX: Hiển thị giao diện NCC Dropdown xịn xò
-        function initSearchNCC() {
-            const inpNCC = document.getElementById('inpSearchNCC');
-            const dropNCC = document.getElementById('dropdownNCC');
+        const iconSearchSP = document.getElementById('iconSearchSP');
+        document.getElementById('inpSearchSP').addEventListener('input', function() {
+            if(this.value.length > 0) { iconSearchSP.style.opacity = '0'; this.classList.remove('pl-[3rem]'); this.classList.add('pl-[1rem]'); } 
+            else { iconSearchSP.style.opacity = '1'; this.classList.remove('pl-[1rem]'); this.classList.add('pl-[3rem]'); }
+        });
 
-            inpNCC.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim();
-                dropNCC.innerHTML = '';
-                
-                let matches = [];
-                if (!val) { matches = dbNCC.slice(0, 10); } 
-                else {
-                    matches = dbNCC.filter(item => 
-                        (item.ten && item.ten.toLowerCase().includes(val)) || (item.sdt && item.sdt.toLowerCase().includes(val)) || (item.ma && item.ma.toLowerCase().includes(val)) || (item.masothue && item.masothue.toLowerCase().includes(val))
-                    ).slice(0, 10);
-                }
-                
-                matches.forEach(item => {
-                    const div = document.createElement('div'); div.className = 'search-item';
-                    div.innerHTML = `
-                        <div class="flex flex-col gap-1">
-                            <div class="font-bold text-slate-800 text-[13px]">${item.ten}</div>
-                            <div class="text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                                <span class="bg-indigo-50 px-1 rounded text-indigo-700 font-bold">${item.ma}</span>
-                                <span>MST: <b>${item.masothue || '---'}</b></span>
-                                <span>SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></span>
-                            </div>
-                            <div class="text-[10px] text-slate-500 truncate" title="${item.diachi || ''}">📍 ${item.diachi || 'Chưa cập nhật địa chỉ'}</div>
-                        </div>`;
-                    
-                    div.onmousedown = (e) => { 
-                        e.preventDefault(); 
-                        if(currentTabId && appTabs[currentTabId]) {
-                            inpNCC.value = item.ten; 
-                            document.getElementById('valMaNCC').value = item.ma; 
-                            saveCurrentTabState(); 
-                            loadTabToUI(currentTabId); // Gọi để khung chi tiết xuất hiện
-                            dropNCC.style.display = 'none'; 
-                        }
-                    };
-                    dropNCC.appendChild(div);
-                });
+        setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
+            (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[14px]">${i.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div></div></div>`,
+            (i) => addProductToCart(i)
+        );
 
-                if (matches.length === 0) { dropNCC.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
-                dropNCC.style.display = 'block';
-            });
-
-            inpNCC.addEventListener('focus', function() { this.dispatchEvent(new Event('input')); });
-            inpNCC.addEventListener('click', function() { this.dispatchEvent(new Event('input')); });
-            document.addEventListener('mousedown', (e) => { if (!inpNCC.contains(e.target) && !dropNCC.contains(e.target)) dropNCC.style.display = 'none'; });
-        }
-
-        function initApp() {
-            let draftEls = document.querySelectorAll('#data_drafts .draft-item');
-            if (draftEls.length > 0) {
-                draftEls.forEach(d => {
-                    tabCounter++; let tid = "T" + tabCounter; let cart = [];
-                    d.querySelectorAll('.draft-detail').forEach(ct => {
-                        let masku = ct.getAttribute('data-masku'); let sl = parseInt(ct.getAttribute('data-sl')) || 1; let gianhap = parseFloat(ct.getAttribute('data-gianhap')) || 0;
-                        let spCache = dbSP.find(s => s.ma_sku === masku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
-                        // FIX: Thêm thuộc tính baohanh vào logic Cart, mặc định 0
-                        cart.push({ ma_sku: masku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: sl, gianhap: gianhap, baohanh: 0, serials: [] });
-                    });
-                    let mancc = d.getAttribute('data-mancc'); let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === mancc); if(nccFind) nccTen = nccFind.ten;
-                    appTabs[tid] = { id: tid, ma_phieu: d.getAttribute('data-maphieu'), title: d.getAttribute('data-maphieu') || "Nháp", status: parseInt(d.getAttribute('data-trangthai')), cart: cart, ncc_ma: mancc, ncc_ten: nccTen, ngay_nhap: (d.getAttribute('data-ngaynhap') || "").split(' ')[0], so_hd: d.getAttribute('data-sohd'), ma_kho: d.getAttribute('data-makho') || "KHO_CHINH", ghi_chu: d.getAttribute('data-ghichu'), giam_gia: parseFloat(d.getAttribute('data-giamgia'))||0, da_tra: parseFloat(d.getAttribute('data-datra'))||0, phuong_thuc: d.getAttribute('data-phuongthuc') || "TIEN_MAT" };
-                });
-                switchTab("T1");
-            } else {
-                addNewTab();
+        // ĐÃ FIX: Dropdown NCC hiển thị chi tiết MST, SĐT, Địa chỉ
+        setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
+            (item) => `
+                <div class="flex flex-col gap-1">
+                    <div class="font-bold text-slate-800 text-[13px]">${item.ten}</div>
+                    <div class="text-[10px] text-slate-500 font-mono flex items-center gap-2">
+                        <span class="bg-indigo-50 px-1 rounded text-indigo-700 font-bold">${item.ma}</span>
+                        <span>MST: <b>${item.masothue || '---'}</b></span>
+                        <span>SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 truncate" title="${item.diachi || ''}">📍 ${item.diachi || 'Chưa cập nhật địa chỉ'}</div>
+                </div>`,
+            (item) => { 
+                document.getElementById('inpSearchNCC').value = item.ten; 
+                document.getElementById('valMaNCC').value = item.ma; 
+                saveCurrentTabState(); 
+                loadTabToUI(currentTabId); 
             }
-            initSearchSP();
-            initSearchNCC();
-        }
-
-        function renderTabs() {
-            let html = "";
-            for (let id in appTabs) {
-                let t = appTabs[id];
-                let isActive = (id === currentTabId) ? "active" : "";
-                let icon = t.status === -1 ? "🗑️" : (t.status === 0 ? "📝" : "📄");
-                let colorClass = t.status === -1 ? "text-red-500" : "";
-                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span></div>`;
-            }
-            document.getElementById('tabList').innerHTML = html;
-        }
-
-        function addNewTab() { tabCounter++; let nId = "T" + tabCounter; appTabs[nId] = getEmptyTab(tabCounter); switchTab(nId); }
-        function switchTab(id) { if(currentTabId && appTabs[currentTabId]) saveCurrentTabState(); currentTabId = id; loadTabToUI(id); renderTabs(); }
-        function closeTab(id) {
-            let keys = Object.keys(appTabs);
-            if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
-            let t = appTabs[id];
-            if (t.status === -2) { executeCloseTab(id, keys); } 
-            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
-            else if (t.status === -1) { executeCloseTab(id, keys); }
-        }
-        function executeCloseTab(id, keys) { delete appTabs[id]; if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } else { renderTabs(); } }
+        );
 
         function addProductToCart(sp) {
             if(!currentTabId || !appTabs[currentTabId]) return;
@@ -540,7 +425,7 @@
         function updateCart(idx, field, elm) {
             let cart = appTabs[currentTabId].cart; let val = elm.value;
             if(field === 'sl') { cart[idx].sl = parseInt(val) || 1; }
-            if(field === 'baohanh') { cart[idx].baohanh = parseInt(val) || 0; } // Lưu bảo hành
+            if(field === 'baohanh') { cart[idx].baohanh = parseInt(val) || 0; } // ĐÃ FIX: Lưu bảo hành vào giỏ
             if(field === 'gianhap') { cart[idx].gianhap = getNum(val); elm.value = formatNum(cart[idx].gianhap); }
             renderTable();
         }
@@ -557,20 +442,18 @@
                 let thanhTien = (c.sl * c.gianhap); tongTienHang += thanhTien;
                 let tr = document.createElement('tr'); tr.className = "hover-soft-row border-b border-slate-100";
                 
-                // FIX: Kích thước ảnh 80px, Tên SP w-full, Ô Nhập Bảo Hành
+                // ĐÃ FIX: Ảnh to hơn, có cột bảo hành, tên SP bung dài
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
                     <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[80px] h-[80px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
                     <td class="whitespace-normal align-middle w-full min-w-[250px]">
                         <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight">${c.tensp}</div>
-                        <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1">
-                            <span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}
-                        </div>
+                        <div class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200 mb-1"><span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}</div>
                     </td>
                     <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
-                    <td class="align-middle"><input type="number" min="0" value="${c.baohanh || 0}" onchange="updateCart(${idx}, 'baohanh', this)" class="input-bh shadow-inner" ${isReadonly} title="Bảo hành (tháng)"></td>
+                    <td class="align-middle"><input type="number" min="0" value="${c.baohanh || 0}" onchange="updateCart(${idx}, 'baohanh', this)" class="input-bh shadow-inner" ${isReadonly}></td>
                     <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty shadow-inner text-indigo-700 font-bold" ${isReadonly}></td>
-                    <td class="align-middle"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input" ${isReadonly}></td>
+                    <td class="align-middle pr-4"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input" ${isReadonly}></td>
                     <td class="text-right font-black text-[15px] text-slate-800 align-middle pr-4">${formatNum(thanhTien)}</td>
                     <td class="text-center align-middle"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm" ${isReadonly}>✕</button></td>
                 `;
@@ -608,8 +491,32 @@
             saveCurrentTabState();
         }
 
+        function renderTabs() {
+            let html = "";
+            for (let id in appTabs) {
+                let t = appTabs[id];
+                let isActive = (id === currentTabId) ? "active" : "";
+                let icon = t.status === -1 ? "🗑️" : (t.status === 0 ? "📝" : "📄");
+                let colorClass = t.status === -1 ? "text-red-500" : "";
+                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span></div>`;
+            }
+            document.getElementById('tabList').innerHTML = html;
+        }
+
+        function addNewTab() { tabCounter++; let nId = "T" + tabCounter; appTabs[nId] = getEmptyTab(tabCounter); switchTab(nId); }
+        function switchTab(id) { if(currentTabId && appTabs[currentTabId]) saveCurrentTabState(); currentTabId = id; loadTabToUI(id); renderTabs(); }
+        function closeTab(id) {
+            let keys = Object.keys(appTabs);
+            if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
+            let t = appTabs[id];
+            if (t.status === -2) { executeCloseTab(id, keys); } 
+            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
+            else if (t.status === -1) { executeCloseTab(id, keys); }
+        }
+        function executeCloseTab(id, keys) { delete appTabs[id]; if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } else { renderTabs(); } }
+
         function confirmSubmit(status) {
-            saveCurrentTabState(); let t = appTabs[currentTabId]; if(!t) { Swal.fire('Lỗi', 'Hệ thống chưa tải xong dữ liệu!', 'error'); return; }
+            saveCurrentTabState(); let t = appTabs[currentTabId]; if(!t) { Swal.fire('Lỗi', 'Hệ thống chưa tải xong dữ liệu, hãy đợi chút!', 'error'); return; }
             if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
             if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
 
@@ -623,6 +530,7 @@
 
         async function executeSubmit(status) {
             let t = appTabs[currentTabId];
+            // ĐÃ FIX: Truyền bao_hanh_thang lên Backend
             let chiTietData = t.cart.map(c => ({ ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, bao_hanh_thang: c.baohanh, serials: c.serials }));
             let payload = { ma_phieu_nhap: t.ma_phieu, ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd, ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, chi_phi_nhap: 0, da_tra: t.da_tra, phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData };
 
@@ -649,13 +557,11 @@
         }
 
         function restoreTab() { changeStatusAPI(currentTabId, 0); }
+        
         function updateSerialCount() { let el = document.getElementById('lblSerialCount'); if(el && tagifySerial) el.innerText = tagifySerial.value.length; }
-
         function openSerialModal(idx) {
-            let c = appTabs[currentTabId].cart[idx];
-            let elIdx = document.getElementById('idxEditingSerial'); if(elIdx) elIdx.value = idx;
-            let elName = document.getElementById('lblSerialName'); if(elName) elName.innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
-            let elReq = document.getElementById('lblSerialReq'); if(elReq) elReq.innerText = c.sl;
+            let c = appTabs[currentTabId].cart[idx]; document.getElementById('idxEditingSerial').value = idx;
+            document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : ''); document.getElementById('lblSerialReq').innerText = c.sl;
             if(tagifySerial) { tagifySerial.removeAllTags(); if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); } updateSerialCount(); }
             let modal = document.getElementById('modalSerial'); if(modal) { modal.classList.remove('hidden'); setTimeout(() => { if(tagifySerial && tagifySerial.DOM.input) tagifySerial.DOM.input.focus(); }, 100); }
         }
@@ -672,8 +578,25 @@
             if(elSerials) tagifySerial = new Tagify(elSerials, { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
         } catch(e) { console.log("Tagify err", e); }
         
+        function initApp() {
+            let draftEls = document.querySelectorAll('#data_drafts .draft-item');
+            if (draftEls.length > 0) {
+                draftEls.forEach(d => {
+                    tabCounter++; let tid = "T" + tabCounter; let cart = [];
+                    d.querySelectorAll('.draft-detail').forEach(ct => {
+                        let masku = ct.getAttribute('data-masku'); let sl = parseInt(ct.getAttribute('data-sl')) || 1; let gianhap = parseFloat(ct.getAttribute('data-gianhap')) || 0;
+                        let spCache = dbSP.find(s => s.ma_sku === masku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
+                        cart.push({ ma_sku: masku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: sl, gianhap: gianhap, baohanh: 0, serials: [] });
+                    });
+                    let mancc = d.getAttribute('data-mancc'); let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === mancc); if(nccFind) nccTen = nccFind.ten;
+                    appTabs[tid] = { id: tid, ma_phieu: d.getAttribute('data-maphieu'), title: d.getAttribute('data-maphieu') || "Nháp", status: parseInt(d.getAttribute('data-trangthai')), cart: cart, ncc_ma: mancc, ncc_ten: nccTen, ngay_nhap: (d.getAttribute('data-ngaynhap') || "").split(' ')[0], so_hd: d.getAttribute('data-sohd'), ma_kho: d.getAttribute('data-makho') || "KHO_CHINH", ghi_chu: d.getAttribute('data-ghichu'), giam_gia: parseFloat(d.getAttribute('data-giamgia'))||0, da_tra: parseFloat(d.getAttribute('data-datra'))||0, phuong_thuc: d.getAttribute('data-phuongthuc') || "TIEN_MAT" };
+                });
+                switchTab("T1");
+            } else {
+                addNewTab();
+            }
+        }
         initApp();
-
     </script>
     {{ template "footer_master" . }}
 {{ end }}
