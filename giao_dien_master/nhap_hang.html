@@ -4,88 +4,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
-    <style>
-        /* TOÀN BỘ CSS CHỐNG CACHE TRÌNH DUYỆT */
-        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
-        @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
-        
-        .box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
-        .box-body { padding: 1.25rem; }
-        
-        .input-premium { width: 100%; height: 36px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 13px; color: #1e293b; font-weight: 600; transition: all 0.2s; }
-        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
-        
-        /* BẢNG DỮ LIỆU: CƠ CHẾ LÒ XO (SHRINK-TO-FIT & FLEX-GROW) */
-        .table-responsive-wrapper { overflow-x: auto; width: 100%; padding-bottom: 8px; }
-        .table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
-        .table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        
-        .table-nhap-hang { width: 100%; text-align: left; min-width: 750px; }
-        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 10px; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; }
-        .table-nhap-hang td { padding: 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
-        .hover-soft-row:hover td { background-color: #f8fafc; }
-        
-        /* Ô INPUT ĐỒNG BỘ MÀU SLATE VÀ ÉP CÂN NHỎ GỌN */
-        .input-cell-qty, .input-cell-bh { 
-            width: 55px; text-align: center; height: 30px; 
-            border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;
-            background: #f8fafc; color: #475569 !important; transition: all 0.2s; 
-        }
-        .price-input { 
-            min-width: 85px; width: 100%; max-width: 120px; text-align: right; color: #047857; background: #ecfdf5; 
-            border: 1px solid #a7f3d0; font-size: 13px; height: 30px; border-radius: 0.5rem; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block; transition: all 0.2s;
-        }
-        .input-cell-qty:focus, .input-cell-bh:focus, .price-input:focus { border-color: #9333ea; background: #ffffff; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        /* DROPDOWN TÌM KIẾM ĐẸP */
-        .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 4px; }
-        .search-item { padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border-bottom: 1px solid transparent; margin-bottom: 2px;}
-        .search-item:hover, .search-item.active { background: #faf5ff; border-color: #f3e8ff; }
-
-        .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
-        .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
-
-        /* TAB UI: PHIẾU KHÁC MÀU XÁM ĐẬM, PHIẾU ĐANG CHỌN MÀU TÍM */
-        .tab-container { display: flex; gap: 6px; align-items: flex-end; }
-        .erp-tab-item { 
-            padding: 8px 16px; background: #cbd5e1; color: #475569; font-weight: 700; font-size: 12px; 
-            border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
-            transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
-        }
-        .erp-tab-item:hover { background: #94a3b8; color: #ffffff; }
-        
-        .erp-tab-item.active { 
-            background: #ffffff; color: #9333ea; z-index: 10; overflow: hidden;
-            border-color: transparent !important; box-shadow: 0 -4px 10px rgba(147, 51, 234, 0.1);
-        }
-        .erp-tab-item.active::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
-            animation: spin-slow 4s linear infinite; z-index: 0; pointer-events: none;
-        }
-        .erp-tab-item.active::after {
-            content: ''; position: absolute; top: 1.5px; left: 1.5px; right: 1.5px; bottom: -2px;
-            background: #ffffff; z-index: 1; border-radius: 9px 9px 0 0;
-        }
-        .erp-tab-item > * { position: relative; z-index: 2; }
-        
-        .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
-        .erp-tab-item.active .tab-close { color: #d8b4fe; }
-        .erp-tab-item.active .tab-close:hover { background: #f3e8ff; color: #9333ea; }
-        .erp-tab-item:not(.active) .tab-close:hover { background: #fee2e2; color: #e11d48; }
-        
-        .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
-        .btn-serial { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
-        
-        .smart-input-wrap { position: relative; display: flex; align-items: center; }
-        .smart-input-btn { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px dashed #cbd5e1; }
-        .smart-input-btn:hover { background: #e2e8f0; color: #334155; border-style: solid; }
-        .smart-input-field { display: none; align-items: center; gap: 6px; }
-        .smart-input-wrap.active .smart-input-btn { display: none; }
-        .smart-input-wrap.active .smart-input-field { display: flex; }
-    </style>
-
     <div id="data_island" style="display:none;">
         <script>const serverDrafts = {{ json .DanhSachNhaps }};</script>
         <div id="data_sp">{{ range .DanhSachSP }}<div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}" data-baohanh="{{ .BaoHanh }}"></div>{{ end }}</div>
@@ -98,15 +16,15 @@
             <div class="animated-border-inner flex flex-col h-full bg-white relative rounded-[1rem] overflow-hidden">
                 <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
                 
-                <div class="px-4 border-b border-slate-200 bg-slate-50/80 flex items-end justify-between relative z-10 pt-2 overflow-x-auto custom-scroll shrink-0">
+                <div class="px-4 pt-3 flex items-end justify-between relative z-10 overflow-x-auto custom-scroll shrink-0 bg-slate-50/80">
                     <div class="flex items-end">
                         <div class="tab-container flex shrink-0" id="tabList"></div>
-                        <div class="flex items-center gap-1 text-indigo-500 hover:text-indigo-700 font-bold mb-[6px] ml-2 shrink-0 cursor-pointer px-2 py-1.5 rounded-lg hover:bg-indigo-50 transition" onclick="addNewTab()">
+                        <div class="flex items-center gap-1 text-indigo-500 hover:text-indigo-700 font-bold mb-[8px] ml-2 shrink-0 cursor-pointer px-2 py-1.5 rounded-lg hover:bg-indigo-50 transition" onclick="addNewTab()">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                             <span class="text-[11px] tracking-tight uppercase">Thêm</span>
                         </div>
                     </div>
-                    <button onclick="toggleRightPanel()" id="btnToggle" class="mb-[6px] bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 font-bold text-[10px] transition whitespace-nowrap shrink-0 uppercase tracking-widest flex items-center gap-1 px-3 py-1.5 rounded-full shadow-sm">
+                    <button onclick="toggleRightPanel()" id="btnToggle" class="mb-[8px] bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800 font-bold text-[10px] transition whitespace-nowrap shrink-0 uppercase tracking-widest flex items-center gap-1 px-3 py-1.5 rounded-full shadow-sm z-20">
                         Đóng Form <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
@@ -158,32 +76,32 @@
                     
                     <div class="flex items-center gap-2 border-l border-slate-300 pl-4 shrink-0 smart-input-wrap" id="wrapVat">
                         <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapVat').classList.add('active'); document.getElementById('inpVatPercent').focus();">+ Thêm VAT</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">VAT:</span>
+                        <div class="smart-input-field">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px]">VAT:</span>
                             <div class="flex items-center bg-white border border-slate-300 rounded shadow-inner h-7 overflow-hidden focus-within:border-purple-500 transition">
                                 <input type="number" id="inpVatPercent" class="w-[36px] h-full text-center font-bold text-purple-700 outline-none p-0 m-0 text-[13px]" value="0" min="0" max="100" onfocus="if(this.value=='0')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="calcThanhToan()" onchange="calcThanhToan()">
                                 <span class="bg-slate-100 h-full px-1.5 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">%</span>
                             </div>
-                            <span id="lblTienVat" class="font-bold text-rose-500 text-[13px] hidden ml-1">0</span>
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpVatPercent').value='0'; calcThanhToan(); document.getElementById('wrapVat').classList.remove('active');">✕</button>
+                            <span id="lblTienVat" class="font-bold text-rose-500 text-[13px] hidden">0</span>
+                            <button type="button" class="text-slate-400 hover:text-red-500 p-1" onclick="document.getElementById('inpVatPercent').value='0'; calcThanhToan(); document.getElementById('wrapVat').classList.remove('active');">✕</button>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2 border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapGiamGia">
                         <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapGiamGia').classList.add('active'); document.getElementById('inpGiamGiaPhieu').focus();">+ Giảm giá</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">Giảm giá:</span>
+                        <div class="smart-input-field">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Giảm giá:</span>
                             <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-[85px] h-7 text-[13px] text-emerald-600 bg-emerald-50 border-emerald-200 shadow-inner m-0 px-2" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpGiamGiaPhieu').value='0'; calcThanhToan(); document.getElementById('wrapGiamGia').classList.remove('active');">✕</button>
+                            <button type="button" class="text-slate-400 hover:text-red-500 p-1" onclick="document.getElementById('inpGiamGiaPhieu').value='0'; calcThanhToan(); document.getElementById('wrapGiamGia').classList.remove('active');">✕</button>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2 border-l border-slate-300 pl-4 smart-input-wrap shrink-0" id="wrapChiPhi">
                         <button type="button" class="smart-input-btn" onclick="document.getElementById('wrapChiPhi').classList.add('active'); document.getElementById('inpChiPhiNhap').focus();">+ Phí nhập</button>
-                        <div class="smart-input-field items-center">
-                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">Phí nhập:</span>
+                        <div class="smart-input-field">
+                            <span class="text-slate-500 font-bold uppercase tracking-wider text-[11px]">Phí nhập:</span>
                             <input type="text" id="inpChiPhiNhap" class="input-premium price-input w-[85px] h-7 text-[13px] text-amber-600 bg-amber-50 border-amber-200 shadow-inner m-0 px-2" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <button type="button" class="text-slate-400 hover:text-red-500 p-1 ml-1" onclick="document.getElementById('inpChiPhiNhap').value='0'; calcThanhToan(); document.getElementById('wrapChiPhi').classList.remove('active');">✕</button>
+                            <button type="button" class="text-slate-400 hover:text-red-500 p-1" onclick="document.getElementById('inpChiPhiNhap').value='0'; calcThanhToan(); document.getElementById('wrapChiPhi').classList.remove('active');">✕</button>
                         </div>
                     </div>
                     
@@ -214,26 +132,27 @@
                             <div class="flex flex-col w-full min-w-0">
                                 <div class="font-bold text-slate-800 text-[14px] leading-tight truncate group-hover:text-purple-700 transition" id="lblNCC_Ten"></div>
                                 
-                                <div class="text-[10.5px] text-slate-500 mt-1.5 flex flex-col gap-1 border-t border-slate-200/80 pt-1.5">
-                                    <div class="flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <div id="wrapNCC_Contact" class="text-[10.5px] text-slate-500 mt-1.5 flex flex-col gap-1 border-t border-slate-200/80 pt-1.5">
+                                    <div id="wrapNCC_MST" class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         <span id="lblNCC_MST" class="font-mono font-bold text-slate-700"></span>
                                     </div>
-                                    <div class="flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    <div id="wrapNCC_SDT" class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                                         <span id="lblNCC_SDT" class="font-bold text-purple-600"></span>
                                     </div>
                                 </div>
                             </div>
                             <div class="text-slate-300 group-hover:text-purple-500 transition shrink-0 ml-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
                         </div>
-                        <div class="pt-1.5 mt-1.5 border-t border-slate-200 flex flex-col gap-1">
-                            <div class="flex items-start gap-1.5">
+                        
+                        <div id="wrapNCC_Location" class="pt-1.5 mt-1.5 border-t border-slate-200 flex flex-col gap-1">
+                            <div id="wrapNCC_KhuVuc" class="flex items-start gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                <span id="lblNCC_KhuVuc" class="text-[10px] font-bold text-slate-600 truncate"></span>
+                                <span id="lblNCC_KhuVuc" class="text-[10.5px] font-bold text-slate-600 truncate"></span>
                             </div>
-                            <div class="flex items-start gap-1.5 pl-5">
-                                <span id="lblNCC_DiaChi" class="text-[10.5px] leading-snug font-medium text-slate-500 truncate"></span>
+                            <div id="wrapNCC_DiaChi" class="flex items-start gap-1.5 pl-5">
+                                <span id="lblNCC_DiaChi" class="text-[10.5px] leading-snug font-medium text-slate-500"></span>
                             </div>
                         </div>
                     </div>
@@ -266,7 +185,7 @@
 
                 <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-2.5 shadow-inner mt-1">
                     <div class="flex justify-between items-center gap-2 w-full">
-                        <span class="text-emerald-800 font-bold text-[11px] uppercase tracking-wider shrink-0">Đã trả:</span>
+                        <span class="text-emerald-800 font-bold text-[11px] uppercase tracking-wider shrink-0">Thanh toán:</span>
                         <div class="flex items-center border border-emerald-300 rounded-lg overflow-hidden bg-white shadow-sm flex-1 ml-2 h-8 focus-within:ring-2 focus-within:ring-emerald-200 transition">
                             <input type="text" id="inpDaThanhToan" class="flex-1 w-full h-full text-[13px] text-emerald-700 font-black m-0 p-0 px-2 text-right outline-none bg-transparent" value="0" onfocus="if(this.value=='0'||this.value=='')this.value='';" onblur="if(this.value=='')this.value='0'; calcThanhToan();" onkeyup="formatCurrency(this); calcThanhToan()">
                             <div class="h-full border-l border-emerald-400 bg-emerald-500 text-white flex items-center shrink-0">
@@ -339,7 +258,6 @@
 
         const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img'), baohanh: parseInt(el.getAttribute('data-baohanh')) || 0 }); });
         
-        // ĐÃ FIX: LẤY THÊM TRƯỜNG KHU VỰC TỪ HTML ĐỂ VẼ DROPDOWN VÀ CARD
         const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai'), masothue: el.getAttribute('data-masothue'), diachi: el.getAttribute('data-diachi'), khuvuc: el.getAttribute('data-khuvuc') }); });
 
         let appTabs = {}; let currentTabId = ""; let tabCounter = 0; let tagifySerial;
@@ -379,19 +297,44 @@
             let wrapSearch = document.getElementById('wrapSearchNCC');
             let wrapSelected = document.getElementById('wrapSelectedNCC');
             
-            // ĐÃ FIX: ĐỔ DỮ LIỆU VÀO CARD NCC MỚI CÓ CHỨA KHU VỰC VÀ ICON
             if (t.ncc_ma) {
                 let ncc = dbNCC.find(n => n.ma === t.ncc_ma);
                 if (ncc) {
                     let encodedName = encodeURIComponent(ncc.ten || "NCC");
                     document.getElementById('lblNCC_Logo').src = `https://ui-avatars.com/api/?name=${encodedName}&background=f3e8ff&color=7e22ce&bold=true`;
                     document.getElementById('lblNCC_Ten').innerText = ncc.ten || '---';
-                    document.getElementById('lblNCC_MST').innerText = ncc.masothue || '---';
-                    document.getElementById('lblNCC_SDT').innerText = ncc.sdt || '---';
                     
-                    let kvStr = ncc.khuvuc ? ncc.khuvuc : 'Khu vực khác';
-                    document.getElementById('lblNCC_KhuVuc').innerText = kvStr;
-                    document.getElementById('lblNCC_DiaChi').innerText = ncc.diachi || 'Chưa cập nhật địa chỉ chi tiết';
+                    // Logic Ẩn Hiện Liên Hệ
+                    let hasContact = false;
+                    if(ncc.masothue && ncc.masothue.trim() !== "") {
+                        document.getElementById('wrapNCC_MST').style.display = 'flex';
+                        document.getElementById('lblNCC_MST').innerText = ncc.masothue;
+                        hasContact = true;
+                    } else { document.getElementById('wrapNCC_MST').style.display = 'none'; }
+
+                    if(ncc.sdt && ncc.sdt.trim() !== "") {
+                        document.getElementById('wrapNCC_SDT').style.display = 'flex';
+                        document.getElementById('lblNCC_SDT').innerText = ncc.sdt;
+                        hasContact = true;
+                    } else { document.getElementById('wrapNCC_SDT').style.display = 'none'; }
+                    
+                    document.getElementById('wrapNCC_Contact').style.display = hasContact ? 'flex' : 'none';
+
+                    // Logic Ẩn Hiện Vị trí
+                    let hasLocation = false;
+                    if(ncc.khuvuc && ncc.khuvuc.trim() !== "") {
+                        document.getElementById('wrapNCC_KhuVuc').style.display = 'flex';
+                        document.getElementById('lblNCC_KhuVuc').innerText = "Khu vực: " + ncc.khuvuc;
+                        hasLocation = true;
+                    } else { document.getElementById('wrapNCC_KhuVuc').style.display = 'none'; }
+
+                    if(ncc.diachi && ncc.diachi.trim() !== "") {
+                        document.getElementById('wrapNCC_DiaChi').style.display = 'flex';
+                        document.getElementById('lblNCC_DiaChi').innerText = ncc.diachi;
+                        hasLocation = true;
+                    } else { document.getElementById('wrapNCC_DiaChi').style.display = 'none'; }
+
+                    document.getElementById('wrapNCC_Location').style.display = hasLocation ? 'flex' : 'none';
                     
                     if(wrapSearch) wrapSearch.classList.add('hidden');
                     if(wrapSelected) wrapSelected.classList.remove('hidden');
@@ -431,9 +374,7 @@
             }
 
             let elDaTra = document.getElementById('inpDaThanhToan'); 
-            if(elDaTra) { 
-                elDaTra.value = formatNum(t.da_tra); 
-            }
+            if(elDaTra) { elDaTra.value = formatNum(t.da_tra); }
             let elPt = document.getElementById('valPhuongThuc'); if(elPt) elPt.value = t.phuong_thuc || 'TIEN_MAT';
             
             let lbl = document.getElementById('lblTrangThai'); let overlay = document.getElementById('overlayDeleted');
@@ -460,7 +401,6 @@
             inp.addEventListener('input', function() {
                 const val = this.value.toLowerCase().trim(); drop.innerHTML = '';
                 
-                // ĐÃ FIX: XÓA LỆNH CUT (.slice(0, 10)) - LOAD UNLIMITED DỮ LIỆU
                 let matches = [];
                 if (!val) { matches = dataList; } 
                 else { matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))); }
@@ -481,7 +421,6 @@
                 });
                 if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
                 
-                // NÚT ĐÓNG LIST BÊN TRONG CỬA SỔ DROPDOWN ĐỂ TIỆN DỌN DẸP
                 if (matches.length > 0) {
                     let closeBtn = document.createElement('div');
                     closeBtn.className = 'p-2 text-center text-xs font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer border-t border-slate-100 mt-1 sticky bottom-0 bg-white rounded-b-xl';
@@ -503,7 +442,6 @@
             else { iconSearchSP.style.opacity = '1'; this.classList.remove('pl-[1rem]'); this.classList.add('pl-[3rem]'); }
         });
 
-        // ĐÃ FIX: SEARCH DROP SP CÓ ĐƯỜNG KẺ NGANG BORDER-B
         setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
             (i) => `
             <div class="flex items-center gap-3 p-1.5 border-b border-slate-100 last:border-b-0">
@@ -524,20 +462,33 @@
             (i) => addProductToCart(i)
         );
 
-        // ĐÃ FIX: SEARCH DROP NCC THIẾT KẾ ĐẸP CÓ ICON
+        // THÔNG MINH: ẨN ICON NẾU KHÔNG CÓ DỮ LIỆU
         setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
-            (item) => `
+            (item) => {
+                let mstHtml = (item.masothue && item.masothue.trim() !== "") ? `<span class="flex items-center gap-1"><svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> ${item.masothue}</span>` : '';
+                let sdtHtml = (item.sdt && item.sdt.trim() !== "") ? `<span class="flex items-center gap-1 text-purple-600"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> ${item.sdt}</span>` : '';
+                let contactDivider = (mstHtml && sdtHtml) ? `<span class="w-px h-3 bg-slate-300 mx-1"></span>` : '';
+                let contactHtml = (mstHtml || sdtHtml) ? `<div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium mt-0.5">${mstHtml}${contactDivider}${sdtHtml}</div>` : '';
+
+                let kvStr = (item.khuvuc && item.khuvuc.trim() !== "") ? `Khu vực: ${item.khuvuc}` : '';
+                let dcStr = (item.diachi && item.diachi.trim() !== "") ? item.diachi : '';
+                let dckvHtml = '';
+                if (kvStr && dcStr) { dckvHtml = `${kvStr} - ${dcStr}`; }
+                else if (kvStr) { dckvHtml = kvStr; }
+                else if (dcStr) { dckvHtml = dcStr; }
+
+                let addressHtml = dckvHtml ? `<div class="text-[10px] text-slate-500 truncate mt-0.5" title="${dckvHtml}">📍 ${dckvHtml}</div>` : '';
+
+                return `
                 <div class="flex items-start gap-3 p-1.5 border-b border-slate-100 last:border-b-0">
                     <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(item.ten)}&background=f3e8ff&color=7e22ce&bold=true&rounded=true" class="w-10 h-10 shadow-sm border border-purple-100 bg-white shrink-0 mt-0.5">
-                    <div class="flex flex-col w-full min-w-0 gap-1">
+                    <div class="flex flex-col w-full min-w-0 gap-0.5">
                         <div class="font-bold text-slate-800 text-[13px] truncate">${item.ten}</div>
-                        <div class="flex items-center gap-3 text-[10px] text-slate-500 font-medium">
-                            <span class="flex items-center gap-1"><svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> ${item.masothue || '---'}</span>
-                            <span class="flex items-center gap-1 text-purple-600"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> ${item.sdt || '---'}</span>
-                        </div>
-                        <div class="text-[10px] text-slate-500 truncate mt-0.5" title="${item.diachi || ''}">📍 ${item.khuvuc ? item.khuvuc + ' - ' : ''}${item.diachi || 'Chưa cập nhật địa chỉ'}</div>
+                        ${contactHtml}
+                        ${addressHtml}
                     </div>
-                </div>`,
+                </div>`;
+            },
             (item) => { 
                 document.getElementById('inpSearchNCC').value = item.ten; 
                 document.getElementById('valMaNCC').value = item.ma; 
