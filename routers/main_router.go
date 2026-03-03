@@ -12,6 +12,7 @@ import (
 	"app/modules/thanh_vien"
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
+	"app/modules/goi_dich_vu"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,6 +58,7 @@ func SetupRouter() *gin.Engine {
 	{
 		// 1. Nhóm Load Giao diện HTML
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
+		workspace.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
 		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
 		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
 		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
@@ -99,6 +101,7 @@ func SetupRouter() *gin.Engine {
 				apiAdmin.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
 				apiAdmin.POST("/thanh-vien/save", thanh_vien.API_LuuThanhVienMaster)
 				apiAdmin.POST("/thanh-vien/send-msg", thanh_vien.API_GuiTinNhanMaster)
+				apiAdmin.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
 			}
 		}
 	}
