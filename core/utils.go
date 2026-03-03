@@ -3,9 +3,11 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
+
+	"app/config"
 )
 
 var ThemVaoHangCho = PushUpdate
