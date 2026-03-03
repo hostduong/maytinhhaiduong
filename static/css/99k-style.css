@@ -469,64 +469,70 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 @keyframes text-shine-logo { to { background-position: 200% center; } }
 
+
 /* ==============================================================
-   21. UI CHUẨN MỰC CHO ERP (NHẬP HÀNG, XUẤT HÀNG, SẢN PHẨM)
+   21. MODULE KHO & NHẬP HÀNG (NHAP_HANG.HTML / XUAT_HANG.HTML)
    ============================================================== */
 
-/* --- A. BẢNG DỮ LIỆU PRO MAX (Bóng bẩy, bo tròn) --- */
-.erp-table-wrapper {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem; /* Bo góc 16px */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    overflow-x: auto;
-    padding-bottom: 4px;
-}
-.erp-table { width: 100%; text-align: left; min-width: 1000px; border-collapse: separate; border-spacing: 0; }
-.erp-table th {
-    background: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.7rem; font-weight: 800;
-    padding: 0.85rem 0.75rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; position: sticky; top: 0; z-index: 10;
-}
-.erp-table td { padding: 0.75rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; font-weight: 600; transition: background 0.2s; }
-.erp-table tr:hover td { background-color: #faf5ff; } /* Rê chuột dòng chuyển sang Tím nhạt */
+/* Layout & Box */
+.nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
+@media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
+.box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
+.box-body { padding: 1.25rem; }
 
-/* --- B. INPUT TRONG BẢNG (Nhỏ gọn, Tím Focus) --- */
-.input-cell {
-    width: 100%; height: 34px; border-radius: 0.5rem; border: 1.5px solid #cbd5e1;
-    background: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0 0.5rem;
-    transition: all 0.2s ease; outline: none; color: #1e293b;
-}
-.input-cell:hover { border-color: #a855f7; }
-.input-cell:focus { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); background: #ffffff; }
-.input-cell:disabled, .input-cell[readonly] { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+/* Bảng Dữ Liệu Co Giãn Đều (% Width) */
+.table-responsive-wrapper { overflow-x: auto; width: 100%; padding-bottom: 8px; }
+.table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
+.table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+.table-nhap-hang { width: 100%; text-align: left; min-width: 900px; table-layout: fixed; } /* table-layout: fixed giúp chia tỷ lệ % chính xác */
+.table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 10px; font-weight: 800; color: #64748b; padding: 0.75rem 0.25rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+.table-nhap-hang td { padding: 0.5rem 0.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
+.hover-soft-row:hover td { background-color: #f8fafc; }
 
-.input-cell-qty { text-align: center; color: #4f46e5; }
-.input-cell-price { text-align: right; color: #059669; background: #f0fdf4; border-color: #a7f3d0; }
-.input-cell-price:focus { background: #ffffff; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
-
-/* --- C. THANH TAB DẠNG FOLDER (Tuyệt đẹp) --- */
-.erp-tab-container { display: flex; gap: 4px; align-items: flex-end; border-bottom: 1px solid #e2e8f0; padding: 0 1rem; }
-.erp-tab {
-    padding: 0.6rem 1.25rem; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.85rem;
-    border-radius: 0.75rem 0.75rem 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    border: 1px solid #e2e8f0; border-bottom: none; transition: all 0.2s ease; position: relative; margin-bottom: -1px;
+/* Ô Input trong bảng: Màu sắc đồng bộ, thanh lịch */
+.input-cell-qty, .input-cell-bh { 
+    width: 100%; min-width: 45px; max-width: 70px; text-align: center; height: 32px; 
+    border-radius: 0.5rem; border: 1px solid #cbd5e1; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;
+    background: #f8fafc; color: #475569; transition: all 0.2s; /* Màu đồng bộ với ĐVT */
 }
-.erp-tab:hover { background: #e2e8f0; color: #475569; }
-.erp-tab.active { background: #ffffff; color: #9333ea; box-shadow: 0 -4px 10px rgba(0,0,0,0.02); z-index: 2; border-color: #e2e8f0; border-top-color: #d8b4fe; border-top-width: 2px; }
-.erp-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #ffffff; z-index: 3; }
-.erp-tab-close { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.2s; color: #94a3b8; }
-.erp-tab-close:hover { background: #fee2e2; color: #ef4444; }
-
-/* --- D. DROPDOWN TÌM KIẾM --- */
-.erp-search-dropdown {
-    position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #ffffff;
-    border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    z-index: 9999; max-height: 350px; overflow-y: auto; display: none; padding: 0.5rem;
+.price-input { 
+    width: 100%; min-width: 85px; max-width: 120px; text-align: right; color: #047857; background: #ecfdf5; 
+    border: 1px solid #a7f3d0; font-size: 13px; height: 32px; border-radius: 0.5rem; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block; transition: all 0.2s;
 }
-.erp-search-item { padding: 0.75rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: background 0.2s; margin-bottom: 2px; }
-.erp-search-item:last-child { margin-bottom: 0; }
+.input-cell-qty:focus, .input-cell-bh:focus, .price-input:focus { border-color: #9333ea; background: #ffffff; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15); outline: none; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Nút Serial Thông Minh */
+.btn-serial { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 4px; }
+
+/* Tab UI Phía trên bảng */
+.erp-tab-container { display: flex; gap: 6px; align-items: flex-end; }
+.erp-tab-item { 
+    padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 12px; 
+    border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
+}
+.erp-tab-item:hover { background: #e2e8f0; }
+/* TAB ACTIVE MÀU TÍM NỔI BẬT NHƯ YÊU CẦU */
+.erp-tab-item.active { 
+    background: linear-gradient(135deg, #9333ea, #7e22ce); color: #ffffff; z-index: 10; 
+    box-shadow: 0 -4px 10px rgba(147, 51, 234, 0.3); border-color: transparent;
+}
+.erp-tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
+.erp-tab-item.active .erp-tab-close { color: #e9d5ff; }
+.erp-tab-item.active .erp-tab-close:hover { background: rgba(255,255,255,0.25); color: #ffffff; }
+.erp-tab-item:not(.active) .erp-tab-close:hover { background: #fee2e2; color: #e11d48; }
+
+/* Dropdown Tìm Kiếm NCC & SP */
+.erp-search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 9999; max-height: 300px; overflow-y: auto; display: none; }
+.erp-search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
 .erp-search-item:hover, .erp-search-item.active { background: #faf5ff; }
 
-/* --- E. TRẠNG THÁI LỖI/THÀNH CÔNG CHO FORM --- */
-.input-state-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; color: #b91c1c !important;}
-.input-state-success { border-color: #10b981 !important; background-color: #f0fdf4 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important; color: #047857 !important;}
+/* Tiện ích khác */
+.overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
+.smart-input-wrap { position: relative; display: flex; align-items: center; }
+.smart-input-btn { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px dashed #cbd5e1; }
+.smart-input-btn:hover { background: #e2e8f0; color: #334155; border-style: solid; }
+.smart-input-field { display: none; }
+.smart-input-wrap.active .smart-input-btn { display: none; }
+.smart-input-wrap.active .smart-input-field { display: flex; }
