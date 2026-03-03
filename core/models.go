@@ -16,6 +16,7 @@ const (
 	TenSheetPhieuNhap        = "PHIEU_NHAP"
 	TenSheetChiTietPhieuNhap = "CHI_TIET_PHIEU_NHAP"
 	TenSheetSerial           = "SERIAL_SAN_PHAM"
+	TenSheetGoiDichVu        = "GOI_DICH_VU"
 )
 
 // ==============================================================================
