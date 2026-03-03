@@ -122,29 +122,30 @@ type KhachHang struct {
 // ==============================================================================
 const (
 	DongBatDau_NhaCungCap = 11
-	CotNCC_MaNhaCungCap       = 0
-	CotNCC_TenNhaCungCap      = 1
-	CotNCC_MaSoThue           = 2
-	CotNCC_DienThoai          = 3
-	CotNCC_Email              = 4
-	CotNCC_KhuVuc             = 5
-	CotNCC_DiaChi             = 6
-	CotNCC_NguoiLienHe        = 7
-	CotNCC_NganHang           = 8
-	CotNCC_NhomNhaCungCap     = 9
-	CotNCC_LoaiNhaCungCap     = 10
-	CotNCC_DieuKhoanThanhToan = 11
-	CotNCC_ChietKhauMacDinh   = 12
-	CotNCC_HanMucCongNo       = 13
-	CotNCC_CongNoDauKy        = 14
-	CotNCC_TongMua            = 15
-	CotNCC_NoCanTra           = 16
-	CotNCC_ThongTinThemJson   = 17
-	CotNCC_TrangThai          = 18
-	CotNCC_GhiChu             = 19
-	CotNCC_NguoiTao           = 20
-	CotNCC_NgayTao            = 21
-	CotNCC_NgayCapNhat        = 22
+	CotNCC_MaNhaCungCap       = 0  // A
+	CotNCC_TenNhaCungCap      = 1  // B
+	CotNCC_MaSoThue           = 2  // C
+	CotNCC_DienThoai          = 3  // D
+	CotNCC_Email              = 4  // E
+	CotNCC_KhuVuc             = 5  // F
+	CotNCC_DiaChi             = 6  // G
+	CotNCC_NguoiLienHe        = 7  // H
+	CotNCC_AnhDaiDien         = 8  // I (MỚI THÊM)
+	CotNCC_NganHang           = 9  // J
+	CotNCC_NhomNhaCungCap     = 10 // K
+	CotNCC_LoaiNhaCungCap     = 11 // L
+	CotNCC_DieuKhoanThanhToan = 12 // M
+	CotNCC_ChietKhauMacDinh   = 13 // N
+	CotNCC_HanMucCongNo       = 14 // O
+	CotNCC_CongNoDauKy        = 15 // P
+	CotNCC_TongMua            = 16 // Q
+	CotNCC_NoCanTra           = 17 // R
+	CotNCC_ThongTinThemJson   = 18 // S
+	CotNCC_TrangThai          = 19 // T
+	CotNCC_GhiChu             = 20 // U
+	CotNCC_NguoiTao           = 21 // V
+	CotNCC_NgayTao            = 22 // W
+	CotNCC_NgayCapNhat        = 23 // X
 )
 
 type NhaCungCap struct {
@@ -158,6 +159,7 @@ type NhaCungCap struct {
 	KhuVuc             string  `json:"khu_vuc"`
 	DiaChi             string  `json:"dia_chi"`
 	NguoiLienHe        string  `json:"nguoi_lien_he"`
+	AnhDaiDien         string  `json:"anh_dai_dien"` // Thêm mới
 	NganHang           string  `json:"ngan_hang"`
 	NhomNhaCungCap     string  `json:"nhom_nha_cung_cap"`
 	LoaiNhaCungCap     string  `json:"loai_nha_cung_cap"`
@@ -174,7 +176,6 @@ type NhaCungCap struct {
 	NgayTao            string  `json:"ngay_tao"`
 	NgayCapNhat        string  `json:"ngay_cap_nhat"`
 }
-
 // ==============================================================================
 // CẤU TRÚC: DANH MỤC
 // ==============================================================================
