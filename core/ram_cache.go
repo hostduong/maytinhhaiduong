@@ -54,7 +54,11 @@ var (
 	CacheMapDanhMuc   = make(map[string]*DanhMuc)        
 	CacheThuongHieu   = make(map[string][]*ThuongHieu)   
 	CacheMapThuongHieu = make(map[string]*ThuongHieu)    
-	CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan) 
+	CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan)
+
+	// --- GÓI DỊCH VỤ SAAS ---
+	CacheGoiDichVu    = make(map[string][]*GoiDichVu)
+	CacheMapGoiDichVu = make(map[string]*GoiDichVu)
 
 	// --- ĐỐI TÁC ---
 	CacheNhaCungCap    = make(map[string][]*NhaCungCap)  
