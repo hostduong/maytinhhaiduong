@@ -45,7 +45,7 @@ func (r *Repo) InsertNCC(shopID string, ncc *core.NhaCungCap) {
 
 	rowData := []interface{}{
 		ncc.MaNhaCungCap, ncc.TenNhaCungCap, ncc.MaSoThue, ncc.DienThoai, ncc.Email,
-		ncc.KhuVuc, ncc.DiaChi, ncc.NguoiLienHe, ncc.NganHang, ncc.NhomNhaCungCap,
+		ncc.KhuVuc, ncc.DiaChi, ncc.NguoiLienHe, ncc.AnhDaiDien, ncc.NganHang, ncc.NhomNhaCungCap,
 		ncc.LoaiNhaCungCap, ncc.DieuKhoanThanhToan, ncc.ChietKhauMacDinh, ncc.HanMucCongNo,
 		ncc.CongNoDauKy, ncc.TongMua, ncc.NoCanTra, ncc.ThongTinThemJson, ncc.TrangThai,
 		ncc.GhiChu, ncc.NguoiTao, ncc.NgayTao, ncc.NgayCapNhat,
@@ -61,6 +61,7 @@ func (r *Repo) UpdateNCC(shopID string, ncc *core.NhaCungCap) {
 
 	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_TenNhaCungCap, ncc.TenNhaCungCap)
 	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_DienThoai, ncc.DienThoai)
+	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_AnhDaiDien, ncc.AnhDaiDien) // Lệnh cập nhật Ảnh
 	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_CongNoDauKy, ncc.CongNoDauKy)
 	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_NoCanTra, ncc.NoCanTra)
 	core.PushUpdate(shopID, core.TenSheetNhaCungCap, row, core.CotNCC_ThongTinThemJson, ncc.ThongTinThemJson)
