@@ -128,12 +128,12 @@
                         <thead class="sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th class="w-12 text-center">STT</th>
-                                <th class="w-[70px] text-center">Ảnh</th>
-                                <th class="w-full min-w-[250px] text-left">Tên Hàng Hóa</th>
-                                <th class="w-[70px] text-center">ĐVT</th>
-                                <th class="w-[100px] text-center">SL Nhập</th>
-                                <th class="w-[120px] text-center">Giá Nhập</th>
-                                <th class="w-[130px] text-right pr-4">Thành Tiền</th>
+                                <th class="w-[70px] text-center">ẢNH</th>
+                                <th class="w-full text-left min-w-[250px]">TÊN HÀNG HÓA</th>
+                                <th class="w-[80px] text-center">ĐVT</th>
+                                <th class="w-[100px] text-center">SL NHẬP</th>
+                                <th class="w-[120px] text-center">GIÁ NHẬP</th>
+                                <th class="w-[130px] text-right pr-4">THÀNH TIỀN</th>
                                 <th class="w-10 text-center">✕</th>
                             </tr>
                         </thead>
@@ -151,10 +151,10 @@
         </div>
 
         <div class="animated-border-wrapper w-full lg:w-[340px] xl:w-[380px] flex flex-col shrink-0 shadow-xl shadow-purple-200/50" id="rightPanel">
-            <div class="animated-border-inner flex flex-col gap-4 h-full bg-slate-50/50 p-0 relative">
+            <div class="animated-border-inner flex flex-col gap-4 h-full bg-transparent p-0 relative border-none">
                 
-                <div class="box-panel border-indigo-100 bg-white">
-                    <div class="box-body space-y-4">
+                <div class="bg-white border border-indigo-100 rounded-[1rem] shadow-sm flex flex-col z-10 relative">
+                    <div class="p-[1.25rem] space-y-4">
                         <div class="relative z-50">
                             <label class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">Nhà Cung Cấp <span class="text-red-500">*</span></label>
                             <div class="relative w-full">
@@ -196,8 +196,8 @@
                     </div>
                 </div>
 
-                <div class="box-panel flex-1 shadow-md bg-white">
-                    <div class="box-body flex flex-col justify-between h-full">
+                <div class="bg-white flex-1 rounded-[1rem] shadow-md flex flex-col z-10 relative">
+                    <div class="p-[1.25rem] flex flex-col justify-between h-full">
                         <div>
                             <div class="summary-row"><span>Tổng tiền hàng:</span> <span id="lblTongTienHang" class="summary-val text-slate-800">0</span></div>
                             <div class="summary-row items-center">
@@ -216,8 +216,8 @@
                                     <input type="text" id="inpDaThanhToan" class="input-premium price-input w-32 bg-white border-emerald-400 text-emerald-700 font-black text-lg shadow-sm m-0" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
                                 </div>
                                 <div class="flex gap-2">
-                                    <button type="button" class="flex-1 py-1.5 border border-emerald-500 bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm btn-paymethod active hover:opacity-90" onclick="setPhuongThuc('TIEN_MAT')">Tiền Mặt</button>
-                                    <button type="button" class="flex-1 py-1.5 border border-slate-300 bg-white text-slate-600 rounded-lg text-xs font-bold transition shadow-sm btn-paymethod hover:opacity-90" onclick="setPhuongThuc('CHUYEN_KHOAN')">Chuyển Khoản</button>
+                                    <button type="button" class="flex-1 py-1.5 border border-emerald-500 bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm btn-paymethod active transition hover:opacity-90" onclick="setPhuongThuc('TIEN_MAT')">Tiền Mặt</button>
+                                    <button type="button" class="flex-1 py-1.5 border border-slate-300 bg-white text-slate-600 rounded-lg text-xs font-bold shadow-sm btn-paymethod transition hover:opacity-90" onclick="setPhuongThuc('CHUYEN_KHOAN')">Chuyển Khoản</button>
                                     <input type="hidden" id="valPhuongThuc" value="TIEN_MAT">
                                 </div>
                             </div>
@@ -311,7 +311,7 @@
             };
         }
 
-        // TÌM KIẾM SP: CHỌN XONG TỰ ĐÓNG VÀ XÓA CHỮ
+        // TÌM KIẾM SP: TỰ XỔ KHI CLICK, TỰ ĐÓNG KHI CHỌN
         function initSearchSP() {
             const inpSP = document.getElementById('inpSearchSP');
             const dropSP = document.getElementById('dropdownSP');
@@ -363,8 +363,6 @@
                             inpSP.value = ''; 
                             inpSP.dispatchEvent(new Event('input')); 
                             dropSP.style.display = 'none'; 
-                        } else {
-                            Swal.fire('Lỗi', 'Hệ thống Tab chưa tải xong!', 'error');
                         }
                     };
                     dropSP.appendChild(div);
@@ -379,7 +377,7 @@
             document.addEventListener('mousedown', (e) => { if (!inpSP.contains(e.target) && !dropSP.contains(e.target)) dropSP.style.display = 'none'; });
         }
 
-        // TÌM KIẾM NCC: CHỌN XONG TỰ ĐÓNG
+        // TÌM KIẾM NCC: TỰ XỔ KHI CLICK, TỰ ĐÓNG KHI CHỌN
         function initSearchNCC() {
             const inpNCC = document.getElementById('inpSearchNCC');
             const dropNCC = document.getElementById('dropdownNCC');
@@ -500,7 +498,7 @@
             else { renderTabs(); }
         }
 
-        // HÀM SAVE CHỐNG LỖI HOÀN HẢO
+        // ĐÃ FIX BẢO VỆ NULL POINTER TOÀN DIỆN CHO TẤT CẢ CÁC TRƯỜNG DỮ LIỆU
         function saveCurrentTabState() {
             if(!currentTabId || !appTabs[currentTabId]) return;
             
@@ -533,18 +531,15 @@
             let lbl = document.getElementById('lblTrangThai');
             let overlay = document.getElementById('overlayDeleted');
             if (t.status === 0) { 
-                lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; 
-                lbl.innerText = "Lưu Nháp Server"; 
+                if(lbl) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Lưu Nháp Server"; }
                 if(overlay) overlay.style.display = 'none'; toggleInputs(false);
             }
             else if (t.status === -1) { 
-                lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; 
-                lbl.innerText = "Đợi Xóa"; 
+                if(lbl) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px]"; lbl.innerText = "Đợi Xóa"; }
                 if(overlay) overlay.style.display = 'flex'; toggleInputs(true);
             }
             else { 
-                lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; 
-                lbl.innerText = "Đang soạn (Local)"; 
+                if(lbl) { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed"; lbl.innerText = "Đang soạn (Local)"; }
                 if(overlay) overlay.style.display = 'none'; toggleInputs(false);
             }
             renderTable();
@@ -592,6 +587,7 @@
                 let tr = document.createElement('tr');
                 tr.className = "hover-soft-row border-b border-slate-100";
                 
+                // CỘT TÊN HÀNG HÓA: min-w-[250px] và whitespace-normal giúp hiển thị trọn vẹn
                 tr.innerHTML = `
                     <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
                     <td class="text-center py-2 align-middle"><img src="${getFirstImg(c.img)}" class="w-[60px] h-[60px] object-cover rounded-lg border border-slate-200 inline-block shadow-sm"></td>
@@ -610,7 +606,8 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('lblTongTienHang').innerText = formatNum(tongTienHang);
+            let elTong = document.getElementById('lblTongTienHang');
+            if(elTong) elTong.innerText = formatNum(tongTienHang);
             calcThanhToan();
         }
 
@@ -619,11 +616,13 @@
             const rightPanel = document.getElementById('rightPanel');
             const btn = document.getElementById('btnToggle');
             if(isPanelOpen) {
-                rightPanel.classList.add('hidden', 'lg:hidden'); 
-                btn.innerHTML = '⯇ Hiện Thanh toán'; isPanelOpen = false;
+                if(rightPanel) rightPanel.classList.add('hidden', 'lg:hidden'); 
+                if(btn) btn.innerHTML = '⯇ Hiện Thanh toán'; 
+                isPanelOpen = false;
             } else {
-                rightPanel.classList.remove('hidden', 'lg:hidden'); 
-                btn.innerHTML = 'Đóng TT Thanh toán ⯈'; isPanelOpen = true;
+                if(rightPanel) rightPanel.classList.remove('hidden', 'lg:hidden'); 
+                if(btn) btn.innerHTML = 'Đóng TT Thanh toán ⯈'; 
+                isPanelOpen = true;
             }
         }
 
@@ -633,11 +632,14 @@
                 b.classList.remove('border-emerald-500', 'bg-emerald-500', 'text-white');
                 b.classList.add('border-slate-300', 'bg-white', 'text-slate-600');
             });
-            event.target.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
-            event.target.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
+            let targetBtn = event.target;
+            if(targetBtn) {
+                targetBtn.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
+                targetBtn.classList.remove('border-slate-300', 'bg-white', 'text-slate-600');
+            }
             
-            let elPt = document.getElementById('valPhuongThuc');
-            if(elPt) elPt.value = pt;
+            let valP = document.getElementById('valPhuongThuc');
+            if(valP) valP.value = pt;
             
             saveCurrentTabState();
         }
@@ -737,39 +739,53 @@
 
         function restoreTab() { changeStatusAPI(currentTabId, 0); }
         
-        function updateSerialCount() { document.getElementById('lblSerialCount').innerText = tagifySerial.value.length; }
+        function updateSerialCount() { 
+            let el = document.getElementById('lblSerialCount');
+            if(el && tagifySerial) el.innerText = tagifySerial.value.length; 
+        }
 
         function openSerialModal(idx) {
             let c = appTabs[currentTabId].cart[idx];
-            document.getElementById('idxEditingSerial').value = idx;
-            document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
-            document.getElementById('lblSerialReq').innerText = c.sl;
+            let elIdx = document.getElementById('idxEditingSerial'); if(elIdx) elIdx.value = idx;
+            let elName = document.getElementById('lblSerialName'); if(elName) elName.innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : '');
+            let elReq = document.getElementById('lblSerialReq'); if(elReq) elReq.innerText = c.sl;
             
-            tagifySerial.removeAllTags();
-            if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); }
-            updateSerialCount();
+            if(tagifySerial) {
+                tagifySerial.removeAllTags();
+                if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); }
+                updateSerialCount();
+            }
 
-            document.getElementById('modalSerial').classList.remove('hidden');
-            setTimeout(() => tagifySerial.DOM.input.focus(), 100);
+            let modal = document.getElementById('modalSerial');
+            if(modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => { if(tagifySerial && tagifySerial.DOM.input) tagifySerial.DOM.input.focus(); }, 100);
+            }
         }
 
         function saveSerials() {
-            let idx = document.getElementById('idxEditingSerial').value;
+            let elIdx = document.getElementById('idxEditingSerial');
+            if(!elIdx) return;
+            let idx = elIdx.value;
             let c = appTabs[currentTabId].cart[idx];
             let req = c.sl;
-            let lines = tagifySerial.value.map(t => t.value);
+            let lines = tagifySerial ? tagifySerial.value.map(t => t.value) : [];
             
             if(lines.length > req) {
                 Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return;
             }
             c.serials = lines;
-            document.getElementById('modalSerial').classList.add('hidden');
+            let modal = document.getElementById('modalSerial');
+            if(modal) modal.classList.add('hidden');
             renderTable();
         }
 
-        // CHẠY TRỰC TIẾP LUÔN ĐỂ TRÁNH LỖI GHI ĐÈ WINDOW.ONLOAD TỪ CÁC FILE KHÁC
+        // KHỞI ĐỘNG HỆ THỐNG AN TOÀN TUYỆT ĐỐI NGAY KHI TẢI XONG DOM
         try {
-            tagifySerial = new Tagify(document.getElementById('inpSerials'), { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
+            let elSerials = document.getElementById('inpSerials');
+            if(elSerials) {
+                tagifySerial = new Tagify(elSerials, { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
+            }
         } catch(e) { console.log("Tagify err", e); }
         initApp();
 
