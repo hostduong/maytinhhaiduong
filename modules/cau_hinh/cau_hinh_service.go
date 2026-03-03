@@ -20,6 +20,7 @@ type DTO_LuuNhaCungCap struct {
 	KhuVuc             string
 	DiaChi             string
 	NguoiLienHe        string
+	AnhDaiDien         string // Đã thêm
 	NganHang           string
 	NhomNhaCungCap     string
 	LoaiNhaCungCap     string
@@ -47,6 +48,7 @@ func (s *Service) XuLyLuuNhaCungCap(shopID string, input DTO_LuuNhaCungCap) erro
 			SpreadsheetID: shopID, MaNhaCungCap: maNCC, TenNhaCungCap: input.TenNhaCungCap,
 			MaSoThue: input.MaSoThue, DienThoai: input.DienThoai, Email: input.Email,
 			KhuVuc: input.KhuVuc, DiaChi: input.DiaChi, NguoiLienHe: input.NguoiLienHe,
+			AnhDaiDien: input.AnhDaiDien, // Đã thêm
 			NganHang: input.NganHang, NhomNhaCungCap: input.NhomNhaCungCap, LoaiNhaCungCap: input.LoaiNhaCungCap,
 			DieuKhoanThanhToan: input.DieuKhoanThanhToan, ChietKhauMacDinh: input.ChietKhauMacDinh,
 			HanMucCongNo: input.HanMucCongNo, CongNoDauKy: input.CongNoDauKy,
@@ -65,6 +67,7 @@ func (s *Service) XuLyLuuNhaCungCap(shopID string, input DTO_LuuNhaCungCap) erro
 		lock := core.GetSheetLock(shopID, core.TenSheetNhaCungCap)
 		lock.Lock()
 		found.TenNhaCungCap = input.TenNhaCungCap; found.DienThoai = input.DienThoai
+		found.AnhDaiDien = input.AnhDaiDien // Cập nhật trên RAM
 		found.CongNoDauKy = input.CongNoDauKy; found.NoCanTra = noCanTraMoi
 		found.ThongTinThemJson = input.ThongTinThemJson; found.TrangThai = input.TrangThai
 		found.NgayCapNhat = nowStr
