@@ -1,0 +1,92 @@
+{{ define "database_admin" }}
+    {{ template "header_admin" . }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div class="max-w-5xl mx-auto p-6 md:p-12 mb-24">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-black text-gradient-animated mb-3">Kết Nối Cơ Sở Dữ Liệu</h2>
+            <p class="text-slate-500 font-bold">Hãy khởi tạo "bộ não" cho cửa hàng của bạn để bắt đầu sử dụng 99K.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="animated-border-wrapper shadow-2xl shadow-purple-200/50 cursor-pointer transform transition hover:scale-[1.02]" onclick="chonSetup('auto')">
+                <div class="animated-border-inner bg-white p-8 flex flex-col h-full rounded-[calc(1.5rem-2px)] text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                    
+                    <span class="badge-animated-wrap theme-9 tier-s absolute top-4 left-1/2 -translate-x-1/2">
+                        <span class="badge-inner !py-1 !px-4">Khuyên dùng</span>
+                    </span>
+
+                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-lg mb-6 mt-6">
+                        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-2">Tạo Tự Động 100%</h3>
+                    <p class="text-sm font-bold text-slate-500 mb-6 flex-1">Hệ thống sẽ tự động nhân bản Sheet mẫu chuẩn và share quyền quản trị vào email <span class="text-purple-600">{{ .NhanVien.Email }}</span> của bạn.</p>
+                    <button class="w-full py-4 bg-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-md">Thiết lập ngay</button>
+                </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-[1.5rem] p-8 flex flex-col h-full text-center hover:border-purple-300 transition duration-300">
+                <div class="w-20 h-20 mx-auto bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400 mb-6">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2">Nhập ID Thủ Công</h3>
+                <p class="text-sm font-bold text-slate-500 mb-6 flex-1">Dành cho chuyên gia. Bạn đã tự Copy file mẫu của 99K và muốn dán Spreadsheet ID của riêng bạn vào đây.</p>
+                <div class="mt-auto">
+                    <input type="text" id="manual_sheet_id" class="input-premium mb-4 text-center font-mono text-sm" placeholder="Nhập Spreadsheet ID...">
+                    <button onclick="chonSetup('manual')" class="w-full py-4 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl font-black uppercase tracking-widest text-sm transition">Xác nhận ID</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function chonSetup(loai) {
+            let sheetId = "";
+            if (loai === 'manual') {
+                sheetId = document.getElementById('manual_sheet_id').value.trim();
+                if (!sheetId) {
+                    Swal.fire({icon: 'error', title: 'Lỗi', text: 'Vui lòng nhập ID Sheet!'});
+                    return;
+                }
+            } else {
+                const cf = await Swal.fire({
+                    title: '<span class="text-2xl font-black title-gradient-purple">Tự động khởi tạo?</span>',
+                    html: 'Hệ thống sẽ tạo 1 file Database mới trên Google Drive của bạn.<br>Quá trình này mất khoảng 5-10 giây.',
+                    showCancelButton: true, confirmButtonText: 'Bắt đầu tạo', cancelButtonText: 'Hủy',
+                    customClass: { popup: 'swal-animated-purple' }
+                });
+                if (!cf.isConfirmed) return;
+            }
+
+            Swal.fire({
+                title: 'Đang khởi tạo Database...',
+                html: 'Vui lòng không đóng trình duyệt.<br><div class="spinner-led-btn mx-auto mt-4"></div>',
+                showConfirmButton: false, allowOutsideClick: false
+            });
+
+            const fd = new FormData();
+            fd.append('loai_thiet_lap', loai);
+            fd.append('spreadsheet_id', sheetId);
+
+            try {
+                const res = await fetch('/master/api/database/setup', { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    Swal.fire({
+                        icon: 'success', title: 'Tuyệt vời!', text: 'Database đã sẵn sàng. Chuyển đến Tổng quan...',
+                        timer: 2000, showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = "/master/tong-quan";
+                    });
+                } else {
+                    Swal.fire('Lỗi', data.msg, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Lỗi', 'Mất kết nối đến máy chủ!', 'error');
+            }
+        }
+    </script>
+    {{ template "footer_admin" . }}
+{{ end }}
