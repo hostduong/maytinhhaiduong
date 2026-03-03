@@ -1,623 +1,365 @@
-{{ define "master_nhap_hang" }}
-    {{ template "header_master" . }}
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+package nhap_hang
 
-    <style>
-        .nhap-hang-layout { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 100px); padding-bottom: 3rem; }
-        @media (min-width: 1024px) { .nhap-hang-layout { flex-direction: row; align-items: stretch; } }
-        
-        .box-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
-        .box-body { padding: 1.25rem; }
-        
-        .input-premium { width: 100%; height: 38px; padding: 0 0.85rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.85rem; color: #1e293b; font-weight: 600; transition: all 0.2s; }
-        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); outline: none; }
-        
-        /* BẢNG CHI TIẾT SẢN PHẨM: CO GIÃN THÔNG MINH */
-        .table-responsive-wrapper { overflow-x: auto; width: 100%; }
-        .table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
-        .table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        
-        .table-nhap-hang { width: 100%; text-align: left; min-width: 900px; }
-        .table-nhap-hang th { background: #ffffff; text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #64748b; padding: 0.75rem 0.5rem; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-        .table-nhap-hang td { padding: 0.75rem 0.5rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; color: #334155; }
-        
-        .input-qty { width: 100%; min-width: 50px; max-width: 70px; text-align: center; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #4338ca; font-weight: 800; margin: 0 auto; display: block; font-size: 13px;}
-        .input-bh { width: 100%; min-width: 50px; max-width: 70px; text-align: center; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; color: #d97706; font-weight: 800; margin: 0 auto; display: block; background: #fffbeb; font-size: 13px;}
-        .price-input { width: 100%; min-width: 100px; max-width: 130px; text-align: right; color: #047857; background: #ecfdf5; border-color: #a7f3d0; font-size: 0.9rem; height: 34px; border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0 0.5rem; font-weight: 800; margin: 0 auto; display: block;}
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .search-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 9999; max-height: 300px; overflow-y: auto; display: none; }
-        .search-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
-        .search-item:hover, .search-item.active { background: #faf5ff; }
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"strconv"
+	"time"
 
-        .tagify-serial { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #f8fafc; padding: 0.5rem; min-height: 120px; align-items: flex-start; }
-        .tagify-serial.tagify--focus { border-color: #8b5cf6; background: #ffffff; }
+	"app/core"
+	"github.com/gin-gonic/gin"
+)
 
-        .tab-container { display: flex; gap: 4px; align-items: flex-end; }
-        .tab-item { 
-            padding: 8px 16px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.8rem; 
-            border-radius: 10px 10px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px;
-            transition: all 0.2s; border: 1px solid transparent; border-bottom: none; position: relative; white-space: nowrap;
-        }
-        .tab-item:hover { background: #e2e8f0; }
-        .tab-item.active { background: #ffffff; color: #4f46e5; z-index: 10; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
-        .tab-item.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:3px; background:#ffffff; z-index:20; }
-        .tab-close { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.2s; }
-        .tab-close:hover { background: #fee2e2; color: #e11d48; }
-        
-        .overlay-deleted { position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; display: none; }
-        
-        .btn-serial { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; margin-top: 6px; }
-    </style>
+// ============================================================================
+// 1. RENDER GIAO DIỆN HTML VÀ NẠP PHIẾU NHÁP
+// ============================================================================
+func TrangNhapHangMaster(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
 
-    <div id="data_island" style="display:none;">
-        <div id="data_sp">
-            {{ range .DanhSachSP }}
-            <div class="sp-item" data-masp="{{ .MaSanPham }}" data-masku="{{ .MaSKU }}" data-tensp="{{ .TenSanPham }}" data-tensku="{{ .TenSKU }}" data-donvi="{{ .DonVi }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-img="{{ .UrlHinhAnh }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_ncc">
-            {{ range .DanhSachNCC }}
-            <div class="ncc-item" data-mancc="{{ .MaNhaCungCap }}" data-ten="{{ .TenNhaCungCap }}" data-dienthoai="{{ .DienThoai }}" data-masothue="{{ .MaSoThue }}" data-diachi="{{ .DiaChi }}"></div>
-            {{ end }}
-        </div>
-        <div id="data_drafts">
-            {{ range .DanhSachNhaps }}
-            <div class="draft-item" data-maphieu="{{ .MaPhieuNhap }}" data-trangthai="{{ .TrangThai }}" data-mancc="{{ .MaNhaCungCap }}" data-ngaynhap="{{ .NgayNhap }}" data-sohd="{{ .SoHoaDon }}" data-makho="{{ .MaKho }}" data-ghichu="{{ .GhiChu }}" data-giamgia="{{ printf "%.0f" .GiamGiaPhieu }}" data-datra="{{ printf "%.0f" .DaThanhToan }}" data-phuongthuc="{{ .PhuongThucThanhToan }}">
-                {{ range .ChiTiet }}
-                <div class="draft-detail" data-masku="{{ .MaSKU }}" data-sl="{{ .SoLuong }}" data-gianhap="{{ printf "%.0f" .DonGiaNhap }}" data-bh="{{ .BaoHanhThang }}" data-vat="{{ printf "%.0f" .VATPercent }}"></div>
-                {{ end }}
-            </div>
-            {{ end }}
-        </div>
-    </div>
+	me, ok := core.LayKhachHang(shopID, userID)
+	if !ok {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+	meCopy := *me
 
-    <div class="max-w-[1600px] mx-auto p-4 nhap-hang-layout" id="mainLayout">
-        
-        <div class="animated-border-wrapper flex-1 shadow-xl shadow-purple-200/50 min-w-0 flex flex-col" id="leftPanel">
-            <div class="animated-border-inner flex flex-col h-full bg-white relative rounded-[1rem] overflow-hidden border-none">
-                <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
-                
-                <div class="px-4 border-b border-slate-200 bg-slate-50/80 flex items-end relative z-10 pt-2 overflow-x-auto custom-scroll shrink-0">
-                    <div class="tab-container flex shrink-0" id="tabList"></div>
-                    <div class="flex items-center gap-1.5 text-indigo-500 hover:text-indigo-700 font-bold mb-[6px] ml-2 shrink-0 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition" onclick="addNewTab()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                        <span class="text-[12px] tracking-tight uppercase">Thêm</span>
-                    </div>
-                    <div class="flex-1 min-w-[20px]"></div>
-                    <button onclick="toggleRightPanel()" id="btnToggle" class="mb-[8px] text-slate-400 hover:text-indigo-600 text-[11px] font-bold transition whitespace-nowrap shrink-0 uppercase tracking-widest flex items-center gap-1">
-                        Đóng TT Phiếu ⯈
-                    </button>
-                </div>
-                
-                <div id="overlayDeleted" class="overlay-deleted">
-                    <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </div>
-                    <h3 class="text-2xl font-black text-red-600 mb-2">Phiếu đã đưa vào Thùng rác</h3>
-                    <p class="text-slate-500 font-medium mb-6">Trạng thái: Đợi xóa. Dữ liệu vẫn được bảo lưu.</p>
-                    <button onclick="restoreTab()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/30 transition transform hover:-translate-y-1">
-                        Khôi phục phiếu này
-                    </button>
-                </div>
+	meCopy.StyleLevel = core.LayCapBacVaiTro(shopID, userID, meCopy.VaiTroQuyenHan)
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9
+	}
 
-                <div class="p-3 border-b border-purple-50 bg-white relative z-20 shrink-0">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-opacity duration-200" id="iconSearchSP">
-                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="text" id="inpSearchSP" class="input-premium border-indigo-200 shadow-sm transition-all" style="padding-left: 3rem !important;" placeholder="Gõ Mã SKU, Mã vạch hoặc Tên sản phẩm để thêm..." autocomplete="off">
-                        <div id="dropdownSP" class="search-dropdown"></div>
-                    </div>
-                </div>
+	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
+	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
 
-                <div class="table-responsive-wrapper flex-1 bg-white relative z-10 pb-0">
-                    <table class="table-nhap-hang" id="tableMain">
-                        <thead class="sticky top-0 z-10 shadow-sm">
-                            <tr>
-                                <th class="w-10 text-center">STT</th>
-                                <th class="w-[60px] text-center">Ảnh</th>
-                                <th class="w-auto min-w-[200px] text-left">Tên Hàng Hóa</th>
-                                <th class="w-[60px] text-center">ĐVT</th>
-                                <th class="w-[80px] text-center">BH (Tháng)</th>
-                                <th class="w-[90px] text-center">SL Nhập</th>
-                                <th class="w-[120px] text-center">Giá Nhập</th>
-                                <th class="w-[130px] text-right pr-4">Thành Tiền</th>
-                                <th class="w-8 text-center">✕</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyChiTiet">
-                            <tr id="rowEmpty" class="border-b-0">
-                                <td colspan="9" class="text-center py-24 text-slate-400 font-medium italic">
-                                    <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                    Chưa có sản phẩm.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RLock()
+	allPhieu := core.CachePhieuNhap[shopID]
+	var danhSachNhaps []*core.PhieuNhap
+	for _, p := range allPhieu {
+		if p.TrangThai == 0 || p.TrangThai == 2 || p.TrangThai == -1 {
+			danhSachNhaps = append(danhSachNhaps, p)
+		}
+	}
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RUnlock()
 
-                <div class="bg-slate-50 border-t border-slate-200 p-4 shrink-0 flex flex-col items-end gap-2.5 z-20 relative">
-                    
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                        <span class="text-slate-500 font-bold text-[13px] uppercase tracking-wider">Tổng tiền hàng:</span> 
-                        <span id="lblTongTienHang" class="font-black text-slate-800 text-[14px] min-w-[120px] text-right">0</span>
-                    </div>
+	c.HTML(http.StatusOK, "master_nhap_hang", gin.H{
+		"TieuDe":        "Nhập Hàng",
+		"NhanVien":      &meCopy,
+		"DanhSachNCC":   danhSachNCC,
+		"DanhSachSP":    danhSachSP,
+		"DanhSachNhaps": danhSachNhaps,
+	})
+}
 
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                        <div class="flex items-center gap-2">
-                            <span class="text-slate-500 font-bold text-[12px] uppercase tracking-wider">VAT:</span> 
-                            <input type="number" id="inpVatPercent" class="input-premium w-14 h-8 text-center text-[13px] p-0 shadow-inner border-slate-300 m-0" value="0" min="0" max="100" onchange="calcThanhToan()">
-                            <span class="text-slate-500 font-bold text-[13px]">%</span>
-                            <span id="lblTienVat" class="font-bold text-indigo-600 text-[14px] ml-1 bg-indigo-50 px-2 rounded border border-indigo-100 min-w-[80px] text-right inline-block">0</span>
-                        </div>
-                        <div class="flex items-center gap-2 border-l border-slate-300 pl-4">
-                            <span class="text-slate-500 font-bold text-[12px] uppercase tracking-wider">Giảm giá:</span> 
-                            <input type="text" id="inpGiamGiaPhieu" class="input-premium price-input w-28 h-8 text-[14px] text-rose-600 bg-rose-50 border-rose-200 shadow-inner m-0" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
-                        </div>
-                    </div>
+// ============================================================================
+// 2. CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN (ĐÃ UPDATE VAT VÀ BẢO HÀNH)
+// ============================================================================
+type ChiTietInput struct {
+	MaSKU        string   `json:"ma_sku"`
+	SoLuong      int      `json:"so_luong"`
+	DonGiaNhap   float64  `json:"don_gia_nhap"`
+	BaoHanhThang int      `json:"bao_hanh_thang"`
+	VATPercent   float64  `json:"vat_percent"`
+	Serials      []string `json:"serials"`
+}
 
-                    <div class="flex items-center gap-4 w-full md:w-auto justify-end border-t border-slate-200 pt-2 mt-1">
-                        <span class="text-indigo-800 font-black text-[13px] uppercase tracking-wider">Cần Trả:</span> 
-                        <span id="lblCanTra" class="font-black text-indigo-700 text-[16px] min-w-[120px] text-right">0</span>
-                    </div>
+type PhieuNhapInput struct {
+	MaPhieuNhap         string         `json:"ma_phieu_nhap"`
+	MaNhaCungCap        string         `json:"ma_nha_cung_cap"`
+	MaKho               string         `json:"ma_kho"`
+	NgayNhap            string         `json:"ngay_nhap"`
+	SoHoaDon            string         `json:"so_hoa_don"`
+	GhiChuPhieu         string         `json:"ghi_chu_phieu"`
+	GiamGiaPhieu        float64        `json:"giam_gia_phieu"`
+	ChiPhiNhap          float64        `json:"chi_phi_nhap"`
+	DaTra               float64        `json:"da_tra"`
+	PhuongThucThanhToan string         `json:"phuong_thuc_thanh_toan"`
+	TrangThai           int            `json:"trang_thai"`
+	ChiTiet             []ChiTietInput `json:"chi_tiet"`
+}
 
-                </div>
-            </div>
-        </div>
+// ============================================================================
+// HÀM KIỂM TRA QUYỀN (HỖ TRỢ BYPASS CHO ADMIN)
+// ============================================================================
+func checkQuyenNhapHang(vaiTro string, userID string) bool {
+	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || 
+	   vaiTro == "quan_tri_cua_hang" || vaiTro == "quan_tri_vien_cua_hang" || 
+	   userID == "0000000000000000001" {
+		return true
+	}
+	return true 
+}
 
-        <div class="animated-border-wrapper w-full lg:w-[320px] xl:w-[340px] shrink-0 shadow-xl shadow-purple-200/50 rounded-[1rem] h-fit transition-all duration-300 origin-right" id="rightPanel">
-            <div class="animated-border-inner bg-white p-[1.25rem] flex flex-col space-y-4 rounded-[1rem] relative z-10 border border-transparent">
-                
-                <div class="relative z-50">
-                    <label class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">Nhà Cung Cấp <span class="text-red-500">*</span></label>
-                    <div class="relative w-full">
-                        <input type="text" id="inpSearchNCC" class="input-premium border-indigo-200 bg-slate-50 text-[13px]" placeholder="Gõ tên tìm kiếm..." autocomplete="off">
-                        <input type="hidden" id="valMaNCC">
-                        <div id="dropdownNCC" class="search-dropdown text-sm"></div>
-                    </div>
-                    
-                    <div id="nccDetails" class="hidden mt-2 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 shadow-inner">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Mã Số Thuế</span>
-                            <span id="lblNCC_MST" class="font-mono font-bold text-slate-800"></span>
-                        </div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Điện Thoại</span>
-                            <span id="lblNCC_SDT" class="font-bold text-indigo-600"></span>
-                        </div>
-                        <div class="flex flex-col mt-2 pt-2 border-t border-slate-200/60">
-                            <span class="font-bold text-slate-400 uppercase tracking-wider text-[9px] mb-0.5">Địa Chỉ</span>
-                            <span id="lblNCC_DiaChi" class="leading-snug text-slate-700 font-medium"></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Trạng thái</label>
-                        <div id="lblTrangThai" class="input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] h-[36px]" style="border-style: dashed;">Đang soạn</div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ngày Nhập</label>
-                        <input type="date" id="valNgayNhap" class="input-premium font-mono text-[12px] bg-slate-50 px-2 h-[36px]" onchange="saveCurrentTabState()">
-                    </div>
-                </div>
+// ============================================================================
+// 3. API XỬ LÝ LƯU PHIẾU NHẬP
+// ============================================================================
+func API_LuuPhieuNhap(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
+	vaiTro := c.GetString("USER_ROLE")
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Số HĐ (VAT)</label>
-                        <input type="text" id="valSoHoaDon" class="input-premium text-[13px] font-bold bg-slate-50 h-[36px]" placeholder="Ký hiệu..." onchange="saveCurrentTabState()">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Kho Nhập</label>
-                        <select id="valMaKho" class="input-premium cursor-pointer text-[12px] font-bold text-indigo-800 bg-slate-50 px-2 h-[36px]" onchange="saveCurrentTabState()">
-                            <option value="KHO_CHINH">Kho Chính</option>
-                            <option value="KHO_BAO_HANH">Kho Bảo Hành</option>
-                        </select>
-                    </div>
-                </div>
+	if !checkQuyenNhapHang(vaiTro, userID) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thực hiện thao tác nhập hàng!"})
+		return
+	}
 
-                <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-2.5 shadow-inner mt-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-emerald-800 font-bold text-[11px] uppercase tracking-wider">Đã trả:</span>
-                        <div class="flex items-center gap-1.5">
-                            <input type="text" id="inpDaThanhToan" class="input-premium price-input w-28 h-8 text-[14px] text-emerald-700 border-emerald-300 font-black m-0 p-0 pr-2" value="0" onkeyup="formatCurrency(this); calcThanhToan()">
-                            <select id="valPhuongThuc" class="input-premium w-[80px] h-8 text-[11px] font-bold px-1 m-0 bg-emerald-500 border-emerald-600 text-white cursor-pointer shadow-sm rounded-lg" onchange="saveCurrentTabState()">
-                                <option value="TIEN_MAT" class="bg-white text-slate-800">Tiền Mặt</option>
-                                <option value="CHUYEN_KHOAN" class="bg-white text-slate-800">CKhoản</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center border-t border-emerald-200/60 pt-2">
-                        <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider">Công nợ:</span>
-                        <span id="lblConNo" class="font-black text-[14px] text-slate-600">0</span>
-                    </div>
-                </div>
-                
-                <div class="mt-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Ghi chú phiếu</label>
-                    <textarea id="valGhiChu" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-[13px] focus:border-indigo-500 outline-none transition resize-none shadow-inner" placeholder="Ghi chú nội bộ..." onchange="saveCurrentTabState()"></textarea>
-                </div>
+	var input PhieuNhapInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"status": "error", "msg": "Dữ liệu không hợp lệ!"})
+		return
+	}
 
-                <div class="mt-2 flex gap-3 pt-3 border-t border-slate-100">
-                    <button onclick="confirmSubmit(0)" class="flex-1 bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold text-[13px] py-3 rounded-xl shadow-sm transition active:scale-95 text-center">
-                        Lưu Nháp
-                    </button>
-                    <button onclick="confirmSubmit(1)" class="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[13px] py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                        Hoàn Thành
-                    </button>
-                </div>
+	if len(input.ChiTiet) == 0 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Phiếu nhập chưa có sản phẩm!"})
+		return
+	}
 
-            </div>
-        </div>
-    </div>
+	loc := time.FixedZone("ICT", 7*3600)
+	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 
-    <div id="modalSerial" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-white/20">
-            <div class="px-6 py-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
-                <h3 class="text-base font-black text-indigo-800 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Quét Serial / IMEI</h3>
-                <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="text-slate-400 hover:text-red-500 transition text-2xl font-bold">&times;</button>
-            </div>
-            <div class="p-6">
-                <div class="flex justify-between text-sm font-bold text-slate-600 mb-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <span id="lblSerialName" class="text-indigo-700 truncate mr-4">Tên SP</span>
-                    <span class="shrink-0">Cần quét: <span id="lblSerialReq" class="text-rose-600 font-black text-lg bg-rose-100 px-2 py-0.5 rounded">0</span></span>
-                </div>
-                <input id="inpSerials" class="tagify-serial text-base" placeholder="Tít mã vạch hoặc Gõ mã rồi ấn Enter..." autofocus>
-                <div class="mt-3 flex justify-between items-center">
-                    <span class="text-[11px] font-bold text-slate-400">Nhấn phím Enter sau mỗi Serial</span>
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Đã quét: <span id="lblSerialCount" class="text-emerald-600 font-black text-lg">0</span></div>
-                </div>
-            </div>
-            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="document.getElementById('modalSerial').classList.add('hidden')" class="px-5 py-2 font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition">Đóng</button>
-                <button onclick="saveSerials()" class="px-6 py-2 font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition transform active:scale-95">Xác Nhận</button>
-            </div>
-            <input type="hidden" id="idxEditingSerial">
-        </div>
-    </div>
+	nguoiThaoTac, _ := core.LayKhachHang(shopID, userID)
+	tenNguoiThaoTac := "Hệ thống"
+	if nguoiThaoTac != nil {
+		tenNguoiThaoTac = nguoiThaoTac.TenDangNhap
+	}
 
-    <script>
-        function getFirstImg(str) {
-            if(!str) return "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
-            let arr = str.split('|'); return arr[0].trim() ? arr[0].trim() : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2212%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
-        }
-        function formatNum(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-        function formatCurrency(input) { input.value = formatNum(getNum(input.value)); }
-        function getNum(val) { if(!val) return 0; return parseFloat(val.toString().replace(/\./g, "")) || 0; }
+	// Tính toán Kế toán (Bao gồm cả VAT)
+	var tongTienHang float64 = 0
+	var tongTienVat float64 = 0
+	
+	for _, ct := range input.ChiTiet {
+		tienHang := ct.DonGiaNhap * float64(ct.SoLuong)
+		tongTienHang += tienHang
+		tongTienVat += tienHang * (ct.VATPercent / 100)
+	}
 
-        const dbSP = []; document.querySelectorAll('#data_sp .sp-item').forEach(el => { dbSP.push({ ma_san_pham: el.getAttribute('data-masp'), ma_sku: el.getAttribute('data-masku'), tensp: el.getAttribute('data-tensp'), tensku: el.getAttribute('data-tensku'), donvi: el.getAttribute('data-donvi'), gianhap: parseFloat(el.getAttribute('data-gianhap')) || 0, img: el.getAttribute('data-img') }); });
-        const dbNCC = []; document.querySelectorAll('#data_ncc .ncc-item').forEach(el => { dbNCC.push({ ma: el.getAttribute('data-mancc'), ten: el.getAttribute('data-ten'), sdt: el.getAttribute('data-dienthoai'), masothue: el.getAttribute('data-masothue'), diachi: el.getAttribute('data-diachi') }); });
+	thanhToan := tongTienHang + tongTienVat - input.GiamGiaPhieu + input.ChiPhiNhap
+	if thanhToan < 0 { thanhToan = 0 }
+	conNo := thanhToan - input.DaTra
 
-        let appTabs = {}; let currentTabId = ""; let tabCounter = 0; let tagifySerial;
+	trangThaiThanhToan := "CHUA_THANH_TOAN"
+	if input.DaTra >= thanhToan && thanhToan > 0 {
+		trangThaiThanhToan = "DA_THANH_TOAN"
+	} else if input.DaTra > 0 {
+		trangThaiThanhToan = "THANH_TOAN_MOT_PHAN"
+	}
 
-        function getEmptyTab(id) {
-            let today = new Date(); let offset = today.getTimezoneOffset() * 60000; let localISOTime = (new Date(today - offset)).toISOString().slice(0, 16);
-            return {
-                id: "T" + id, ma_phieu: "", title: "Phiếu mới", status: -2,
-                cart: [], ncc_ma: "", ncc_ten: "",
-                ngay_nhap: localISOTime.split('T')[0], so_hd: "", ma_kho: "KHO_CHINH", ghi_chu: "",
-                vat_percent: 0, giam_gia: 0, da_tra: 0, phuong_thuc: "TIEN_MAT"
-            };
-        }
+	chiTietBytes, _ := json.Marshal(input.ChiTiet)
+	chiTietJsonStr := string(chiTietBytes)
 
-        function saveCurrentTabState() {
-            if(!currentTabId || !appTabs[currentTabId]) return;
-            let elMaNCC = document.getElementById('valMaNCC'); if(elMaNCC) appTabs[currentTabId].ncc_ma = elMaNCC.value;
-            let elSearchNCC = document.getElementById('inpSearchNCC'); if(elSearchNCC) appTabs[currentTabId].ncc_ten = elSearchNCC.value;
-            let elNgay = document.getElementById('valNgayNhap'); if(elNgay) appTabs[currentTabId].ngay_nhap = elNgay.value;
-            let elSoHD = document.getElementById('valSoHoaDon'); if(elSoHD) appTabs[currentTabId].so_hd = elSoHD.value;
-            let elKho = document.getElementById('valMaKho'); if(elKho) appTabs[currentTabId].ma_kho = elKho.value;
-            let elGhiChu = document.getElementById('valGhiChu'); if(elGhiChu) appTabs[currentTabId].ghi_chu = elGhiChu.value;
-            let elVAT = document.getElementById('inpVatPercent'); if(elVAT) appTabs[currentTabId].vat_percent = parseFloat(elVAT.value) || 0;
-            let elGiamGia = document.getElementById('inpGiamGiaPhieu'); if(elGiamGia) appTabs[currentTabId].giam_gia = getNum(elGiamGia.value);
-            let elDaTra = document.getElementById('inpDaThanhToan'); if(elDaTra) appTabs[currentTabId].da_tra = getNum(elDaTra.value);
-            let elPhuongThuc = document.getElementById('valPhuongThuc'); if(elPhuongThuc) appTabs[currentTabId].phuong_thuc = elPhuongThuc.value;
-        }
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Lock()
+	defer core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Unlock()
 
-        function loadTabToUI(id) {
-            let t = appTabs[id];
-            if(!t) return;
-            let elMaNCC = document.getElementById('valMaNCC'); if(elMaNCC) elMaNCC.value = t.ncc_ma;
-            let elSearchNCC = document.getElementById('inpSearchNCC'); if(elSearchNCC) elSearchNCC.value = t.ncc_ten;
-            
-            let nccDetailsBox = document.getElementById('nccDetails');
-            if (t.ncc_ma && nccDetailsBox) {
-                let ncc = dbNCC.find(n => n.ma === t.ncc_ma);
-                if (ncc) {
-                    document.getElementById('lblNCC_MST').innerText = ncc.masothue || '---';
-                    document.getElementById('lblNCC_SDT').innerText = ncc.sdt || '---';
-                    document.getElementById('lblNCC_DiaChi').innerText = ncc.diachi || 'Chưa cập nhật địa chỉ';
-                    nccDetailsBox.classList.remove('hidden');
-                } else { nccDetailsBox.classList.add('hidden'); }
-            } else if (nccDetailsBox) { nccDetailsBox.classList.add('hidden'); }
+	var pn *core.PhieuNhap
+	isUpdate := false
 
-            let elNgay = document.getElementById('valNgayNhap'); if(elNgay) elNgay.value = t.ngay_nhap;
-            let elSoHD = document.getElementById('valSoHoaDon'); if(elSoHD) elSoHD.value = t.so_hd;
-            let elKho = document.getElementById('valMaKho'); if(elKho) elKho.value = t.ma_kho;
-            let elGhiChu = document.getElementById('valGhiChu'); if(elGhiChu) elGhiChu.value = t.ghi_chu;
-            let elVAT = document.getElementById('inpVatPercent'); if(elVAT) elVAT.value = t.vat_percent || 0;
-            let elGiamGia = document.getElementById('inpGiamGiaPhieu'); if(elGiamGia) elGiamGia.value = formatNum(t.giam_gia);
-            let elDaTra = document.getElementById('inpDaThanhToan'); if(elDaTra) elDaTra.value = formatNum(t.da_tra);
-            let elPt = document.getElementById('valPhuongThuc'); if(elPt) elPt.value = t.phuong_thuc || 'TIEN_MAT';
-            
-            let lbl = document.getElementById('lblTrangThai'); let overlay = document.getElementById('overlayDeleted');
-            if (t.status === 0) { lbl.className = "input-premium bg-orange-50 border-orange-200 text-orange-600 text-center flex items-center justify-center font-bold text-[11px] h-[36px]"; lbl.innerText = "Lưu Nháp Server"; overlay.style.display = 'none'; toggleInputs(false); }
-            else if (t.status === -1) { lbl.className = "input-premium bg-red-50 border-red-200 text-red-600 text-center flex items-center justify-center font-bold text-[11px] h-[36px]"; lbl.innerText = "Đợi Xóa"; overlay.style.display = 'flex'; toggleInputs(true); }
-            else { lbl.className = "input-premium bg-slate-100 text-slate-500 text-center flex items-center justify-center font-bold text-[11px] border-dashed h-[36px]"; lbl.innerText = "Đang soạn (Local)"; overlay.style.display = 'none'; toggleInputs(false); }
-            renderTable();
-        }
+	if input.MaPhieuNhap != "" && !strings.HasPrefix(input.MaPhieuNhap, "TEMP_") {
+		if oldPn, ok := core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, input.MaPhieuNhap)]; ok {
+			if oldPn.TrangThai == 1 {
+				c.JSON(200, gin.H{"status": "error", "msg": "Phiếu này đã hoàn thành, không thể sửa!"})
+				return
+			}
+			pn = oldPn
+			isUpdate = true
+		}
+	}
 
-        function toggleInputs(disable) {
-            ['inpSearchNCC', 'valNgayNhap', 'valSoHoaDon', 'valMaKho', 'valGhiChu', 'inpVatPercent', 'inpGiamGiaPhieu', 'inpDaThanhToan', 'inpSearchSP', 'valPhuongThuc'].forEach(id => { let el = document.getElementById(id); if(el) el.disabled = disable; });
-        }
+	if !isUpdate {
+		maPN := fmt.Sprintf("PN%s%s", time.Now().In(loc).Format("060102"), core.LayChuoiSoNgauNhien(4))
+		
+		pn = &core.PhieuNhap{
+			SpreadsheetID: shopID, MaPhieuNhap: maPN, MaNhaCungCap: input.MaNhaCungCap, MaKho: input.MaKho, 
+			NgayNhap: input.NgayNhap, ChiTietJson: chiTietJsonStr, TrangThai: input.TrangThai,
+			SoHoaDon: input.SoHoaDon, TongTienPhieu: tongTienHang, GiamGiaPhieu: input.GiamGiaPhieu, 
+			ChiPhiNhap: input.ChiPhiNhap, DaThanhToan: input.DaTra, ConNo: conNo,
+			PhuongThucThanhToan: input.PhuongThucThanhToan, TrangThaiThanhToan: trangThaiThanhToan, 
+			GhiChu: input.GhiChuPhieu, NguoiTao: tenNguoiThaoTac, NgayTao: nowStr, 
+			NguoiCapNhat: tenNguoiThaoTac, NgayCapNhat: nowStr,
+			ChiTiet: make([]*core.ChiTietPhieuNhap, 0),
+		}
 
-        function setupAutocomplete(inputId, dropdownId, dataList, renderItem, onSelect) {
-            const inp = document.getElementById(inputId); const drop = document.getElementById(dropdownId);
-            inp.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim(); drop.innerHTML = '';
-                let matches = [];
-                if (!val) { matches = dataList.slice(0, 10); } 
-                else { matches = dataList.filter(item => Object.values(item).some(v => String(v).toLowerCase().includes(val))).slice(0, 10); }
-                
-                matches.forEach(item => {
-                    const div = document.createElement('div'); div.className = 'search-item'; div.innerHTML = renderItem(item);
-                    div.onmousedown = (e) => { 
-                        e.preventDefault(); 
-                        if(currentTabId && appTabs[currentTabId]) {
-                            onSelect(item);
-                            if(inputId === 'inpSearchSP') { inp.value = ''; inp.dispatchEvent(new Event('input')); }
-                            drop.style.display = 'none'; 
-                        } else { Swal.fire('Lỗi', 'Hệ thống chưa tải xong tab!', 'error'); }
-                    };
-                    drop.appendChild(div);
-                });
-                if (matches.length === 0) { drop.innerHTML = `<div class="p-3 text-center text-slate-400 text-sm font-bold italic">Không tìm thấy dữ liệu!</div>`; }
-                drop.style.display = 'block';
-            });
-            inp.addEventListener('focus', function() { this.dispatchEvent(new Event('input')); });
-            inp.addEventListener('click', function() { this.dispatchEvent(new Event('input')); });
-            document.addEventListener('mousedown', (e) => { if (!inp.contains(e.target) && !drop.contains(e.target)) drop.style.display = 'none'; });
-        }
+		if input.TrangThai == 1 {
+			pn.NguoiDuyet = tenNguoiThaoTac
+			pn.NgayDuyet = nowStr
+		}
 
-        const iconSearchSP = document.getElementById('iconSearchSP');
-        document.getElementById('inpSearchSP').addEventListener('input', function() {
-            if(this.value.length > 0) { iconSearchSP.style.opacity = '0'; this.classList.remove('pl-[3rem]'); this.classList.add('pl-[1rem]'); } 
-            else { iconSearchSP.style.opacity = '1'; this.classList.remove('pl-[1rem]'); this.classList.add('pl-[3rem]'); }
-        });
+		rowPN := make([]interface{}, 23)
+		rowPN[core.CotPN_MaPhieuNhap] = pn.MaPhieuNhap; rowPN[core.CotPN_MaNhaCungCap] = pn.MaNhaCungCap
+		rowPN[core.CotPN_MaKho] = pn.MaKho; rowPN[core.CotPN_NgayNhap] = pn.NgayNhap
+		rowPN[core.CotPN_ChiTietJson] = pn.ChiTietJson; rowPN[core.CotPN_TrangThai] = pn.TrangThai
+		rowPN[core.CotPN_SoHoaDon] = pn.SoHoaDon; rowPN[core.CotPN_NgayHoaDon] = pn.NgayHoaDon; rowPN[core.CotPN_UrlChungTu] = pn.UrlChungTu
+		rowPN[core.CotPN_TongTienPhieu] = pn.TongTienPhieu; rowPN[core.CotPN_GiamGiaPhieu] = pn.GiamGiaPhieu
+		rowPN[core.CotPN_ChiPhiNhap] = pn.ChiPhiNhap; rowPN[core.CotPN_DaThanhToan] = pn.DaThanhToan
+		rowPN[core.CotPN_ConNo] = pn.ConNo; rowPN[core.CotPN_PhuongThucThanhToan] = pn.PhuongThucThanhToan
+		rowPN[core.CotPN_TrangThaiThanhToan] = pn.TrangThaiThanhToan; rowPN[core.CotPN_GhiChu] = pn.GhiChu
+		rowPN[core.CotPN_NguoiTao] = pn.NguoiTao; rowPN[core.CotPN_NgayTao] = pn.NgayTao
+		rowPN[core.CotPN_NguoiDuyet] = pn.NguoiDuyet; rowPN[core.CotPN_NgayDuyet] = pn.NgayDuyet
+		rowPN[core.CotPN_NguoiCapNhat] = pn.NguoiCapNhat; rowPN[core.CotPN_NgayCapNhat] = pn.NgayCapNhat
+		
+		core.PushAppend(shopID, core.TenSheetPhieuNhap, rowPN)
+		
+		core.KhoaHeThong.Lock()
+		pn.DongTrongSheet = core.DongBatDau_PhieuNhap + len(core.CachePhieuNhap[shopID])
+		core.CachePhieuNhap[shopID] = append(core.CachePhieuNhap[shopID], pn)
+		core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, pn.MaPhieuNhap)] = pn
+		core.KhoaHeThong.Unlock()
 
-        setupAutocomplete('inpSearchSP', 'dropdownSP', dbSP, 
-            (i) => `<div class="flex items-center gap-3"><img src="${getFirstImg(i.img)}" class="w-12 h-12 object-cover rounded shadow-sm border border-slate-200"><div><div class="font-bold text-indigo-900 text-[14px]">${i.tensp}</div><div class="text-[11px] text-slate-500 mt-0.5"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 rounded">${i.ma_sku}</span> | ${i.tensku || 'Tiêu chuẩn'} | <strong class="text-emerald-600">${formatNum(i.gianhap)} ₫</strong></div></div></div>`,
-            (i) => addProductToCart(i)
-        );
+	} else {
+		core.KhoaHeThong.Lock()
+		pn.MaNhaCungCap = input.MaNhaCungCap; pn.MaKho = input.MaKho; pn.NgayNhap = input.NgayNhap
+		pn.ChiTietJson = chiTietJsonStr; pn.TrangThai = input.TrangThai; pn.SoHoaDon = input.SoHoaDon
+		pn.TongTienPhieu = tongTienHang; pn.GiamGiaPhieu = input.GiamGiaPhieu; pn.ChiPhiNhap = input.ChiPhiNhap
+		pn.DaThanhToan = input.DaTra; pn.ConNo = conNo; pn.PhuongThucThanhToan = input.PhuongThucThanhToan
+		pn.TrangThaiThanhToan = trangThaiThanhToan; pn.GhiChu = input.GhiChuPhieu
+		pn.NguoiCapNhat = tenNguoiThaoTac; pn.NgayCapNhat = nowStr
 
-        setupAutocomplete('inpSearchNCC', 'dropdownNCC', dbNCC, 
-            (item) => `
-                <div class="flex flex-col gap-1">
-                    <div class="font-bold text-slate-800 text-[13px]">${item.ten}</div>
-                    <div class="text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                        <span class="bg-indigo-50 px-1 rounded text-indigo-700 font-bold">${item.ma}</span>
-                        <span>MST: <b>${item.masothue || '---'}</b></span>
-                        <span>SĐT: <b class="text-indigo-600">${item.sdt || '---'}</b></span>
-                    </div>
-                    <div class="text-[10px] text-slate-500 truncate" title="${item.diachi || ''}">📍 ${item.diachi || 'Chưa cập nhật địa chỉ'}</div>
-                </div>`,
-            (item) => { 
-                document.getElementById('inpSearchNCC').value = item.ten; 
-                document.getElementById('valMaNCC').value = item.ma; 
-                saveCurrentTabState(); loadTabToUI(currentTabId); 
-            }
-        );
+		if input.TrangThai == 1 {
+			pn.NguoiDuyet = tenNguoiThaoTac; pn.NgayDuyet = nowStr
+		}
+		core.KhoaHeThong.Unlock()
 
-        function addProductToCart(sp) {
-            if(!currentTabId || !appTabs[currentTabId]) return;
-            let cart = appTabs[currentTabId].cart;
-            let existIdx = cart.findIndex(item => item.ma_sku === sp.ma_sku);
-            if(existIdx > -1) { cart[existIdx].sl += 1; } else { cart.push({ ...sp, sl: 1, baohanh: 0, serials: [] }); }
-            renderTable();
-        }
+		r := pn.DongTrongSheet
+		sheet := core.TenSheetPhieuNhap
+		ghi := core.ThemVaoHangCho
 
-        function removeProduct(idx) { appTabs[currentTabId].cart.splice(idx, 1); renderTable(); }
+		ghi(shopID, sheet, r, core.CotPN_MaNhaCungCap, pn.MaNhaCungCap); ghi(shopID, sheet, r, core.CotPN_MaKho, pn.MaKho)
+		ghi(shopID, sheet, r, core.CotPN_NgayNhap, pn.NgayNhap); ghi(shopID, sheet, r, core.CotPN_ChiTietJson, pn.ChiTietJson)
+		ghi(shopID, sheet, r, core.CotPN_TrangThai, pn.TrangThai); ghi(shopID, sheet, r, core.CotPN_SoHoaDon, pn.SoHoaDon)
+		ghi(shopID, sheet, r, core.CotPN_TongTienPhieu, pn.TongTienPhieu); ghi(shopID, sheet, r, core.CotPN_GiamGiaPhieu, pn.GiamGiaPhieu)
+		ghi(shopID, sheet, r, core.CotPN_ChiPhiNhap, pn.ChiPhiNhap); ghi(shopID, sheet, r, core.CotPN_DaThanhToan, pn.DaThanhToan)
+		ghi(shopID, sheet, r, core.CotPN_ConNo, pn.ConNo); ghi(shopID, sheet, r, core.CotPN_PhuongThucThanhToan, pn.PhuongThucThanhToan)
+		ghi(shopID, sheet, r, core.CotPN_TrangThaiThanhToan, pn.TrangThaiThanhToan); ghi(shopID, sheet, r, core.CotPN_GhiChu, pn.GhiChu)
+		ghi(shopID, sheet, r, core.CotPN_NguoiCapNhat, pn.NguoiCapNhat); ghi(shopID, sheet, r, core.CotPN_NgayCapNhat, pn.NgayCapNhat)
+		
+		if input.TrangThai == 1 {
+			ghi(shopID, sheet, r, core.CotPN_NguoiDuyet, pn.NguoiDuyet); ghi(shopID, sheet, r, core.CotPN_NgayDuyet, pn.NgayDuyet)
+		}
+	}
 
-        function updateCart(idx, field, elm) {
-            let cart = appTabs[currentTabId].cart; let val = elm.value;
-            if(field === 'sl') { cart[idx].sl = parseInt(val) || 1; }
-            if(field === 'baohanh') { cart[idx].baohanh = parseInt(val) || 0; }
-            if(field === 'gianhap') { cart[idx].gianhap = getNum(val); elm.value = formatNum(cart[idx].gianhap); }
-            renderTable();
-        }
+	if input.TrangThai == 1 {
+		core.KhoaHeThong.Lock()
+		pn.ChiTiet = make([]*core.ChiTietPhieuNhap, 0) 
+		
+		for _, item := range input.ChiTiet {
+			spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU)
+			tenSP, donVi, maSP := "Sản phẩm không xác định", "Cái", ""
+			if ok && spCache != nil {
+				tenSP = spCache.TenSanPham; donVi = spCache.DonVi; maSP = spCache.MaSanPham
+			}
 
-        function renderTable() {
-            let t = appTabs[currentTabId]; if(!t) return;
-            const tbody = document.getElementById('tbodyChiTiet');
-            document.getElementById('rowEmpty').style.display = t.cart.length === 0 ? 'table-row' : 'none';
-            Array.from(tbody.children).forEach(tr => { if(tr.id !== 'rowEmpty') tr.remove(); });
+			// Khớp chuẩn 15 cột Sheet CHI_TIET_PHIEU_NHAP
+			ct := &core.ChiTietPhieuNhap{
+				SpreadsheetID: shopID, MaPhieuNhap: pn.MaPhieuNhap, MaSanPham: maSP, MaSKU: item.MaSKU,
+				MaNganhHang: "", TenSanPham: tenSP, DonVi: donVi, SoLuong: item.SoLuong, DonGiaNhap: item.DonGiaNhap,
+				VATPercent: item.VATPercent, GiaSauVAT: item.DonGiaNhap * (1 + item.VATPercent/100), ChietKhauDong: 0,
+				ThanhTienDong: item.DonGiaNhap * float64(item.SoLuong), GiaVonThucTe: item.DonGiaNhap,
+				BaoHanhThang: item.BaoHanhThang, GhiChuDong: "",
+			}
+			pn.ChiTiet = append(pn.ChiTiet, ct)
 
-            let tongTienHang = 0; let isReadonly = (t.status === -1) ? "disabled" : "";
+			rowCT := make([]interface{}, 15)
+			rowCT[core.CotCTPN_MaPhieuNhap] = ct.MaPhieuNhap; rowCT[core.CotCTPN_MaSanPham] = ct.MaSanPham
+			rowCT[core.CotCTPN_MaSKU] = ct.MaSKU; rowCT[core.CotCTPN_MaNganhHang] = ct.MaNganhHang
+			rowCT[core.CotCTPN_TenSanPham] = ct.TenSanPham; rowCT[core.CotCTPN_DonVi] = ct.DonVi
+			rowCT[core.CotCTPN_SoLuong] = ct.SoLuong; rowCT[core.CotCTPN_DonGiaNhap] = ct.DonGiaNhap
+			rowCT[core.CotCTPN_VATPercent] = ct.VATPercent; rowCT[core.CotCTPN_GiaSauVAT] = ct.GiaSauVAT
+			rowCT[core.CotCTPN_ChietKhauDong] = ct.ChietKhauDong; rowCT[core.CotCTPN_ThanhTienDong] = ct.ThanhTienDong
+			rowCT[core.CotCTPN_GiaVonThucTe] = ct.GiaVonThucTe; rowCT[core.CotCTPN_BaoHanhThang] = ct.BaoHanhThang
+			rowCT[core.CotCTPN_GhiChuDong] = ct.GhiChuDong
+			core.PushAppend(shopID, core.TenSheetChiTietPhieuNhap, rowCT)
 
-            t.cart.forEach((c, idx) => {
-                let thanhTien = (c.sl * c.gianhap); tongTienHang += thanhTien;
-                let tr = document.createElement('tr'); tr.className = "hover-soft-row border-b border-slate-100";
-                
-                let serialBtnCls = (c.serials && c.serials.length > 0) ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200";
-                let serialCount = c.serials ? c.serials.length : 0;
+			for i := 0; i < item.SoLuong; i++ {
+				imei := ""
+				if i < len(item.Serials) && strings.TrimSpace(item.Serials[i]) != "" {
+					imei = strings.TrimSpace(item.Serials[i])
+				} else {
+					imei = fmt.Sprintf("SN%s%s", time.Now().Format("060102"), core.LayChuoiSoNgauNhien(6))
+				}
 
-                tr.innerHTML = `
-                    <td class="text-center text-slate-400 font-mono align-middle">${idx + 1}</td>
-                    <td class="text-center py-2.5 align-middle"><div class="w-14 h-14 min-w-[3.5rem] mx-auto bg-slate-100 rounded border border-slate-200"><img src="${getFirstImg(c.img)}" class="w-full h-full object-cover"></div></td>
-                    <td class="whitespace-normal align-middle w-auto min-w-[200px]">
-                        <div class="font-bold text-[14px] text-slate-800 mb-1 leading-tight">${c.tensp}</div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[10px] text-slate-500 font-normal bg-slate-50 inline-block px-1.5 py-0.5 rounded border border-slate-200"><span class="font-bold text-indigo-700 font-mono">${c.ma_sku}</span> | ${c.tensku || 'Bản tiêu chuẩn'}</span>
-                            <button onclick="openSerialModal(${idx})" class="btn-serial border ${serialBtnCls}" ${isReadonly}>🎫 Serial: ${serialCount} / ${c.sl}</button>
-                        </div>
-                    </td>
-                    <td class="text-center text-[12px] text-slate-500 font-bold uppercase tracking-wider align-middle">${c.donvi}</td>
-                    <td class="align-middle"><input type="number" min="0" value="${c.baohanh || 0}" onchange="updateCart(${idx}, 'baohanh', this)" class="input-bh shadow-inner" ${isReadonly} title="Bảo hành (tháng)"></td>
-                    <td class="align-middle"><input type="number" min="1" value="${c.sl}" onchange="updateCart(${idx}, 'sl', this)" class="input-qty shadow-inner text-indigo-700 font-bold" ${isReadonly}></td>
-                    <td class="align-middle pr-4"><input type="text" value="${formatNum(c.gianhap)}" onchange="updateCart(${idx}, 'gianhap', this)" class="price-input" ${isReadonly}></td>
-                    <td class="text-right font-black text-[14px] text-slate-800 align-middle pr-4">${formatNum(thanhTien)}</td>
-                    <td class="text-center align-middle"><button onclick="removeProduct(${idx})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition shadow-sm" ${isReadonly}>✕</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            let elTong = document.getElementById('lblTongTienHang'); if(elTong) elTong.innerText = formatNum(tongTienHang);
-            calcThanhToan();
-        }
+				sr := &core.SerialSanPham{
+					SpreadsheetID: shopID, SerialIMEI: imei, MaSanPham: maSP, MaSKU: item.MaSKU,
+					MaNhaCungCap: input.MaNhaCungCap, MaPhieuNhap: pn.MaPhieuNhap, TrangThai: 1, 
+					NgayNhapKho: input.NgayNhap, GiaVonNhap: item.DonGiaNhap, MaKho: input.MaKho, NgayCapNhat: nowStr,
+				}
 
-        // TÍNH TOÁN FONT NHỎ XINH (14px)
-        function calcThanhToan() {
-            let elTong = document.getElementById('lblTongTienHang'); 
-            let elGiam = document.getElementById('inpGiamGiaPhieu');
-            let elVat = document.getElementById('inpVatPercent');
-            let elTienVat = document.getElementById('lblTienVat');
+				core.CacheSerialSanPham[shopID] = append(core.CacheSerialSanPham[shopID], sr)
+				core.CacheMapSerial[core.TaoCompositeKey(shopID, imei)] = sr
 
-            if(!elTong || !elGiam) return;
-            
-            let tongHang = getNum(elTong.innerText); 
-            let giamPhieu = getNum(elGiam.value);
-            let vatPct = elVat ? (parseFloat(elVat.value) || 0) : 0;
-            
-            let tienVat = tongHang * (vatPct / 100);
-            if(elTienVat) elTienVat.innerText = formatNum(tienVat);
-            
-            let canTra = tongHang + tienVat - giamPhieu; if (canTra < 0) canTra = 0;
-            let elCanTra = document.getElementById('lblCanTra'); if(elCanTra) elCanTra.innerText = formatNum(canTra);
-            
-            let elDaTra = document.getElementById('inpDaThanhToan'); if(!elDaTra) return;
-            let daTra = getNum(elDaTra.value); let conNo = canTra - daTra;
-            let elConNo = document.getElementById('lblConNo');
-            if(elConNo) { elConNo.innerText = formatNum(conNo); elConNo.className = conNo > 0 ? "font-black text-red-500 text-[14px]" : "font-black text-slate-600 text-[14px]"; }
-            saveCurrentTabState();
-        }
+				rowSR := make([]interface{}, 19)
+				rowSR[core.CotSR_SerialIMEI] = sr.SerialIMEI; rowSR[core.CotSR_MaSanPham] = sr.MaSanPham
+				rowSR[core.CotSR_MaSKU] = sr.MaSKU; rowSR[core.CotSR_MaNhaCungCap] = sr.MaNhaCungCap
+				rowSR[core.CotSR_MaPhieuNhap] = sr.MaPhieuNhap; rowSR[core.CotSR_TrangThai] = sr.TrangThai
+				rowSR[core.CotSR_NgayNhapKho] = sr.NgayNhapKho; rowSR[core.CotSR_GiaVonNhap] = sr.GiaVonNhap
+				rowSR[core.CotSR_MaKho] = sr.MaKho; rowSR[core.CotSR_NgayCapNhat] = sr.NgayCapNhat
+				core.PushAppend(shopID, core.TenSheetSerial, rowSR)
+			}
+		}
+		core.KhoaHeThong.Unlock()
+	}
 
-        let isPanelOpen = true;
-        function toggleRightPanel() {
-            const rightPanel = document.getElementById('rightPanel'); const btn = document.getElementById('btnToggle');
-            if(isPanelOpen) { 
-                if(rightPanel) rightPanel.classList.add('hidden', 'lg:hidden'); 
-                if(btn) btn.innerHTML = '⯇ Mở TT Phiếu'; 
-                isPanelOpen = false; 
-            } 
-            else { 
-                if(rightPanel) rightPanel.classList.remove('hidden', 'lg:hidden'); 
-                if(btn) btn.innerHTML = 'Đóng TT Phiếu ⯈'; 
-                isPanelOpen = true; 
-            }
-        }
+	loai := "Ghi sổ & Hoàn thành Nhập kho"
+	if input.TrangThai == 0 {
+		loai = "Đã lưu nháp Phiếu Nhập"
+	} else if input.TrangThai == 2 {
+		loai = "Đã gửi Yêu cầu Duyệt"
+	}
+	
+	c.JSON(200, gin.H{"status": "ok", "msg": loai + " thành công!", "ma_phieu": pn.MaPhieuNhap})
+}
 
-        function renderTabs() {
-            let html = "";
-            for (let id in appTabs) {
-                let t = appTabs[id];
-                let isActive = (id === currentTabId) ? "active" : "";
-                let icon = t.status === -1 ? "🗑️" : (t.status === 0 ? "📝" : "📄");
-                let colorClass = t.status === -1 ? "text-red-500" : "";
-                html += `<div class="tab-item ${isActive} ${colorClass}" onclick="switchTab('${id}')">${icon} ${t.title}<span class="tab-close" onclick="event.stopPropagation(); closeTab('${id}')">✖</span></div>`;
-            }
-            document.getElementById('tabList').innerHTML = html;
-        }
+// ============================================================================
+// 4. API ĐỔI TRẠNG THÁI PHIẾU (XÓA / KHÔI PHỤC)
+// ============================================================================
+func API_DoiTrangThaiPhieu(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
+	vaiTro := c.GetString("USER_ROLE")
 
-        function addNewTab() { tabCounter++; let nId = "T" + tabCounter; appTabs[nId] = getEmptyTab(tabCounter); switchTab(nId); }
-        function switchTab(id) { if(currentTabId && appTabs[currentTabId]) saveCurrentTabState(); currentTabId = id; loadTabToUI(id); renderTabs(); }
-        function closeTab(id) {
-            let keys = Object.keys(appTabs);
-            if (keys.length === 1) { Swal.fire({toast:true, icon:'warning', title:'Phải giữ lại ít nhất 1 phiếu!', position:'top-end', timer:1500, showConfirmButton:false}); return; }
-            let t = appTabs[id];
-            if (t.status === -2) { executeCloseTab(id, keys); } 
-            else if (t.status === 0) { Swal.fire({ title: 'Xóa Phiếu Nháp?', text: "Phiếu sẽ được chuyển vào thùng rác.", showCancelButton: true, confirmButtonText: 'Đồng ý xóa' }).then((result) => { if (result.isConfirmed) changeStatusAPI(id, -1); }); } 
-            else if (t.status === -1) { executeCloseTab(id, keys); }
-        }
-        function executeCloseTab(id, keys) { delete appTabs[id]; if (currentTabId === id) { let remainingKeys = Object.keys(appTabs); switchTab(remainingKeys[remainingKeys.length - 1]); } else { renderTabs(); } }
+	if !checkQuyenNhapHang(vaiTro, userID) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thực hiện thao tác này!"})
+		return
+	}
 
-        function confirmSubmit(status) {
-            saveCurrentTabState(); let t = appTabs[currentTabId]; if(!t) { Swal.fire('Lỗi', 'Hệ thống chưa tải xong dữ liệu!', 'error'); return; }
-            if(t.cart.length === 0) { Swal.fire('Lỗi', 'Phiếu nhập chưa có sản phẩm nào!', 'error'); return; }
-            if(status === 1 && !t.ncc_ma) { Swal.fire({ icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng chọn Nhà Cung Cấp để hoàn thành phiếu!', confirmButtonColor: '#4f46e5' }); return; }
+	maPhieu := c.PostForm("ma_phieu_nhap")
+	trangThaiStr := c.PostForm("trang_thai")
+	
+	trangThaiMoi, err := strconv.Atoi(trangThaiStr)
+	if err != nil {
+		c.JSON(400, gin.H{"status": "error", "msg": "Trạng thái không hợp lệ!"})
+		return
+	}
 
-            let titleStr = status === 0 ? "Lưu Nháp Server?" : "Hoàn Thành Phiếu Nhập?";
-            let textStr = status === 0 ? "Lưu lên máy chủ để xem lại trên máy khác. Chưa cộng tồn kho." : "Dữ liệu sẽ được ghi sổ và tính công nợ ngay lập tức.";
-            let btnStr = status === 0 ? "Lưu nháp" : "Hoàn thành"; let colorCls = status === 0 ? "#f97316" : "#4f46e5";
+	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Lock()
+	defer core.GetSheetLock(shopID, core.TenSheetPhieuNhap).Unlock()
 
-            Swal.fire({ title: titleStr, text: textStr, icon: 'question', showCancelButton: true, confirmButtonText: btnStr, cancelButtonText: 'Hủy', confirmButtonColor: colorCls, cancelButtonColor: '#94a3b8' })
-            .then((result) => { if (result.isConfirmed) { executeSubmit(status); } });
-        }
+	pn, ok := core.CacheMapPhieuNhap[core.TaoCompositeKey(shopID, maPhieu)]
+	if !ok {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy phiếu này trên hệ thống!"})
+		return
+	}
+	
+	if pn.TrangThai == 1 {
+		c.JSON(200, gin.H{"status": "error", "msg": "Phiếu đã chốt sổ, không thể xóa hoặc thay đổi!"})
+		return
+	}
 
-        async function executeSubmit(status) {
-            let t = appTabs[currentTabId];
-            let globalVat = t.vat_percent || 0;
-            let chiTietData = t.cart.map(c => ({ ma_sku: c.ma_sku, so_luong: c.sl, don_gia_nhap: c.gianhap, bao_hanh_thang: c.baohanh, vat_percent: globalVat, serials: c.serials }));
-            let payload = { ma_phieu_nhap: t.ma_phieu, ma_nha_cung_cap: t.ncc_ma, ma_kho: t.ma_kho, ngay_nhap: t.ngay_nhap, so_hoa_don: t.so_hd, ghi_chu_phieu: t.ghi_chu, giam_gia_phieu: t.giam_gia, chi_phi_nhap: 0, da_tra: t.da_tra, phuong_thuc_thanh_toan: t.phuong_thuc, trang_thai: status, chi_tiet: chiTietData };
+	nguoiThaoTac, _ := core.LayKhachHang(shopID, userID)
+	tenNguoiThaoTac := "Hệ thống"
+	if nguoiThaoTac != nil { tenNguoiThaoTac = nguoiThaoTac.TenDangNhap }
 
-            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            try {
-                const res = await fetch('/master/api/nhap-hang/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                const data = await res.json();
-                if(data.status === 'ok') {
-                    appTabs[currentTabId].status = status; appTabs[currentTabId].ma_phieu = data.ma_phieu; appTabs[currentTabId].title = data.ma_phieu; 
-                    renderTabs(); loadTabToUI(currentTabId); 
-                    Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, confirmButtonColor: '#10b981' });
-                } else { Swal.fire('Thất bại', data.msg, 'error'); }
-            } catch(e) { Swal.fire('Lỗi kết nối', 'Không thể đẩy dữ liệu lên máy chủ', 'error'); }
-        }
+	nowStr := time.Now().In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
 
-        async function changeStatusAPI(tabId, newStatus) {
-            let t = appTabs[currentTabId]; let fd = new FormData(); fd.append("ma_phieu_nhap", t.ma_phieu); fd.append("trang_thai", newStatus);
-            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            try {
-                const res = await fetch('/master/api/nhap-hang/status', { method: 'POST', body: fd });
-                const data = await res.json();
-                if(data.status === 'ok') { t.status = newStatus; renderTabs(); loadTabToUI(currentTabId); Swal.close(); } else { Swal.fire('Lỗi', data.msg, 'error'); }
-            } catch(e) { Swal.fire('Lỗi', 'Mất kết nối', 'error'); }
-        }
+	core.KhoaHeThong.Lock()
+	pn.TrangThai = trangThaiMoi
+	pn.NguoiCapNhat = tenNguoiThaoTac
+	pn.NgayCapNhat = nowStr
+	core.KhoaHeThong.Unlock()
 
-        function restoreTab() { changeStatusAPI(currentTabId, 0); }
-        
-        function updateSerialCount() { let el = document.getElementById('lblSerialCount'); if(el && tagifySerial) el.innerText = tagifySerial.value.length; }
-        
-        function openSerialModal(idx) {
-            let c = appTabs[currentTabId].cart[idx]; document.getElementById('idxEditingSerial').value = idx;
-            document.getElementById('lblSerialName').innerText = c.tensp + (c.tensku ? ` - ${c.tensku}` : ''); document.getElementById('lblSerialReq').innerText = c.sl;
-            if(tagifySerial) { tagifySerial.removeAllTags(); if(c.serials && c.serials.length > 0) { tagifySerial.addTags(c.serials); } updateSerialCount(); }
-            let modal = document.getElementById('modalSerial'); if(modal) { modal.classList.remove('hidden'); setTimeout(() => { if(tagifySerial && tagifySerial.DOM.input) tagifySerial.DOM.input.focus(); }, 100); }
-        }
+	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_TrangThai, trangThaiMoi)
+	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_NguoiCapNhat, tenNguoiThaoTac)
+	core.PushUpdate(shopID, core.TenSheetPhieuNhap, pn.DongTrongSheet, core.CotPN_NgayCapNhat, nowStr)
 
-        function saveSerials() {
-            let elIdx = document.getElementById('idxEditingSerial'); if(!elIdx) return;
-            let idx = elIdx.value; let c = appTabs[currentTabId].cart[idx]; let req = c.sl; let lines = tagifySerial ? tagifySerial.value.map(t => t.value) : [];
-            if(lines.length > req) { Swal.fire({ icon: 'warning', title: 'Quá Số Lượng!', text: `Bạn nhập số lượng là ${req} nhưng tít đến ${lines.length} Serial. Hãy xóa bớt!`, confirmButtonColor: '#f97316' }); return; }
-            c.serials = lines; let modal = document.getElementById('modalSerial'); if(modal) modal.classList.add('hidden'); renderTable();
-        }
-
-        try {
-            let elSerials = document.getElementById('inpSerials');
-            if(elSerials) tagifySerial = new Tagify(elSerials, { delimiters: ",|\n|\r", maxTags: 500, callbacks: { add: updateSerialCount, remove: updateSerialCount } });
-        } catch(e) { console.log("Tagify err", e); }
-        
-        function initApp() {
-            let draftEls = document.querySelectorAll('#data_drafts .draft-item');
-            if (draftEls.length > 0) {
-                draftEls.forEach(d => {
-                    tabCounter++; let tid = "T" + tabCounter; let cart = [];
-                    d.querySelectorAll('.draft-detail').forEach(ct => {
-                        let masku = ct.getAttribute('data-masku'); let sl = parseInt(ct.getAttribute('data-sl')) || 1; let gianhap = parseFloat(ct.getAttribute('data-gianhap')) || 0;
-                        let spCache = dbSP.find(s => s.ma_sku === masku) || { tensp: "Sản phẩm ẩn", donvi: "Cái", img: "" };
-                        cart.push({ ma_sku: masku, tensp: spCache.tensp, donvi: spCache.donvi, img: spCache.img, sl: sl, gianhap: gianhap, baohanh: parseInt(ct.getAttribute('data-bh'))||0, serials: [] });
-                    });
-                    let mancc = d.getAttribute('data-mancc'); let nccTen = ""; let nccFind = dbNCC.find(n => n.ma === mancc); if(nccFind) nccTen = nccFind.ten;
-                    appTabs[tid] = { id: tid, ma_phieu: d.getAttribute('data-maphieu'), title: d.getAttribute('data-maphieu') || "Nháp", status: parseInt(d.getAttribute('data-trangthai')), cart: cart, ncc_ma: mancc, ncc_ten: nccTen, ngay_nhap: (d.getAttribute('data-ngaynhap') || "").split(' ')[0], so_hd: d.getAttribute('data-sohd'), ma_kho: d.getAttribute('data-makho') || "KHO_CHINH", ghi_chu: d.getAttribute('data-ghichu'), giam_gia: parseFloat(d.getAttribute('data-giamgia'))||0, vat_percent: parseFloat(d.getAttribute('data-vat'))||0, da_tra: parseFloat(d.getAttribute('data-datra'))||0, phuong_thuc: d.getAttribute('data-phuongthuc') || "TIEN_MAT" };
-                });
-                switchTab("T1");
-            } else {
-                addNewTab();
-            }
-        }
-        initApp();
-    </script>
-    {{ template "footer_master" . }}
-{{ end }}
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã cập nhật trạng thái phiếu thành công!"})
+}
