@@ -474,3 +474,56 @@ func NapSerial(shopID string) {
 	CacheSerialSanPham[shopID] = list
 	for _, sr := range list { CacheMapSerial[TaoCompositeKey(shopID, sr.SerialIMEI)] = sr }
 }
+
+// 11. NẠP GÓI DỊCH VỤ SAAS
+func NapGoiDichVu(shopID string) {
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	raw := napDataGeneric(shopID, TenSheetGoiDichVu, nil)
+	if raw == nil { return }
+	
+	list := []*GoiDichVu{}
+	for i, r := range raw {
+		if i < DongBatDau_GoiDichVu-1 { continue }
+		maGoi := LayString(r, CotGDV_MaGoi)
+		if maGoi == "" { continue }
+		
+		gdv := &GoiDichVu{
+			SpreadsheetID:      shopID, 
+			DongTrongSheet:     i + 1, 
+			MaGoi:              maGoi,
+			TenGoi:             LayString(r, CotGDV_TenGoi),
+			LoaiGoi:            LayString(r, CotGDV_LoaiGoi),
+			ThoiHanNgay:        LayIntStr(LayString(r, CotGDV_ThoiHanNgay)),
+			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),
+			GiaBan:             LayFloat(r, CotGDV_GiaBan),
+			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson),
+			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),
+			MoTa:               LayString(r, CotGDV_MoTa),
+			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),
+			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),
+			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),
+			SoLuongConLai:      -1, // Mặc định là vô hạn
+			TrangThai:          LayInt(r, CotGDV_TrangThai),
+			DanhSachCode:       make([]CodeKichHoat, 0),
+		}
+
+		// Xử lý số lượng còn lại (Nếu ô trống thì = -1, nếu có số thì đọc)
+		slStr := LayString(r, CotGDV_SoLuongConLai)
+		if slStr != "" { gdv.SoLuongConLai = LayIntStr(slStr) }
+
+		// Thuật toán thông minh: Bóc tách JSON Mảng các Mã Code ngay khi nạp RAM
+		if gdv.MaCodeKichHoatJson != "" {
+			_ = json.Unmarshal([]byte(gdv.MaCodeKichHoatJson), &gdv.DanhSachCode)
+		}
+
+		list = append(list, gdv)
+	}
+
+	lock := GetSheetLock(shopID, TenSheetGoiDichVu)
+	lock.Lock(); defer lock.Unlock()
+	
+	CacheGoiDichVu[shopID] = list
+	for _, g := range list { 
+		CacheMapGoiDichVu[TaoCompositeKey(shopID, g.MaGoi)] = g 
+	}
+}
