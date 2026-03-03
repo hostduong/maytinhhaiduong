@@ -55,10 +55,16 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 	go func() {
 		core.HeThongDangBan = true
 		// Nạp lại dữ liệu Lõi
-		core.NapPhanQuyen(masterShopID) 
-		core.NapKhachHang(masterShopID)
-		core.NapTinNhan(masterShopID)
-		core.NapMayTinh(masterShopID)
+		core.NapPhanQuyen("")
+		core.NapKhachHang("")
+		core.NapDanhMuc("")
+		core.NapThuongHieu("")
+		core.NapBienLoiNhuan("")
+		core.NapNhaCungCap("")
+		core.NapMayTinh("")
+		core.NapTinNhan("")
+		core.NapPhieuNhap("")
+		core.NapSerial("")
 		core.HeThongDangBan = false
 	}()
 
