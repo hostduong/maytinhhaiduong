@@ -70,7 +70,8 @@
             fd.append('spreadsheet_id', sheetId);
 
             try {
-                const res = await fetch('/master/api/database/setup', { method: 'POST', body: fd });
+                // Đã chuyển sang /admin/
+                const res = await fetch('/admin/api/database/setup', { method: 'POST', body: fd });
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
@@ -78,7 +79,8 @@
                         icon: 'success', title: 'Tuyệt vời!', text: 'Database đã sẵn sàng. Chuyển đến Tổng quan...',
                         timer: 2000, showConfirmButton: false
                     }).then(() => {
-                        window.location.href = "/master/tong-quan";
+                        // Đã chuyển sang /admin/
+                        window.location.href = "/admin/tong-quan";
                     });
                 } else {
                     Swal.fire('Lỗi', data.msg, 'error');
