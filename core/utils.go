@@ -190,3 +190,37 @@ func LayIntStr(s string) int {
 	}
 	return val
 }
+
+// =======================================================
+// TRẠM KIỂM SOÁT BẢO VỆ DỮ LIỆU (GATEKEEPER)
+// =======================================================
+func EnsureKhachHangLoaded(shopID string) error {
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	
+	StatusMutex.RLock()
+	status := CacheStatusKhachHang[shopID]
+	StatusMutex.RUnlock()
+
+	if status == FlagOK {
+		return nil
+	}
+	
+	if status == FlagLoading {
+		// Đang có luồng khác nạp, chờ tối đa 3 giây
+		for i := 0; i < 6; i++ {
+			time.Sleep(500 * time.Millisecond)
+			StatusMutex.RLock()
+			s := CacheStatusKhachHang[shopID]
+			StatusMutex.RUnlock()
+			if s == FlagOK { return nil }
+		}
+		return fmt.Errorf("Hệ thống đang đồng bộ dữ liệu. Vui lòng thử lại sau giây lát!")
+	}
+
+	// Nếu là FlagEmpty hoặc FlagError -> Thử gọi Google API
+	err := NapKhachHang(shopID)
+	if err != nil {
+		return fmt.Errorf("Máy chủ đang bị gián đoạn kết nối dữ liệu. Vui lòng F5 và thử lại!")
+	}
+	return nil
+}
