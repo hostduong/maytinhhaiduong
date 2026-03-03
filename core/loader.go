@@ -103,11 +103,22 @@ func NapPhanQuyen(shopID string) {
 	CacheDanhSachVaiTro[shopID] = danhSachVaiTroCuaShop
 }
 
-// 2. NẠP KHÁCH HÀNG (FULL CỘT TỪ FILE CŨ)
-func NapKhachHang(shopID string) {
+// 2. NẠP KHÁCH HÀNG (ĐÃ TÍCH HỢP CỜ BẢO VỆ)
+func NapKhachHang(shopID string) error {
 	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	
+	StatusMutex.Lock()
+	CacheStatusKhachHang[shopID] = FlagLoading
+	StatusMutex.Unlock()
+
 	raw := napDataGeneric(shopID, TenSheetKhachHang, nil)
-	if raw == nil { return }
+	if raw == nil { 
+		StatusMutex.Lock()
+		CacheStatusKhachHang[shopID] = FlagError
+		StatusMutex.Unlock()
+		return fmt.Errorf("không thể đọc dữ liệu từ Google Sheets")
+	}
+	
 	list := []*KhachHang{}
 	
 	for i, r := range raw {
@@ -165,6 +176,12 @@ func NapKhachHang(shopID string) {
 	for _, kh := range list {
 		CacheMapKhachHang[TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
 	}
+
+	StatusMutex.Lock()
+	CacheStatusKhachHang[shopID] = FlagOK
+	StatusMutex.Unlock()
+
+	return nil
 }
 
 // 3. NẠP NHÀ CUNG CẤP (FULL CỘT)
