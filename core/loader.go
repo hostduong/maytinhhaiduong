@@ -200,14 +200,15 @@ func NapNhaCungCap(shopID string) {
 			TenNhaCungCap: LayString(r, CotNCC_TenNhaCungCap), MaSoThue: LayString(r, CotNCC_MaSoThue),
 			DienThoai: LayString(r, CotNCC_DienThoai), Email: LayString(r, CotNCC_Email),
 			KhuVuc: LayString(r, CotNCC_KhuVuc), DiaChi: LayString(r, CotNCC_DiaChi),
-			NguoiLienHe: LayString(r, CotNCC_NguoiLienHe), NganHang: LayString(r, CotNCC_NganHang),
-			NhomNhaCungCap: LayString(r, CotNCC_NhomNhaCungCap), LoaiNhaCungCap: LayString(r, CotNCC_LoaiNhaCungCap),
-			DieuKhoanThanhToan: LayString(r, CotNCC_DieuKhoanThanhToan), ChietKhauMacDinh: LayFloat(r, CotNCC_ChietKhauMacDinh),
-			HanMucCongNo: LayFloat(r, CotNCC_HanMucCongNo), CongNoDauKy: LayFloat(r, CotNCC_CongNoDauKy),
-			TongMua: LayFloat(r, CotNCC_TongMua), NoCanTra: LayFloat(r, CotNCC_NoCanTra),
-			ThongTinThemJson: LayString(r, CotNCC_ThongTinThemJson), TrangThai: LayInt(r, CotNCC_TrangThai),
-			GhiChu: LayString(r, CotNCC_GhiChu), NguoiTao: LayString(r, CotNCC_NguoiTao),
-			NgayTao: LayString(r, CotNCC_NgayTao), NgayCapNhat: LayString(r, CotNCC_NgayCapNhat),
+			NguoiLienHe: LayString(r, CotNCC_NguoiLienHe), AnhDaiDien: LayString(r, CotNCC_AnhDaiDien), // Mới thêm
+			NganHang: LayString(r, CotNCC_NganHang), NhomNhaCungCap: LayString(r, CotNCC_NhomNhaCungCap), 
+			LoaiNhaCungCap: LayString(r, CotNCC_LoaiNhaCungCap), DieuKhoanThanhToan: LayString(r, CotNCC_DieuKhoanThanhToan), 
+			ChietKhauMacDinh: LayFloat(r, CotNCC_ChietKhauMacDinh), HanMucCongNo: LayFloat(r, CotNCC_HanMucCongNo), 
+			CongNoDauKy: LayFloat(r, CotNCC_CongNoDauKy), TongMua: LayFloat(r, CotNCC_TongMua), 
+			NoCanTra: LayFloat(r, CotNCC_NoCanTra), ThongTinThemJson: LayString(r, CotNCC_ThongTinThemJson), 
+			TrangThai: LayInt(r, CotNCC_TrangThai), GhiChu: LayString(r, CotNCC_GhiChu), 
+			NguoiTao: LayString(r, CotNCC_NguoiTao), NgayTao: LayString(r, CotNCC_NgayTao), 
+			NgayCapNhat: LayString(r, CotNCC_NgayCapNhat),
 		}
 		list = append(list, ncc)
 	}
