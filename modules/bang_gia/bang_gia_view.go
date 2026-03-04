@@ -1,4 +1,4 @@
-package khach_hang
+package bang_gia
 
 import (
 	"net/http"
@@ -6,15 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TrangCongPortalKhachHang(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // Trạm IdentifyTenant đã cấp thẻ Master ID
+// TrangCongPortalBangGia: Hiển thị trang bảng giá cho khách hàng
+func TrangCongPortalBangGia(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // Thường là ID file Master
 
-	// 1. Đọc RAM Master an toàn
 	core.KhoaHeThong.RLock()
 	allPackages := core.CacheGoiDichVu[shopID]
 	core.KhoaHeThong.RUnlock()
 
-	// 2. Bộ lọc thông minh: Chỉ lấy gói STARTER đang Active
+	// Lọc các gói STARTER đang ở trạng thái hoạt động (TrangThai = 1)
 	var starterPackages []*core.GoiDichVu
 	for _, p := range allPackages {
 		if p.LoaiGoi == "STARTER" && p.TrangThai == 1 {
@@ -22,9 +22,8 @@ func TrangCongPortalKhachHang(c *gin.Context) {
 		}
 	}
 
-	// 3. Đẩy ra Giao diện
-	c.HTML(http.StatusOK, "portal_khach_hang", gin.H{
-		"TieuDe":   "Chào mừng bạn đến với 99K.VN",
+	c.HTML(http.StatusOK, "bang_gia", gin.H{
+		"TieuDe":   "Bảng Giá Dịch Vụ - 99K.VN",
 		"ListGoi":  starterPackages,
 		"IsPortal": true,
 	})
