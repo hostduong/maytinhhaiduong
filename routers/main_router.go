@@ -105,6 +105,20 @@ func SetupRouter() *gin.Engine {
 				apiAdmin.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
 			}
 		}
+
+		admin := router.Group("/admin")
+admin.Use(middlewares.CheckAuth()) // Lớp bảo mật đăng nhập [cite: 16]
+{
+    // --- BƯỚC ĐỆM: Thiết lập Database ---
+    // Sử dụng template: themes/template_admin/database_admin.html
+    admin.GET("/database", ho_so.TrangThietLapDatabaseAdmin) 
+    admin.POST("/api/database/setup", ho_so.API_ThietLapDatabase)
+
+    // --- WORKSPACE CHÍNH: Chỉ vào được khi đã có Database ---
+    admin.GET("/tong-quan", tong_quan.TrangTongQuanAdmin)
+    admin.GET("/ho-so", ho_so.TrangHoSoAdmin)
+    // ... các route quản lý sản phẩm, đơn hàng khác của shop
+}
 	}
 
 	return router
