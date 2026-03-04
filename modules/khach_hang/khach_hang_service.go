@@ -11,78 +11,79 @@ import (
 
 type Service struct{}
 
-// Hàm vệ tinh: Bóc tách con số từ chuỗi JSON (Giới hạn tài nguyên)
-func getIntFromJson(jsonStr, key string) int {
-	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonStr), &data); err == nil {
-		if val, ok := data[key].(float64); ok {
-			return int(val)
+// TinhGiaCuoiCung: Hàm lõi để tính toán số tiền khách phải trả
+func (s *Service) TinhGiaCuoiCung(masterShopID, maGoi, maCode string) (float64, string, *core.GoiDichVu, error) {
+	core.KhoaHeThong.RLock()
+	defer core.KhoaHeThong.RUnlock()
+
+	// 1. Tìm gói trong RAM Master
+	goi, ok := core.CacheMapGoiDichVu[core.TaoCompositeKey(masterShopID, maGoi)]
+	if !ok || goi.TrangThai != 1 {
+		return 0, "", nil, errors.New("Gói dịch vụ không tồn tại hoặc đã ngừng kinh doanh")
+	}
+
+	giaCuoi := goi.GiaBan
+	codeApDung := ""
+
+	// 2. Nếu khách có nhập mã, kiểm tra trong mảng DanhSachCode đã nạp RAM
+	if maCode != "" {
+		for _, c := range goi.DanhSachCode {
+			if c.Code == maCode {
+				// Kiểm tra lượt dùng (nếu có giới hạn)
+				if c.SoLuong != -1 && c.SoLuong <= 0 {
+					return giaCuoi, "", goi, errors.New("Mã giảm giá này đã hết lượt sử dụng")
+				}
+				giaCuoi -= c.GiamTien
+				codeApDung = c.Code
+				break
+			}
 		}
 	}
-	return 0
+
+	if giaCuoi < 0 { giaCuoi = 0 }
+	return giaCuoi, codeApDung, goi, nil
 }
 
-func (s *Service) XuLyMuaGoiStarter(masterShopID, userID, maGoi, maCode string) (string, error) {
-	// 1. Dò tìm Gói Dịch Vụ trong RAM Master
-	core.KhoaHeThong.RLock()
-	goiDichVu, ok := core.CacheMapGoiDichVu[core.TaoCompositeKey(masterShopID, maGoi)]
-	core.KhoaHeThong.RUnlock()
+func (s *Service) ThucThiKichHoatGoi(masterShopID, userID, maGoi, maCode string) (string, error) {
+	// GỌI LẠI HÀM TÍNH GIÁ (Bảo mật 2 lớp, không tin dữ liệu từ Client gửi lên)
+	giaCuoi, codeHopLe, goi, err := s.TinhGiaCuoiCung(masterShopID, maGoi, maCode)
+	if err != nil { return "", err }
 
-	if !ok || goiDichVu.LoaiGoi != "STARTER" || goiDichVu.TrangThai != 1 {
-		return "", errors.New("Gói cước không hợp lệ hoặc đã ngừng bán")
+	if giaCuoi > 0 {
+		return "", fmt.Errorf("Gói này yêu cầu thanh toán %v VNĐ. Vui lòng liên hệ Admin.", giaCuoi)
 	}
 
-	// TODO: Tương lai xử lý logic đối chiếu trừ lượt maCode ở đây
-
-	// 2. Tóm cổ Khách Hàng đang yêu cầu mua gói
+	// Lấy hồ sơ khách hàng
 	kh, ok := core.LayKhachHang(masterShopID, userID)
-	if !ok {
-		return "", errors.New("Phiên đăng nhập không hợp lệ")
-	}
+	if !ok { return "", errors.New("Không tìm thấy thông tin tài khoản") }
 
-	// 3. Bóc tách & Ép Phẳng JSON (Nước đi quyết định tốc độ O(1))
-	maxSanPham := getIntFromJson(goiDichVu.GioiHanJson, "max_san_pham")
-	maxNhanVien := getIntFromJson(goiDichVu.GioiHanJson, "max_nhan_vien")
-	ngayHetHan := time.Now().AddDate(0, 0, goiDichVu.ThoiHanNgay).Format("2006-01-02 15:04:05")
+	// Ép phẳng dữ liệu giới hạn từ GioiHanJson
+	var limits map[string]interface{}
+	_ = json.Unmarshal([]byte(goi.GioiHanJson), &limits)
+	
+	maxSP, _ := limits["max_san_pham"].(float64)
+	maxNV, _ := limits["max_nhan_vien"].(float64)
 
 	newPlan := core.PlanInfo{
-		MaGoi:       goiDichVu.MaGoi,
-		TenGoi:      goiDichVu.TenGoi,
-		LoaiGoi:     "STARTER",
-		NgayHetHan:  ngayHetHan,
+		MaGoi:       goi.MaGoi,
+		TenGoi:      goi.TenGoi,
+		LoaiGoi:     goi.LoaiGoi, // STARTER
+		NgayHetHan:  time.Now().AddDate(0, 0, goi.ThoiHanNgay).Format("2006-01-02 15:04:05"),
 		TrangThai:   "active",
-		MaxSanPham:  maxSanPham,
-		MaxNhanVien: maxNhanVien,
+		MaxSanPham:  int(maxSP),
+		MaxNhanVien: int(maxNV),
 	}
 
-	// 4. Nhồi vé vào RAM Khách Hàng (Mutex Lock an toàn tuyệt đối)
-	lockKH := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
-	lockKH.Lock()
-	
-	// Tìm xem khách đã có STARTER chưa để ghi đè (Reset), nếu chưa thì thêm mới
-	hasStarter := false
-	for i, p := range kh.GoiDichVu {
-		if p.LoaiGoi == "STARTER" {
-			kh.GoiDichVu[i] = newPlan
-			hasStarter = true
-			break
-		}
-	}
-	if !hasStarter {
-		kh.GoiDichVu = append(kh.GoiDichVu, newPlan)
-	}
-	
-	// Đóng gói lại thành chuỗi JSON để Ghi Sheet
-	jsonBytes, _ := json.Marshal(kh.GoiDichVu)
-	goiDichVuJsonStr := string(jsonBytes)
-	row := kh.DongTrongSheet
-	tenDangNhap := kh.TenDangNhap 
-	lockKH.Unlock()
+	// Ghi vào RAM và đẩy Queue
+	lock := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
+	lock.Lock()
+	kh.GoiDichVu = []core.PlanInfo{newPlan} // STARTER luôn là gói nền duy nhất
+	jsonStr, _ := json.Marshal(kh.GoiDichVu)
+	row, tenDangNhap := kh.DongTrongSheet, kh.TenDangNhap
+	lock.Unlock()
 
-	// 5. Ném xuống Hàng Đợi (Queue) để Worker lo việc ghi Google Sheets
-	core.PushUpdate(masterShopID, core.TenSheetKhachHang, row, core.CotKH_GoiDichVuJson, goiDichVuJsonStr)
+	core.PushUpdate(masterShopID, core.TenSheetKhachHang, row, core.CotKH_GoiDichVuJson, string(jsonStr))
 
-	// 6. Trả về Cú Bẻ Lái Tuyệt Đối (Domain Mapping)
-	redirectURL := fmt.Sprintf("https://%s.99k.vn/admin/database", tenDangNhap)
-	return redirectURL, nil
+	// Trả về URL bẻ lái tuyệt đối
+	return fmt.Sprintf("https://%s.99k.vn/admin/database", tenDangNhap), nil
 }
