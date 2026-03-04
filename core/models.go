@@ -73,7 +73,18 @@ const (
 // Các struct phụ trợ cho KhachHang
 type TokenInfo struct { DeviceName string `json:"dev"`; ExpiresAt int64 `json:"exp"` }
 type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"`; GoogleAuthJson string `json:"google_auth_json"`; FolderDriveID string `json:"folder_drive_id"` }
-type PlanInfo struct { MaGoi string `json:"ma_goi"`; TenGoi string `json:"ten_goi"`; NgayHetHan string `json:"ngay_het_han"`; TrangThai string `json:"trang_thai"` }
+type PlanInfo struct {
+	MaGoi       string `json:"ma_goi"`
+	TenGoi      string `json:"ten_goi"`
+	LoaiGoi     string `json:"loai_goi"`       // Thêm mới: STARTER, USER, STORAGE, DURATION
+	NgayHetHan  string `json:"ngay_het_han"`
+	TrangThai   string `json:"trang_thai"`     // "active", "expired", ...
+	
+	// --- ÉP PHẲNG TỪ gioi_han_json ---
+	MaxSanPham  int    `json:"max_san_pham"`   // Giới hạn số lượng Sản phẩm
+	MaxNhanVien int    `json:"max_nhan_vien"`  // Giới hạn số lượng Nhân viên (Tài khoản phụ)
+    // Tương lai có thể thêm MaxDungLuong, MaxKho... vào thẳng đây
+}
 type UserConfig struct { Theme string `json:"theme"`; ChuyenNganh string `json:"chuyen_nganh"`; CustomDomain string `json:"custom_domain"`; DarkMode bool `json:"dark_mode"`; Language string `json:"lang"` }
 type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
 type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
