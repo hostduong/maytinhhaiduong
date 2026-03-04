@@ -13,6 +13,7 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
 	"app/modules/goi_dich_vu"
+	"app/modules/khach_hang"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +42,6 @@ func SetupRouter() *gin.Engine {
 
 	router.POST("/login", auth.API_Login)
 	router.POST("/register", auth.API_Register)
-	router.GET("/khach-hang", hien_thi_web.TrangCongPortalKhachHang)
 
 	apiAuth := router.Group("/api/auth")
 	{
@@ -49,6 +49,16 @@ func SetupRouter() *gin.Engine {
 		apiAuth.POST("/send-otp", auth.API_SendOtp)
 		apiAuth.POST("/reset-by-pin", auth.API_ResetByPin)
 		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
+	}
+
+	// =======================================================
+	// KHU VỰC CHỌN GÓI CƯỚC (Bắt buộc phải đăng nhập)
+	// =======================================================
+	portal := router.Group("/khach-hang")
+	portal.Use(middlewares.CheckAuth())
+	{
+		portal.GET("/", khach_hang.TrangCongPortalKhachHang)
+		portal.POST("/api/mua-goi", khach_hang.API_MuaGoiKhachHang)
 	}
 
 	// =======================================================
