@@ -51,14 +51,13 @@ func SetupRouter() *gin.Engine {
 		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
 	}
 
-	// =======================================================
-	// KHU VỰC CHỌN GÓI CƯỚC (Bắt buộc phải đăng nhập)
-	// =======================================================
+	// Nhóm Portal Khách Hàng (Dành cho người mới đăng ký hoặc hết hạn gói)
 	portal := router.Group("/khach-hang")
-	portal.Use(middlewares.CheckAuth())
+	portal.Use(middlewares.CheckAuth()) // [cite: 16]
 	{
 		portal.GET("/", khach_hang.TrangCongPortalKhachHang)
-		portal.POST("/api/mua-goi", khach_hang.API_MuaGoiKhachHang)
+		portal.POST("/api/check-price", khach_hang.API_CheckPrice) // Cổng hỏi giá
+		portal.POST("/api/mua-goi", khach_hang.API_MuaGoiKhachHang) // Cổng chốt deal
 	}
 
 	// =======================================================
