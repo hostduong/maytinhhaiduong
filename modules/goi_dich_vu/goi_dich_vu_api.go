@@ -1,4 +1,4 @@
-package goi_dich_vu_master
+package goi_dich_vu
 
 import (
 	"strconv"
