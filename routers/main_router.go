@@ -13,7 +13,7 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
 	"app/modules/goi_dich_vu"
-	"app/modules/khach_hang"
+	"app/modules/bang-gia"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,13 +52,14 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// Nhóm Portal Khách Hàng (Dành cho người mới đăng ký hoặc hết hạn gói)
-	portal := router.Group("/khach-hang")
-	portal.Use(middlewares.CheckAuth()) // [cite: 16]
-	{
-		portal.GET("/", khach_hang.TrangCongPortalKhachHang)
-		portal.POST("/api/check-price", khach_hang.API_CheckPrice) // Cổng hỏi giá
-		portal.POST("/api/mua-goi", khach_hang.API_MuaGoiKhachHang) // Cổng chốt deal
-	}
+	// Nhóm Bảng Giá (Dành cho khách hàng chọn gói)
+    portal := router.Group("/bang-gia")
+    portal.Use(middlewares.CheckAuth())
+    {
+        portal.GET("/", bang_gia.TrangCongPortalBangGia)
+        portal.POST("/api/check-price", bang_gia.API_CheckGia)
+        portal.POST("/api/mua-goi", bang_gia.API_MuaGoi)
+    }
 
 	// =======================================================
 	// KHU VỰC WORKSPACE (Bảo vệ 5 lớp)
