@@ -66,16 +66,23 @@
                         </div>
                         </div>
 
-                    <button onclick="dangKyGoi('{{ .MaGoi }}', '{{ .GiaBan }}')" class="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition transform active:scale-95 shadow-lg 
-                        {{ if .NhanHienThi }}
-                        bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-200 hover:from-purple-700 hover:to-indigo-700
-                        {{ else if eq .GiaBan 0.0 }}
-                        bg-slate-100 text-slate-600 hover:bg-slate-200
-                        {{ else }}
-                        bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50
-                        {{ end }}">
-                        {{ if eq .GiaBan 0.0 }}Dùng Thử Ngay{{ else }}Đăng Ký Mua{{ end }}
-                    </button>
+                    <button onclick='dangKyGoi("{{ .MaGoi }}", "{{ .TenGoi }}", {{ .GiaBan }}, {{ json .DanhSachCode }})' class="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2
+    {{ if .NhanHienThi }}
+    bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-300/50 hover:from-purple-700 hover:to-indigo-700 hover:shadow-purple-400/50
+    {{ else if eq .GiaBan 0.0 }}
+    bg-slate-900 text-white hover:bg-slate-800 shadow-slate-300
+    {{ else }}
+    bg-white border-2 border-purple-100 text-purple-600 hover:border-purple-600 hover:bg-purple-50 shadow-purple-100/50
+    {{ end }}">
+    
+    {{ if eq .GiaBan 0.0 }}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Dùng Thử Ngay
+    {{ else }}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        Kích Hoạt Gói
+    {{ end }}
+</button>
                 </div>
             </div>
             {{ end }}
@@ -84,30 +91,130 @@
     </div>
 
     <script>
-        function dangKyGoi(maGoi, giaBan) {
-            if (giaBan == 0) {
-                Swal.fire({
-                    title: '<span class="text-2xl font-black title-gradient-purple">Xác nhận dùng thử?</span>',
-                    text: "Bạn sẽ được khởi tạo Subdomain và Database miễn phí trong 3 ngày.",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Đồng ý khởi tạo',
-                    cancelButtonText: 'Để sau',
-                    customClass: { popup: 'swal-animated-purple' }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "/khach-hang/khoi-tao?goi=" + maGoi;
+    // Hàm format số tiền
+    function formatTien(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function dangKyGoi(maGoi, tenGoi, giaBanGoc, listCodes) {
+        let finalPrice = giaBanGoc;
+        let appliedCode = "";
+
+        // Hàm tính lại giá dựa trên list code
+        function updatePrice(codeVal) {
+            finalPrice = giaBanGoc;
+            appliedCode = "";
+            if (!listCodes) return finalPrice;
+
+            let codeObj = listCodes.find(c => c.code.toUpperCase() === codeVal.toUpperCase());
+            if (codeObj) {
+                finalPrice = giaBanGoc - codeObj.giam_tien;
+                if (finalPrice < 0) finalPrice = 0;
+                appliedCode = codeObj.code; // Lưu lại mã đúng
+            }
+            return finalPrice;
+        }
+
+        // Tạo giao diện bên trong SweetAlert
+        let htmlContent = `
+            <div class="text-center mt-2">
+                <div class="mb-5 text-sm font-bold text-slate-500">Giá trị gói: <strong class="text-xl text-indigo-600">${formatTien(giaBanGoc)}₫</strong></div>
+                
+                <div class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <label class="block text-xs font-black text-slate-600 mb-2 uppercase tracking-widest">Mã khuyến mãi (Nếu có)</label>
+                    <input type="text" id="swal_input_code" class="input-premium font-black uppercase text-center tracking-widest text-lg" placeholder="Nhập mã...">
+                    
+                    <div id="swal_price_calc" class="mt-3 text-center hidden animate-[fadeIn_0.2s_ease-out]">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                            ✓ Áp dụng mã thành công!
+                        </span>
+                        <div class="mt-2 text-slate-700 font-bold">Thanh toán: <span id="swal_final_price" class="text-2xl font-black text-emerald-600">0₫</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        Swal.fire({
+            title: `<span class="text-3xl font-black title-gradient-purple">${tenGoi}</span>`,
+            html: htmlContent,
+            showCancelButton: true,
+            confirmButtonText: 'Tiếp tục',
+            cancelButtonText: 'Hủy bỏ',
+            customClass: { popup: 'swal-animated-purple' },
+            buttonsStyling: false,
+            confirmButtonClass: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs mx-2 shadow-lg hover:shadow-purple-300 transition active:scale-95',
+            cancelButtonClass: 'bg-slate-100 text-slate-500 px-6 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs mx-2 hover:bg-slate-200 transition',
+            didOpen: () => {
+                const inputEl = document.getElementById('swal_input_code');
+                const calcEl = document.getElementById('swal_price_calc');
+                const finalEl = document.getElementById('swal_final_price');
+
+                // Lắng nghe sự kiện khách gõ phím
+                inputEl.addEventListener('input', (e) => {
+                    let p = updatePrice(e.target.value.trim());
+                    if (appliedCode) {
+                        calcEl.classList.remove('hidden');
+                        finalEl.innerText = formatTien(p) + '₫';
+                    } else {
+                        calcEl.classList.add('hidden');
                     }
                 });
-            } else {
-                Swal.fire({
-                    title: 'Thông báo thanh toán',
-                    text: 'Chức năng nạp tiền và quét mã QR đang được tích hợp.',
-                    icon: 'info'
-                });
             }
-        }
-    </script>
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const codeToSend = document.getElementById('swal_input_code').value.trim();
+                let p = updatePrice(codeToSend); // Chốt giá cuối cùng
+
+                if (p === 0) {
+                    // ==========================================
+                    // TRƯỜNG HỢP 0Đ -> GỌI API KHỞI TẠO NGAY
+                    // ==========================================
+                    Swal.fire({
+                        title: 'Đang khởi tạo không gian...',
+                        html: '<div class="text-sm font-bold text-slate-500 mb-6">Quá trình này mất khoảng 5 giây. Vui lòng chờ...</div><div class="spinner-led-btn mx-auto"></div>',
+                        showConfirmButton: false, allowOutsideClick: false,
+                        customClass: { popup: 'swal-animated-purple' }
+                    });
+
+                    const fd = new FormData();
+                    fd.append('ma_goi', maGoi);
+                    fd.append('ma_code', appliedCode); // Gửi kèm mã đã xác thực lên Server
+
+                    try {
+                        const res = await fetch('/khach-hang/api/mua-goi', { method: 'POST', body: fd });
+                        const data = await res.json();
+                        
+                        if (data.status === 'ok') {
+                            Swal.fire({
+                                title: '<span class="text-3xl font-black title-gradient-purple">Hoàn tất!</span>',
+                                html: '<div class="text-sm font-bold text-slate-600">Đang chuyển hướng đến văn phòng của bạn...</div>',
+                                icon: 'success', timer: 2000, showConfirmButton: false,
+                                customClass: { popup: 'swal-master-success' }
+                            }).then(() => window.location.href = data.redirect_url);
+                        } else {
+                            Swal.fire({ title: 'Lỗi', text: data.msg, icon: 'error', customClass: { popup: 'swal-master-error' }});
+                        }
+                    } catch (e) {
+                        Swal.fire('Lỗi', 'Mất kết nối đến máy chủ!', 'error');
+                    }
+                } else {
+                    // ==========================================
+                    // TRƯỜNG HỢP > 0Đ -> BÁO CHỜ THANH TOÁN
+                    // ==========================================
+                    Swal.fire({
+                        title: `<span class="text-2xl font-black title-gradient-purple">Thanh toán ${formatTien(p)}₫</span>`,
+                        html: '<p class="text-sm font-bold text-slate-500 mt-2">Cổng thanh toán tự động đang được tích hợp. Vui lòng quay lại sau.</p>',
+                        icon: 'info',
+                        customClass: { popup: 'swal-animated-purple' },
+                        confirmButtonText: 'Đã hiểu',
+                        buttonsStyling: false,
+                        confirmButtonClass: 'bg-purple-600 text-white px-8 py-3 rounded-xl font-bold mt-4'
+                    });
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>
 {{ end }}
