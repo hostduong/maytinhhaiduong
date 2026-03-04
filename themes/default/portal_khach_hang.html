@@ -6,215 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .TieuDe }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/master_ui.css"> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/static/css/99k-style.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-900">
+<body class="bg-slate-50 min-h-screen py-12 flex flex-col items-center">
 
-    <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        
-        <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-6xl font-black text-gradient-animated mb-4">Chọn Gói Cước Khởi Nghiệp</h1>
-            <p class="text-slate-500 text-lg font-bold uppercase tracking-widest">Sức mạnh công nghệ trong tầm tay bạn</p>
+    <div class="max-w-5xl mx-auto px-4 w-full">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-black text-gradient-animated mb-4">Gói Cước Khởi Nghiệp</h1>
+            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm">Hệ thống SaaS chuyên nghiệp cho cửa hàng máy tính</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-            <div class="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-4 text-orange-700 shadow-sm">
-                <div class="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center font-black">!</div>
-                <div class="text-sm font-bold">Gói Advanced đang giảm giá 20% hôm nay!</div>
-            </div>
-            <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-4 text-blue-700 shadow-sm">
-                <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center font-black">i</div>
-                <div class="text-sm font-bold">Bạn đang trong thời gian dùng thử bản miễn phí.</div>
-            </div>
-            <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-4 text-emerald-700 shadow-sm">
-                <div class="w-10 h-10 bg-emerald-200 rounded-full flex items-center justify-center font-black">✓</div>
-                <div class="text-sm font-bold">Kích hoạt nhanh chóng trong 30 giây.</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {{ range .ListGoi }}
-            <div class="{{ if .NhanHienThi }}animated-border-wrapper shadow-2xl shadow-purple-300/50 scale-105 z-10{{ else }}bg-white border border-slate-200 rounded-[1.5rem] shadow-sm hover:shadow-xl transition duration-300{{ end }} flex flex-col h-full">
-                
-                <div class="{{ if .NhanHienThi }}animated-border-inner bg-white{{ end }} p-8 flex-1 flex flex-col h-full rounded-[calc(1.5rem-2px)]">
-                    
-                    {{ if .NhanHienThi }}
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <span class="badge-animated-wrap theme-9 tier-s !mt-0 !mr-0">
-                            <span class="badge-inner !py-1 !px-4">{{ .NhanHienThi }}</span>
-                        </span>
+            <div class="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition duration-500 flex flex-col group">
+                <div class="mb-6 border-b border-slate-50 pb-6 text-center">
+                    <h3 class="text-xl font-black text-slate-800 uppercase">{{ .TenGoi }}</h3>
+                    <div class="mt-4 flex items-baseline justify-center gap-1">
+                        <span class="text-4xl font-black text-purple-600 tracking-tighter">{{ format_money .GiaBan }}₫</span>
+                        <span class="text-slate-400 font-bold text-xs">/{{ .ThoiHanNgay }} ngày</span>
                     </div>
-                    {{ end }}
-
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">{{ .TenGoi }}</h3>
-                        <div class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">{{ .MaGoi }}</div>
-                        
-                        <div class="mt-6 flex items-baseline justify-center gap-1">
-                            <span class="text-4xl font-black text-slate-900 tracking-tighter">{{ format_money .GiaBan }}₫</span>
-                            <span class="text-slate-400 font-bold text-sm">/{{ .ThoiHanNgay }} ngày</span>
-                        </div>
-                        {{ if gt .GiaNiemYet 0.0 }}
-                        <div class="text-slate-300 line-through font-bold text-sm mt-1">{{ format_money .GiaNiemYet }}₫</div>
-                        {{ end }}
-                    </div>
-
-                    <div class="space-y-4 mb-10 flex-1">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            <span class="text-slate-600 text-sm font-bold">Khởi tạo nhanh chóng</span>
-                        </div>
-                        </div>
-
-                    <button onclick='dangKyGoi("{{ .MaGoi }}", "{{ .TenGoi }}", {{ .GiaBan }}, {{ json .DanhSachCode }})' class="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2
-    {{ if .NhanHienThi }}
-    bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-300/50 hover:from-purple-700 hover:to-indigo-700 hover:shadow-purple-400/50
-    {{ else if eq .GiaBan 0.0 }}
-    bg-slate-900 text-white hover:bg-slate-800 shadow-slate-300
-    {{ else }}
-    bg-white border-2 border-purple-100 text-purple-600 hover:border-purple-600 hover:bg-purple-50 shadow-purple-100/50
-    {{ end }}">
-    
-    {{ if eq .GiaBan 0.0 }}
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        Dùng Thử Ngay
-    {{ else }}
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-        Kích Hoạt Gói
-    {{ end }}
-</button>
                 </div>
+
+                <div class="flex-1 space-y-4 mb-8">
+                    {{ range split .MoTa "|" }}
+                        <div class="flex items-center gap-3 text-sm font-bold text-slate-500">
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            {{ . }}
+                        </div>
+                    {{ end }}
+                </div>
+
+                <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-purple-600 transition shadow-lg active:scale-95">
+                    Chọn Gói Này
+                </button>
             </div>
             {{ end }}
         </div>
-
     </div>
 
     <script>
-    // Hàm format số tiền
-    function formatTien(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    function dangKyGoi(maGoi, tenGoi, giaBanGoc, listCodes) {
-        let finalPrice = giaBanGoc;
-        let appliedCode = "";
-
-        // Hàm tính lại giá dựa trên list code
-        function updatePrice(codeVal) {
-            finalPrice = giaBanGoc;
-            appliedCode = "";
-            if (!listCodes) return finalPrice;
-
-            let codeObj = listCodes.find(c => c.code.toUpperCase() === codeVal.toUpperCase());
-            if (codeObj) {
-                finalPrice = giaBanGoc - codeObj.giam_tien;
-                if (finalPrice < 0) finalPrice = 0;
-                appliedCode = codeObj.code; // Lưu lại mã đúng
-            }
-            return finalPrice;
+        // Hàm gọi Backend để kiểm tra giá (Zero Trust)
+        async function checkGiaTuServer(maGoi, maCode) {
+            const fd = new FormData();
+            fd.append('ma_goi', maGoi);
+            fd.append('ma_code', maCode);
+            const res = await fetch('/khach-hang/api/check-price', { method: 'POST', body: fd });
+            return await res.json();
         }
 
-        // Tạo giao diện bên trong SweetAlert
-        let htmlContent = `
-            <div class="text-center mt-2">
-                <div class="mb-5 text-sm font-bold text-slate-500">Giá trị gói: <strong class="text-xl text-indigo-600">${formatTien(giaBanGoc)}₫</strong></div>
-                
-                <div class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <label class="block text-xs font-black text-slate-600 mb-2 uppercase tracking-widest">Mã khuyến mãi (Nếu có)</label>
-                    <input type="text" id="swal_input_code" class="input-premium font-black uppercase text-center tracking-widest text-lg" placeholder="Nhập mã...">
-                    
-                    <div id="swal_price_calc" class="mt-3 text-center hidden animate-[fadeIn_0.2s_ease-out]">
-                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                            ✓ Áp dụng mã thành công!
-                        </span>
-                        <div class="mt-2 text-slate-700 font-bold">Thanh toán: <span id="swal_final_price" class="text-2xl font-black text-emerald-600">0₫</span></div>
+        function moModalMua(maGoi, tenGoi, giaGoc) {
+            Swal.fire({
+                title: `<span class="text-2xl font-black text-purple-600">${tenGoi}</span>`,
+                html: `
+                    <div class="p-2">
+                        <div class="mb-4 text-sm font-bold text-slate-400">Giá gốc: ${giaGoc.toLocaleString()}₫</div>
+                        <input type="text" id="inp_code" class="input-premium text-center font-black uppercase tracking-widest" placeholder="MÃ GIẢM GIÁ">
+                        <div id="price_box" class="mt-6 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                            <div class="text-xs font-black text-slate-400 uppercase mb-1">Số tiền cần trả</div>
+                            <div id="final_txt" class="text-3xl font-black text-slate-800">${giaGoc.toLocaleString()}₫</div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `;
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận kích hoạt',
+                customClass: { popup: 'swal-animated-purple' },
+                didOpen: () => {
+                    const inp = document.getElementById('inp_code');
+                    const txt = document.getElementById('final_txt');
+                    const box = document.getElementById('price_box');
 
-        Swal.fire({
-            title: `<span class="text-3xl font-black title-gradient-purple">${tenGoi}</span>`,
-            html: htmlContent,
-            showCancelButton: true,
-            confirmButtonText: 'Tiếp tục',
-            cancelButtonText: 'Hủy bỏ',
-            customClass: { popup: 'swal-animated-purple' },
-            buttonsStyling: false,
-            confirmButtonClass: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs mx-2 shadow-lg hover:shadow-purple-300 transition active:scale-95',
-            cancelButtonClass: 'bg-slate-100 text-slate-500 px-6 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs mx-2 hover:bg-slate-200 transition',
-            didOpen: () => {
-                const inputEl = document.getElementById('swal_input_code');
-                const calcEl = document.getElementById('swal_price_calc');
-                const finalEl = document.getElementById('swal_final_price');
-
-                // Lắng nghe sự kiện khách gõ phím
-                inputEl.addEventListener('input', (e) => {
-                    let p = updatePrice(e.target.value.trim());
-                    if (appliedCode) {
-                        calcEl.classList.remove('hidden');
-                        finalEl.innerText = formatTien(p) + '₫';
-                    } else {
-                        calcEl.classList.add('hidden');
-                    }
-                });
-            }
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const codeToSend = document.getElementById('swal_input_code').value.trim();
-                let p = updatePrice(codeToSend); // Chốt giá cuối cùng
-
-                if (p === 0) {
-                    // ==========================================
-                    // TRƯỜNG HỢP 0Đ -> GỌI API KHỞI TẠO NGAY
-                    // ==========================================
-                    Swal.fire({
-                        title: 'Đang khởi tạo không gian...',
-                        html: '<div class="text-sm font-bold text-slate-500 mb-6">Quá trình này mất khoảng 5 giây. Vui lòng chờ...</div><div class="spinner-led-btn mx-auto"></div>',
-                        showConfirmButton: false, allowOutsideClick: false,
-                        customClass: { popup: 'swal-animated-purple' }
+                    inp.addEventListener('input', async (e) => {
+                        const code = e.target.value.trim();
+                        if(code.length < 2) {
+                            txt.innerText = giaGoc.toLocaleString() + '₫';
+                            box.classList.replace('border-emerald-500', 'border-slate-200');
+                            return;
+                        }
+                        // HỎI SERVER CHỨ KHÔNG TỰ TÍNH
+                        const data = await checkGiaTuServer(maGoi, code);
+                        if(data.status === 'ok') {
+                            txt.innerText = data.final_price.toLocaleString() + '₫';
+                            if(data.is_valid) box.classList.replace('border-slate-200', 'border-emerald-500');
+                        }
                     });
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const code = document.getElementById('inp_code').value.trim();
+                    
+                    Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
                     const fd = new FormData();
                     fd.append('ma_goi', maGoi);
-                    fd.append('ma_code', appliedCode); // Gửi kèm mã đã xác thực lên Server
+                    fd.append('ma_code', code);
 
-                    try {
-                        const res = await fetch('/khach-hang/api/mua-goi', { method: 'POST', body: fd });
-                        const data = await res.json();
-                        
-                        if (data.status === 'ok') {
-                            Swal.fire({
-                                title: '<span class="text-3xl font-black title-gradient-purple">Hoàn tất!</span>',
-                                html: '<div class="text-sm font-bold text-slate-600">Đang chuyển hướng đến văn phòng của bạn...</div>',
-                                icon: 'success', timer: 2000, showConfirmButton: false,
-                                customClass: { popup: 'swal-master-success' }
-                            }).then(() => window.location.href = data.redirect_url);
-                        } else {
-                            Swal.fire({ title: 'Lỗi', text: data.msg, icon: 'error', customClass: { popup: 'swal-master-error' }});
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Mất kết nối đến máy chủ!', 'error');
+                    const res = await fetch('/khach-hang/api/mua-goi', { method: 'POST', body: fd });
+                    const data = await res.json();
+
+                    if(data.status === 'ok') {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        Swal.fire('Lỗi', data.msg, 'error');
                     }
-                } else {
-                    // ==========================================
-                    // TRƯỜNG HỢP > 0Đ -> BÁO CHỜ THANH TOÁN
-                    // ==========================================
-                    Swal.fire({
-                        title: `<span class="text-2xl font-black title-gradient-purple">Thanh toán ${formatTien(p)}₫</span>`,
-                        html: '<p class="text-sm font-bold text-slate-500 mt-2">Cổng thanh toán tự động đang được tích hợp. Vui lòng quay lại sau.</p>',
-                        icon: 'info',
-                        customClass: { popup: 'swal-animated-purple' },
-                        confirmButtonText: 'Đã hiểu',
-                        buttonsStyling: false,
-                        confirmButtonClass: 'bg-purple-600 text-white px-8 py-3 rounded-xl font-bold mt-4'
-                    });
                 }
-            }
-        });
-    }
-</script>
+            });
+        }
+    </script>
 </body>
 </html>
 {{ end }}
