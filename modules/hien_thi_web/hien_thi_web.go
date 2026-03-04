@@ -125,21 +125,3 @@ func TrangXacThucOTP(c *gin.Context) {
 	c.HTML(http.StatusOK, "xac_thuc_otp", gin.H{"TieuDe": "Xác thực OTP"})
 }
 
-
-// ========================================================
-// KHÁCH HÀNG VỪA ĐĂNG KÝ XONG
-// ========================================================
-
-func TrangCongPortalKhachHang(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // Đây sẽ là ID file Master
-	
-	core.KhoaHeThong.RLock()
-	listGoi := core.CacheGoiDichVu[shopID]
-	core.KhoaHeThong.RUnlock()
-
-	c.HTML(http.StatusOK, "portal_khach_hang", gin.H{
-		"TieuDe":   "Chào mừng bạn đến với 99K.VN",
-		"ListGoi":  listGoi,
-		"IsPortal": true,
-	})
-}
