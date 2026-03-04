@@ -32,23 +32,21 @@ func API_CheckPrice(c *gin.Context) {
 
 // API_MuaGoiKhachHang: Khách hàng chốt "Tôi mua gói này với mã này"
 func API_MuaGoiKhachHang(c *gin.Context) {
-	masterShopID := c.GetString("SHOP_ID") // [cite: 17]
-	userID := c.GetString("USER_ID")       // Được cấp từ Middleware CheckAuth [cite: 16]
-	
+	masterShopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
 	maGoi := c.PostForm("ma_goi")
-	maCode := strings.ToUpper(strings.TrimSpace(c.PostForm("ma_code")))
+	maCode := c.PostForm("ma_code")
 
-	// Gọi Service của module khách hàng để thực thi nghiệp vụ (Gồm check giá và cấp gói)
+	// Gọi Service thực thi
 	redirectURL, err := svc.BuyStarterPackage(masterShopID, userID, maGoi, maCode)
 	if err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
 
-	// Trả về kết quả bẻ lái thành công
+	// Trả về URL: https://www.99k.vn/admin/database
 	c.JSON(200, gin.H{
 		"status":       "ok",
-		"msg":          "Kích hoạt không gian làm việc thành công!",
 		"redirect_url": redirectURL,
 	})
 }
