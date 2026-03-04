@@ -114,10 +114,6 @@ admin.Use(middlewares.CheckAuth()) // Lớp bảo mật đăng nhập [cite: 16]
     admin.GET("/database", ho_so.TrangThietLapDatabaseAdmin) 
     admin.POST("/api/database/setup", ho_so.API_ThietLapDatabase)
 
-    // --- WORKSPACE CHÍNH: Chỉ vào được khi đã có Database ---
-    admin.GET("/tong-quan", tong_quan.TrangTongQuanAdmin)
-    admin.GET("/ho-so", ho_so.TrangHoSoAdmin)
-    // ... các route quản lý sản phẩm, đơn hàng khác của shop
 }
 	}
 
