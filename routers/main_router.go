@@ -13,7 +13,7 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
 	"app/modules/goi_dich_vu"
-	"app/modules/bang-gia"
+	"app/modules/bang_gia" // [MỚI]: Module bảng giá cho khách hàng
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,17 +22,17 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
-	// Lễ tân phân luồng Domain
+	// Trạm IdentifyTenant: Nhận diện Shop/Master từ Domain [cite: 17]
 	router.Use(middlewares.IdentifyTenant())
 
 	// =======================================================
-	// KHU VỰC PUBLIC
+	// 1. KHU VỰC PUBLIC (Không cần đăng nhập)
 	// =======================================================
 	router.GET("/", hien_thi_web.TrangChu) 
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham) 
 
 	// =======================================================
-	// KHU VỰC AUTH
+	// 2. KHU VỰC ĐỊNH DANH (AUTH)
 	// =======================================================
 	router.GET("/login", auth.TrangDangNhap)
 	router.GET("/register", auth.TrangDangKy)
@@ -51,23 +51,37 @@ func SetupRouter() *gin.Engine {
 		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
 	}
 
-	// Nhóm Portal Khách Hàng (Dành cho người mới đăng ký hoặc hết hạn gói)
-	// Nhóm Bảng Giá (Dành cho khách hàng chọn gói)
-    portal := router.Group("/bang-gia")
-    portal.Use(middlewares.CheckAuth())
-    {
-        portal.GET("/", bang_gia.TrangCongPortalBangGia)
-        portal.POST("/api/check-price", bang_gia.API_CheckGia)
-        portal.POST("/api/mua-goi", bang_gia.API_MuaGoi)
-    }
+	// =======================================================
+	// 3. KHU VỰC CHỌN GÓI (BẢNG GIÁ) - Bắt buộc Login [cite: 16]
+	// =======================================================
+	portal := router.Group("/bang-gia")
+	portal.Use(middlewares.CheckAuth())
+	{
+		portal.GET("/", bang_gia.TrangCongPortalBangGia)
+		portal.POST("/api/check-price", bang_gia.API_CheckGia)
+		portal.POST("/api/mua-goi", bang_gia.API_MuaGoi)
+	}
 
 	// =======================================================
-	// KHU VỰC WORKSPACE (Bảo vệ 5 lớp)
+	// 4. KHU VỰC THIẾT LẬP DATABASE - Cho Chủ shop [cite: 17, 18]
+	// =======================================================
+	admin := router.Group("/admin")
+	admin.Use(middlewares.CheckAuth())
+	{
+		// Trang bẻ lái sau khi mua gói thành công
+		admin.GET("/database", ho_so.TrangThietLapDatabaseAdmin) 
+		admin.POST("/api/database/setup", ho_so.API_ThietLapDatabase)
+		
+		// Sau này các trang /admin/tong-quan... sẽ nằm ở đây cho Subdomain
+	}
+
+	// =======================================================
+	// 5. KHU VỰC QUẢN TRỊ HỆ THỐNG (MASTER)
 	// =======================================================
 	workspace := router.Group("/master")
 	workspace.Use(middlewares.CheckAuth())
 	{
-		// 1. Nhóm Load Giao diện HTML
+		// Giao diện Workspace
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
 		workspace.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
 		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
@@ -75,10 +89,9 @@ func SetupRouter() *gin.Engine {
 		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
 		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
 
-		// Giao diện Yêu cầu Cấp bậc Quản trị (Level 0, 1, 2)
+		// Cấu hình nâng cao (Yêu cầu Level 2) [cite: 13, 14]
 		cauHinhUI := workspace.Group("/cau-hinh")
 		cauHinhUI.Use(middlewares.RequireLevel(2))
-		// [ĐÃ SỬA] Trả lại đúng tên hàm gốc của bạn:
 		cauHinhUI.GET("/", cau_hinh.TrangCaiDatCauHinhMaster) 
 
 		thanhVienUI := workspace.Group("/thanh-vien")
@@ -89,23 +102,22 @@ func SetupRouter() *gin.Engine {
 		dongBoUI.Use(middlewares.RequireLevel(2))
 		dongBoUI.GET("/", dong_bo_sheets.TrangDongBoSheetsMaster)
 
-		// 2. Nhóm Gọi API Xử lý Dữ liệu
+		// API Xử lý Master
 		api := workspace.Group("/api")
 		{
-			// API Không giới hạn quyền (Cá nhân tự đổi)
 			api.POST("/ho-so", ho_so.API_LuuHoSoMaster)
 			api.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
 			api.POST("/change-pin", ho_so.API_DoiMaPinMaster)
 			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
 			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
 
-			// [LƯỚI THÉP RBAC CẨM NANG]
+			// RBAC Product & Stock [cite: 10, 20]
 			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
 			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
 			api.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
 			api.POST("/nhap-hang/status", middlewares.RequirePermission("stock.import"), nhap_hang.API_DoiTrangThaiPhieu)
 
-			// Các API Yêu cầu Cấp bậc Hệ thống
+			// API Admin Master (Level 2)
 			apiAdmin := api.Group("")
 			apiAdmin.Use(middlewares.RequireLevel(2))
 			{
@@ -115,16 +127,6 @@ func SetupRouter() *gin.Engine {
 				apiAdmin.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
 			}
 		}
-
-		admin := router.Group("/admin")
-admin.Use(middlewares.CheckAuth()) // Lớp bảo mật đăng nhập [cite: 16]
-{
-    // --- BƯỚC ĐỆM: Thiết lập Database ---
-    // Sử dụng template: themes/template_admin/database_admin.html
-    admin.GET("/database", ho_so.TrangThietLapDatabaseAdmin) 
-    admin.POST("/api/database/setup", ho_so.API_ThietLapDatabase)
-
-}
 	}
 
 	return router
