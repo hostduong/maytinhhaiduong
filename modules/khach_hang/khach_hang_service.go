@@ -74,8 +74,9 @@ func (s *CustomerService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 
 // BuyStarterPackage: Xử lý mua gói, nạp RAM và kích hoạt hạ tầng
 func (s *CustomerService) BuyStarterPackage(masterShopID, userID, maGoi, maCode string) (string, error) {
-	// Bước 1: Gọi Module Thanh Toán để kiểm tra giá cuối cùng (Zero-Trust)
-	finalPrice, codeHopLe, goi, err := s.paySvc.GetFinalPrice(masterShopID, maGoi, maCode)
+	// Bước 1: Gọi Module Thanh Toán để kiểm tra giá cuối cùng
+	// [FIX]: Thay codeHopLe bằng _ để tránh lỗi "declared and not used"
+	finalPrice, _, goi, err := s.paySvc.GetFinalPrice(masterShopID, maGoi, maCode)
 	if err != nil {
 		return "", err
 	}
@@ -91,8 +92,7 @@ func (s *CustomerService) BuyStarterPackage(masterShopID, userID, maGoi, maCode 
 		return "", errors.New("Không tìm thấy thông tin tài khoản trên hệ thống")
 	}
 
-	// Bước 4: Bóc tách giới hạn tài nguyên từ GioiHanJson (Cột H sheet GOI_DICH_VU)
-	// Giả sử JSON: {"max_san_pham": 100, "max_nhan_vien": 5}
+	// Bước 4: Bóc tách giới hạn tài nguyên từ GioiHanJson
 	var limits map[string]interface{}
 	if err := json.Unmarshal([]byte(goi.GioiHanJson), &limits); err != nil {
 		return "", errors.New("Dữ liệu giới hạn gói cước không hợp lệ")
@@ -101,27 +101,25 @@ func (s *CustomerService) BuyStarterPackage(masterShopID, userID, maGoi, maCode 
 	maxSP, _ := limits["max_san_pham"].(float64)
 	maxNV, _ := limits["max_nhan_vien"].(float64)
 
-	// Bước 5: Khởi tạo cấu trúc PlanInfo mới (Ép phẳng dữ liệu vào RAM)
+	// Bước 5: Khởi tạo cấu trúc PlanInfo mới (Ép phẳng dữ liệu vào RAM) [cite: 22, 23]
 	ngayHetHan := time.Now().AddDate(0, 0, goi.ThoiHanNgay).Format("2006-01-02 15:04:05")
 	newPlan := core.PlanInfo{
 		MaGoi:       goi.MaGoi,
 		TenGoi:      goi.TenGoi,
-		LoaiGoi:     goi.LoaiGoi, // "STARTER" 
+		LoaiGoi:     goi.LoaiGoi, // "STARTER"
 		NgayHetHan:  ngayHetHan,
 		TrangThai:   "active",
 		MaxSanPham:  int(maxSP),
 		MaxNhanVien: int(maxNV),
 	}
 
-	// Bước 6: Cập nhật RAM Khách Hàng (Dùng Lock để đảm bảo an toàn dữ liệu)
+	// Bước 6: Cập nhật RAM Khách Hàng (Dùng Lock để đảm bảo an toàn) [cite: 22]
 	lock := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
 	lock.Lock()
 	
-	// Thay thế hoặc thêm mới gói STARTER (Mỗi khách chỉ có 1 gói nền STARTER)
 	updatedPlans := []core.PlanInfo{newPlan}
 	kh.GoiDichVu = updatedPlans
 	
-	// Chuẩn bị dữ liệu JSON để ghi xuống Google Sheets
 	jsonBytes, _ := json.Marshal(updatedPlans)
 	goiDichVuJsonStr := string(jsonBytes)
 	
@@ -129,7 +127,7 @@ func (s *CustomerService) BuyStarterPackage(masterShopID, userID, maGoi, maCode 
 	tenDangNhap := kh.TenDangNhap
 	lock.Unlock()
 
-	// Bước 7: Đẩy vào Hàng đợi (Queue) để Worker ghi xuống Sheet KHACH_HANG (Cột 11 - K) 
+	// Bước 7: Đẩy vào Hàng đợi (Queue) để lưu xuống Sheet [cite: 31, 32]
 	core.PushUpdate(masterShopID, core.TenSheetKhachHang, currentRow, core.CotKH_GoiDichVuJson, goiDichVuJsonStr)
 
 	// Bước 8: Kích hoạt tạo hạ tầng Subdomain chạy ngầm (Goroutine)
