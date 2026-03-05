@@ -1,9 +1,7 @@
 package bang_gia
 
 import (
-	"fmt"
 	"net/http"
-
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
@@ -11,22 +9,10 @@ import (
 // GoiDichVuView: Struct bọc thêm dữ liệu hiển thị động
 type GoiDichVuView struct {
 	*core.GoiDichVu
-	ThoiGianHienThi string
-	TextNutBam      string
+	TextNutBam string // Chỉ giữ lại Text nút bấm động
 }
 
-// Hàm quy đổi thời gian thông minh
-func formatThoiGian(ngay int) string {
-	if ngay == 9999 {
-		return "vĩnh viễn" // 9999 = vĩnh viễn
-	}
-	if ngay%365 == 0 {
-		return fmt.Sprintf("%d năm", ngay/365)
-	} else if ngay%30 == 0 {
-		return fmt.Sprintf("%d tháng", ngay/30)
-	}
-	return fmt.Sprintf("%d ngày", ngay)
-}
+// ĐÃ XÓA HÀM formatThoiGian VÌ KHÔNG CẦN THIẾT NỮA
 
 func TrangCongPortalBangGia(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
@@ -49,29 +35,20 @@ func TrangCongPortalBangGia(c *gin.Context) {
 	var listGoiView []GoiDichVuView
 
 	for _, p := range allPackages {
-		if p.TrangThai != 1 {
-			continue 
-		}
+		if p.TrangThai != 1 { continue }
 
 		if !hasStarter {
-			if p.LoaiGoi != "STARTER" {
-				continue
-			}
+			if p.LoaiGoi != "STARTER" { continue }
 		} else {
-			if p.LoaiGoi == "STARTER" {
-				continue
-			}
+			if p.LoaiGoi == "STARTER" { continue }
 		}
 
 		textNut := "ĐĂNG KÝ NGAY"
-		if hasStarter {
-			textNut = "MUA THÊM"
-		}
+		if hasStarter { textNut = "MUA THÊM" }
 
 		viewItem := GoiDichVuView{
-			GoiDichVu:       p,
-			ThoiGianHienThi: formatThoiGian(p.ThoiHanNgay),
-			TextNutBam:      textNut,
+			GoiDichVu:  p,
+			TextNutBam: textNut,
 		}
 		listGoiView = append(listGoiView, viewItem)
 	}
