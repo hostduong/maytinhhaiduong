@@ -63,7 +63,7 @@ func TaoMaKhachHangMoi(shopID string) string {
 
 func ThemKhachHangVaoRam(kh *KhachHang) {
 	sID := kh.SpreadsheetID
-	if sID == "" { sID = "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8" }
+	if sID == "" { sID = config.BienCauHinh.IdFileSheetAdmin } // Fallback chuẩn xác
 	lock := GetSheetLock(sID, TenSheetKhachHang)
 	lock.Lock(); defer lock.Unlock()
 	
@@ -177,19 +177,11 @@ func DanhDauDocTinNhan(shopID, userID, msgID string) {
 
 func ToJSON(v interface{}) string { b, _ := json.Marshal(v); return string(b) }
 
-// LayIntStr chuyển đổi chuỗi sang số nguyên, trả về 0 nếu có lỗi
 func LayIntStr(s string) int {
-	if s == "" {
-		return 0
-	}
-	// Xóa khoảng trắng thừa nếu có
+	if s == "" { return 0 }
 	s = strings.TrimSpace(s)
-	
 	val, err := strconv.Atoi(s)
-	if err != nil {
-		// Log lỗi nếu cần thiết, nhưng ở đây ta trả về 0 cho an toàn
-		return 0
-	}
+	if err != nil { return 0 }
 	return val
 }
 
@@ -197,7 +189,7 @@ func LayIntStr(s string) int {
 // TRẠM KIỂM SOÁT BẢO VỆ DỮ LIỆU (GATEKEEPER)
 // =======================================================
 func EnsureKhachHangLoaded(shopID string) error {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin } // Fallback chuẩn xác
 	
 	StatusMutex.RLock()
 	status := CacheStatusKhachHang[shopID]
@@ -208,7 +200,6 @@ func EnsureKhachHangLoaded(shopID string) error {
 	}
 	
 	if status == FlagLoading {
-		// Đang có luồng khác nạp, chờ tối đa 3 giây
 		for i := 0; i < 6; i++ {
 			time.Sleep(500 * time.Millisecond)
 			StatusMutex.RLock()
@@ -219,7 +210,6 @@ func EnsureKhachHangLoaded(shopID string) error {
 		return fmt.Errorf("Hệ thống đang đồng bộ dữ liệu. Vui lòng thử lại sau giây lát!")
 	}
 
-	// Nếu là FlagEmpty hoặc FlagError -> Thử gọi Google API
 	err := NapKhachHang(shopID)
 	if err != nil {
 		return fmt.Errorf("Máy chủ đang bị gián đoạn kết nối dữ liệu. Vui lòng F5 và thử lại!")
