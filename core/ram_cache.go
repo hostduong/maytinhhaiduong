@@ -2,6 +2,7 @@ package core
 
 import (
 	"sync"
+	"app/config"
 )
 
 // ==============================================================================
@@ -99,3 +100,44 @@ var (
 	// --- GIAO TIẾP ---
 	CacheTinNhan      = make(map[string][]*TinNhan)     
 )
+
+
+// ==============================================================================
+// THUẬT TOÁN TÍNH TOÁN SAAS (Chỉ đọc từ RAM Admin, cực kỳ tối ưu)
+// ==============================================================================
+
+// LayGioiHanSanPhamCuaShop: Quét danh sách Khách Hàng trong Tầng Admin
+func LayGioiHanSanPhamCuaShop(shopID string) int {
+	adminID := config.BienCauHinh.IdFileSheetAdmin
+	
+	// Master và Admin miễn nhiễm với giới hạn
+	if shopID == adminID || shopID == config.BienCauHinh.IdFileSheetMaster {
+		return -1 
+	}
+
+	// [LOCK CHUẨN]: Chỉ khóa Sheet Khách Hàng của File Admin để đọc
+	lock := GetSheetLock(adminID, TenSheetKhachHang)
+	lock.RLock()
+	defer lock.RUnlock()
+
+	for _, kh := range CacheKhachHang[adminID] {
+		if kh.DataSheets.SpreadsheetID == shopID {
+			maxSP := 0
+			hasActivePlan := false
+			
+			// Tính tổng giới hạn của tất cả các gói đang active
+			for _, goi := range kh.GoiDichVu {
+				if goi.TrangThai == "active" {
+					hasActivePlan = true
+					if goi.MaxSanPham == -1 { return -1 } // Một gói Vô hạn -> Vô hạn
+					maxSP += goi.MaxSanPham
+				}
+			}
+			
+			if !hasActivePlan { return 0 } // Không có gói cước -> 0 sản phẩm
+			return maxSP
+		}
+	}
+	
+	return 0 
+}
