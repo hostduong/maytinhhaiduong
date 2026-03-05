@@ -39,7 +39,6 @@ func API_Register(c *gin.Context) {
 	maPin := strings.TrimSpace(c.PostForm("ma_pin"))
 	dienThoai := strings.TrimSpace(c.PostForm("dien_thoai_full")); if dienThoai == "" { dienThoai = strings.TrimSpace(c.PostForm("dien_thoai")) }
 
-	// Không cần lấy vaiTro ra nữa vì mặc định ai đăng ký cũng là khách hàng
 	sessionID, sign, _, err := service.Register(appMode, shopID, hoTen, user, email, pass, maPin, dienThoai, c.PostForm("ngay_sinh"), c.PostForm("gioi_tinh"), c.Request.UserAgent())
 	
 	if err != nil {
@@ -49,20 +48,20 @@ func API_Register(c *gin.Context) {
 
 	maxAge := int(config.ThoiGianHetHanCookie.Seconds())
 	
-	// [QUAN TRỌNG]: Để đăng nhập ở www.99k.vn mà sang admin.99k.vn vẫn nhận, 
-	// Cookie Domain phải được set là ".99k.vn" (có dấu chấm ở đầu).
+	// [QUAN TRỌNG]: Cookie Domain là ".99k.vn" để đăng nhập thông suốt giữa www và admin
 	c.SetCookie("session_token", sessionID, maxAge, "/", ".99k.vn", false, true)
 	c.SetCookie("session_sign", sign, maxAge, "/", ".99k.vn", false, true)
 
-	// ĐIỀU HƯỚNG CHUẨN MỰC
+	// ĐIỀU HƯỚNG CHUẨN MỰC THEO YÊU CẦU CỦA SẾP
 	if appMode == "TENANT_ADMIN" { 
-		// Đăng ký ở www.99k.vn -> Bẻ lái sang Trạm không gian làm việc
-		c.Redirect(http.StatusFound, "https://admin.99k.vn")
+		// Đăng ký ở www.99k.vn -> Khách của sếp -> Bay thẳng vào Admin làm việc
+		c.Redirect(http.StatusFound, "https://admin.99k.vn") 
 	} else { 
-		// Đăng ký ở Cửa hàng -> Về trang chủ mua sắm của cửa hàng đó
+		// Đăng ký ở cuahang.99k.vn -> Khách của cửa hàng -> Trả về trang chủ cửa hàng đó
 		c.Redirect(http.StatusFound, "/") 
 	}
 }
+
 func API_ResetByPin(c *gin.Context) {
 	if err := service.ResetByPin(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("pin")), strings.TrimSpace(c.PostForm("pass_moi"))); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
