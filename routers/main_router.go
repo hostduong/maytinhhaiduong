@@ -13,7 +13,8 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan"
 	"app/modules/goi_dich_vu"
-	"app/modules/bang_gia" // [MỚI]: Module bảng giá cho khách hàng
+	"app/modules/bang_gia"
+	"app/modules/database_admin"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,16 +64,14 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// 4. KHU VỰC THIẾT LẬP DATABASE - Cho Chủ shop [cite: 17, 18]
+	// KHU VỰC THIẾT LẬP DATABASE CHUNG
 	// =======================================================
 	admin := router.Group("/admin")
 	admin.Use(middlewares.CheckAuth())
 	{
-		// Trang bẻ lái sau khi mua gói thành công
-		admin.GET("/database", ho_so.TrangThietLapDatabaseAdmin) 
-		admin.POST("/api/database/setup", ho_so.API_ThietLapDatabase)
-		
-		// Sau này các trang /admin/tong-quan... sẽ nằm ở đây cho Subdomain
+		// Cổng vào thiết lập Database sau khi mua gói
+		admin.GET("/database", database_admin.TrangThietLapDatabaseAdmin) 
+		admin.POST("/api/database/setup", database_admin.API_ThietLapDatabase)
 	}
 
 	// =======================================================
