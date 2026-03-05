@@ -648,19 +648,20 @@ const (
 	CotGDV_TenGoi             = 1  // B
 	CotGDV_LoaiGoi            = 2  // C
 	CotGDV_ThoiHanNgay        = 3  // D
-	CotGDV_GiaNiemYet         = 4  // E
-	CotGDV_GiaBan             = 5  // F
-	CotGDV_MaCodeKichHoatJson = 6  // G
-	CotGDV_GioiHanJson        = 7  // H
-	CotGDV_MoTa               = 8  // I
-	CotGDV_NhanHienThi        = 9  // J
-	CotGDV_NgayBatDau         = 10 // K
-	CotGDV_NgayKetThuc        = 11 // L
-	CotGDV_SoLuongConLai      = 12 // M
-	CotGDV_TrangThai          = 13 // N
+	CotGDV_ThoiHanHienThi     = 4  // E (MỚI THÊM)
+	CotGDV_NhanHienThi        = 5  // F
+	CotGDV_GiaNiemYet         = 6  // G
+	CotGDV_GiaBan             = 7  // H
+	CotGDV_MaCodeKichHoatJson = 8  // I
+	CotGDV_GioiHanJson        = 9  // J
+	CotGDV_MoTa               = 10 // K
+	CotGDV_NgayBatDau         = 11 // L
+	CotGDV_NgayKetThuc        = 12 // M
+	CotGDV_SoLuongConLai      = 13 // N
+	CotGDV_TrangThai          = 14 // O
 )
 
-// Cấu trúc để bóc tách JSON Cột G (Mã Code Khuyến Mãi)
+// Cấu trúc để bóc tách JSON Cột I (Mã Code Khuyến Mãi)
 type CodeKichHoat struct {
 	Code     string  `json:"code"`
 	GiamTien float64 `json:"giam_tien"`
@@ -676,13 +677,14 @@ type GoiDichVu struct {
 	TenGoi             string          `json:"ten_goi"`
 	LoaiGoi            string          `json:"loai_goi"`
 	ThoiHanNgay        int             `json:"thoi_han_ngay"`
+	ThoiHanHienThi     string          `json:"thoi_han_hien_thi"` // MỚI THÊM
+	NhanHienThi        string          `json:"nhan_hien_thi"`
 	GiaNiemYet         float64         `json:"gia_niem_yet"`
 	GiaBan             float64         `json:"gia_ban"`
-	MaCodeKichHoatJson string          `json:"-"` // Giữ lại chuỗi thô để ghi sheet
-	DanhSachCode       []CodeKichHoat  `json:"danh_sach_code"` // Mảng thông minh đã được Parse
+	MaCodeKichHoatJson string          `json:"-"` 
+	DanhSachCode       []CodeKichHoat  `json:"danh_sach_code"` 
 	GioiHanJson        string          `json:"gioi_han_json"`
 	MoTa               string          `json:"mo_ta"`
-	NhanHienThi        string          `json:"nhan_hien_thi"`
 	NgayBatDau         string          `json:"ngay_bat_dau"`
 	NgayKetThuc        string          `json:"ngay_ket_thuc"`
 	SoLuongConLai      int             `json:"so_luong_con_lai"`
