@@ -9,21 +9,22 @@ import (
 type Service struct { repo Repo }
 
 type DTO_LuuGoiDichVu struct {
-	IsNew         bool
-	MaGoi         string
-	TenGoi        string
-	LoaiGoi       string
-	ThoiHanNgay   int
-	GiaNiemYet    float64
-	GiaBan        float64
-	CodesJson     string // Hứng mảng Code từ UI gửi lên
-	GioiHanJson   string
-	MoTa          string
-	NhanHienThi   string
-	NgayBatDau    string
-	NgayKetThuc   string
-	SoLuongConLai int
-	TrangThai     int
+	IsNew          bool
+	MaGoi          string
+	TenGoi         string
+	LoaiGoi        string
+	ThoiHanNgay    int
+	ThoiHanHienThi string // MỚI
+	GiaNiemYet     float64
+	GiaBan         float64
+	CodesJson      string 
+	GioiHanJson    string
+	MoTa           string
+	NhanHienThi    string
+	NgayBatDau     string
+	NgayKetThuc    string
+	SoLuongConLai  int
+	TrangThai      int
 }
 
 func (s *Service) XuLyLuu(shopID string, input DTO_LuuGoiDichVu) error {
@@ -34,12 +35,12 @@ func (s *Service) XuLyLuu(shopID string, input DTO_LuuGoiDichVu) error {
 		
 		newG := &core.GoiDichVu{
 			MaGoi: input.MaGoi, TenGoi: input.TenGoi, LoaiGoi: input.LoaiGoi,
-			ThoiHanNgay: input.ThoiHanNgay, GiaNiemYet: input.GiaNiemYet, GiaBan: input.GiaBan,
+			ThoiHanNgay: input.ThoiHanNgay, ThoiHanHienThi: input.ThoiHanHienThi, // MỚI
+			GiaNiemYet: input.GiaNiemYet, GiaBan: input.GiaBan,
 			MaCodeKichHoatJson: input.CodesJson, GioiHanJson: input.GioiHanJson,
 			MoTa: input.MoTa, NhanHienThi: input.NhanHienThi, NgayBatDau: input.NgayBatDau,
 			NgayKetThuc: input.NgayKetThuc, SoLuongConLai: input.SoLuongConLai, TrangThai: input.TrangThai,
 		}
-		// Parse ngược lại vào RAM mảng Codes
 		_ = json.Unmarshal([]byte(input.CodesJson), &newG.DanhSachCode)
 		s.repo.Insert(shopID, newG)
 	} else {
@@ -49,6 +50,7 @@ func (s *Service) XuLyLuu(shopID string, input DTO_LuuGoiDichVu) error {
 		lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
 		lock.Lock()
 		g.TenGoi = input.TenGoi; g.LoaiGoi = input.LoaiGoi; g.ThoiHanNgay = input.ThoiHanNgay
+		g.ThoiHanHienThi = input.ThoiHanHienThi // MỚI
 		g.GiaNiemYet = input.GiaNiemYet; g.GiaBan = input.GiaBan; g.MaCodeKichHoatJson = input.CodesJson
 		g.GioiHanJson = input.GioiHanJson; g.MoTa = input.MoTa; g.NhanHienThi = input.NhanHienThi
 		g.SoLuongConLai = input.SoLuongConLai; g.TrangThai = input.TrangThai
