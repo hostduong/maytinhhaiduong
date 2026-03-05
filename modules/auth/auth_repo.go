@@ -4,17 +4,39 @@ import "app/core"
 
 type Repo struct{}
 
+// FindByUserOrEmail: RLock (Chỉ Đọc) - Tốc độ ánh sáng
 func (r *Repo) FindByUserOrEmail(shopID, input string) (*core.KhachHang, bool) {
-	return core.TimKhachHangTheoUserOrEmail(shopID, input)
+	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+	lock.RLock()
+	defer lock.RUnlock()
+
+	for _, kh := range core.CacheKhachHang[shopID] {
+		if kh.TenDangNhap == input || kh.Email == input {
+			return kh, true
+		}
+	}
+	return nil, false
 }
 
+// CountUsers: RLock (Chỉ Đọc)
 func (r *Repo) CountUsers(shopID string) int {
-	return len(core.LayDanhSachKhachHang(shopID))
+	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+	lock.RLock()
+	defer lock.RUnlock()
+	return len(core.CacheKhachHang[shopID])
 }
 
-func (r *Repo) InsertUser(kh *core.KhachHang) {
-	core.ThemKhachHangVaoRam(kh)
-	sID := kh.SpreadsheetID; if sID == "" { sID = "17f5js4C9rY7GPd4TOyBidkUPw3vCC6qv6y8KlF3vNs8" }
+// InsertUser: Lock (Ghi chớp nhoáng RAM) + Ghi Hàng Đợi Background
+func (r *Repo) InsertUser(shopID string, kh *core.KhachHang) {
+	// 1. Khóa Độc Quyền để Ghi vào RAM
+	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+	lock.Lock()
+	core.CacheKhachHang[shopID] = append(core.CacheKhachHang[shopID], kh)
+	core.CacheMapKhachHang[core.TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
+	lock.Unlock()
+
+	// 2. Đóng gói đẩy xuống Queue chạy ngầm (Không bắt người dùng đợi)
+	sID := kh.SpreadsheetID; if sID == "" { sID = shopID }
 	
 	rowData := make([]interface{}, 26)
 	rowData[core.CotKH_MaKhachHang] = kh.MaKhachHang; rowData[core.CotKH_TenDangNhap] = kh.TenDangNhap
@@ -43,5 +65,6 @@ func (r *Repo) UpdateGoiDichVu(shopID string, dong int, goi []core.PlanInfo) {
 }
 
 func (r *Repo) SendWelcomeMessage(shopID string, msg *core.TinNhan) {
+	// (Tin nhắn sẽ được xử lý Lock riêng tại file core.ThemMoiTinNhan)
 	core.ThemMoiTinNhan(shopID, msg)
 }
