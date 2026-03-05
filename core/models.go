@@ -690,3 +690,42 @@ type GoiDichVu struct {
 	SoLuongConLai      int             `json:"so_luong_con_lai"`
 	TrangThai          int             `json:"trang_thai"`
 }
+
+// ==============================================================================
+// CẤU TRÚC TẦNG 3: NHÂN VIÊN & KHÁCH LẺ CỦA CỬA HÀNG (BẢN RÚT GỌN)
+// Tên Sheet: THANH_VIEN_SHOP
+// ==============================================================================
+const (
+	DongBatDau_ThanhVienShop = 11
+
+	CotTVS_MaThanhVien    = 0  // A
+	CotTVS_TenDangNhap    = 1  // B
+	CotTVS_MatKhauHash    = 2  // C
+	CotTVS_MaPinHash      = 3  // D
+	CotTVS_HoTen          = 4  // E
+	CotTVS_DienThoai      = 5  // F
+	CotTVS_Email          = 6  // G
+	CotTVS_VaiTro         = 7  // H (VD: ban_hang, ke_toan, khach_le)
+	CotTVS_TrangThai      = 8  // I (1: Hoạt động, 0: Khóa)
+	CotTVS_DiemThuong     = 9  // J
+	CotTVS_GhiChu         = 10 // K
+	CotTVS_NgayTao        = 11 // L
+)
+
+type ThanhVienShop struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	MaThanhVien string `json:"ma_thanh_vien"`
+	TenDangNhap string `json:"ten_dang_nhap"`
+	MatKhauHash string `json:"-"`
+	MaPinHash   string `json:"-"`
+	HoTen       string `json:"ho_ten"`
+	DienThoai   string `json:"dien_thoai"`
+	Email       string `json:"email"`
+	VaiTro      string `json:"vai_tro"`
+	TrangThai   int    `json:"trang_thai"`
+	DiemThuong  int    `json:"diem_thuong"`
+	GhiChu      string `json:"ghi_chu"`
+	NgayTao     string `json:"ngay_tao"`
+}
