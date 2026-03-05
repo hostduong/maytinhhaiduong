@@ -68,6 +68,7 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	admin := router.Group("/admin")
 	admin.Use(middlewares.CheckAuth())
+	admin.Use(middlewares.EnforceDomainBoundary())
 	{
 		// Cổng vào thiết lập Database sau khi mua gói
 		admin.GET("/database", database_admin.TrangThietLapDatabaseAdmin) 
