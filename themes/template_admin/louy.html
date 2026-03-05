@@ -1,0 +1,415 @@
+{{ define "header_admin" }}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ .TieuDe }} - 99K.vn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.99k.vn/static/css/99k-style.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { padding-right: 0 !important; }
+        .swal2-pin-input:focus { border-color: #9333ea !important; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1) !important; background-color: white !important;}
+
+        @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
+
+        /* --- 1. NÚT ASSISTIVE MOBILE (GIỮ NGUYÊN) --- */
+        .led-menu-btn {
+            position: relative; width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            touch-action: none; background: #fff;
+        }
+        .led-menu-btn::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000 80%, #ffffff 90%, #ff0000 100%);
+            animation: spin-fast 2.5s linear infinite; z-index: 0; pointer-events: none;
+        }
+        .led-menu-btn::after {
+            content: ''; position: absolute; top: 2.5px; left: 2.5px; right: 2.5px; bottom: 2.5px;
+            background: #ffffff; border-radius: 50%; z-index: 1; pointer-events: none;
+        }
+        @keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .text-99k-anim {
+            position: relative; z-index: 2; user-select: none; pointer-events: none;
+            font-size: 15px; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #9333ea, #4f46e5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: pop-breath-slow 3.5s ease-in-out infinite;
+        }
+        @keyframes pop-breath-slow {
+            0% { transform: scale(0); opacity: 0; } 10% { transform: scale(0.6); opacity: 1; }
+            70% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 2px 4px rgba(147,51,234,0.3)); }
+            85% { transform: scale(1.4); opacity: 0; } 100% { transform: scale(0); opacity: 0; }
+        }
+
+        .assistive-floating {
+            position: fixed; z-index: 999999; cursor: grab;
+            transition: transform 0.15s ease, left 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .assistive-floating:active { cursor: grabbing; transform: scale(0.92); }
+
+        /* --- 2. LOGO PREMIUM 99K.VN (ÁNH KIM LOẠI XỊN SÒ) --- */
+        .logo-premium-icon {
+            position: relative;
+            background: linear-gradient(135deg, #9333ea, #6366f1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+        /* Vệt sáng trắng lướt qua logo (Glass shine) */
+        .logo-premium-icon::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent);
+            transform: skewX(-25deg);
+            animation: logo-sweep-shine 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes logo-sweep-shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        /* Chữ lấp lánh trên nền Tối (Sidebar) */
+        .logo-premium-text-dark {
+            background: linear-gradient(to right, #ffffff, #d8b4fe, #ffffff, #a855f7);
+            background-size: 200% auto; color: #fff;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: text-shine-logo 4s linear infinite;
+            filter: drop-shadow(0 2px 10px rgba(216, 180, 254, 0.2));
+        }
+
+        /* Chữ lấp lánh trên nền Sáng (Header PC) */
+        .logo-premium-text-light {
+            background: linear-gradient(to right, #4c1d95, #9333ea, #4f46e5, #4c1d95);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: text-shine-logo 4s linear infinite;
+        }
+        @keyframes text-shine-logo { to { background-position: 200% center; } }
+    </style>
+</head>
+<body class="flex h-screen w-full overflow-hidden text-slate-800 bg-slate-50 relative">
+
+    <div id="assistiveBtnMobile" class="led-menu-btn assistive-floating drag-fab md:hidden" title="Mở/Đóng Menu" style="left: 16px; top: 16px;">
+        <span class="text-99k-anim">99K</span>
+    </div>
+
+    <script>
+        (function() {
+            function applySavedPosition(id, defaultL, defaultT) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var saved = localStorage.getItem('fab_pos_' + id);
+                if (saved) {
+                    try {
+                        var pos = JSON.parse(saved);
+                        var l = parseInt(pos.left); var t = parseInt(pos.top);
+                        var maxW = window.innerWidth - 50; var maxH = window.innerHeight - 50;
+                        if (isNaN(l) || isNaN(t) || l < 0 || t < 0 || l > maxW || t > maxH) {
+                            el.style.left = defaultL + 'px'; el.style.top = defaultT + 'px';
+                            localStorage.removeItem('fab_pos_' + id); 
+                        } else {
+                            el.style.left = l + 'px'; el.style.top = t + 'px'; el.dataset.isMoved = 'true';
+                        }
+                    } catch(e) { el.style.left = defaultL + 'px'; el.style.top = defaultT + 'px'; }
+                } else { el.style.left = defaultL + 'px'; el.style.top = defaultT + 'px'; }
+            }
+            applySavedPosition('assistiveBtnMobile', 16, 16);
+        })();
+    </script>
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 md:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="masterSidebar" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-950 text-slate-300 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:flex shrink-0 transition-all duration-300 ease-in-out border-r border-slate-800 shadow-2xl md:shadow-none">
+        
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 md:hidden p-2 bg-slate-800/50 text-slate-400 hover:text-white rounded-lg z-20 transition" title="Đóng Menu">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
+            <a href="/master/tong-quan" class="text-[22px] font-black tracking-widest flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-[12px] logo-premium-icon flex items-center justify-center text-white group-hover:scale-105 transition transform">
+                    <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <span class="logo-premium-text-dark">99K<span class="text-purple-400">.vn</span></span>
+            </a>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 relative z-10 custom-scroll flex flex-col">
+            <div class="px-4 space-y-1.5 flex-1">
+                <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
+                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan Master</a>
+                <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS</a>
+                <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ</a>
+                <a href="/master/nhap-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Nhập Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📥</span> Nhập Hàng Tồn Kho</a>
+                
+                <a href="/master/quan-ly-may-tinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý sản phẩm (Máy Tính)"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💻</span> Quản Lý Máy Tính</a>
+
+                <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><div class="flex items-center gap-3"><span class="text-lg w-6 text-center">💬</span> Tin Nhắn</div>{{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>{{ end }}{{ end }}</a>
+                
+                <div class="mt-8 mb-3 px-3"><p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p></div>
+                <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🛡️</span> Thành Viên</a>
+                <a href="/master/cau-hinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Cấu Hình Hệ Thống"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">⚙️</span> Cấu Hình Hệ Thống</a>
+                <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets</a>
+                <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi</a>
+            </div>
+
+            <div class="mt-8 md:hidden px-4 border-t border-slate-800/80 pt-6">
+                {{ if .NhanVien }}
+                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+                    {{ $avatar := .NhanVien.AnhDaiDien }}
+                    {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
+                    <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
+                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
+                    </div>
+                </div>
+                {{ end }}
+                <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Đăng xuất
+                </button>
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10 shrink-0 hidden md:block">
+            {{ if .NhanVien }}
+            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+                {{ $avatar := .NhanVien.AnhDaiDien }}
+                {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
+                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">{{ .NhanVien.TenKhachHang }}</p>
+                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
+                </div>
+            </div>
+            {{ end }}
+            <button onclick="confirmLogout()" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-500/10 hover:text-red-400 transition font-bold text-sm text-slate-500 border border-slate-800 hover:border-red-500/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Đăng xuất
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-50/50 relative">
+
+        <header class="hidden md:flex h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 items-center px-8 shrink-0 shadow-sm z-20 relative w-full">
+            <div class="flex items-center gap-5 relative z-10">
+                
+                <button onclick="toggleSidebar()" class="group relative flex items-center justify-center w-[44px] h-[44px] bg-white border border-slate-200 hover:border-purple-300 rounded-[12px] shadow-sm hover:shadow-md hover:shadow-purple-100 transition-all duration-300 shrink-0" title="Mở/Đóng Sidebar">
+                    <div class="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 rounded-[12px] transition-opacity duration-300"></div>
+                    <svg id="pcMenuIcon" class="w-5 h-5 text-slate-500 group-hover:text-purple-600 transition-transform duration-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7 M18 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                
+                <div id="titleState1" class="flex items-center ml-1">
+                    <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase">
+                        {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
+                        {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
+                        {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
+                        {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
+                        {{ else if eq .TieuDe "Quản lý Cửa Hàng" }}Cửa Hàng SaaS
+                        {{ else if eq .TieuDe "Tin nhắn" }}Tin Nhắn
+                        {{ else }}{{ .TieuDe }}{{ end }}
+                    </h1>
+                </div>
+                
+                <div id="logoState2" class="hidden items-center ml-2 border-l border-slate-200 pl-6">
+                    <a href="/master/tong-quan" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-[12px] logo-premium-icon flex items-center justify-center text-white group-hover:scale-105 transition transform shadow-[0_4px_15px_rgba(99,102,241,0.3)]">
+                            <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <span class="text-[22px] font-black logo-premium-text-light tracking-tight">99K<span class="text-purple-600">.vn</span></span>
+                    </a>
+                </div>
+            </div>
+
+            <div id="titleState2" class="hidden absolute left-0 right-0 justify-center pointer-events-none z-0">
+                <h1 class="text-[20px] md:text-[22px] font-black tracking-tight text-gradient-animated uppercase pointer-events-auto">
+                    {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
+                    {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
+                    {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
+                    {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
+                    {{ else if eq .TieuDe "Quản lý Cửa Hàng" }}Cửa Hàng SaaS
+                    {{ else if eq .TieuDe "Tin nhắn" }}Tin Nhắn
+                    {{ else }}{{ .TieuDe }}{{ end }}
+                </h1>
+            </div>
+        </header>
+        
+        <main class="flex-1 overflow-y-auto px-4 pt-6 pb-4 md:px-8 md:pt-6 custom-scroll relative">
+{{ end }}
+
+{{ define "footer_admin" }}
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('masterSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const fabMobile = document.getElementById('assistiveBtnMobile');
+            
+            if (window.innerWidth < 768) {
+                const isOpening = sidebar.classList.contains('-translate-x-full');
+                if (isOpening) {
+                    sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '218px'; fabMobile.style.top = '16px'; 
+                    }
+                } else {
+                    sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden');
+                    if (fabMobile && fabMobile.dataset.isMoved !== 'true') {
+                        fabMobile.style.left = '16px'; fabMobile.style.top = '16px';
+                    }
+                }
+            } else {
+                sidebar.classList.toggle('desktop-sidebar-collapsed');
+                const isClosed = sidebar.classList.contains('desktop-sidebar-collapsed');
+                const t1 = document.getElementById('titleState1'); 
+                const logo2 = document.getElementById('logoState2');
+                const t2 = document.getElementById('titleState2');
+                const pcIcon = document.getElementById('pcMenuIcon'); // Icon PC
+
+                if (isClosed) {
+                    t1.classList.add('hidden'); 
+                    logo2.classList.remove('hidden'); logo2.classList.add('flex'); 
+                    t2.classList.remove('hidden'); t2.classList.add('flex');
+                    // [ĐÃ NÂNG CẤP]: Xoay icon << thành >>
+                    if(pcIcon) pcIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    logo2.classList.add('hidden'); logo2.classList.remove('flex'); 
+                    t2.classList.add('hidden'); t2.classList.remove('flex'); 
+                    t1.classList.remove('hidden'); 
+                    // [ĐÃ NÂNG CẤP]: Trả icon >> về <<
+                    if(pcIcon) pcIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+        }
+
+        // --- CƠ CHẾ KÉO THẢ DÀNH RIÊNG CHO MOBILE ---
+        let currentDraggingFab = null;
+        let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
+
+        const onDragStart = (e, fab) => {
+            currentDraggingFab = fab;
+            isDragging = true; hasMoved = false;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            startX = clientX; startY = clientY;
+            startLeft = fab.offsetLeft; startTop = fab.offsetTop;
+            fab.style.transition = 'none'; 
+        };
+
+        const onDragMove = (e) => {
+            if (!isDragging || !currentDraggingFab) return;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let dx = clientX - startX; let dy = clientY - startY;
+            
+            if (Math.abs(dx) > 6 || Math.abs(dy) > 6) hasMoved = true;
+            
+            if (hasMoved) {
+                let newLeft = startLeft + dx; let newTop = startTop + dy;
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - currentDraggingFab.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - currentDraggingFab.offsetHeight));
+                
+                currentDraggingFab.style.left = newLeft + 'px';
+                currentDraggingFab.style.top = newTop + 'px';
+                if (e.cancelable) e.preventDefault(); 
+            }
+        };
+
+        const onDragEnd = (e) => {
+            if (!isDragging || !currentDraggingFab) return;
+            isDragging = false;
+            let fab = currentDraggingFab;
+            currentDraggingFab = null;
+            fab.style.transition = ''; 
+            
+            if (hasMoved) {
+                fab.dataset.isMoved = 'true';
+                localStorage.setItem('fab_pos_' + fab.id, JSON.stringify({ left: fab.style.left, top: fab.style.top }));
+            } else {
+                if (e && e.cancelable) e.preventDefault(); 
+                toggleSidebar();
+            }
+        };
+
+        document.querySelectorAll('.drag-fab').forEach(fab => {
+            fab.addEventListener('mousedown', (e) => onDragStart(e, fab));
+            fab.addEventListener('touchstart', (e) => onDragStart(e, fab), {passive: true});
+        });
+
+        document.addEventListener('mousemove', onDragMove, {passive: false});
+        document.addEventListener('mouseup', onDragEnd);
+        document.addEventListener('touchmove', onDragMove, {passive: false});
+        document.addEventListener('touchend', onDragEnd);
+
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.drag-fab').forEach(fab => {
+                if (fab.dataset.isMoved === 'true') {
+                    let l = parseInt(fab.style.left); let t = parseInt(fab.style.top);
+                    let maxL = window.innerWidth - 50; let maxT = window.innerHeight - 50;
+                    let changed = false;
+                    
+                    if (l < 0) { l = 0; changed = true; }
+                    if (t < 0) { t = 0; changed = true; }
+                    if (l > maxL) { l = maxL; changed = true; }
+                    if (t > maxT) { t = maxT; changed = true; }
+                    
+                    if(changed) {
+                        fab.style.left = l + 'px';
+                        fab.style.top = t + 'px';
+                        localStorage.setItem('fab_pos_' + fab.id, JSON.stringify({ left: l + 'px', top: t + 'px' }));
+                    }
+                }
+            });
+            
+            // Xử lý tự động đóng/mở icon PC khi resize màn hình
+            if (window.innerWidth >= 768) {
+                const sidebar = document.getElementById('masterSidebar');
+                const pcIcon = document.getElementById('pcMenuIcon');
+                if (sidebar.classList.contains('desktop-sidebar-collapsed')) {
+                    if(pcIcon) pcIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    if(pcIcon) pcIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+
+        function confirmLogout() {
+            Swal.fire({
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></div><span class="text-3xl font-black title-gradient-red">Đăng Xuất?</span></div>',
+                html: `<div class="text-[15px] text-orange-900 font-medium px-4">Bạn có chắc chắn muốn kết thúc phiên làm việc và rời khỏi hệ thống?</div>`,
+                customClass: { 
+                    popup: 'swal-master-error', 
+                    confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95',
+                    cancelButton: 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200 font-bold rounded-xl px-8 py-3 transition active:scale-95 mr-3'
+                },
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Ở lại',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: '<div class="flex flex-col items-center gap-4"><div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-purple-600 animate-spin"></div><span class="text-xl font-black title-gradient-purple">Đang tải...</span></div>',
+                        customClass: { popup: 'swal-master-success' },
+                        showConfirmButton: false, allowOutsideClick: false
+                    });
+                    setTimeout(() => window.location.href = '/logout', 400); 
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+{{ end }}
