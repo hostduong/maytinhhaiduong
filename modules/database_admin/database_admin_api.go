@@ -23,8 +23,8 @@ func TrangThietLapDatabaseAdmin(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "database_admin", gin.H{
-		"TieuDe":    "Khởi tạo Database - 99K.VN",
-		"KhachHang": kh,
+		"TieuDe":   "Kết Nối Dữ Liệu", // Đổi tên cho hợp với Header
+		"NhanVien": kh,              // [QUAN TRỌNG]: Đổi từ KhachHang -> NhanVien
 	})
 }
 
