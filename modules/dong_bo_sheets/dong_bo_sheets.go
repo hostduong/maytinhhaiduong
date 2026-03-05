@@ -57,6 +57,7 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 		// Nạp lại dữ liệu Lõi
 		core.NapPhanQuyen("")
 		core.NapKhachHang("")
+		core.NapGoiDichVu("")
 		core.NapDanhMuc("")
 		core.NapThuongHieu("")
 		core.NapBienLoiNhuan("")
