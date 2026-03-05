@@ -494,19 +494,19 @@ func NapGoiDichVu(shopID string) {
 			TenGoi:             LayString(r, CotGDV_TenGoi),
 			LoaiGoi:            LayString(r, CotGDV_LoaiGoi),
 			ThoiHanNgay:        LayIntStr(LayString(r, CotGDV_ThoiHanNgay)),
-			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),
-			GiaBan:             LayFloat(r, CotGDV_GiaBan),
-			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson),
-			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),
-			MoTa:               LayString(r, CotGDV_MoTa),
-			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),
-			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),
-			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),
-			SoLuongConLai:      -1, // Mặc định là vô hạn
-			TrangThai:          LayInt(r, CotGDV_TrangThai),
+			ThoiHanHienThi:     LayString(r, CotGDV_ThoiHanHienThi), // NẠP CỘT E MỚI
+			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),     // Cột F
+			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),       // Cột G
+			GiaBan:             LayFloat(r, CotGDV_GiaBan),           // Cột H
+			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson), // Cột I
+			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),     // Cột J
+			MoTa:               LayString(r, CotGDV_MoTa),            // Cột K
+			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),      // Cột L
+			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),     // Cột M
+			SoLuongConLai:      -1, 
+			TrangThai:          LayInt(r, CotGDV_TrangThai),          // Cột O
 			DanhSachCode:       make([]CodeKichHoat, 0),
 		}
-
 		// Xử lý số lượng còn lại (Nếu ô trống thì = -1, nếu có số thì đọc)
 		slStr := LayString(r, CotGDV_SoLuongConLai)
 		if slStr != "" { gdv.SoLuongConLai = LayIntStr(slStr) }
