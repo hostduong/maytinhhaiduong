@@ -8,15 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GoiDichVuView: Struct bọc thêm dữ liệu hiển thị động
+// 1. Thêm trường PhanTramGiam vào Struct
 type GoiDichVuView struct {
 	*core.GoiDichVu
 	ThoiGianHienThi string
 	TextNutBam      string
+	PhanTramGiam    int // <-- MỚI
 }
 
-// Hàm quy đổi thời gian thông minh
+// 2. Sửa hàm quy đổi thời gian
 func formatThoiGian(ngay int) string {
+	if ngay == 9999 {
+		return "vĩnh viễn" // <-- MỚI
+	}
 	if ngay%365 == 0 {
 		return fmt.Sprintf("%d năm", ngay/365)
 	} else if ngay%30 == 0 {
@@ -24,6 +28,20 @@ func formatThoiGian(ngay int) string {
 	}
 	return fmt.Sprintf("%d ngày", ngay)
 }
+
+// 3. Bên trong vòng lặp for _, p := range allPackages của sếp:
+		// Tự tính % giảm giá
+		phanTram := 0
+		if p.GiaNiemYet > p.GiaBan && p.GiaNiemYet > 0 {
+			phanTram = int((p.GiaNiemYet - p.GiaBan) / p.GiaNiemYet * 100)
+		}
+
+		viewItem := GoiDichVuView{
+			GoiDichVu:       p,
+			ThoiGianHienThi: formatThoiGian(p.ThoiHanNgay),
+			TextNutBam:      textNut,
+			PhanTramGiam:    phanTram, // Truyền sang View
+		}
 
 func TrangCongPortalBangGia(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID") 
