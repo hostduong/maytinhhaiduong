@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"app/config"
 	"app/core"
 	"app/modules/thanh_toan"
 
@@ -20,7 +19,7 @@ type BangGiaService struct {
 	paySvc thanh_toan.PaymentService
 }
 
-// KhoiTaoHaTangSubdomain: Chạy ngầm gọi API Google Cloud Run (Goroutine)
+// KhoiTaoHaTangSubdomain: Chạy ngầm gọi API Google Cloud Run bằng ADC
 func (s *BangGiaService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 	subdomain := fmt.Sprintf("%s.99k.vn", tenDangNhap)
 	
@@ -38,30 +37,27 @@ func (s *BangGiaService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 	req.Header.Set("Content-Type", "application/json")
 
 	// =========================================================================
-	// GẮN TOKEN XÁC THỰC TỪ SERVICE ACCOUNT VÀO HEADER
+	// [THUẬT TOÁN ĐÁM MÂY]: DÙNG ADC XIN QUYỀN TRỰC TIẾP TỪ GOOGLE METADATA SERVER
 	// =========================================================================
-	authJson := config.BienCauHinh.GoogleAuthJson
-	if authJson != "" {
-		creds, err := google.CredentialsFromJSON(context.Background(), []byte(authJson), "https://www.googleapis.com/auth/cloud-platform")
+	ctx := context.Background()
+	// Hàm này sẽ tự động biết nó đang ở Cloud Run và lấy Token cực mượt
+	creds, err := google.FindDefaultCredentials(ctx, "https://www.googleapis.com/auth/cloud-platform")
+	if err == nil {
+		token, err := creds.TokenSource.Token()
 		if err == nil {
-			token, err := creds.TokenSource.Token()
-			if err == nil {
-				req.Header.Set("Authorization", "Bearer "+token.AccessToken)
-			} else {
-				fmt.Println("[HẠ TẦNG] Lỗi lấy Access Token:", err)
-			}
+			req.Header.Set("Authorization", "Bearer "+token.AccessToken)
 		} else {
-			fmt.Println("[HẠ TẦNG] Lỗi đọc Credentials:", err)
+			fmt.Println("❌ [HẠ TẦNG] ADC tìm thấy quyền nhưng không thể sinh Access Token:", err)
 		}
 	} else {
-		fmt.Println("[HẠ TẦNG] CẢNH BÁO: Chưa cấu hình GoogleAuthJson. Lệnh tạo Domain sẽ bị từ chối!")
-		return // Không có khóa thì nghỉ luôn, khỏi gọi API cho mệt
+		fmt.Println("❌ [HẠ TẦNG] Lỗi ADC! Máy chủ không tìm thấy Default Credentials:", err)
 	}
+	// =========================================================================
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("[HẠ TẦNG] Lỗi kết nối API Cloud Run: %v\n", err)
+		fmt.Printf("❌ [HẠ TẦNG] Lỗi kết nối đến Google Cloud API: %v\n", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -118,7 +114,7 @@ func (s *BangGiaService) BuyStarterPackage(masterShopID, userID, maGoi, maCode s
 
 	core.PushUpdate(masterShopID, core.TenSheetKhachHang, currentRow, core.CotKH_GoiDichVuJson, string(jsonBytes))
 
-	// Luôn luôn gọi hàm tạo hạ tầng. Google Cloud sẽ tự xử lý việc trùng lặp
+	// Chạy Goroutine tạo Subdomain ngầm để giao diện không bị đơ
 	go s.KhoiTaoHaTangSubdomain(tenDangNhap)
 
 	return "https://www.99k.vn/admin/database", nil
