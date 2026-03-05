@@ -7,6 +7,7 @@ import (
 
 	"app/config"
 	"app/core"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +29,6 @@ func IdentifyTenant() gin.HandlerFunc {
 
 		// TẦNG 2: VÙNG QUẢN TRỊ SHOP (Admin & Marketing)
 		} else if domain == "admin.99k.vn" || domain == "www.99k.vn" || domain == "localhost" {
-			// (Cho phép localhost chạy luồng Admin để code dễ dàng)
 			appMode = "TENANT_ADMIN"
 			theme = "template_admin"
 			if domain == "www.99k.vn" { theme = "default" } // www dùng giao diện public
@@ -40,7 +40,7 @@ func IdentifyTenant() gin.HandlerFunc {
 			theme = "default"
 			
 			// Thuật toán tra cứu nhanh: Lấy SpreadsheetID từ RAM dựa vào Tên miền
-			core.KhoaHeThong.RLock()
+			core.KhoaHeThong.RLock() // RLock rất nhanh, phù hợp cho việc tra cứu danh bạ chung
 			id, exists := core.CacheDomainToSheetID[domain]
 			core.KhoaHeThong.RUnlock()
 
@@ -62,21 +62,20 @@ func IdentifyTenant() gin.HandlerFunc {
 	}
 }
 
-// ... (Giữ nguyên các hàm CheckAuth, TuChoiTruyCap bên dưới) ...
-
 // =================================================================
 // 2. TRẠM BẢO VỆ: KIỂM TRA ĐĂNG NHẬP (Chỉ chạy cho Khu vực Quản trị)
 // =================================================================
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		shopID := c.GetString("SHOP_ID") // Đã được Lễ tân cấp ở trên
+		shopID := c.GetString("SHOP_ID")
 
-		cookie, err := c.Cookie("session_token") // Đảm bảo đồng bộ tên cookie
+		cookie, err := c.Cookie("session_token")
 		if err != nil || cookie == "" {
 			TuChoiTruyCap(c, http.StatusUnauthorized, "Vui lòng đăng nhập để tiếp tục!")
 			return
 		}
 
+		// [LOCK CHUẨN]: Chỉ khóa Sheet Khách Hàng của Shop đang truy cập
 		lockKH := core.GetSheetLock(shopID, core.TenSheetKhachHang)
 		lockKH.RLock()
 		
@@ -102,6 +101,7 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
+		// [LOCK CHUẨN]: Chỉ khóa Sheet Phân Quyền của Shop đang truy cập
 		lockPQ := core.GetSheetLock(shopID, core.TenSheetPhanQuyen)
 		lockPQ.RLock()
 		userLevel := 9
