@@ -1,53 +1,41 @@
 package goi_dich_vu
 
 import (
-	"app/core"
+	"strconv"
+	"strings"
+	"github.com/gin-gonic/gin"
 )
 
-type Repo struct{}
+var (
+	repo    = Repo{}
+	service = Service{repo: repo}
+)
 
-func (r *Repo) FindByCode(shopID, maGoi string) (*core.GoiDichVu, bool) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
-	lock.RLock(); defer lock.RUnlock()
-	g, ok := core.CacheMapGoiDichVu[core.TaoCompositeKey(shopID, maGoi)]
-	return g, ok
-}
+func API_LuuGoiDichVu(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	
+	gn, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_niem_yet"), ".", ""), 64)
+	gb, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_ban"), ".", ""), 64)
+	th, _ := strconv.Atoi(c.PostForm("thoi_han_ngay"))
+	sl, _ := strconv.Atoi(c.PostForm("so_luong_con_lai"))
+	tt := 0; if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" { tt = 1 }
 
-func (r *Repo) Insert(shopID string, g *core.GoiDichVu) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
-	lock.Lock()
-	core.CacheGoiDichVu[shopID] = append(core.CacheGoiDichVu[shopID], g)
-	core.CacheMapGoiDichVu[core.TaoCompositeKey(shopID, g.MaGoi)] = g
-	g.DongTrongSheet = core.DongBatDau_GoiDichVu + len(core.CacheGoiDichVu[shopID]) - 1
-	lock.Unlock()
-
-	// [CẬP NHẬT] Đã bổ sung g.ThoiHanHienThi và xếp đúng thứ tự cột
-	rowData := []interface{}{
-		g.MaGoi, g.TenGoi, g.LoaiGoi, g.ThoiHanNgay, g.ThoiHanHienThi, 
-		g.NhanHienThi, g.GiaNiemYet, g.GiaBan, g.MaCodeKichHoatJson, 
-		g.GioiHanJson, g.MoTa, g.NgayBatDau, g.NgayKetThuc, 
-		g.SoLuongConLai, g.TrangThai,
+	dto := DTO_LuuGoiDichVu{
+		IsNew: c.PostForm("is_new") == "true",
+		MaGoi: strings.ToUpper(strings.TrimSpace(c.PostForm("ma_goi"))),
+		TenGoi: c.PostForm("ten_goi"), LoaiGoi: c.PostForm("loai_goi"),
+		ThoiHanNgay: th, 
+		ThoiHanHienThi: c.PostForm("thoi_han_hien_thi"), // MỚI BẮT TỪ FORM
+		GiaNiemYet: gn, GiaBan: gb,
+		CodesJson: c.PostForm("codes_json"), GioiHanJson: c.PostForm("gioi_han_json"),
+		MoTa: c.PostForm("mo_ta"), NhanHienThi: c.PostForm("nhan_hien_thi"),
+		NgayBatDau: c.PostForm("ngay_bat_dau"), NgayKetThuc: c.PostForm("ngay_ket_thuc"),
+		SoLuongConLai: sl, TrangThai: tt,
 	}
-	core.PushAppend(shopID, core.TenSheetGoiDichVu, rowData)
-}
 
-func (r *Repo) Update(shopID string, g *core.GoiDichVu) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
-	lock.RLock()
-	row := g.DongTrongSheet
-	lock.RUnlock()
-
-	// [CẬP NHẬT] Đẩy dữ liệu theo đúng Index cột mới
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_TenGoi, g.TenGoi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_LoaiGoi, g.LoaiGoi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_ThoiHanNgay, g.ThoiHanNgay)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_ThoiHanHienThi, g.ThoiHanHienThi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_NhanHienThi, g.NhanHienThi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GiaNiemYet, g.GiaNiemYet)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GiaBan, g.GiaBan)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_MaCodeKichHoatJson, g.MaCodeKichHoatJson)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GioiHanJson, g.GioiHanJson)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_MoTa, g.MoTa)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_SoLuongConLai, g.SoLuongConLai)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_TrangThai, g.TrangThai)
+	if err := service.XuLyLuu(shopID, dto); err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"status": "ok", "msg": "Thành công!"})
 }
