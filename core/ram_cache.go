@@ -6,12 +6,15 @@ import (
 
 // ==============================================================================
 // 1. QUẢN TRỊ KHÓA RAM (GRANULAR MUTEX LOCKING)
+// Mô hình: [SpreadsheetID] -> [SheetName] -> RWMutex
 // ==============================================================================
 var (
 	mutexRegistryLock sync.Mutex
-	sheetLocks = make(map[string]map[string]*sync.RWMutex)
+	sheetLocks        = make(map[string]map[string]*sync.RWMutex)
+	KhoaHeThong       sync.RWMutex // Khóa toàn cục cho các biến config cực kỳ hiếm khi đổi
 )
 
+// GetSheetLock: Thuật toán cấp phát ổ khóa độc lập O(1)
 func GetSheetLock(shopID, sheetName string) *sync.RWMutex {
 	mutexRegistryLock.Lock()
 	defer mutexRegistryLock.Unlock()
@@ -25,8 +28,20 @@ func GetSheetLock(shopID, sheetName string) *sync.RWMutex {
 	return sheetLocks[shopID][sheetName]
 }
 
+// TaoCompositeKey: Hàm tiện ích sinh ID chuẩn cho các Map dữ liệu
+func TaoCompositeKey(shopID, objectID string) string {
+	return shopID + "__" + objectID
+}
+
 // ==============================================================================
-// 2. BỘ NHỚ DATA ĐA NGƯỜI THUÊ (MULTI-TENANT CACHE)
+// 2. BỘ NHỚ ĐỊNH TUYẾN TÊN MIỀN & SAAS (SỬ DỤNG CHO MIDDLEWARE TẦNG 3)
+// ==============================================================================
+
+// CacheDomainToSheetID: Map siêu tốc O(1) để tra cứu Tên Miền -> Spreadsheet ID
+var CacheDomainToSheetID = make(map[string]string)
+
+// ==============================================================================
+// 3. BỘ NHỚ DATA ĐA NGƯỜI THUÊ (MULTI-TENANT CACHE)
 // ==============================================================================
 
 const (
@@ -43,17 +58,17 @@ var (
 
 	// --- HỆ THỐNG & PHÂN QUYỀN ---
 	CachePhanQuyen      = make(map[string]map[string]map[string]bool)
-	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)               
+	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)              
 
 	// --- KHÁCH HÀNG & NHÂN SỰ ---
-	CacheKhachHang    = make(map[string][]*KhachHang)    
-	CacheMapKhachHang = make(map[string]*KhachHang)      
+	CacheKhachHang    = make(map[string][]*KhachHang)   
+	CacheMapKhachHang = make(map[string]*KhachHang)     
 
 	// --- CẤU HÌNH KINH DOANH (MASTER DATA) ---
-	CacheDanhMuc      = make(map[string][]*DanhMuc)      
-	CacheMapDanhMuc   = make(map[string]*DanhMuc)        
-	CacheThuongHieu   = make(map[string][]*ThuongHieu)   
-	CacheMapThuongHieu = make(map[string]*ThuongHieu)    
+	CacheDanhMuc      = make(map[string][]*DanhMuc)     
+	CacheMapDanhMuc   = make(map[string]*DanhMuc)       
+	CacheThuongHieu   = make(map[string][]*ThuongHieu)  
+	CacheMapThuongHieu = make(map[string]*ThuongHieu)   
 	CacheBienLoiNhuan = make(map[string][]*BienLoiNhuan)
 
 	// --- GÓI DỊCH VỤ SAAS ---
@@ -61,17 +76,17 @@ var (
 	CacheMapGoiDichVu = make(map[string]*GoiDichVu)
 
 	// --- ĐỐI TÁC ---
-	CacheNhaCungCap    = make(map[string][]*NhaCungCap)  
-	CacheMapNhaCungCap = make(map[string]*NhaCungCap)    
+	CacheNhaCungCap    = make(map[string][]*NhaCungCap) 
+	CacheMapNhaCungCap = make(map[string]*NhaCungCap)   
 
 	// --- SẢN PHẨM (NGÀNH MÁY TÍNH) ---
-	CacheSanPhamMayTinh      = make(map[string][]*SanPhamMayTinh)   
-	CacheMapSKUMayTinh       = make(map[string]*SanPhamMayTinh)     
-	CacheGroupSanPhamMayTinh = make(map[string][]*SanPhamMayTinh)   
+	CacheSanPhamMayTinh      = make(map[string][]*SanPhamMayTinh)  
+	CacheMapSKUMayTinh       = make(map[string]*SanPhamMayTinh)    
+	CacheGroupSanPhamMayTinh = make(map[string][]*SanPhamMayTinh)  
 
 	// --- KHO & PHIẾU NHẬP ---
-	CachePhieuNhap    = make(map[string][]*PhieuNhap)    
-	CacheMapPhieuNhap = make(map[string]*PhieuNhap)      
+	CachePhieuNhap    = make(map[string][]*PhieuNhap)   
+	CacheMapPhieuNhap = make(map[string]*PhieuNhap)     
 
 	// --- BÁN HÀNG & PHIẾU XUẤT ---
 	CachePhieuXuat    = make(map[string][]*PhieuXuat)
@@ -82,5 +97,5 @@ var (
 	CacheMapSerial     = make(map[string]*SerialSanPham) 
 
 	// --- GIAO TIẾP ---
-	CacheTinNhan      = make(map[string][]*TinNhan)      
+	CacheTinNhan      = make(map[string][]*TinNhan)     
 )
