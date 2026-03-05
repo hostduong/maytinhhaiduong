@@ -74,8 +74,7 @@ func main() {
 	templ := template.Must(template.New("").Funcs(funcMap).ParseFS(f, 
 		"themes/default/*.html", 
 		"themes/template_master/*.html",
-		// Sau này có thêm theme mới thì cứ thêm 1 dòng vào đây:
-		// "themes/template_may_tinh/*.html",
+		"themes/template_admin/*.html", // <--- BỔ SUNG THÊM DÒNG NÀY LÀ XONG!
 	))
 	router.SetHTMLTemplate(templ)
 
