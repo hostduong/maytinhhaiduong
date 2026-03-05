@@ -79,6 +79,7 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	workspace := router.Group("/master")
 	workspace.Use(middlewares.CheckAuth())
+	workspace.Use(middlewares.RequireLevel(2))
 	{
 		// Giao diện Workspace
 		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
