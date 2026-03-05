@@ -12,50 +12,60 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 justify-center">
             
             {{ range .ListGoi }}
-            <div class="feature-card-premium group hover:border-purple-300 !p-0 overflow-hidden flex flex-col 
-                {{ if eq .NhanHienThi "PHỔ BIẾN" }}tier-pro pricing-card-led glow-shadow-purple !border-none{{ end }}">
+            <div class="relative feature-card-premium group hover:border-purple-400 !p-0 overflow-hidden flex flex-col 
+                {{ if or (eq .GiaBan 0.0) (eq .NhanHienThi "PHỔ BIẾN") }}pricing-card-led glow-shadow-purple !border-none{{ end }}">
                 
-                <div class="{{ if eq .NhanHienThi "PHỔ BIẾN" }}pricing-card-led-inner{{ end }} p-12 h-full flex flex-col">
+                {{ if eq .GiaBan 0.0 }}
+                <div class="corner-ribbon-wrap">
+                    <div class="corner-ribbon">Miễn Phí</div>
+                </div>
+                {{ end }}
+
+                <div class="{{ if or (eq .GiaBan 0.0) (eq .NhanHienThi "PHỔ BIẾN") }}pricing-card-led-inner{{ end }} p-10 md:p-12 h-full flex flex-col bg-white">
+                    
                     <div class="mb-8 border-b border-slate-100 pb-8 text-center relative">
                         
                         {{ if .NhanHienThi }}
-                        <span class="badge-animated-wrap theme-9 {{ if eq .NhanHienThi "PHỔ BIẾN" }}tier-r{{ else }}tier-s{{ end }} mb-2">
-                            <span class="badge-inner text-xs px-4">{{ .NhanHienThi }}</span>
+                        <span class="badge-animated-wrap theme-9 tier-s mb-6">
+                            <span class="badge-inner text-[10px] px-6 py-1.5">{{ .NhanHienThi }}</span>
                         </span>
                         {{ end }}
 
-                        <h3 class="text-3xl font-black text-slate-900 mb-5 uppercase tracking-tighter">{{ .TenGoi }}</h3>
+                        <h3 class="text-3xl font-black text-slate-800 mb-6 uppercase tracking-tight {{ if eq .GiaBan 0.0 }}title-gradient-purple{{ end }}">{{ .TenGoi }}</h3>
                         
-                        <div class="flex items-baseline justify-center gap-1">
-                            <span class="text-5xl font-black {{ if eq .NhanHienThi "PHỔ BIẾN" }}text-gradient{{ else }}text-purple-600{{ end }} tracking-tighter">
-                                {{ format_money .GiaBan }}₫
-                            </span>
-                            <span class="text-slate-400 font-bold text-sm">/{{ .ThoiGianHienThi }}</span>
+                        <div class="flex flex-col items-center justify-center min-h-[80px]">
+                            
+                            {{ if gt .PhanTramGiam 0 }}
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-sm font-bold text-slate-400 line-through decoration-slate-300 decoration-2">{{ format_money .GiaNiemYet }}₫</span>
+                                <span class="discount-badge">-{{ .PhanTramGiam }}%</span>
+                            </div>
+                            {{ end }}
+
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span class="text-5xl font-black {{ if eq .GiaBan 0.0 }}text-gradient{{ else }}text-purple-600{{ end }} tracking-tighter">
+                                    {{ format_money .GiaBan }}₫
+                                </span>
+                                <span class="text-slate-400 font-bold text-sm">/{{ .ThoiGianHienThi }}</span>
+                            </div>
                         </div>
-                        
-                        {{ if gt .GiaNiemYet .GiaBan }}
-                        <div class="mt-2">
-                            <span class="text-sm font-bold text-slate-400 line-through">{{ format_money .GiaNiemYet }}₫</span>
-                        </div>
-                        {{ end }}
                     </div>
                     
                     <div class="flex-1 space-y-4 mb-10">
                         {{ range split .MoTa "|" }}
-                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500">
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-600">
                             <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                             <span>{{ . }}</span>
                         </div>
                         {{ end }}
                     </div>
 
-                    <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full mt-auto btn-premium py-4 text-xs tracking-widest uppercase {{ if eq .NhanHienThi "PHỔ BIẾN" }}!bg-premium-gradient animate-[glowpulse_2s_infinite]{{ end }}">
+                    <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full mt-auto btn-premium py-4 text-xs tracking-widest uppercase {{ if or (eq .GiaBan 0.0) (eq .NhanHienThi "PHỔ BIẾN") }}!bg-premium-gradient animate-[glowpulse_2s_infinite]{ end }}">
                         {{ .TextNutBam }}
                     </button>
                 </div>
             </div>
             {{ end }}
-
         </div>
     </div>
 </div>
