@@ -52,8 +52,11 @@ func API_Register(c *gin.Context) {
 
 	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
 		c.Redirect(http.StatusFound, "/master/tong-quan")
-	} else if theme == "theme_master" { c.Redirect(http.StatusFound, "/verify")
-	} else { c.Redirect(http.StatusFound, "/") }
+	} else if theme == "theme_master" { 
+		c.Redirect(http.StatusFound, "/verify")
+	} else { 
+		c.Redirect(http.StatusFound, "/") 
+	}
 }
 
 func API_Verify(c *gin.Context) {
@@ -61,7 +64,7 @@ func API_Verify(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"status": "ok", "msg": "Xác thực thành công! Hệ thống đang khởi tạo Tên miền."})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Xác thực thành công! Hệ thống đang khởi tạo Không gian lưu trữ."})
 }
 
 func API_SendOtp(c *gin.Context) {
