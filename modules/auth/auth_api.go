@@ -31,7 +31,7 @@ func API_Login(c *gin.Context) {
 
 func API_Register(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	theme := c.GetString("THEME")
+	appMode := c.GetString("APP_MODE") // Lấy từ Middleware IdentifyTenant
 	hoTen := strings.TrimSpace(c.PostForm("ho_ten"))
 	user := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
@@ -39,7 +39,8 @@ func API_Register(c *gin.Context) {
 	maPin := strings.TrimSpace(c.PostForm("ma_pin"))
 	dienThoai := strings.TrimSpace(c.PostForm("dien_thoai_full")); if dienThoai == "" { dienThoai = strings.TrimSpace(c.PostForm("dien_thoai")) }
 
-	sessionID, sign, vaiTro, err := service.Register(shopID, theme, hoTen, user, email, pass, maPin, dienThoai, c.PostForm("ngay_sinh"), c.PostForm("gioi_tinh"), c.Request.UserAgent())
+	// Không cần lấy vaiTro ra nữa vì mặc định ai đăng ký cũng là khách hàng
+	sessionID, sign, _, err := service.Register(appMode, shopID, hoTen, user, email, pass, maPin, dienThoai, c.PostForm("ngay_sinh"), c.PostForm("gioi_tinh"), c.Request.UserAgent())
 	
 	if err != nil {
 		c.HTML(http.StatusOK, "dang_ky", gin.H{"Loi": err.Error()})
@@ -47,40 +48,21 @@ func API_Register(c *gin.Context) {
 	}
 
 	maxAge := int(config.ThoiGianHetHanCookie.Seconds())
-	c.SetCookie("session_token", sessionID, maxAge, "/", "", false, true)
-	c.SetCookie("session_sign", sign, maxAge, "/", "", false, true)
+	
+	// [QUAN TRỌNG]: Để đăng nhập ở www.99k.vn mà sang admin.99k.vn vẫn nhận, 
+	// Cookie Domain phải được set là ".99k.vn" (có dấu chấm ở đầu).
+	c.SetCookie("session_token", sessionID, maxAge, "/", ".99k.vn", false, true)
+	c.SetCookie("session_sign", sign, maxAge, "/", ".99k.vn", false, true)
 
-	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || vaiTro == "quan_tri_vien" {
-		c.Redirect(http.StatusFound, "/master/tong-quan")
-	} else if theme == "theme_master" { 
-		c.Redirect(http.StatusFound, "/verify")
+	// ĐIỀU HƯỚNG CHUẨN MỰC
+	if appMode == "TENANT_ADMIN" { 
+		// Đăng ký ở www.99k.vn -> Bẻ lái sang Trạm không gian làm việc
+		c.Redirect(http.StatusFound, "https://admin.99k.vn")
 	} else { 
+		// Đăng ký ở Cửa hàng -> Về trang chủ mua sắm của cửa hàng đó
 		c.Redirect(http.StatusFound, "/") 
 	}
 }
-
-func API_Verify(c *gin.Context) {
-	if err := service.VerifyOTPAndActivate(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("otp"))); err != nil {
-		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
-		return
-	}
-	c.JSON(200, gin.H{"status": "ok", "msg": "Xác thực thành công! Hệ thống đang khởi tạo Không gian lưu trữ."})
-}
-
-func API_SendOtp(c *gin.Context) {
-	if err := service.SendOtp(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh"))); err != nil {
-		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
-	}
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đã gửi mã OTP đến Email đăng ký của bạn!"})
-}
-
-func API_ResetByOtp(c *gin.Context) {
-	if err := service.ResetByOtp(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("otp")), strings.TrimSpace(c.PostForm("pass_moi"))); err != nil {
-		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
-	}
-	c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mật khẩu thành công!"})
-}
-
 func API_ResetByPin(c *gin.Context) {
 	if err := service.ResetByPin(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("pin")), strings.TrimSpace(c.PostForm("pass_moi"))); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
