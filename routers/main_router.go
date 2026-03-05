@@ -23,7 +23,7 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
-	// Trạm IdentifyTenant: Nhận diện Shop/Master từ Domain [cite: 17]
+	// Trạm IdentifyTenant: Nhận diện Shop/Master từ Domain
 	router.Use(middlewares.IdentifyTenant())
 
 	// =======================================================
@@ -46,14 +46,14 @@ func SetupRouter() *gin.Engine {
 
 	apiAuth := router.Group("/api/auth")
 	{
-		apiAuth.POST("/verify-register", auth.API_Verify)
+		// Đã xóa API_Verify (Xác thực đăng ký) vì luồng đăng ký mới cho qua thẳng
 		apiAuth.POST("/send-otp", auth.API_SendOtp)
 		apiAuth.POST("/reset-by-pin", auth.API_ResetByPin)
 		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
 	}
 
 	// =======================================================
-	// 3. KHU VỰC CHỌN GÓI (BẢNG GIÁ) - Bắt buộc Login [cite: 16]
+	// 3. KHU VỰC CHỌN GÓI (BẢNG GIÁ) - Bắt buộc Login
 	// =======================================================
 	portal := router.Group("/bang-gia")
 	portal.Use(middlewares.CheckAuth())
@@ -90,7 +90,7 @@ func SetupRouter() *gin.Engine {
 		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
 		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
 
-		// Cấu hình nâng cao (Yêu cầu Level 2) [cite: 13, 14]
+		// Cấu hình nâng cao (Yêu cầu Level 2)
 		cauHinhUI := workspace.Group("/cau-hinh")
 		cauHinhUI.Use(middlewares.RequireLevel(2))
 		cauHinhUI.GET("/", cau_hinh.TrangCaiDatCauHinhMaster) 
@@ -112,7 +112,7 @@ func SetupRouter() *gin.Engine {
 			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
 			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
 
-			// RBAC Product & Stock [cite: 10, 20]
+			// RBAC Product & Stock
 			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
 			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
 			api.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
