@@ -551,3 +551,108 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 .smart-input-field { display: none; align-items: center; gap: 6px; }
 .smart-input-wrap.active .smart-input-btn { display: none; }
 .smart-input-wrap.active .smart-input-field { display: flex; }
+
+/* ==========================================================
+   BỔ SUNG: 99K PREMIUM PURPLE THEME & LED EFFECT
+   ========================================================== */
+
+.text-gradient {
+    background: linear-gradient(135deg, #7c3aed 30%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.title-gradient-purple {
+    background: linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bg-premium-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+}
+
+.glow-shadow-purple {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+/* Hiệu ứng LED viền chạy xung quanh */
+.pricing-card-led {
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+    border-radius: 2rem;
+}
+
+.pricing-card-led::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(transparent, transparent, #a78bfa, transparent, transparent, #f472b6, transparent);
+    animation: led-rotate 4s linear infinite;
+    z-index: 0;
+}
+
+.tier-pro.pricing-card-led::before {
+    background: conic-gradient(transparent, transparent, #ec4899, transparent, transparent, #8b5cf6, transparent);
+    animation: led-rotate 3s linear infinite;
+}
+
+.pricing-card-led-inner {
+    position: relative;
+    background: #ffffff;
+    border-radius: calc(2rem - 2px);
+    z-index: 1;
+}
+
+@keyframes led-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes glowpulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(124, 58, 237, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Buttons Premium */
+.btn-premium {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.4);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-premium:hover {
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.7);
+    transform: translateY(-2px);
+}
+
+/* Thẻ tính năng */
+.feature-card-premium {
+    background: white;
+    border-radius: 2rem;
+    padding: 2.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.5s ease;
+}
+
+.feature-card-premium:hover {
+    border-color: #a78bfa;
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1);
+    transform: translateY(-5px);
+}
