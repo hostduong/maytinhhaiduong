@@ -22,7 +22,7 @@ import (
 // =============================================================
 
 var (
-	KhoaHeThong sync.RWMutex
+	// ĐÃ XÓA KhoaHeThong ở đây vì nó đã được chuyển sang ram_cache.go
 	HeThongDangBan bool
 
 	MapDichVuSheet = make(map[string]*sheets.Service)
@@ -46,7 +46,7 @@ func KhoiTaoNenTang() {
 	log.Println("🔌 [CORE] Đang kết nối Google Sheets (API Mặc định)...")
 
 	ctx := context.Background()
-	jsonKey := config.BienCauHinh.GoogleAuthJson // ĐÃ SỬA
+	jsonKey := config.BienCauHinh.GoogleAuthJson 
 
 	var srv *sheets.Service
 	var err error
@@ -66,7 +66,13 @@ func KhoiTaoNenTang() {
 
 	MutexDichVu.Lock()
 	MapDichVuSheet["default"] = srv
-	MapDichVuSheet[config.BienCauHinh.IdFileSheet] = srv // ĐÃ SỬA
+	// Map cả 2 ID lõi vào dịch vụ mặc định
+	if config.BienCauHinh.IdFileSheetMaster != "" {
+		MapDichVuSheet[config.BienCauHinh.IdFileSheetMaster] = srv
+	}
+	if config.BienCauHinh.IdFileSheetAdmin != "" {
+		MapDichVuSheet[config.BienCauHinh.IdFileSheetAdmin] = srv
+	}
 	MutexDichVu.Unlock()
 	
 	log.Println("✅ [CORE] Khởi tạo API mặc định thành công!")
@@ -109,13 +115,11 @@ func LayDichVuSheet(shopID string) *sheets.Service {
 // 4. HÀM TIỆN ÍCH CỐT LÕI (HELPER)
 // =============================================================
 
-func TaoCompositeKey(sheetID, entityID string) string {
-	return fmt.Sprintf("%s__%s", sheetID, entityID)
-}
+// ĐÃ XÓA hàm TaoCompositeKey vì nó đã có mặt trong ram_cache.go
 
 func LoadSheetData(spreadsheetID string, tenSheet string) ([][]interface{}, error) {
 	if spreadsheetID == "" {
-		spreadsheetID = config.BienCauHinh.IdFileSheet // ĐÃ SỬA
+		spreadsheetID = config.BienCauHinh.IdFileSheetAdmin // Fallback về Admin
 	}
 
 	srv := LayDichVuSheet(spreadsheetID)
@@ -198,8 +202,8 @@ func KiemTraFolderDrive(folderID string, jsonKey string) error {
 
 	if jsonKey != "" {
 		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(jsonKey)))
-	} else if config.BienCauHinh.GoogleAuthJson != "" { // ĐÃ SỬA
-		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(config.BienCauHinh.GoogleAuthJson))) // ĐÃ SỬA
+	} else if config.BienCauHinh.GoogleAuthJson != "" { 
+		srv, err = drive.NewService(ctx, option.WithCredentialsJSON([]byte(config.BienCauHinh.GoogleAuthJson))) 
 	} else {
 		srv, err = drive.NewService(ctx, option.WithScopes(drive.DriveReadonlyScope))
 	}
