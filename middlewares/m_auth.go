@@ -11,28 +11,58 @@ import (
 )
 
 // =================================================================
-// 1. TRẠM LỄ TÂN: PHÂN LUỒNG TÊN MIỀN (Chạy cho TẤT CẢ request)
+// 1. TRẠM LỄ TÂN: NGÃ BA ĐỊNH TUYẾN 3 TẦNG (Chạy tốc độ O(1))
 // =================================================================
 func IdentifyTenant() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		host := c.Request.Host
 		domain := strings.Split(host, ":")[0]
 
-		shopID := config.BienCauHinh.IdFileSheet 
-		theme := "theme_master"
+		var appMode, theme, shopID string
 
-		// Ánh xạ Domain lấy ShopID
-		if mappedID, ok := config.MapDomainShop[domain]; ok {
-			shopID = mappedID
-		} else if strings.HasSuffix(domain, ".99k.vn") && domain != "www.99k.vn" && domain != "99k.vn" {
-			// Tương lai: Logic tra cứu Domain động trong Cache Tenant
+		// TẦNG 1: VÙNG TUYỆT MẬT (Master)
+		if domain == "sss.99k.vn" {
+			appMode = "MASTER_CORE"
+			theme = "template_master"
+			shopID = config.BienCauHinh.IdFileSheetMaster
+
+		// TẦNG 2: VÙNG QUẢN TRỊ SHOP (Admin & Marketing)
+		} else if domain == "admin.99k.vn" || domain == "www.99k.vn" || domain == "localhost" {
+			// (Cho phép localhost chạy luồng Admin để code dễ dàng)
+			appMode = "TENANT_ADMIN"
+			theme = "template_admin"
+			if domain == "www.99k.vn" { theme = "default" } // www dùng giao diện public
+			shopID = config.BienCauHinh.IdFileSheetAdmin
+
+		// TẦNG 3: VÙNG TIỀN TUYẾN (Cửa hàng Subdomain)
+		} else {
+			appMode = "STOREFRONT"
+			theme = "default"
+			
+			// Thuật toán tra cứu nhanh: Lấy SpreadsheetID từ RAM dựa vào Tên miền
+			core.KhoaHeThong.RLock()
+			id, exists := core.CacheDomainToSheetID[domain]
+			core.KhoaHeThong.RUnlock()
+
+			if exists {
+				shopID = id
+			} else {
+				// Nếu gõ sai tên miền bậy bạ -> Trả về lỗi không tìm thấy Shop
+				TuChoiTruyCap(c, http.StatusNotFound, "Không tìm thấy Cửa hàng này trên hệ thống!")
+				return
+			}
 		}
 
-		c.Set("SHOP_ID", shopID)
+		// Gắn thẻ bài cho Request đi tiếp
+		c.Set("APP_MODE", appMode)
 		c.Set("THEME", theme)
+		c.Set("SHOP_ID", shopID)
+
 		c.Next()
 	}
 }
+
+// ... (Giữ nguyên các hàm CheckAuth, TuChoiTruyCap bên dưới) ...
 
 // =================================================================
 // 2. TRẠM BẢO VỆ: KIỂM TRA ĐĂNG NHẬP (Chỉ chạy cho Khu vực Quản trị)
