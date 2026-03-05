@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"app/core"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +19,7 @@ func RequirePermission(maChucNang string) gin.HandlerFunc {
 			return
 		}
 
+		// [LOCK CHUẨN]: Khóa riêng Sheet Phân Quyền
 		lockPQ := core.GetSheetLock(shopID, core.TenSheetPhanQuyen)
 		lockPQ.RLock()
 		defer lockPQ.RUnlock()
