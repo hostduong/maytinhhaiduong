@@ -12,7 +12,7 @@ import (
 
 // --- HÀM TRỢ GIÚP NẠP DATA CHUNG ---
 func napDataGeneric(shopID, sheetName string, target interface{}) [][]interface{} {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw, err := LoadSheetData(shopID, sheetName)
 	if err != nil { return nil }
 	return raw
@@ -20,7 +20,7 @@ func napDataGeneric(shopID, sheetName string, target interface{}) [][]interface{
 
 // 1. NẠP PHÂN QUYỀN (ĐÃ NÂNG CẤP THUẬT TOÁN ĐỌC STYLE/LEVEL)
 func NapPhanQuyen(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetMaster } // Phân quyền gốc nằm ở Master
 	raw := napDataGeneric(shopID, TenSheetPhanQuyen, nil)
 	if raw == nil { return }
 
@@ -30,7 +30,6 @@ func NapPhanQuyen(shopID string) {
 			firstCell := strings.TrimSpace(strings.ToLower(LayString(row, 0)))
 			if firstCell == "ma_chuc_nang" { 
 				headerIndex = i 
-			// [FIX]: Hỗ trợ nhận diện cả chữ "level" theo thiết kế file PDF của bạn
 			} else if firstCell == "style" || firstCell == "level" { 
 				styleIndex = i 
 			}
@@ -55,10 +54,9 @@ func NapPhanQuyen(shopID string) {
 			listMaVaiTro = append(listMaVaiTro, roleID)
 			tempMap[roleID] = make(map[string]bool)
 			
-			styleCode := 90 // Mặc định Level 9, Màu 0 (Xám)
+			styleCode := 90 
 			
 			if styleIndex != -1 {
-				// [BẢO MẬT]: Đọc dưới dạng chuỗi trước để tránh ô trống bị hiểu thành số 0 (Boss)
 				valStr := LayString(raw[styleIndex], i)
 				if valStr != "" {
 					if parsedVal, err := strconv.Atoi(valStr); err == nil {
@@ -106,7 +104,7 @@ func NapPhanQuyen(shopID string) {
 
 // 2. NẠP KHÁCH HÀNG (ĐÃ TÍCH HỢP CỜ BẢO VỆ)
 func NapKhachHang(shopID string) error {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	
 	StatusMutex.Lock()
 	CacheStatusKhachHang[shopID] = FlagLoading
@@ -187,7 +185,7 @@ func NapKhachHang(shopID string) error {
 
 // 3. NẠP NHÀ CUNG CẤP (FULL CỘT)
 func NapNhaCungCap(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetNhaCungCap, nil)
 	if raw == nil { return }
 	list := []*NhaCungCap{}
@@ -200,7 +198,7 @@ func NapNhaCungCap(shopID string) {
 			TenNhaCungCap: LayString(r, CotNCC_TenNhaCungCap), MaSoThue: LayString(r, CotNCC_MaSoThue),
 			DienThoai: LayString(r, CotNCC_DienThoai), Email: LayString(r, CotNCC_Email),
 			KhuVuc: LayString(r, CotNCC_KhuVuc), DiaChi: LayString(r, CotNCC_DiaChi),
-			NguoiLienHe: LayString(r, CotNCC_NguoiLienHe), AnhDaiDien: LayString(r, CotNCC_AnhDaiDien), // Mới thêm
+			NguoiLienHe: LayString(r, CotNCC_NguoiLienHe), AnhDaiDien: LayString(r, CotNCC_AnhDaiDien),
 			NganHang: LayString(r, CotNCC_NganHang), NhomNhaCungCap: LayString(r, CotNCC_NhomNhaCungCap), 
 			LoaiNhaCungCap: LayString(r, CotNCC_LoaiNhaCungCap), DieuKhoanThanhToan: LayString(r, CotNCC_DieuKhoanThanhToan), 
 			ChietKhauMacDinh: LayFloat(r, CotNCC_ChietKhauMacDinh), HanMucCongNo: LayFloat(r, CotNCC_HanMucCongNo), 
@@ -223,7 +221,7 @@ func NapNhaCungCap(shopID string) {
 
 // 4. NẠP MÁY TÍNH (FULL TỪNG SKUS)
 func NapMayTinh(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetMayTinh, nil)
 	if raw == nil { return }
 	list := []*SanPhamMayTinh{}
@@ -272,7 +270,7 @@ func NapMayTinh(shopID string) {
 
 // 5. NẠP DANH MỤC
 func NapDanhMuc(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetDanhMuc, nil)
 	if raw == nil { return }
 	list := []*DanhMuc{}
@@ -296,7 +294,7 @@ func NapDanhMuc(shopID string) {
 
 // 6. NẠP THƯƠNG HIỆU
 func NapThuongHieu(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetThuongHieu, nil)
 	if raw == nil { return }
 	list := []*ThuongHieu{}
@@ -319,7 +317,7 @@ func NapThuongHieu(shopID string) {
 
 // 7. NẠP BIÊN LỢI NHUẬN
 func NapBienLoiNhuan(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetBienLoiNhuan, nil)
 	if raw == nil { return }
 	list := []*BienLoiNhuan{}
@@ -344,7 +342,7 @@ func NapBienLoiNhuan(shopID string) {
 
 // 8. NẠP TIN NHẮN
 func NapTinNhan(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw := napDataGeneric(shopID, TenSheetTinNhan, nil)
 	if raw == nil { return }
 	list := []*TinNhan{}
@@ -371,7 +369,7 @@ func NapTinNhan(shopID string) {
 
 // 9. NẠP KHO HÀNG (Phiếu Nhập + Chi Tiết Phiếu Nhập)
 func NapPhieuNhap(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	
 	// 1. Nạp Bảng Cha (Header)
 	rawPN, errPN := LoadSheetData(shopID, TenSheetPhieuNhap)
@@ -401,7 +399,6 @@ func NapPhieuNhap(shopID string) {
 			ChiTiet: make([]*ChiTietPhieuNhap, 0),
 		}
 
-		// THUẬT TOÁN ĐỌC NHÁP TỐI ƯU: Nếu là phiếu Nháp/Đợi xóa, bung từ JSON ra luôn
 		if pn.TrangThai <= 0 && pn.ChiTietJson != "" {
 			_ = json.Unmarshal([]byte(pn.ChiTietJson), &pn.ChiTiet)
 		}
@@ -410,7 +407,7 @@ func NapPhieuNhap(shopID string) {
 		mapPNLocal[maPN] = pn
 	}
 
-	// 2. Nạp Bảng Con (Chi tiết) và ráp vào Bảng Cha (Chỉ dành cho Phiếu đã Hoàn Thành)
+	// 2. Nạp Bảng Con (Chi tiết) và ráp vào Bảng Cha
 	rawCTPN, errCTPN := LoadSheetData(shopID, TenSheetChiTietPhieuNhap)
 	if errCTPN == nil {
 		for i, r := range rawCTPN {
@@ -418,7 +415,6 @@ func NapPhieuNhap(shopID string) {
 			maPN := LayString(r, CotCTPN_MaPhieuNhap)
 			if maPN == "" { continue }
 			
-			// Ráp chi tiết vào phiếu cha nếu phiếu đó có Trạng thái > 0 (Hoàn thành / Chờ duyệt)
 			if parent, ok := mapPNLocal[maPN]; ok && parent.TrangThai > 0 {
 				ct := &ChiTietPhieuNhap{
 					SpreadsheetID: shopID, DongTrongSheet: i + 1, MaPhieuNhap: maPN,
@@ -435,7 +431,6 @@ func NapPhieuNhap(shopID string) {
 		}
 	}
 
-	// 3. Đưa toàn bộ vào Cache RAM
 	lock := GetSheetLock(shopID, TenSheetPhieuNhap)
 	lock.Lock(); defer lock.Unlock()
 	CachePhieuNhap[shopID] = listPN
@@ -444,7 +439,7 @@ func NapPhieuNhap(shopID string) {
 
 // 10. NẠP SERIAL SẢN PHẨM
 func NapSerial(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	raw, err := LoadSheetData(shopID, TenSheetSerial)
 	if err != nil { return }
 	
@@ -477,7 +472,7 @@ func NapSerial(shopID string) {
 
 // 11. NẠP GÓI DỊCH VỤ SAAS
 func NapGoiDichVu(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheet }
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetMaster } // Gói dịch vụ gốc nằm ở Master
 	raw := napDataGeneric(shopID, TenSheetGoiDichVu, nil)
 	if raw == nil { return }
 	
@@ -494,24 +489,22 @@ func NapGoiDichVu(shopID string) {
 			TenGoi:             LayString(r, CotGDV_TenGoi),
 			LoaiGoi:            LayString(r, CotGDV_LoaiGoi),
 			ThoiHanNgay:        LayIntStr(LayString(r, CotGDV_ThoiHanNgay)),
-			ThoiHanHienThi:     LayString(r, CotGDV_ThoiHanHienThi), // NẠP CỘT E MỚI
-			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),     // Cột F
-			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),       // Cột G
-			GiaBan:             LayFloat(r, CotGDV_GiaBan),           // Cột H
-			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson), // Cột I
-			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),     // Cột J
-			MoTa:               LayString(r, CotGDV_MoTa),            // Cột K
-			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),      // Cột L
-			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),     // Cột M
+			ThoiHanHienThi:     LayString(r, CotGDV_ThoiHanHienThi), 
+			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),     
+			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),       
+			GiaBan:             LayFloat(r, CotGDV_GiaBan),           
+			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson), 
+			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),     
+			MoTa:               LayString(r, CotGDV_MoTa),            
+			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),      
+			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),     
 			SoLuongConLai:      -1, 
-			TrangThai:          LayInt(r, CotGDV_TrangThai),          // Cột O
+			TrangThai:          LayInt(r, CotGDV_TrangThai),          
 			DanhSachCode:       make([]CodeKichHoat, 0),
 		}
-		// Xử lý số lượng còn lại (Nếu ô trống thì = -1, nếu có số thì đọc)
 		slStr := LayString(r, CotGDV_SoLuongConLai)
 		if slStr != "" { gdv.SoLuongConLai = LayIntStr(slStr) }
 
-		// Thuật toán thông minh: Bóc tách JSON Mảng các Mã Code ngay khi nạp RAM
 		if gdv.MaCodeKichHoatJson != "" {
 			_ = json.Unmarshal([]byte(gdv.MaCodeKichHoatJson), &gdv.DanhSachCode)
 		}
