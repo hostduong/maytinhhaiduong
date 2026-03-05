@@ -656,3 +656,34 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1);
     transform: translateY(-5px);
 }
+
+/* ==========================================================
+   BỔ SUNG: RUY BĂNG CHÉO & TEM GIẢM GIÁ (BẢNG GIÁ)
+   ========================================================== */
+
+/* Ruy băng góc chéo (Cho gói 0đ) */
+.corner-ribbon-wrap {
+    position: absolute; top: -10px; right: -10px;
+    width: 120px; height: 120px; overflow: hidden; z-index: 10;
+}
+.corner-ribbon {
+    position: absolute; top: 28px; right: -35px; width: 160px;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #ec4899, #8b5cf6); /* Gradient Tím Hồng */
+    color: white; text-align: center; font-size: 11px; font-weight: 900;
+    letter-spacing: 1.5px; padding: 6px 0;
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); text-transform: uppercase;
+}
+/* Hiệu ứng gập góc 3D cho Ruy băng */
+.corner-ribbon::before, .corner-ribbon::after {
+    content: ''; position: absolute; bottom: -3px; border: 3px solid transparent;
+}
+.corner-ribbon::before { left: 0; border-top-color: #be185d; border-right-color: #be185d; }
+.corner-ribbon::after { right: 0; border-top-color: #5b21b6; border-left-color: #5b21b6; }
+
+/* Tem giảm giá % đỏ rực rỡ */
+.discount-badge {
+    background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;
+    padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 900;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: inline-block;
+}
