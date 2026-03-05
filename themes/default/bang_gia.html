@@ -8,43 +8,74 @@
     <link rel="stylesheet" href="/static/css/99k-style.css"> 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-slate-50 min-h-screen py-12 flex flex-col items-center">
-    <div class="max-w-5xl mx-auto px-4 w-full">
-        <div class="text-center mb-16">
-            <h1 class="text-5xl font-black text-gradient-animated mb-4 tracking-tight">Bảng Giá Dịch Vụ</h1>
-            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm">Chọn gói khởi đầu để bắt đầu kinh doanh</p>
+<body class="bg-slate-50 min-h-screen py-16 animate-[fadeIn_0.5s_ease-out]">
+    <div class="max-w-7xl mx-auto px-6">
+        
+        <div class="text-center mb-20">
+            <h1 class="text-5xl md:text-6xl font-black text-gradient-animated mb-5 tracking-tighter">Bảng Giá Dịch Vụ</h1>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Chọn gói cước phù hợp với quy mô cửa hàng</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {{ range .ListGoi }}
-            <div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm hover:shadow-2xl transition duration-500 flex flex-col group relative">
-                <div class="mb-6 border-b border-slate-50 pb-6 text-center">
-                    <h3 class="text-xl font-black text-slate-800 uppercase tracking-tighter">{{ .TenGoi }}</h3>
-                    <div class="mt-4 flex items-baseline justify-center gap-1">
-                        <span class="text-4xl font-black text-purple-600 tracking-tighter">{{ format_money .GiaBan }}₫</span>
-                        <span class="text-slate-400 font-bold text-xs">/{{ .ThoiHanNgay }} ngày</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            
+            <div class="feature-card-premium group hover:border-purple-300 !p-12">
+                <div class="mb-8 border-b border-slate-100 pb-8 text-center">
+                    <span class="badge-animated-wrap theme-9 tier-s mb-2"><span class="badge-inner text-xs px-4">NGƯỜI MỚI</span></span>
+                    <h3 class="text-3xl font-black text-slate-900 mb-5 uppercase tracking-tighter">Starter</h3>
+                    <div class="flex items-baseline justify-center gap-1">
+                        <span class="text-5xl font-black text-purple-600 tracking-tighter">99.000₫</span>
+                        <span class="text-slate-400 font-bold text-sm">/tháng</span>
                     </div>
                 </div>
-                <div class="flex-1 space-y-4 mb-8">
-                    {{ range split .MoTa "|" }}
-                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500">
-                            <div class="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                                <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            {{ . }}
-                        </div>
-                    {{ end }}
+                <div class="flex-1 space-y-4 mb-10">
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Tạo Tự Động 100%</div>
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>1 Website Bán Hàng</div>
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Hệ thống POS Google Sheet</div>
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Quản lý 1000 Sản phẩm</div>
                 </div>
-                <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-purple-600 transition shadow-lg active:scale-95">
-                    Đăng Ký Ngay
-                </button>
+                <button onclick="moModalMua('STARTER', 'Starter', 99000)" class="w-full btn-premium py-4 text-xs tracking-widest uppercase">Đăng Ký Ngay</button>
             </div>
-            {{ end }}
+
+            <div class="tier-pro pricing-card-led glow-shadow-purple">
+                <div class="pricing-card-led-inner !p-12 !border-none">
+                    <div class="mb-8 border-b border-slate-100 pb-8 text-center relative">
+                        <span class="badge-animated-wrap theme-9 tier-r mb-2"><span class="badge-inner text-xs px-4">PHỔ BIẾN</span></span>
+                        <h3 class="text-3xl font-black text-slate-900 mb-5 uppercase tracking-tighter">Pro</h3>
+                        <div class="flex items-baseline justify-center gap-1">
+                            <span class="text-5xl font-black text-gradient tracking-tighter">199.000₫</span>
+                            <span class="text-slate-400 font-bold text-sm">/tháng</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 space-y-4 mb-10">
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Nhập ID Thủ Công (Ghi đè)</div>
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Quản lý 5 Chi Nhánh</div>
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>10.000 Sản phẩm</div>
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Thống kê nâng cao</div>
+                    </div>
+                    <button onclick="moModalMua('PRO', 'Pro', 199000)" class="w-full btn-premium py-4 text-xs tracking-widest uppercase !bg-premium-gradient animate-[glowpulse_2s_infinite]">Chọn Pro</button>
+                </div>
+            </div>
+
+            <div class="feature-card-premium group hover:border-slate-400 !p-12 !bg-slate-950 text-white">
+                <div class="mb-8 border-b border-slate-800 pb-8 text-center">
+                    <span class="badge-animated-wrap theme-9 tier-u mb-2"><span class="badge-inner text-xs px-4">TÙY CHỈNH</span></span>
+                    <h3 class="text-3xl font-black text-white mb-5 uppercase tracking-tighter">Enterprise</h3>
+                    <div class="flex items-baseline justify-center gap-1">
+                        <span class="text-5xl font-black title-gradient-purple tracking-tighter">500.000₫++</span>
+                        <span class="text-slate-600 font-bold text-sm">/tháng</span>
+                    </div>
+                </div>
+                <div class="flex-1 space-y-4 mb-10">
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Giao diện Website riêng</div>
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>Không giới hạn Sản phẩm</div>
+                    <div class="flex items-center gap-3 text-[13px] font-bold text-slate-500"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>API tích hợp riêng</div>
+                </div>
+                <a href="/verify" class="block w-full text-center font-black uppercase text-xs tracking-widest bg-slate-100 text-slate-800 py-4 rounded-xl hover:bg-white transition">Gửi OTP</a>
+            </div>
         </div>
     </div>
 
-    script>
-        // Hàm gọi Backend để kiểm tra giá (Zero Trust)
+    <script>
         async function checkGiaTuServer(maGoi, maCode) {
             const fd = new FormData();
             fd.append('ma_goi', maGoi);
@@ -53,22 +84,26 @@
             return await res.json();
         }
 
-        function moModalMua(maGoi, tenGoi, giaGoc) {
-            Swal.fire({
-                title: `<span class="text-2xl font-black text-purple-600">${tenGoi}</span>`,
+        async function moModalMua(maGoi, tenGoi, giaGoc) {
+            const fPrice = new Intl.NumberFormat('vi-VN').format(giaGoc);
+            const cf = await Swal.fire({
+                title: `<span class="text-2xl font-black title-gradient-purple-swal">Đăng ký gói ${tenGoi}</span>`,
                 html: `
-                    <div class="p-2">
-                        <div class="mb-4 text-sm font-bold text-slate-400">Giá gốc: ${giaGoc.toLocaleString()}₫</div>
-                        <input type="text" id="inp_code" class="input-premium text-center font-black uppercase tracking-widest" placeholder="MÃ GIẢM GIÁ">
-                        <div id="price_box" class="mt-6 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                            <div class="text-xs font-black text-slate-400 uppercase mb-1">Số tiền cần trả</div>
-                            <div id="final_txt" class="text-3xl font-black text-slate-800">${giaGoc.toLocaleString()}₫</div>
-                        </div>
+                    <p class="text-sm font-bold text-slate-600 mb-2">Giá: ${fPrice}₫/Tháng</p>
+                    <div class="relative">
+                        <input type="text" id="maCodeInput" class="input-premium font-mono !text-xs text-center border-slate-200" placeholder="NHẬP MÃ GIẢM GIÁ (NẾU CÓ)" oninput="updatePriceLive('${maGoi}', ${giaGoc})">
+                        <div id="loadingCheckGia" class="hidden absolute top-3 right-3 spinner-led-btn"></div>
+                    </div>
+                    <div class="text-center p-3 mt-3 bg-purple-50 rounded-xl">
+                        <p class="text-[10px] font-bold text-purple-600">GIÁ CUỐI CÙNG</p>
+                        <p class="text-3xl font-black text-gradient-animated" id="finalPriceDisplay">${fPrice}₫</p>
+                        <p class="text-[10px] text-slate-400 font-bold" id="msgCodeValid"></p>
                     </div>
                 `,
-                showCancelButton: true,
-                confirmButtonText: 'Xác nhận kích hoạt',
-                customClass: { popup: 'swal-animated-purple' },
+                showCancelButton: true, confirmButtonText: 'Xác nhận mua', cancelButtonText: 'Hủy',
+                buttonsStyling: false,
+                customClass: { popup: 'swal-animated-purple', confirmButton: 'btn-premium px-8 py-3 rounded-xl mx-2', cancelButton: 'bg-slate-100 text-slate-500 px-8 py-3 rounded-xl mx-2 font-bold text-xs uppercase tracking-widest' },
+            });
                 didOpen: () => {
                     const inp = document.getElementById('inp_code');
                     const txt = document.getElementById('final_txt');
