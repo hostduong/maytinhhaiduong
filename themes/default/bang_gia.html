@@ -60,9 +60,9 @@
                         {{ end }}
                     </div>
 
-                    <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full mt-auto btn-premium py-4 text-xs tracking-widest uppercase {{ if or (eq .GiaBan 0.0) (eq .NhanHienThi "PHỔ BIẾN") }}!bg-premium-gradient animate-[glowpulse_2s_infinite]{ end }}">
-                        {{ .TextNutBam }}
-                    </button>
+                    <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full mt-auto btn-premium py-4 text-xs tracking-widest uppercase {{ if or (eq .GiaBan 0.0) (eq .NhanHienThi "PHỔ BIẾN") }}!bg-premium-gradient animate-[glowpulse_2s_infinite]{{ end }}">
+    {{ .TextNutBam }}
+</button>
                 </div>
             </div>
             {{ end }}
