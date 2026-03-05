@@ -9,9 +9,20 @@ import (
 func checkLogin(c *gin.Context) bool {
 	cookie, _ := c.Cookie("session_token")
 	if cookie != "" {
+		shopID := c.GetString("SHOP_ID")
 		// Bức tường lửa: Chặn việc RAM trống làm văng user
-		_ = core.EnsureKhachHangLoaded(c.GetString("SHOP_ID"))
-		if _, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), cookie); ok { return true }
+		_ = core.EnsureKhachHangLoaded(shopID)
+		
+		// [LOCK CHUẨN]: Tìm user phải RLock
+		lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+		lock.RLock()
+		defer lock.RUnlock()
+		
+		for _, kh := range core.CacheKhachHang[shopID] {
+			if _, ok := kh.RefreshTokens[cookie]; ok { 
+				return true 
+			}
+		}
 	}
 	return false
 }
@@ -33,7 +44,19 @@ func TrangQuenMatKhau(c *gin.Context) {
 func TrangXacThucOTP(c *gin.Context) {
 	userName := ""
 	cookie, _ := c.Cookie("session_token")
-	_ = core.EnsureKhachHangLoaded(c.GetString("SHOP_ID"))
-	if kh, ok := core.TimKhachHangTheoCookie(c.GetString("SHOP_ID"), cookie); ok { userName = kh.TenDangNhap }
+	shopID := c.GetString("SHOP_ID")
+	
+	_ = core.EnsureKhachHangLoaded(shopID)
+	
+	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+	lock.RLock()
+	for _, kh := range core.CacheKhachHang[shopID] {
+		if _, ok := kh.RefreshTokens[cookie]; ok { 
+			userName = kh.TenDangNhap
+			break
+		}
+	}
+	lock.RUnlock()
+
 	c.HTML(http.StatusOK, "xac_thuc_otp", gin.H{"TieuDe": "Xác thực OTP", "User": userName})
 }
