@@ -1,53 +1,59 @@
-package ho_so
+package database_admin
 
 import (
 	"app/config"
 	"app/core"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
-// API_ThietLapDatabase: Xử lý cài đặt ID Google Sheet cho shop
-func API_ThietLapDatabase(c *gin.Context) {
-	masterShopID := c.GetString("SHOP_ID") // Thường là ID file Master
-	userID := c.GetString("USER_ID")       // ID của chủ shop
+// TrangThietLapDatabaseAdmin: Hàm hiển thị giao diện nhập ID / Tạo tự động
+func TrangThietLapDatabaseAdmin(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
 
-	loaiThietLap := c.PostForm("loai_thiet_lap")
-	sheetIDInput := c.PostForm("spreadsheet_id")
-
-	// 1. TRẠM KIỂM SOÁT ZERO-TRUST: Lấy thông tin khách hàng từ RAM Master
-	kh, ok := core.LayKhachHang(masterShopID, userID)
+	// Lấy thông tin khách để hiển thị Email lên View
+	kh, ok := core.LayKhachHang(shopID, userID)
 	if !ok {
-		c.JSON(200, gin.H{"status": "error", "msg": "Phiên đăng nhập không hợp lệ!"})
+		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	// 2. KIỂM TRA GÓI CƯỚC: Phải có ít nhất 1 gói STARTER mới được cài Database
-	hasStarter := false
-	for _, p := range kh.GoiDichVu {
-		if p.LoaiGoi == "STARTER" && p.TrangThai == "active" {
-			hasStarter = true
-			break
-		}
-	}
-	if !hasStarter {
-		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa kích hoạt gói dịch vụ STARTER!"})
+	c.HTML(http.StatusOK, "database_admin", gin.H{
+		"TieuDe":    "Khởi tạo Database - 99K.VN",
+		"KhachHang": kh,
+	})
+}
+
+// API_ThietLapDatabase: Xử lý logic Clone file hoặc lưu ID thủ công
+func API_ThietLapDatabase(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") // ID Master
+	userID := c.GetString("USER_ID") // ID của Chủ shop đang thao tác
+
+	loaiThietLap := c.PostForm("loai_thiet_lap") // "auto" hoặc "manual"
+	sheetIDInput := c.PostForm("spreadsheet_id")
+
+	kh, ok := core.LayKhachHang(shopID, userID)
+	if !ok {
+		c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy tài khoản!"})
 		return
 	}
 
 	var newSpreadsheetID string
 
-	// 3. THỰC THI KHỞI TẠO
 	if loaiThietLap == "auto" {
-		// Gọi hàm Clone Sheet mẫu từ core (Sử dụng Service Account của hệ thống)
+		// Gọi hàm clone file mẫu và share quyền cho Email của khách
 		idMoi, err := core.HamCloneVaCapQuyenSheet(kh.Email, kh.TenDangNhap, config.BienCauHinh.GoogleAuthJson)
 		if err != nil {
-			c.JSON(200, gin.H{"status": "error", "msg": "Lỗi hạ tầng Google: " + err.Error()})
+			c.JSON(200, gin.H{"status": "error", "msg": "Lỗi tạo tự động: " + err.Error()})
 			return
 		}
 		newSpreadsheetID = idMoi
 	} else {
+		// Nhập thủ công
 		if sheetIDInput == "" {
 			c.JSON(200, gin.H{"status": "error", "msg": "Vui lòng nhập Spreadsheet ID!"})
 			return
@@ -55,25 +61,25 @@ func API_ThietLapDatabase(c *gin.Context) {
 		newSpreadsheetID = sheetIDInput
 	}
 
-	// 4. CẬP NHẬT RAM VÀ ĐẨY QUEUE (Sheet KHACH_HANG)
-	lock := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
+	// Cập nhật ID mới vào RAM Master
+	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
 	lock.Lock()
 	kh.DataSheets.SpreadsheetID = newSpreadsheetID
 	jsonBytes, _ := json.Marshal(kh.DataSheets)
 	strJson := string(jsonBytes)
-	row, tenSubdomain := kh.DongTrongSheet, kh.TenDangNhap
+	row := kh.DongTrongSheet
+	tenSubdomain := kh.TenDangNhap // Lấy tên đăng nhập để làm Subdomain
 	lock.Unlock()
 
-	// Đẩy lệnh ghi Sheet Master qua Queue
-	core.PushUpdate(masterShopID, core.TenSheetKhachHang, row, core.CotKH_DataSheetsJson, strJson)
+	// Đẩy lệnh xuống Queue để lưu vào Google Sheet Master
+	core.PushUpdate(shopID, core.TenSheetKhachHang, row, core.CotKH_DataSheetsJson, strJson)
 
-	// 5. PHẢN HỒI VÀ BẺ LÁI TUYỆT ĐỐI
-	// Trả về URL dẫn về Subdomain riêng của họ để bắt đầu làm việc
+	// Bẻ lái về trang tổng quan trên Subdomain riêng của khách hàng
 	redirectURL := fmt.Sprintf("https://%s.99k.vn/admin/tong-quan", tenSubdomain)
 
 	c.JSON(200, gin.H{
-		"status":       "ok", 
-		"msg":          "Database đã được thiết lập!",
+		"status":       "ok",
+		"msg":          "Khởi tạo Database thành công!",
 		"redirect_url": redirectURL,
 	})
 }
