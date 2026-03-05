@@ -62,6 +62,22 @@ func API_Register(c *gin.Context) {
 	}
 }
 
+// ================= CÁC API PHỤC VỤ QUÊN MẬT KHẨU =================
+
+func API_SendOtp(c *gin.Context) {
+	if err := service.SendOtp(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh"))); err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
+	}
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đã gửi mã OTP đến Email đăng ký của bạn!"})
+}
+
+func API_ResetByOtp(c *gin.Context) {
+	if err := service.ResetByOtp(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("otp")), strings.TrimSpace(c.PostForm("pass_moi"))); err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
+	}
+	c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mật khẩu thành công!"})
+}
+
 func API_ResetByPin(c *gin.Context) {
 	if err := service.ResetByPin(c.GetString("SHOP_ID"), strings.TrimSpace(c.PostForm("dinh_danh")), strings.TrimSpace(c.PostForm("pin")), strings.TrimSpace(c.PostForm("pass_moi"))); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()}); return
