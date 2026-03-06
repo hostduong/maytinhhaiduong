@@ -19,7 +19,7 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan_admin"
     "app/modules/tong_quan_master"
-	"app/modules/trang_chu_admin"
+	"app/modules/bang_gia_admin"
 
 	"github.com/gin-gonic/gin"
 )
