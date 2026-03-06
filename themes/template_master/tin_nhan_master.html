@@ -24,7 +24,7 @@
 
                 <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0 h-full min-h-0 w-full">
                     
-                    <button id="btnToggleSidebar" onclick="toggleSidebar()" class="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-4 w-8 h-16 bg-white border border-slate-200 rounded-full items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.05)] z-[100] group">
+                    <button id="btnToggleContact" onclick="toggleContactPane()" class="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-4 w-8 h-16 bg-white border border-slate-200 rounded-full items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.05)] z-[100] group">
                         <svg id="iconToggle" class="w-4 h-4 transition-transform duration-300 text-slate-400 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                         </svg>
@@ -151,7 +151,7 @@
         let chatData = [];
         let userMap = {}; 
         let activeChatID = null;
-        let isSidebarOpen = true;
+        let isContactPaneOpen = true; // Đã đổi tên biến để không đụng hệ thống
 
         const chkBot = document.getElementById('chatAsBot');
         if (chkBot) {
@@ -164,31 +164,34 @@
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // YÊU CẦU 3: HÀM ĐÓNG MỞ KÉO DÃN CHAT
-        function toggleSidebar() {
-            isSidebarOpen = !isSidebarOpen;
-            const sidebar = document.getElementById('contactPane');
-            const btn = document.getElementById('btnToggleSidebar');
+        // ĐÃ FIX: Hàm co dãn chỉ đóng mở danh sách người nhắn, không đụng vào Menu trái của Hệ thống
+        function toggleContactPane() {
+            isContactPaneOpen = !isContactPaneOpen;
+            const pane = document.getElementById('contactPane');
+            const btn = document.getElementById('btnToggleContact');
             const icon = document.getElementById('iconToggle');
 
-            if (isSidebarOpen) {
-                sidebar.classList.remove('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
-                sidebar.classList.add('md:w-80', 'lg:w-[400px]');
+            if (isContactPaneOpen) {
+                // Trạng thái hiển thị danh sách người nhắn
+                pane.classList.remove('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
+                pane.classList.add('md:w-80', 'lg:w-[400px]');
                 
                 btn.classList.remove('left-0', 'rounded-l-none', 'border-l-0', 'w-6');
                 btn.classList.add('-left-4', 'rounded-full', 'w-8');
+                // Icon Mũi tên hướng sang trái <<
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />';
             } else {
-                sidebar.classList.add('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
-                sidebar.classList.remove('md:w-80', 'lg:w-[400px]');
+                // Trạng thái ẩn danh sách người nhắn
+                pane.classList.add('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
+                pane.classList.remove('md:w-80', 'lg:w-[400px]');
                 
                 btn.classList.remove('-left-4', 'rounded-full', 'w-8');
                 btn.classList.add('left-0', 'rounded-l-none', 'border-l-0', 'w-6');
+                // Icon Mũi tên hướng sang phải >>
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
             }
         }
 
-        // YÊU CẦU 4: FORMAT THỜI GIAN THÔNG MINH
         function formatChatTime(dateStr) {
             if (!dateStr) return "";
             const parts = dateStr.split(' ');
@@ -294,7 +297,6 @@
                 const strSearch = removeAccents(`${u.name} ${u.user} ${u.id}`).toLowerCase();
                 if (!strSearch.includes(query)) return;
 
-                // YÊU CẦU 2: FIX THANH MÀU TÍM ẢNH HƯỞNG NHIỀU NGƯỜI
                 const isSelected = (String(u.id) === String(activeChatID));
                 const activeClasses = isSelected ? 'bg-purple-50/80 shadow-[inset_4px_0_0_#9333ea]' : 'hover:bg-slate-50';
                 
@@ -412,7 +414,6 @@
                     let isMe = (m.sender === myUserID);
                     let formattedTime = formatChatTime(m.time);
                     
-                    // YÊU CẦU 4: THỜI GIAN ĐƯỢC CHÈN VÀO GIỮA - TRÊN CÙNG CỦA BLOCK
                     let timeBadge = `<div class="w-full flex justify-center mb-3 mt-1"><span class="text-[10px] text-slate-400 font-bold bg-slate-200/40 px-3 py-0.5 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.02)] tracking-wide z-10">${formattedTime}</span></div>`;
 
                     if (m.type === 'SYSTEM' || m.type === 'AUTO' || m.type === 'ALL' || m.sender === '0000000000000000000') {
