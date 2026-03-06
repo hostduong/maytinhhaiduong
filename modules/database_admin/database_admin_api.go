@@ -74,8 +74,8 @@ func API_ThietLapDatabase(c *gin.Context) {
 	// Đẩy lệnh xuống Queue để lưu vào Google Sheet Master
 	core.PushUpdate(shopID, core.TenSheetKhachHang, row, core.CotKH_DataSheetsJson, strJson)
 
-	// Bẻ lái về trang tổng quan trên Subdomain riêng của khách hàng
-	redirectURL := fmt.Sprintf("https://%s.99k.vn/admin/tong-quan", tenSubdomain)
+	// [SỬA Ở ĐÂY]: Không văng ra subdomain của khách nữa, giữ họ lại Tổng Hành Dinh
+	redirectURL := "https://admin.99k.vn/tong-quan"
 
 	c.JSON(200, gin.H{
 		"status":       "ok",
