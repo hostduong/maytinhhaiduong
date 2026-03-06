@@ -56,6 +56,9 @@ func IdentifyTenant() gin.HandlerFunc {
 		c.Set("APP_MODE", appMode)
 		c.Set("THEME", theme)
 		c.Set("SHOP_ID", shopID)
+		if appMode == "STOREFRONT" && shopID != "" {
+			core.DanhDauTruyCapShop(shopID)
+		}
 
 		c.Next()
 	}
