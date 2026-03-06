@@ -50,22 +50,8 @@ func main() {
 	core.KhoiTaoNenTang() 
 	core.KhoiTaoWorkerGhiSheet()
 
-	// Đẩy quá trình nạp RAM xuống nền để Server không bị nghẽn
-	go func() {
-		log.Println("📦 [BOOT BACKGROUND] Đang nạp toàn bộ Master Data lên RAM...")
-		core.NapPhanQuyen("")
-		core.NapKhachHang("")
-		core.NapGoiDichVu("")
-		core.NapDanhMuc("")
-		core.NapThuongHieu("")
-		core.NapBienLoiNhuan("")
-		core.NapNhaCungCap("")
-		core.NapMayTinh("")
-		core.NapTinNhan("")
-		core.NapPhieuNhap("")
-		core.NapSerial("")
-		log.Println("✅ [BOOT BACKGROUND] Nạp dữ liệu hoàn tất!")
-	}()
+	// Kích hoạt Động cơ Nạp Lõi & Admin chạy ngầm
+	go core.KhoiDongHeThongNapDuLieu()
 
 	router := routers.SetupRouter()
 	
