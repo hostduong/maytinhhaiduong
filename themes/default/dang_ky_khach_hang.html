@@ -1,0 +1,191 @@
+{{ define "dang_ky_khach_hang" }}
+    {{ template "header" . }}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .iti { width: 100%; display: block; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
+        input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
+
+        .input-premium {
+            width: 100%; padding: 0.75rem 1rem; border-radius: 0.5rem;
+            border: 1px solid #d1d5db; background-color: #ffffff;
+            transition: all 0.2s ease-in-out; outline: none !important; box-shadow: none; color: #1f2937;
+        }
+        .input-premium:focus { border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important; }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c; }
+        .input-error:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; }
+        .input-success { border-color: #22c55e !important; background-color: #f0fdf4 !important; color: #15803d; }
+        .input-success:focus { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important; }
+
+        .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 500; margin-top: 0.35rem; display: none; }
+        .error-text.show { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        button:disabled { opacity: 0.5; cursor: not-allowed; background-color: #9ca3af !important; box-shadow: none !important; transform: none !important; }
+    </style>
+
+    <div class="flex items-center justify-center min-h-[calc(100vh-200px)] py-12 px-4 bg-gray-50">
+        <div class="w-full max-w-2xl bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-green-600 tracking-tight">{{ .TieuDe }}</h2>
+                <p class="mt-2 text-sm text-gray-500 font-medium">Mua sắm dễ dàng, tích điểm nhận quà</p>
+            </div>
+
+            {{ if .Loi }}
+            <script>document.addEventListener('DOMContentLoaded', () => { Swal.fire({ icon: 'error', title: 'Lỗi đăng ký', text: '{{ .Loi }}', confirmButtonColor: '#22c55e' }); });</script>
+            {{ end }}
+
+            <form id="formDangKy" action="/register" method="POST" autocomplete="off" spellcheck="false" novalidate class="space-y-6">
+                <input type="hidden" name="ten_dang_nhap" id="ten_dang_nhap">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
+                        <input id="ho_ten" name="ho_ten" type="text" autocomplete="off" class="input-premium" placeholder="Nguyễn Văn A">
+                        <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự, không chứa số hoặc ký tự lạ.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Giới tính</label>
+                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+                        <input id="email" name="email" type="email" autocomplete="off" class="input-premium" placeholder="abc@gmail.com">
+                        <p id="err_email" class="error-text">Email không đúng định dạng.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Điện thoại <span class="text-red-500">*</span></label>
+                        <input id="dien_thoai" name="dien_thoai" type="tel" autocomplete="off" class="input-premium">
+                        <p id="err_dien_thoai" class="error-text">Vui lòng nhập định dạng SĐT hợp lệ.</p>
+                        <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Mật khẩu <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="mat_khau" name="mat_khau" type="password" autocomplete="new-password" class="input-premium pr-10" placeholder="••••••••">
+                        </div>
+                        <p id="err_mat_khau" class="error-text">8-30 ký tự. Gồm chữ, số và !@#$%^&*()-_+.,?</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Nhập lại mật khẩu <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="re_mat_khau" type="password" autocomplete="new-password" class="input-premium pr-10" placeholder="••••••••">
+                        </div>
+                        <p id="err_re_mat_khau" class="error-text">Mật khẩu nhập lại không khớp.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1.5">Mã PIN bảo mật (8 số) <span class="text-red-500">*</span></label>
+                    <input id="ma_pin" name="ma_pin" type="password" maxlength="8" autocomplete="new-password" class="input-premium tracking-[0.3em] font-mono text-lg" placeholder="••••••••">
+                    <p id="err_ma_pin" class="error-text">Mã PIN phải đúng 8 chữ số để bảo mật ví điểm thưởng.</p>
+                </div>
+
+                <div class="flex items-start pt-2">
+                    <div class="flex items-center h-5">
+                        <input id="terms" type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="font-medium text-gray-700 cursor-pointer">Tôi đồng ý với chính sách mua hàng.</label>
+                    </div>
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-black tracking-widest rounded-xl text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 transition transform hover:-translate-y-0.5 active:scale-95 uppercase">
+                        ĐĂNG KÝ NGAY
+                    </button>
+                </div>
+                <div class="text-center text-sm font-medium mt-6">
+                    Đã có tài khoản? <a href="/login" class="text-green-600 hover:text-green-700 font-bold hover:underline">Đăng nhập tại đây</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const inputPhone = document.querySelector("#dien_thoai");
+        const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+        const RULES = {
+            ho_ten: { regex: /^[\p{L}\s]{6,50}$/u },
+            email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/ },
+            ma_pin: { regex: /^\d{8}$/ },
+            mat_khau: { regex: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ }
+        };
+
+        function setState(id, state) {
+            const el = document.getElementById(id);
+            const err = document.getElementById('err_' + id);
+            el.classList.remove('input-error', 'input-success');
+            if(err) err.classList.remove('show');
+            if (state === 'error') { el.classList.add('input-error'); if(err) err.classList.add('show'); } 
+            else if (state === 'success') { el.classList.add('input-success'); }
+            checkSubmit();
+        }
+
+        Object.keys(RULES).forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => {
+                if(id==='email') el.value = el.value.toLowerCase();
+                if(el.value !== "" && RULES[id].regex.test(el.value)) setState(id, 'success');
+                else setState(id, 'normal');
+            });
+            el.addEventListener('blur', () => {
+                if(el.value !== "" && !RULES[id].regex.test(el.value)) setState(id, 'error');
+            });
+        });
+
+        document.getElementById('re_mat_khau').addEventListener('input', function() {
+            if(this.value !== "" && this.value === document.getElementById('mat_khau').value) setState('re_mat_khau', 'success');
+            else setState('re_mat_khau', 'normal');
+        });
+        document.getElementById('re_mat_khau').addEventListener('blur', function() {
+            if(this.value !== "" && this.value !== document.getElementById('mat_khau').value) setState('re_mat_khau', 'error');
+        });
+
+        inputPhone.addEventListener('blur', () => {
+            if(inputPhone.value.trim() !== "") {
+                if(!iti.isValidNumber()) setState('dien_thoai', 'error'); else setState('dien_thoai', 'success');
+            } else setState('dien_thoai', 'normal');
+        });
+
+        document.getElementById('terms').addEventListener('change', checkSubmit);
+
+        function checkSubmit() {
+            const ids = ['ho_ten', 'email', 'ma_pin', 'mat_khau', 're_mat_khau'];
+            let ok = true;
+            ids.forEach(id => { if (!document.getElementById(id).classList.contains('input-success')) ok = false; });
+            if (inputPhone.value.trim() === "" || !iti.isValidNumber() || !document.getElementById('terms').checked) ok = false;
+            document.getElementById('btnSubmit').disabled = !ok;
+        }
+
+        document.getElementById('formDangKy').addEventListener('submit', function(e) {
+            if (document.getElementById('btnSubmit').disabled) { e.preventDefault(); return; }
+            
+            // Xử lý tự động lấy số điện thoại làm tên đăng nhập ngầm cho hệ thống
+            const fullPhone = iti.getNumber();
+            document.getElementById("dien_thoai_full").value = fullPhone;
+            
+            // Loại bỏ dấu +, dùng sđt làm Tên đăng nhập (VD: 84912345678)
+            document.getElementById("ten_dang_nhap").value = fullPhone.replace('+', ''); 
+
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = `ĐANG TẠO TÀI KHOẢN...`;
+        });
+    </script>
+    {{ template "footer" . }}
+{{ end }}
