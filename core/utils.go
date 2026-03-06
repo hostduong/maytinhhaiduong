@@ -139,10 +139,10 @@ func LayChiTietSKUMayTinh(shopID, id string) (*SanPhamMayTinh, bool) {
 }
 
 // =======================================================
-// TIN NHẮN (Dùng khóa TenSheetTinNhan)
+// TIN NHẮN (Dùng khóa TenSheetTinNhanMaster)
 // =======================================================
 func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
-	lock := GetSheetLock(shopID, TenSheetTinNhan)
+	lock := GetSheetLock(shopID, TenSheetTinNhanMaster)
 	lock.RLock(); defer lock.RUnlock()
 	var rs []*TinNhan
 	for _, tn := range CacheTinNhan[shopID] {
@@ -154,22 +154,22 @@ func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
 }
 
 func ThemMoiTinNhan(shopID string, tn *TinNhan) {
-	lock := GetSheetLock(shopID, TenSheetTinNhan)
+	lock := GetSheetLock(shopID, TenSheetTinNhanMaster)
 	lock.Lock()
 	tn.DongTrongSheet = DongBatDau_TinNhan + len(CacheTinNhan[shopID])
 	CacheTinNhan[shopID] = append(CacheTinNhan[shopID], tn)
 	lock.Unlock()
 	
-	PushAppend(shopID, TenSheetTinNhan, []interface{}{ tn.MaTinNhan, tn.LoaiTinNhan, tn.NguoiGuiID, tn.NguoiNhanID, tn.TieuDe, tn.NoiDung, "", tn.ThamChieuID, tn.ReplyChoID, tn.NgayTao, "[]", "" })
+	PushAppend(shopID, TenSheetTinNhanMaster, []interface{}{ tn.MaTinNhan, tn.LoaiTinNhan, tn.NguoiGuiID, tn.NguoiNhanID, tn.TieuDe, tn.NoiDung, "", tn.ThamChieuID, tn.ReplyChoID, tn.NgayTao, "[]", "" })
 }
 
 func DanhDauDocTinNhan(shopID, userID, msgID string) {
-	lock := GetSheetLock(shopID, TenSheetTinNhan)
+	lock := GetSheetLock(shopID, TenSheetTinNhanMaster)
 	lock.Lock(); defer lock.Unlock()
 	for _, tn := range CacheTinNhan[shopID] {
 		if tn.MaTinNhan == msgID {
 			daDoc := false; for _, u := range tn.NguoiDoc { if u == userID { daDoc = true; break } }
-			if !daDoc { tn.NguoiDoc = append(tn.NguoiDoc, userID); b, _ := json.Marshal(tn.NguoiDoc); PushUpdate(shopID, TenSheetTinNhan, tn.DongTrongSheet, CotTN_NguoiDocJson, string(b)) }
+			if !daDoc { tn.NguoiDoc = append(tn.NguoiDoc, userID); b, _ := json.Marshal(tn.NguoiDoc); PushUpdate(shopID, TenSheetTinNhanMaster, tn.DongTrongSheet, CotTN_NguoiDocJson, string(b)) }
 			break
 		}
 	}
@@ -189,7 +189,7 @@ func LayIntStr(s string) int {
 // TRẠM KIỂM SOÁT BẢO VỆ DỮ LIỆU (GATEKEEPER)
 // =======================================================
 func EnsureKhachHangLoaded(shopID string) error {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin } // Fallback chuẩn xác
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
 	
 	StatusMutex.RLock()
 	status := CacheStatusKhachHang[shopID]
@@ -210,9 +210,13 @@ func EnsureKhachHangLoaded(shopID string) error {
 		return fmt.Errorf("Hệ thống đang đồng bộ dữ liệu. Vui lòng thử lại sau giây lát!")
 	}
 
-	err := NapKhachHang(shopID)
-	if err != nil {
-		return fmt.Errorf("Máy chủ đang bị gián đoạn kết nối dữ liệu. Vui lòng F5 và thử lại!")
+	// [ĐÃ FIX]: Sử dụng Động cơ Định tuyến chuẩn thay vì gọi hàm cũ đã xóa
+	if shopID == config.BienCauHinh.IdFileSheetMaster {
+		return NapKhachHangMaster(shopID)
+	} else if shopID == config.BienCauHinh.IdFileSheetAdmin {
+		return NapKhachHangAdmin(shopID)
+	} else {
+		NapDuLieuCuaMotShop(shopID)
+		return nil
 	}
-	return nil
 }
