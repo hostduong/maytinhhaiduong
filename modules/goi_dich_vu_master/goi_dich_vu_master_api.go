@@ -1,14 +1,29 @@
 package goi_dich_vu_master
 
 import (
+	"app/config"
+	"app/core"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
-// [ĐÃ ĐỔI TÊN CHUẨN MASTER]
 func API_LuuGoiDichVuMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
+	userID := c.GetString("USER_ID")
+
+	// [CHỐT CHẶN BẢO MẬT]: Kiểm tra mã PIN của Sếp
+	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
+	me, _ := core.LayKhachHang(shopID, userID)
+	if me == nil || me.MaPinHash == "" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN bảo mật!"})
+		return
+	}
+	if !config.KiemTraMatKhau(pinXacNhan, me.MaPinHash) {
+		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
+		return
+	}
 	
 	gn, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_niem_yet"), ".", ""), 64)
 	gb, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_ban"), ".", ""), 64)
