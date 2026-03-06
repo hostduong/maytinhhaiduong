@@ -1,27 +1,27 @@
-package trang_chu_admin
+package bang_gia_admin // Đổi tên package
 
 import (
 	"net/http"
-
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
 
-// Bọc thêm dữ liệu hiển thị động cho gói cước
 type GoiDichVuView struct {
 	*core.GoiDichVu
 	TextNutBam string 
 }
 
-func TrangChuAdmin(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID") // Đây là ID của Master (Nơi chứa Bảng Giá)
-	userID := c.GetString("USER_ID") // ID của khách hàng đang đăng nhập
+// Đổi tên hàm thành TrangBangGiaAdmin
+func TrangBangGiaAdmin(c *gin.Context) {
+	shopID := c.GetString("SHOP_ID") 
+	userID := c.GetString("USER_ID")
 
 	kh, ok := core.LayKhachHang(shopID, userID)
 	if !ok {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
+	
 
 	// 1. Kiểm tra khách hàng đã có gói nền tảng (STARTER) chưa
 	hasStarter := false
@@ -64,9 +64,9 @@ func TrangChuAdmin(c *gin.Context) {
 	}
 
 	// 4. Bơm dữ liệu ra View (Kết hợp Layout Admin)
-	c.HTML(http.StatusOK, "trang_chu_admin", gin.H{
-		"TieuDe":     "Tổng Quan Hệ Thống", // Tên hiển thị trên Header PC
-		"NhanVien":   kh,                   // Truyền xuống để hiện Avatar trên Sidebar
+    c.HTML(http.StatusOK, "bang_gia_admin", gin.H{
+		"TieuDe":     "Bảng Giá Dịch Vụ", 
+		"NhanVien":   kh,                   
 		"ListGoi":    listGoiView,
 		"HasStarter": hasStarter,
 	})
