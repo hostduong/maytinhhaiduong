@@ -71,6 +71,7 @@ func IdentifyTenant() gin.HandlerFunc {
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		shopID := c.GetString("SHOP_ID")
+		appMode := c.GetString("APP_MODE") // LẤY APP MODE RA
 
 		cookie, err := c.Cookie("session_token")
 		if err != nil || cookie == "" {
@@ -78,8 +79,19 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
-		// [LOCK CHUẨN]: Chỉ khóa Sheet Khách Hàng của Shop đang truy cập
-		lockKH := core.GetSheetLock(shopID, core.TenSheetKhachHang)
+		// [ĐÃ FIX LỖI LOCK MISMATCH]: Chọn đúng Tên Sheet Khách Hàng theo Vũ trụ
+		sheetKH := core.TenSheetKhachHang
+		sheetPQ := core.TenSheetPhanQuyen
+		if appMode == "MASTER_CORE" {
+			sheetKH = core.TenSheetKhachHangMaster
+			sheetPQ = core.TenSheetPhanQuyenMaster
+		} else if appMode == "TENANT_ADMIN" {
+			sheetKH = core.TenSheetKhachHangAdmin
+			sheetPQ = core.TenSheetPhanQuyenAdmin
+		}
+
+		// [LOCK CHUẨN]: Sử dụng biến sheetKH thay vì hardcode
+		lockKH := core.GetSheetLock(shopID, sheetKH)
 		lockKH.RLock()
 		
 		var user *core.KhachHang
@@ -104,8 +116,8 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
-		// [LOCK CHUẨN]: Chỉ khóa Sheet Phân Quyền của Shop đang truy cập
-		lockPQ := core.GetSheetLock(shopID, core.TenSheetPhanQuyen)
+		// [LOCK CHUẨN]: Sử dụng biến sheetPQ thay vì hardcode
+		lockPQ := core.GetSheetLock(shopID, sheetPQ)
 		lockPQ.RLock()
 		userLevel := 9
 		if user.MaKhachHang == "0000000000000000001" || user.VaiTroQuyenHan == "quan_tri_he_thong" {
