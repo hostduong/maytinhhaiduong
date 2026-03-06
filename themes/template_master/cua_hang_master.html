@@ -11,8 +11,8 @@
                 <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
 
-            <button type="button" onclick="openMessageModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap uppercase tracking-widest text-xs">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+            <button type="button" onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
                 Gửi Thông Báo (<span id="countSelected">0</span>)
             </button>
         </div>
@@ -89,7 +89,7 @@
         {{ end }}
     </div>
 
-    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="relative w-full max-w-5xl rounded-[1.5rem] p-[2px] overflow-hidden shadow-2xl transition-all duration-500">
             <div class="absolute inset-[-50%] w-[200%] h-[200%] animate-[spin-slow_4s_linear_infinite] bg-[conic-gradient(transparent,transparent,transparent,#7e22ce,#4f46e5,#ec4899,transparent)] z-0 pointer-events-none"></div>
             
@@ -105,7 +105,6 @@
                 <div class="p-8 overflow-y-auto custom-scroll flex-1">
                     <form id="formEdit" class="grid grid-cols-1 lg:grid-cols-2 gap-8" autocomplete="off">
                         <input type="hidden" name="ma_khach_hang" id="f_ma">
-                        
                         <div class="space-y-6">
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px] mb-6 flex items-center gap-2"><span class="w-1.5 h-4 bg-purple-600 rounded-full"></span> Thông tin chủ shop</h4>
@@ -118,7 +117,6 @@
                                     <div><label class="form-lbl">Email liên hệ</label><input type="email" name="email" id="f_email" class="input-premium"></div>
                                 </div>
                             </div>
-                            
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px] mb-6 flex items-center gap-2"><span class="w-1.5 h-4 bg-orange-500 rounded-full"></span> Bảo mật hệ thống</h4>
                                 <div><label class="form-lbl text-orange-700">Mật khẩu đăng nhập mới</label><input type="password" name="mat_khau_moi" class="input-premium border-orange-100 bg-orange-50/20" placeholder="Để trống nếu không đổi..."></div>
@@ -131,26 +129,25 @@
                                 <div class="space-y-5">
                                     <div>
                                         <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Google Spreadsheet ID (Database)</label>
-                                        <input type="text" name="spreadsheet_id" id="f_sheet" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-indigo-100 outline-none focus:border-indigo-400 transition" placeholder="1afUZ6nmk...">
+                                        <input type="text" name="spreadsheet_id" id="f_sheet" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-indigo-100 outline-none focus:border-indigo-400 transition">
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Tên miền riêng (Custom Domain)</label>
-                                        <input type="text" name="custom_domain" id="f_domain" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-emerald-400 outline-none focus:border-emerald-400 transition" placeholder="shopcuatoi.com">
+                                        <input type="text" name="custom_domain" id="f_domain" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-emerald-400 outline-none focus:border-emerald-400 transition">
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Trạng thái vận hành</label>
                                         <select name="trang_thai" id="f_status" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-black text-white outline-none cursor-pointer">
-                                            <option value="1" class="text-slate-900">🟢 Đang hoạt động</option>
-                                            <option value="0" class="text-slate-900">🟡 Tạm dừng/Bảo trì</option>
-                                            <option value="-1" class="text-slate-900">🔴 Ngừng cung cấp (Xóa)</option>
+                                            <option value="1">🟢 Đang hoạt động</option>
+                                            <option value="0">🟡 Tạm dừng/Bảo trì</option>
+                                            <option value="-1">🔴 Ngừng cung cấp (Xóa)</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1">
-                                <label class="form-lbl">Ghi chú quản trị (Sếp lưu ý)</label>
-                                <textarea name="ghi_chu" id="f_note" rows="5" class="input-premium leading-relaxed" placeholder="Lịch sử thanh toán, yêu cầu riêng..."></textarea>
+                                <label class="form-lbl">Ghi chú quản trị</label>
+                                <textarea name="ghi_chu" id="f_note" rows="5" class="input-premium leading-relaxed" placeholder="Yêu cầu riêng..."></textarea>
                             </div>
                         </div>
                     </form>
@@ -158,8 +155,7 @@
 
                 <div class="px-8 py-5 border-t border-slate-100 bg-white flex justify-end items-center gap-4 shrink-0">
                     <button type="button" onclick="closeModal('modalEdit')" class="px-6 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition text-[12px] uppercase tracking-widest">Hủy Bỏ</button>
-                    <button type="button" id="btnSaveShop" onclick="saveShop()" class="px-10 py-3 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-lg shadow-purple-200 transition active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <button type="button" id="btnSaveShop" onclick="saveShop()" class="px-10 py-3 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-lg transition active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center gap-2">
                         Lưu Thông Tin
                     </button>
                 </div>
@@ -168,7 +164,6 @@
     </div>
 
     <script>
-        // --- LOGIC ĐẶC THÙ CHO QUẢN LÝ CỬA HÀNG ---
         function filterTable(inputId, tableId) {
             const input = document.getElementById(inputId); const filter = input.value.toLowerCase();
             const rows = document.getElementById(tableId).getElementsByTagName("tr");
@@ -208,12 +203,11 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         async function saveShop() {
-            // Gọi hàm nhập PIN xịn sò từ dong_bo_sheets (Sếp cần đảm bảo hàm askMasterPIN có sẵn)
             const pinXacNhan = await askMasterPIN();
             if(!pinXacNhan) return;
 
             const btn = document.getElementById('btnSaveShop'); const old = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = '<div class="spinner-led-btn"></div> Đang xử lý...';
+            btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
 
             const fd = new FormData(document.getElementById('formEdit'));
             fd.append('pin_xac_nhan', pinXacNhan);
@@ -222,29 +216,46 @@
                 const res = await fetch('/master/api/cua-hang/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, timer: 1500, showConfirmButton: false }).then(() => location.reload());
+                    showSuccessAlert(data.msg).then(() => location.reload());
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Lỗi', text: data.msg });
+                    showErrorAlert(data.msg);
                     btn.disabled = false; btn.innerHTML = old;
                 }
             } catch(e) {
-                Swal.fire({ icon: 'error', title: 'Lỗi kết nối' });
+                showErrorAlert("Lỗi kết nối máy chủ!");
                 btn.disabled = false; btn.innerHTML = old;
             }
         }
 
-        // --- HÀM NHẬP PIN VIP (COPY TỪ DONG-BO-SHEETS) ---
+        // --- HÀM NHẬP PIN VIP (COPY 100% TỪ DONG-BO-SHEETS) ---
+        function toggleSwalPin() {
+            const input = document.getElementById('swal-pin-input');
+            const eyeSlash = document.getElementById('eye_slash_swal'); const eyeOpen = document.getElementById('eye_open_swal');
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        }
+
+        window.checkPinLength = function(input) {
+            if (input.value.length === 8) {
+                input.classList.add('border-emerald-500', 'text-emerald-600');
+            } else {
+                input.classList.remove('border-emerald-500', 'text-emerald-600');
+            }
+        }
+
         async function askMasterPIN() {
             const { value: pinXacNhan } = await Swal.fire({
                 title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><span class="text-2xl font-black tracking-tight text-gradient-animated">Bảo mật 2 lớp</span></div>',
-                customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-8 py-3 transition border border-slate-200' },
-                buttonsStyling: false, reverseButtons: true, showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ',
+                customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 transition active:scale-95 border border-slate-200' },
+                buttonsStyling: false, 
                 html: `
-                    <div class="text-[14px] text-slate-600 mb-8 font-medium">Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của sếp.</div>
+                    <div class="text-[14px] text-slate-600 mb-8 font-medium leading-relaxed">Hệ thống yêu cầu xác minh danh tính.<br>Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của bạn.</div>
                     <div class="relative w-full max-w-[280px] mx-auto group">
-                        <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none focus:border-purple-500" maxlength="8" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 placeholder-slate-300" maxlength="8" autocomplete="new-password" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkPinLength(this);">
+                        <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-2 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl"><svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                     </div>
                 `,
+                showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ', reverseButtons: true, 
                 preConfirm: () => { 
                     const val = document.getElementById('swal-pin-input').value; 
                     if (val.length < 8) { Swal.showValidationMessage('Vui lòng nhập đủ 8 số!'); return false; } 
@@ -253,6 +264,9 @@
             });
             return pinXacNhan;
         }
+
+        function showSuccessAlert(msg) { return Swal.fire({ title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Hoàn Tất</span></div>', html: `<div class="text-[15px] text-slate-600 font-medium px-4">${msg}</div>`, customClass: { popup: 'swal-master-success' }, showConfirmButton: false, timer: 1500 }); }
+        function showErrorAlert(msg) { return Swal.fire({ title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Hệ Thống</span></div>', html: `<div class="text-[15px] text-orange-900 font-medium px-4">${msg}</div>`, customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' }, buttonsStyling: false, confirmButtonText: 'Đã hiểu' }); }
     </script>
 
     {{ template "footer_master" . }}
