@@ -1,0 +1,113 @@
+{{ define "thanh_vien_master" }}
+    {{ template "header_master" . }}
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+
+    <script>
+        window.MasterConfig = {
+            currentUserID: "{{ .NhanVien.MaKhachHang }}",
+            myLevel: {{ .NhanVien.StyleLevel }}
+        };
+    </script>
+
+    <div class="max-w-7xl mx-auto pb-6 mb-24 sm:mb-10">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full">
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="searchMember" onkeyup="filterTable('searchMember', 'tbodyMembers')" placeholder="Tìm ID, Tên, SĐT, Zalo, Nguồn..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button type="button" onclick="openMessageModal()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                Gửi Thông Báo (<span id="countSelected">0</span>)
+            </button>
+        </div>
+
+        <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
+            <div class="animated-border-inner flex flex-col w-full relative">
+                <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/15 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
+                <div class="overflow-x-auto w-full relative z-10 table-scroll">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-[10px] sm:text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-2 sm:px-5 py-3 sm:py-4 text-center w-8 sm:w-12 cursor-pointer hover:bg-slate-100 transition" onclick="if(event.target.tagName !== 'INPUT') { let cb = document.getElementById('checkAll'); cb.checked = !cb.checked; toggleAllCheckboxes(); }">
+                                    <input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                                </th>
+                                <th class="px-2 sm:px-4 py-3 sm:py-4 font-black tracking-wider sm:tracking-widest text-slate-700 uppercase">Thành Viên</th>
+                                <th class="px-4 py-4 font-black tracking-widest text-slate-700 whitespace-nowrap hidden sm:table-cell uppercase">THÔNG TIN</th>
+                                <th class="px-4 py-4 font-black text-center tracking-widest text-slate-700 w-36 whitespace-nowrap hidden sm:table-cell uppercase">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
+                            {{ range .DanhSach }}
+                            <tr class="hover-soft-row cursor-pointer transition-colors relative {{ if eq .TrangThai 0 }}row-locked{{ else if eq .TrangThai -1 }}row-deleted{{ end }}" onclick="editMember('{{ .MaKhachHang }}')">
+                                <td class="px-2 sm:px-5 py-3 sm:py-4 text-center align-middle cursor-pointer" onclick="event.stopPropagation(); if(event.target.tagName !== 'INPUT') { let cb = this.querySelector('.chk-member'); cb.checked = !cb.checked; updateCount(); }">
+                                    <input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 focus:ring-purple-500 shadow-sm cursor-pointer" onchange="updateCount()">
+                                </td>
+                                <td class="px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto align-middle relative">
+                                    <div class="grid grid-cols-[auto_1fr] items-center sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
+                                        <div class="flex flex-col items-center justify-center gap-2.5 shrink-0">
+                                            <div class="avatar-led-wrap w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
+                                                {{ $avatar := .AnhDaiDien }}
+                                                {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
+                                                <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
+                                            </div>
+                                            <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="sm:hidden w-full flex items-center justify-center gap-1 bg-white text-purple-600 border border-purple-200 px-2 py-1.5 rounded-lg text-[9px] font-bold shadow-sm">Sửa</button>
+                                        </div>
+                                        <div class="flex flex-col min-w-0 w-full justify-center">
+                                            <div class="relative inline-flex items-center mr-auto max-w-full">
+                                                <div class="badge-animated-wrap theme-{{ .StyleTheme }} {{ if lt .StyleLevel 4 }}tier-s{{ else if lt .StyleLevel 7 }}tier-a{{ else if eq .StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
+                                                    <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none">{{ .TenKhachHang }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5 w-full">
+                                                <div class="inline-flex items-center gap-1 bg-purple-50/80 border border-purple-200/50 text-purple-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold shadow-sm max-w-full search-target shrink-0">
+                                                    <span class="truncate max-w-[100px] sm:max-w-none">{{ .TenDangNhap }}</span>
+                                                </div>
+                                                <div class="flex items-center gap-1.5 shrink-0">
+                                                    <span class="text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-{{ .StyleTheme }} drop-shadow-sm">{{ .ChucVu }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="hidden sm:table-cell px-4 py-4 text-[12.5px] space-y-2 whitespace-nowrap align-middle relative z-10">
+                                    {{ if .DienThoai }}<div class="flex items-center gap-2"><span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span></div>{{ end }}
+                                    {{ if .Email }}<div class="flex items-center gap-2"><span class="font-bold text-slate-700 search-target">{{ .Email }}</span></div>{{ end }}
+                                </td>
+                                <td class="hidden sm:table-cell px-4 py-4 text-center align-middle relative z-10">
+                                    <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="inline-flex items-center justify-center gap-2 bg-white text-purple-600 hover:bg-purple-600 hover:text-white px-4 py-2.5 rounded-xl text-[12px] font-bold shadow-sm border border-purple-200 transition-colors">Sửa</button>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="data_members" class="hidden">
+        {{ range .DanhSach }}
+        <div class="m-data" data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}" data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}" data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}" data-note="{{ .GhiChu }}" data-avatar="{{ .AnhDaiDien }}" data-source="{{ .NguonKhachHang }}" data-created="{{ .NgayTao }}" data-updater="{{ .NguoiCapNhat }}" data-updated="{{ .NgayCapNhat }}"></div>
+        {{ end }}
+    </div>
+
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6">
+        <div class="bg-slate-50 rounded-[2rem] shadow-2xl w-full max-w-6xl transform transition-all flex flex-col max-h-[95vh] border border-white/20">
+            <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem]"><h3 class="text-2xl font-black">Hồ Sơ & Phân Quyền</h3><button onclick="closeModal('modalEdit')" class="text-xl font-bold">&times;</button></div>
+            <div class="p-8 overflow-y-auto custom-scroll"><form id="formEdit"><input type="hidden" name="ma_khach_hang" id="f_ma">
+                <div><label class="form-lbl">Họ Tên</label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium"></div>
+                </form></div>
+            <div class="px-8 py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex justify-end gap-3"><button onclick="saveMember()" id="btnSaveMem" class="bg-purple-600 text-white px-10 py-3 rounded-xl font-black">Lưu Thay Đổi</button></div>
+        </div>
+    </div>
+
+    <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50"><div class="bg-white p-8 rounded-2xl w-[500px]"><h3 class="text-xl font-bold mb-4">Gửi tin nhắn</h3><input type="text" id="msgTitle" class="border w-full mb-3 p-2" placeholder="Tiêu đề"><textarea id="msgContent" class="border w-full mb-3 p-2"></textarea><button onclick="sendMessages()" id="btnSendMsg" class="bg-purple-600 text-white px-4 py-2 rounded">Gửi</button></div></div>
+
+    <script src="/static/js/thanh_vien_master.js"></script>
+
+    {{ template "footer_master" . }}
+{{ end }}
