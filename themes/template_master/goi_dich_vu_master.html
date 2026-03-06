@@ -321,11 +321,14 @@
                 document.getElementById('g_tin_nhan').checked = !!lm.tin_nhan;
                 document.getElementById('g_ten_mien_free').checked = !!lm.ten_mien_free;
                 document.getElementById('g_ten_mien_rieng').checked = !!lm.ten_mien_rieng;
+                // Bổ sung đọc website
+                document.getElementById('g_website').checked = !!lm.website; 
             } catch(e) {
                 document.getElementById('g_max_sp').value = 0; document.getElementById('g_max_nv').value = 0;
                 document.getElementById('g_tin_nhan').checked = false;
                 document.getElementById('g_ten_mien_free').checked = false;
                 document.getElementById('g_ten_mien_rieng').checked = false;
+                document.getElementById('g_website').checked = false;
             }
 
             document.getElementById('codeHub').innerHTML = "";
@@ -350,13 +353,15 @@
             
             document.getElementById('g_codes_json').value = buildCodesJson();
             
-            // [MỚI]: Thu gom trạng thái của 3 nút Gạt vào chung JSON
+            // [MỚI]: Thu gom trạng thái vào chung JSON
             let limitObj = {
                 max_san_pham: parseInt(document.getElementById('g_max_sp').value) || 0,
                 max_nhan_vien: parseInt(document.getElementById('g_max_nv').value) || 0,
                 tin_nhan: document.getElementById('g_tin_nhan').checked,
                 ten_mien_free: document.getElementById('g_ten_mien_free').checked,
-                ten_mien_rieng: document.getElementById('g_ten_mien_rieng').checked
+                ten_mien_rieng: document.getElementById('g_ten_mien_rieng').checked,
+                // Bổ sung ghi website
+                website: document.getElementById('g_website').checked
             };
             document.getElementById('g_limit_json').value = JSON.stringify(limitObj);
 
