@@ -133,7 +133,7 @@
         </button>
 
         <div class="h-20 flex items-center px-6 border-b border-slate-800/80 bg-slate-950 relative z-10 shrink-0">
-            <a href="/master/tong-quan" class="text-[22px] font-black tracking-widest flex items-center gap-3 group">
+            <a href="/tong-quan" class="text-[22px] font-black tracking-widest flex items-center gap-3 group">
                 <div class="w-10 h-10 rounded-[12px] logo-premium-icon flex items-center justify-center text-white group-hover:scale-105 transition transform">
                     <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
@@ -144,25 +144,24 @@
         <nav class="flex-1 overflow-y-auto py-6 relative z-10 custom-scroll flex flex-col">
             <div class="px-4 space-y-1.5 flex-1">
                 <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
-                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan Master</a>
-                <a href="/master/quan-ly-shop" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS</a>
-                <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ</a>
-                <a href="/master/nhap-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Nhập Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📥</span> Nhập Hàng Tồn Kho</a>
+                <a href="/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan</a>
+                <a href="/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ</a>
+                <a href="/nhap-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Nhập Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📥</span> Nhập Hàng Tồn Kho</a>
                 
-                <a href="/master/quan-ly-may-tinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý sản phẩm (Máy Tính)"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💻</span> Quản Lý Máy Tính</a>
+                <a href="/quan-ly-may-tinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý sản phẩm (Máy Tính)"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💻</span> Quản Lý Máy Tính</a>
 
-                <a href="/master/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><div class="flex items-center gap-3"><span class="text-lg w-6 text-center">💬</span> Tin Nhắn</div>{{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>{{ end }}{{ end }}</a>
+                <a href="/tin-nhan" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tin nhắn"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><div class="flex items-center gap-3"><span class="text-lg w-6 text-center">💬</span> Tin Nhắn</div>{{ if .SoTinChuaDoc }}{{ if gt .SoTinChuaDoc 0 }}<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ .SoTinChuaDoc }}</span>{{ end }}{{ end }}</a>
                 
                 <div class="mt-8 mb-3 px-3"><p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Bảo mật & Cấu hình</p></div>
-                <a href="/master/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🛡️</span> Thành Viên</a>
-                <a href="/master/cau-hinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Cấu Hình Hệ Thống"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">⚙️</span> Cấu Hình Hệ Thống</a>
-                <a href="/master/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets</a>
-                <a href="/master/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi</a>
+                <a href="/thanh-vien" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🛡️</span> Thành Viên</a>
+                <a href="/cau-hinh" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Cấu Hình Hệ Thống"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">⚙️</span> Cấu Hình Hệ Thống</a>
+                <a href="/dong-bo-sheets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🔄</span> Đồng Bộ Sheets</a>
+                <a href="/ho-so" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi")}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">👤</span> Hồ Sơ Của Tôi</a>
             </div>
 
             <div class="mt-8 md:hidden px-4 border-t border-slate-800/80 pt-6">
                 {{ if .NhanVien }}
-                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/ho-so'">
                     {{ $avatar := .NhanVien.AnhDaiDien }}
                     {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
@@ -180,7 +179,7 @@
 
         <div class="p-4 border-t border-slate-800/80 bg-slate-900/50 relative z-10 shrink-0 hidden md:block">
             {{ if .NhanVien }}
-            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/master/ho-so'">
+            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-3 cursor-pointer hover:bg-slate-800 transition" onclick="window.location.href='/ho-so'">
                 {{ $avatar := .NhanVien.AnhDaiDien }}
                 {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=6b21a8&color=ffffff&size=100&bold=true" }}{{ end }}
                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
@@ -213,15 +212,14 @@
                         {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
                         {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
                         {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
-                        {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
-                        {{ else if eq .TieuDe "Quản lý Cửa Hàng" }}Cửa Hàng SaaS
+                        {{ else if eq .TieuDe "Tổng quan" }}Tổng Quan
                         {{ else if eq .TieuDe "Tin nhắn" }}Tin Nhắn
                         {{ else }}{{ .TieuDe }}{{ end }}
                     </h1>
                 </div>
                 
                 <div id="logoState2" class="hidden items-center ml-2 border-l border-slate-200 pl-6">
-                    <a href="/master/tong-quan" class="flex items-center gap-3 group">
+                    <a href="/tong-quan" class="flex items-center gap-3 group">
                         <div class="w-10 h-10 rounded-[12px] logo-premium-icon flex items-center justify-center text-white group-hover:scale-105 transition transform shadow-[0_4px_15px_rgba(99,102,241,0.3)]">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
@@ -235,8 +233,7 @@
                     {{ if or (eq .TieuDe "Thành viên") (eq .TieuDe "Thành Viên") (eq .TieuDe "Core Team") }}Thành Viên
                     {{ else if or (eq .TieuDe "Đồng bộ Sheets") (eq .TieuDe "Đồng Bộ Sheets") }}Đồng Bộ Sheets
                     {{ else if or (eq .TieuDe "Hồ sơ") (eq .TieuDe "HỒ SƠ CỦA TÔI") (eq .TieuDe "Hồ sơ của tôi") }}Hồ Sơ Của Tôi
-                    {{ else if eq .TieuDe "Tổng quan Master" }}Tổng Quan Master
-                    {{ else if eq .TieuDe "Quản lý Cửa Hàng" }}Cửa Hàng SaaS
+                    {{ else if eq .TieuDe "Tổng quan" }}Tổng Quan
                     {{ else if eq .TieuDe "Tin nhắn" }}Tin Nhắn
                     {{ else }}{{ .TieuDe }}{{ end }}
                 </h1>
