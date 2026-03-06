@@ -12,41 +12,37 @@
                 
                 <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
                 
-                <div id="contactPane" class="w-full md:w-80 lg:w-[400px] border-r border-slate-200 flex flex-col bg-slate-50 relative z-10 shrink-0 transition-all duration-300 ease-in-out h-full min-h-0">
-                    <div class="py-3.5 pr-4 pl-14 md:p-4 border-b border-slate-200 bg-white shrink-0 flex items-center gap-2">
+                <div id="contactPane" class="w-full md:w-80 lg:w-[400px] border-r border-slate-200 flex flex-col bg-slate-50 relative z-10 shrink-0 transition-all duration-300 ease-in-out h-full min-h-0 overflow-hidden">
+                    <div class="py-3.5 px-4 border-b border-slate-200 bg-white shrink-0 flex items-center gap-2">
                         <div class="relative flex-1">
                             <input type="text" id="searchChat" onkeyup="renderContactList()" placeholder="Tìm tên, ID..." class="w-full pl-10 pr-3 py-2.5 text-[13px] font-bold border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition shadow-sm bg-[#f8fafc]">
                             <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <button onclick="toggleSidebar()" class="hidden md:flex w-10 h-10 shrink-0 bg-slate-100 hover:bg-purple-100 text-slate-500 hover:text-purple-600 rounded-xl items-center justify-center transition shadow-sm" title="Thu gọn danh sách">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
-                        </button>
                     </div>
                     <div id="contactListRender" class="flex-1 overflow-y-auto chat-scroll divide-y divide-slate-100 min-h-0 bg-white"></div>
                 </div>
 
                 <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0 h-full min-h-0 w-full">
                     
+                    <button id="btnToggleSidebar" onclick="toggleSidebar()" class="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-4 w-8 h-16 bg-white border border-slate-200 rounded-full items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.05)] z-[100] group">
+                        <svg id="iconToggle" class="w-4 h-4 transition-transform duration-300 text-slate-400 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                    </button>
+
                     <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-0 bg-slate-50/50 w-full">
                         <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-5 shadow-sm border border-slate-100 relative">
-                            <button id="btnExpandEmpty" onclick="toggleSidebar()" class="hidden absolute -left-12 w-10 h-10 bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-purple-700 transition" title="Mở danh sách">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                            </button>
                             <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
                         </div>
                         <p class="text-lg font-black text-slate-700 tracking-tight">Trung Tâm Tin Nhắn</p>
                         <p class="text-[13px] font-medium mt-1 text-slate-400">Vui lòng chọn một liên hệ để bắt đầu tương tác.</p>
                     </div>
 
-                    <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full">
+                    <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full relative">
                         
-                        <div class="h-[70px] border-b border-purple-100 pl-14 pr-4 md:px-5 flex items-center justify-between bg-gradient-to-r from-white to-purple-50/40 shrink-0 shadow-[0_4px_15px_-5px_rgba(147,51,234,0.05)] z-20">
+                        <div class="h-[70px] border-b border-purple-100 pl-8 pr-4 md:px-8 flex items-center justify-between bg-gradient-to-r from-white to-purple-50/40 shrink-0 shadow-[0_4px_15px_-5px_rgba(147,51,234,0.05)] z-20">
                             <div class="flex items-center gap-3">
-                                <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                                
-                                <button id="btnExpandSidebar" onclick="toggleSidebar()" class="hidden md:flex w-10 h-10 shrink-0 bg-purple-600 hover:bg-purple-700 text-white rounded-xl items-center justify-center transition shadow-md shadow-purple-200 -ml-2 mr-1" title="Mở danh sách">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                                </button>
+                                <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-6 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
                                 
                                 <div onclick="openUserProfile()" class="flex items-center gap-3.5 cursor-pointer hover:bg-white p-1.5 -ml-1.5 rounded-2xl transition group border border-transparent hover:border-purple-100 hover:shadow-sm" title="Xem hồ sơ thành viên">
                                     <div id="chatActiveAvatar" class="w-11 h-11 rounded-full bg-slate-200 overflow-hidden shadow-sm border-2 border-white shrink-0 group-hover:border-purple-200 transition-colors"></div>
@@ -63,7 +59,7 @@
 
                         <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-[#f8fafc] flex flex-col min-h-0 relative">
                             <div class="absolute inset-0 opacity-[0.03] z-0 pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
-                            <div id="chatHistoryInner" class="flex flex-col gap-6 z-10 w-full relative"></div>
+                            <div id="chatHistoryInner" class="flex flex-col z-10 w-full relative"></div>
                         </div>
 
                         <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20 flex flex-col gap-2">
@@ -127,7 +123,6 @@
                 
                 <h2 id="vp_name" class="mt-3 text-2xl font-black tracking-tight text-transparent bg-clip-text text-gradient-animated pb-1">--</h2>
                 <div id="vp_role_wrap" class="mt-1.5 flex justify-center"></div>
-                
                 <div id="vp_socials" class="flex justify-center gap-3 mt-5"></div>
             </div>
 
@@ -138,26 +133,11 @@
                         Thông Tin Liên Hệ
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                        <div>
-                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Họ và tên</label>
-                            <div id="vp_fullname" class="text-[14px] font-black text-purple-700">--</div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Số điện thoại</label>
-                            <div id="vp_phone" class="text-[14px] font-black text-emerald-600">--</div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Email</label>
-                            <div id="vp_email" class="text-[14px] font-black text-blue-600">--</div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Ngày sinh</label>
-                            <div id="vp_dob" class="text-[14px] font-black text-orange-600">--</div>
-                        </div>
-                        <div class="sm:col-span-2 pt-2 border-t border-slate-100">
-                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Địa chỉ</label>
-                            <div id="vp_address" class="text-[14px] font-bold text-slate-800 leading-snug">--</div>
-                        </div>
+                        <div><label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Họ và tên</label><div id="vp_fullname" class="text-[14px] font-black text-purple-700">--</div></div>
+                        <div><label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Số điện thoại</label><div id="vp_phone" class="text-[14px] font-black text-emerald-600">--</div></div>
+                        <div><label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Email</label><div id="vp_email" class="text-[14px] font-black text-blue-600">--</div></div>
+                        <div><label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Ngày sinh</label><div id="vp_dob" class="text-[14px] font-black text-orange-600">--</div></div>
+                        <div class="sm:col-span-2 pt-2 border-t border-slate-100"><label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Địa chỉ</label><div id="vp_address" class="text-[14px] font-bold text-slate-800 leading-snug">--</div></div>
                     </div>
                 </div>
             </div>
@@ -171,7 +151,7 @@
         let chatData = [];
         let userMap = {}; 
         let activeChatID = null;
-        let isSidebarOpen = true; // Biến trạng thái Yêu cầu 3
+        let isSidebarOpen = true;
 
         const chkBot = document.getElementById('chatAsBot');
         if (chkBot) {
@@ -184,7 +164,31 @@
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // YÊU CẦU 4: HÀM FORMAT THỜI GIAN THÔNG MINH
+        // YÊU CẦU 3: HÀM ĐÓNG MỞ KÉO DÃN CHAT
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            const sidebar = document.getElementById('contactPane');
+            const btn = document.getElementById('btnToggleSidebar');
+            const icon = document.getElementById('iconToggle');
+
+            if (isSidebarOpen) {
+                sidebar.classList.remove('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
+                sidebar.classList.add('md:w-80', 'lg:w-[400px]');
+                
+                btn.classList.remove('left-0', 'rounded-l-none', 'border-l-0', 'w-6');
+                btn.classList.add('-left-4', 'rounded-full', 'w-8');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />';
+            } else {
+                sidebar.classList.add('md:w-0', 'md:border-none', 'md:opacity-0', 'md:invisible');
+                sidebar.classList.remove('md:w-80', 'lg:w-[400px]');
+                
+                btn.classList.remove('-left-4', 'rounded-full', 'w-8');
+                btn.classList.add('left-0', 'rounded-l-none', 'border-l-0', 'w-6');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
+            }
+        }
+
+        // YÊU CẦU 4: FORMAT THỜI GIAN THÔNG MINH
         function formatChatTime(dateStr) {
             if (!dateStr) return "";
             const parts = dateStr.split(' ');
@@ -193,43 +197,21 @@
             const datePart = parts[0]; 
             const timePart = parts[1]; 
             
-            // Xử lý tạo Date object an toàn cho các trình duyệt
             const msgDate = new Date(datePart.replace(/-/g, '/')); 
             const today = new Date();
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const msgDay = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate());
+            
+            const diffTime = todayDate - msgDay;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            const isToday = msgDate.toDateString() === today.toDateString();
-            const isYesterday = msgDate.toDateString() === yesterday.toDateString();
-
-            if (isToday) {
-                return timePart; // VD: 22:36:03
-            } else if (isYesterday) {
+            if (diffDays === 0) {
+                return timePart; // 22:36:03
+            } else if (diffDays === 1) {
                 return `Hôm qua, ${timePart}`; 
             } else {
-                return dateStr; // VD: 2026-02-24 23:48:14
-            }
-        }
-
-        // YÊU CẦU 3: HÀM CO DÃN SIDEBAR
-        function toggleSidebar() {
-            isSidebarOpen = !isSidebarOpen;
-            const sidebar = document.getElementById('contactPane');
-            const btnExpandChat = document.getElementById('btnExpandSidebar');
-            const btnExpandEmpty = document.getElementById('btnExpandEmpty');
-
-            if (isSidebarOpen) {
-                sidebar.classList.remove('hidden', 'md:w-0', 'md:border-none', 'md:p-0', 'md:opacity-0');
-                sidebar.classList.add('md:w-80', 'lg:w-[400px]');
-                if(btnExpandChat) btnExpandChat.classList.add('hidden');
-                if(btnExpandEmpty) btnExpandEmpty.classList.add('hidden');
-            } else {
-                sidebar.classList.add('md:w-0', 'md:border-none', 'md:p-0', 'md:opacity-0');
-                sidebar.classList.remove('md:w-80', 'lg:w-[400px]');
-                setTimeout(() => sidebar.classList.add('hidden'), 300); // Đợi CSS transition xong
-                
-                if(btnExpandChat) btnExpandChat.classList.remove('hidden');
-                if(btnExpandEmpty) btnExpandEmpty.classList.remove('hidden');
+                return `Ngày: ${dateStr}`; // Ngày: 2026-02-24 23:48:14
             }
         }
 
@@ -274,7 +256,7 @@
         function parseData() {
             chatData = []; userMap = {}; 
             document.querySelectorAll('.u-data').forEach(el => {
-                const id = String(el.dataset.id).trim(); // Ép kiểu cẩn thận
+                const id = String(el.dataset.id).trim();
                 let msgs = [];
                 el.querySelectorAll('.msg-node').forEach(m => {
                     msgs.push({ id: m.dataset.msgid, type: m.dataset.type, title: m.dataset.title, sender: m.dataset.sender, time: m.dataset.time, content: m.dataset.content, read: m.dataset.read === 'true' });
@@ -312,11 +294,9 @@
                 const strSearch = removeAccents(`${u.name} ${u.user} ${u.id}`).toLowerCase();
                 if (!strSearch.includes(query)) return;
 
-                // YÊU CẦU 2: FIX LỖI KẺ TÍM CHỈ HOẠT ĐỘNG 1 NGƯỜI
-                // Sử dụng Border tuyệt đối (absolute) để vạch kẻ hiển thị sắc nét, đè lên padding
+                // YÊU CẦU 2: FIX THANH MÀU TÍM ẢNH HƯỞNG NHIỀU NGƯỜI
                 const isSelected = (String(u.id) === String(activeChatID));
-                const activeClasses = isSelected ? 'bg-purple-50/80 shadow-sm' : 'hover:bg-slate-50';
-                const activeBar = isSelected ? `<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-purple-600 rounded-r-md"></div>` : ``;
+                const activeClasses = isSelected ? 'bg-purple-50/80 shadow-[inset_4px_0_0_#9333ea]' : 'hover:bg-slate-50';
                 
                 let snippet = "<i class='text-slate-300'>Chưa có tin nhắn</i>";
                 let timeStr = "";
@@ -338,9 +318,8 @@
                 let nameAndRoleHtml = getVipNameAndRole(u.name, u.role, u.level, u.theme, "scale-[0.8] origin-left -ml-2 -mt-1");
 
                 html += `
-                <div onclick="openChat('${u.id}')" class="relative p-4 cursor-pointer transition-all flex gap-3 border-b border-slate-50/50 ${activeClasses}">
-                    ${activeBar}
-                    <div class="relative shrink-0 w-12 h-12 ml-1">
+                <div onclick="openChat('${u.id}')" class="p-4 cursor-pointer transition-all flex gap-3 border-b border-slate-50/50 ${activeClasses}">
+                    <div class="relative shrink-0 w-12 h-12">
                         <img src="${u.avatar}" class="w-full h-full rounded-full border border-slate-200 object-cover bg-white">
                         ${unreadDot}
                     </div>
@@ -357,7 +336,7 @@
         }
 
         function openChat(userID) {
-            activeChatID = String(userID).trim(); // Ép kiểu
+            activeChatID = String(userID).trim(); 
             const u = chatData.find(x => String(x.id).trim() === activeChatID);
             if(!u) return;
 
@@ -376,7 +355,7 @@
             document.getElementById('chatActiveAvatar').style.backgroundPosition = 'center';
 
             renderMessages(u);
-            renderContactList(); // Re-render để cập nhật thanh màu tím
+            renderContactList(); 
             
             setTimeout(() => { document.getElementById('chatInputContent').focus(); }, 100);
         }
@@ -431,48 +410,54 @@
             } else {
                 u.messages.forEach(m => {
                     let isMe = (m.sender === myUserID);
-                    let formattedTime = formatChatTime(m.time); // YÊU CẦU 4: Dùng hàm format time
+                    let formattedTime = formatChatTime(m.time);
                     
-                    // THỜI GIAN LUÔN NẰM Ở GIỮA, BÊN TRÊN KHỐI TIN NHẮN
-                    let timeBadge = `<div class="w-full flex justify-center mb-2"><span class="text-[10px] text-slate-400 font-bold bg-white px-3 py-1 rounded-full border border-slate-200/60 shadow-[0_2px_4px_rgba(0,0,0,0.01)] tracking-wide z-10">${formattedTime}</span></div>`;
+                    // YÊU CẦU 4: THỜI GIAN ĐƯỢC CHÈN VÀO GIỮA - TRÊN CÙNG CỦA BLOCK
+                    let timeBadge = `<div class="w-full flex justify-center mb-3 mt-1"><span class="text-[10px] text-slate-400 font-bold bg-slate-200/40 px-3 py-0.5 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.02)] tracking-wide z-10">${formattedTime}</span></div>`;
 
                     if (m.type === 'SYSTEM' || m.type === 'AUTO' || m.type === 'ALL' || m.sender === '0000000000000000000') {
                         let sender = userMap[m.sender] || { name: 'Hệ thống', role: 'Thông báo', level: 0, theme: 9, avatar: 'https://ui-avatars.com/api/?name=Sys&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.85] origin-left");
                         
                         html += `
-                        <div class="flex flex-col items-center w-full my-2 animate-[fadeIn_0.3s_ease-out]">
+                        <div class="w-full flex flex-col mb-4 animate-[fadeIn_0.3s_ease-out]">
                             ${timeBadge}
-                            <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 max-w-[95%] sm:max-w-md w-full text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-                                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="mx-auto w-12 h-12 bg-gradient-to-br from-purple-50 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-inner border border-indigo-100/50">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                                </div>
-                                <h4 class="text-[15px] font-black text-slate-800 mb-2 tracking-tight">${m.title || 'Thông báo hệ thống'}</h4>
-                                <div class="text-[13.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3 rounded-xl whitespace-pre-wrap border border-slate-100/50">${m.content}</div>
-                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center">
-                                    <div class="flex items-center gap-1.5">
-                                        <img src="${sender.avatar}" class="w-6 h-6 rounded-full border border-slate-200 shadow-sm">
-                                        ${senderInfoHtml}
+                            <div class="flex justify-center w-full">
+                                <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 max-w-[95%] sm:max-w-md w-full text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+                                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                                    <div class="mx-auto w-12 h-12 bg-gradient-to-br from-purple-50 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-inner border border-indigo-100/50">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                    </div>
+                                    <h4 class="text-[15px] font-black text-slate-800 mb-2 tracking-tight">${m.title || 'Thông báo hệ thống'}</h4>
+                                    <div class="text-[13.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3 rounded-xl whitespace-pre-wrap border border-slate-100/50">${m.content}</div>
+                                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center">
+                                        <div class="flex items-center gap-1.5">
+                                            <img src="${sender.avatar}" class="w-6 h-6 rounded-full border border-slate-200 shadow-sm">
+                                            ${senderInfoHtml}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>`;
                     } else if (isMe) {
                         html += `
-                        <div class="flex flex-col items-end w-full pl-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
+                        <div class="w-full flex flex-col mb-4 animate-[fadeIn_0.3s_ease-out]">
                             ${timeBadge}
-                            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-[1.25rem] rounded-tr-sm shadow-md text-[14.5px] leading-relaxed whitespace-pre-wrap break-words border border-indigo-700/50 max-w-[85%]">${m.content}</div>
+                            <div class="flex flex-col items-end w-full pl-12">
+                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-[1.25rem] rounded-tr-sm shadow-md text-[14.5px] leading-relaxed whitespace-pre-wrap break-words border border-indigo-700/50 max-w-[85%]">${m.content}</div>
+                            </div>
                         </div>`;
                     } else {
                         let sender = userMap[m.sender] || { name: 'Người dùng', role: 'Khách', level: 9, theme: 0, avatar: 'https://ui-avatars.com/api/?name=User&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.8] origin-bottom-left ml-1 mb-0.5");
 
                         html += `
-                        <div class="flex flex-col items-start w-full pr-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
+                        <div class="w-full flex flex-col mb-4 animate-[fadeIn_0.3s_ease-out]">
                             ${timeBadge}
-                            ${senderInfoHtml}
-                            <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 mt-0.5 rounded-[1.25rem] rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words max-w-[85%]">${m.content}</div>
+                            <div class="flex flex-col items-start w-full pr-12">
+                                ${senderInfoHtml}
+                                <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 mt-0.5 rounded-[1.25rem] rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words max-w-[85%]">${m.content}</div>
+                            </div>
                         </div>`;
                     }
                     
