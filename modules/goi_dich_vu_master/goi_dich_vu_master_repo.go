@@ -1,4 +1,4 @@
-package goi_dich_vu
+package goi_dich_vu_master
 
 import "app/core"
 
@@ -17,15 +17,11 @@ func Repo_FindByCode(shopID, maGoi string) (*core.GoiDichVu, bool) {
 func Repo_Insert(masterID string, gdv *core.GoiDichVu) {
 	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
 	lock.Lock()
-	
-	// Tính dòng tiếp theo (Dòng hiện tại + số dòng header)
 	gdv.DongTrongSheet = len(core.CacheGoiDichVu[masterID]) + core.DongBatDau_GoiDichVu
 	core.CacheGoiDichVu[masterID] = append(core.CacheGoiDichVu[masterID], gdv)
 	core.CacheMapGoiDichVu[core.TaoCompositeKey(masterID, gdv.MaGoi)] = gdv
-	
 	lock.Unlock()
 
-	// Ghi xuống Queue để chạy ngầm
 	core.PushAppend(masterID, core.TenSheetGoiDichVuMaster, []interface{}{
 		gdv.MaGoi, gdv.TenGoi, gdv.LoaiGoi, gdv.ThoiHanNgay, gdv.ThoiHanHienThi, gdv.NhanHienThi, 
 		gdv.GiaNiemYet, gdv.GiaBan, gdv.MaCodeKichHoatJson, gdv.GioiHanJson, 
@@ -36,11 +32,9 @@ func Repo_Insert(masterID string, gdv *core.GoiDichVu) {
 func Repo_Update(masterID string, gdv *core.GoiDichVu) {
 	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
 	lock.Lock()
-	// RAM đã được update từ Service trước đó
 	lock.Unlock()
 
 	r := gdv.DongTrongSheet
-	// Ghi từng ô xuống Queue ngầm
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_TenGoi, gdv.TenGoi)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_LoaiGoi, gdv.LoaiGoi)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_ThoiHanNgay, gdv.ThoiHanNgay)
