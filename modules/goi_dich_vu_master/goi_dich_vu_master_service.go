@@ -1,4 +1,4 @@
-package goi_dich_vu
+package goi_dich_vu_master
 
 import (
 	"app/core"
