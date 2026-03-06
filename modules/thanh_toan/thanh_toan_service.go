@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"app/config"
 	"app/core"
 
 	"golang.org/x/oauth2/google"
