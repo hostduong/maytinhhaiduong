@@ -796,9 +796,6 @@ type SerialSanPham struct {
 // CẤU TRÚC: PHIẾU XUẤT BÁN HÀNG
 // ==============================================================================
 const (
-	TenSheetPhieuXuat        = "PHIEU_XUAT"
-	TenSheetChiTietPhieuXuat = "CHI_TIET_PHIEU_XUAT"
-
 	CotPX_MaPhieuXuat          = 0  
 	CotPX_LoaiXuat             = 1  
 	CotPX_NgayXuat             = 2  
