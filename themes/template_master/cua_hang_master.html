@@ -1,0 +1,259 @@
+{{ define "cua_hang_master" }}
+    {{ template "header_master" . }}
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div class="max-w-7xl mx-auto pb-6 mb-24 sm:mb-10">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full">
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="searchShop" onkeyup="filterTable('searchShop', 'tbodyShops')" placeholder="Tìm ID Shop, Tên Chủ, Tên Miền, SĐT..." class="w-full pl-11 pr-4 py-3 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm">
+                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <button type="button" onclick="openMessageModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap uppercase tracking-widest text-xs">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>
+                Gửi Thông Báo (<span id="countSelected">0</span>)
+            </button>
+        </div>
+
+        <div class="animated-border-wrapper shadow-xl shadow-purple-200/50">
+            <div class="animated-border-inner flex flex-col w-full relative">
+                <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none z-0"></div>
+                
+                <div class="overflow-x-auto w-full relative z-10 table-scroll">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-[11px] text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-5 py-4 text-center w-12"><input type="checkbox" id="checkAll" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer"></th>
+                                <th class="px-4 py-4 font-black tracking-widest text-slate-700 uppercase">Cửa Hàng / Chủ Shop</th>
+                                <th class="px-4 py-4 font-black tracking-widest text-slate-700 uppercase">Gói Cước & Tên Miền</th>
+                                <th class="px-4 py-4 font-black text-center tracking-widest text-slate-700 w-36 uppercase">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyShops" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
+                            {{ range .DanhSach }}
+                            <tr class="hover-soft-row cursor-pointer transition-colors relative" onclick="editShop('{{ .MaKhachHang }}')">
+                                <td class="px-5 py-4 text-center align-middle" onclick="event.stopPropagation();">
+                                    <input type="checkbox" value="{{ .MaKhachHang }}" class="chk-member w-4 h-4 text-purple-600 rounded border-purple-200 cursor-pointer" onchange="updateCount()">
+                                </td>
+                                
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="avatar-led-wrap w-14 h-14 led-active">
+                                            <img src="{{ if .AnhDaiDien }}{{ .AnhDaiDien }}{{ else }}https://ui-avatars.com/api/?name={{ .TenKhachHang }}&background=ffffff&color=7e22ce{{ end }}" class="w-full h-full object-cover">
+                                        </div>
+                                        <div>
+                                            <div class="font-black text-slate-800 text-[15px] mb-1">{{ .TenKhachHang }}</div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-black uppercase border border-indigo-100 search-target">{{ .TenDangNhap }}</span>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ .MaKhachHang }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-4 py-4">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase {{ .GoiDichVuBadge }} shadow-sm">⚡ {{ .GoiDichVuHienTai }}</span>
+                                            <span class="text-[11px] font-bold text-slate-400">Hết hạn: {{ .HanSuDung }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-blue-600 font-mono text-[12px]">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" /></svg>
+                                            <span class="font-black search-target">{{ .DomainHienThi }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-4 py-4 text-center">
+                                    <button class="bg-white text-purple-600 border border-purple-200 px-4 py-2 rounded-xl text-xs font-black hover:bg-purple-600 hover:text-white transition-all shadow-sm">Sửa Shop</button>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="data_island" class="hidden">
+        {{ range .DanhSach }}
+        <div class="shop-data" 
+            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}"
+            data-domain="{{ .CauHinh.CustomDomain }}" data-sheet="{{ .DataSheets.SpreadsheetID }}"
+            data-phone="{{ .DienThoai }}" data-zalo="{{ .MangXaHoi.Zalo }}" data-email="{{ .Email }}"
+            data-status="{{ .TrangThai }}" data-avatar="{{ .AnhDaiDien }}" data-note="{{ .GhiChu }}">
+        </div>
+        {{ end }}
+    </div>
+
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="relative w-full max-w-5xl rounded-[1.5rem] p-[2px] overflow-hidden shadow-2xl transition-all duration-500">
+            <div class="absolute inset-[-50%] w-[200%] h-[200%] animate-[spin-slow_4s_linear_infinite] bg-[conic-gradient(transparent,transparent,transparent,#7e22ce,#4f46e5,#ec4899,transparent)] z-0 pointer-events-none"></div>
+            
+            <div class="relative bg-[#f8fafc] rounded-[calc(1.5rem-2px)] overflow-hidden flex flex-col max-h-[92vh] z-10">
+                <div class="px-8 py-6 bg-white border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg"><svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div>
+                        <h3 class="text-2xl font-black text-purple-700 tracking-tight">Cấu Hình Cửa Hàng</h3>
+                    </div>
+                    <button onclick="closeModal('modalEdit')" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:text-red-500 transition text-2xl font-bold">&times;</button>
+                </div>
+
+                <div class="p-8 overflow-y-auto custom-scroll flex-1">
+                    <form id="formEdit" class="grid grid-cols-1 lg:grid-cols-2 gap-8" autocomplete="off">
+                        <input type="hidden" name="ma_khach_hang" id="f_ma">
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px] mb-6 flex items-center gap-2"><span class="w-1.5 h-4 bg-purple-600 rounded-full"></span> Thông tin chủ shop</h4>
+                                <div class="space-y-5">
+                                    <div><label class="form-lbl">Tên chủ cửa hàng</label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold"></div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div><label class="form-lbl">Số điện thoại</label><input type="text" name="dien_thoai" id="f_sdt" class="input-premium"></div>
+                                        <div><label class="form-lbl">Zalo</label><input type="text" name="zalo" id="f_zalo" class="input-premium"></div>
+                                    </div>
+                                    <div><label class="form-lbl">Email liên hệ</label><input type="email" name="email" id="f_email" class="input-premium"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px] mb-6 flex items-center gap-2"><span class="w-1.5 h-4 bg-orange-500 rounded-full"></span> Bảo mật hệ thống</h4>
+                                <div><label class="form-lbl text-orange-700">Mật khẩu đăng nhập mới</label><input type="password" name="mat_khau_moi" class="input-premium border-orange-100 bg-orange-50/20" placeholder="Để trống nếu không đổi..."></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-[#1e1b4b] p-6 rounded-2xl shadow-lg border border-indigo-500/20">
+                                <h4 class="font-black text-indigo-200 uppercase tracking-widest text-[11px] mb-6 flex items-center gap-2"><span class="w-1.5 h-4 bg-indigo-400 rounded-full"></span> Tài nguyên & Hạ tầng</h4>
+                                <div class="space-y-5">
+                                    <div>
+                                        <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Google Spreadsheet ID (Database)</label>
+                                        <input type="text" name="spreadsheet_id" id="f_sheet" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-indigo-100 outline-none focus:border-indigo-400 transition" placeholder="1afUZ6nmk...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Tên miền riêng (Custom Domain)</label>
+                                        <input type="text" name="custom_domain" id="f_domain" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-emerald-400 outline-none focus:border-emerald-400 transition" placeholder="shopcuatoi.com">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-black text-white/60 mb-1.5 uppercase">Trạng thái vận hành</label>
+                                        <select name="trang_thai" id="f_status" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-black text-white outline-none cursor-pointer">
+                                            <option value="1" class="text-slate-900">🟢 Đang hoạt động</option>
+                                            <option value="0" class="text-slate-900">🟡 Tạm dừng/Bảo trì</option>
+                                            <option value="-1" class="text-slate-900">🔴 Ngừng cung cấp (Xóa)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1">
+                                <label class="form-lbl">Ghi chú quản trị (Sếp lưu ý)</label>
+                                <textarea name="ghi_chu" id="f_note" rows="5" class="input-premium leading-relaxed" placeholder="Lịch sử thanh toán, yêu cầu riêng..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="px-8 py-5 border-t border-slate-100 bg-white flex justify-end items-center gap-4 shrink-0">
+                    <button type="button" onclick="closeModal('modalEdit')" class="px-6 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition text-[12px] uppercase tracking-widest">Hủy Bỏ</button>
+                    <button type="button" id="btnSaveShop" onclick="saveShop()" class="px-10 py-3 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-lg shadow-purple-200 transition active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        Lưu Thông Tin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ĐẶC THÙ CHO QUẢN LÝ CỬA HÀNG ---
+        function filterTable(inputId, tableId) {
+            const input = document.getElementById(inputId); const filter = input.value.toLowerCase();
+            const rows = document.getElementById(tableId).getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                const text = rows[i].innerText.toLowerCase();
+                rows[i].style.display = text.includes(filter) ? "" : "none";
+            }
+        }
+
+        function toggleAllCheckboxes() {
+            const master = document.getElementById('checkAll');
+            const list = document.querySelectorAll('.chk-member');
+            list.forEach(c => c.checked = master.checked);
+            updateCount();
+        }
+
+        function updateCount() {
+            const count = document.querySelectorAll('.chk-member:checked').length;
+            document.getElementById('countSelected').innerText = count;
+        }
+
+        function editShop(id) {
+            const el = document.querySelector(`.shop-data[data-id="${id}"]`);
+            if(!el) return;
+            document.getElementById('f_ma').value = id;
+            document.getElementById('f_ten').value = el.dataset.name;
+            document.getElementById('f_sdt').value = el.dataset.phone;
+            document.getElementById('f_zalo').value = el.dataset.zalo;
+            document.getElementById('f_email').value = el.dataset.email;
+            document.getElementById('f_sheet').value = el.dataset.sheet;
+            document.getElementById('f_domain').value = el.dataset.domain;
+            document.getElementById('f_status').value = el.dataset.status;
+            document.getElementById('f_note').value = el.dataset.note;
+            document.getElementById('modalEdit').classList.remove('hidden');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function saveShop() {
+            // Gọi hàm nhập PIN xịn sò từ dong_bo_sheets (Sếp cần đảm bảo hàm askMasterPIN có sẵn)
+            const pinXacNhan = await askMasterPIN();
+            if(!pinXacNhan) return;
+
+            const btn = document.getElementById('btnSaveShop'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<div class="spinner-led-btn"></div> Đang xử lý...';
+
+            const fd = new FormData(document.getElementById('formEdit'));
+            fd.append('pin_xac_nhan', pinXacNhan);
+
+            try {
+                const res = await fetch('/master/api/cua-hang/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    Swal.fire({ icon: 'success', title: 'Thành Công', text: data.msg, timer: 1500, showConfirmButton: false }).then(() => location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: data.msg });
+                    btn.disabled = false; btn.innerHTML = old;
+                }
+            } catch(e) {
+                Swal.fire({ icon: 'error', title: 'Lỗi kết nối' });
+                btn.disabled = false; btn.innerHTML = old;
+            }
+        }
+
+        // --- HÀM NHẬP PIN VIP (COPY TỪ DONG-BO-SHEETS) ---
+        async function askMasterPIN() {
+            const { value: pinXacNhan } = await Swal.fire({
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><span class="text-2xl font-black tracking-tight text-gradient-animated">Bảo mật 2 lớp</span></div>',
+                customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-8 py-3 transition border border-slate-200' },
+                buttonsStyling: false, reverseButtons: true, showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ',
+                html: `
+                    <div class="text-[14px] text-slate-600 mb-8 font-medium">Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của sếp.</div>
+                    <div class="relative w-full max-w-[280px] mx-auto group">
+                        <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none focus:border-purple-500" maxlength="8" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                `,
+                preConfirm: () => { 
+                    const val = document.getElementById('swal-pin-input').value; 
+                    if (val.length < 8) { Swal.showValidationMessage('Vui lòng nhập đủ 8 số!'); return false; } 
+                    return val; 
+                }
+            });
+            return pinXacNhan;
+        }
+    </script>
+
+    {{ template "footer_master" . }}
+{{ end }}
