@@ -12,15 +12,23 @@ func RequirePermission(maChucNang string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		shopID := c.GetString("SHOP_ID")
 		role := c.GetString("USER_ROLE")
+		appMode := c.GetString("APP_MODE") // Lấy App Mode
 
-		// Đặc quyền tuyệt đối cho Quản trị Lõi
 		if role == "quan_tri_he_thong" {
 			c.Next()
 			return
 		}
 
-		// [LOCK CHUẨN]: Khóa riêng Sheet Phân Quyền
-		lockPQ := core.GetSheetLock(shopID, core.TenSheetPhanQuyen)
+		// [ĐÃ FIX LỖI LOCK MISMATCH]
+		sheetPQ := core.TenSheetPhanQuyen
+		if appMode == "MASTER_CORE" {
+			sheetPQ = core.TenSheetPhanQuyenMaster
+		} else if appMode == "TENANT_ADMIN" {
+			sheetPQ = core.TenSheetPhanQuyenAdmin
+		}
+
+		// [LOCK CHUẨN]: Khóa riêng đúng Sheet Phân Quyền
+		lockPQ := core.GetSheetLock(shopID, sheetPQ)
 		lockPQ.RLock()
 		defer lockPQ.RUnlock()
 
