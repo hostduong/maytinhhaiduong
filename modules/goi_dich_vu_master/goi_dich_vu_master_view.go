@@ -17,7 +17,7 @@ func TrangGoiDichVuMaster(c *gin.Context) {
 
 	if kh == nil { c.Redirect(http.StatusFound, "/login"); return }
 
-	c.HTML(http.StatusOK, "master_goi_dich_vu", gin.H{
+	c.HTML(http.StatusOK, "goi_dich_vu_master", gin.H{
 		"TieuDe":       "Quản Lý Gói Dịch Vụ SaaS",
 		"NhanVien":     kh,
 		"DaDangNhap":   true,
