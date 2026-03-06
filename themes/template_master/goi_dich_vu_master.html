@@ -57,186 +57,164 @@
         </div>
     </div>
 
-    <div id="modalGDV" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="relative w-full max-w-6xl rounded-[1.5rem] p-[2px] overflow-hidden shadow-2xl transition-all duration-500">
-            <div class="absolute inset-[-50%] w-[200%] h-[200%] animate-[spin-slow_4s_linear_infinite] bg-[conic-gradient(transparent,transparent,transparent,#7e22ce,#4f46e5,transparent)] z-0 pointer-events-none"></div>
-            
-            <div class="relative bg-[#f8fafc] rounded-[calc(1.5rem-2px)] overflow-hidden flex flex-col max-h-[90vh] z-10">
+    <div id="modalGDV" class="hidden fixed inset-0 bg-slate-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="animated-border-wrapper w-full max-w-6xl !p-[3px]"> 
+            <div class="animated-border-inner bg-[#f8fafc] rounded-[calc(1.5rem-3px)] overflow-hidden flex flex-col max-h-[95vh] shadow-2xl">
                 
-                <div class="px-8 py-6 bg-white flex justify-between items-center shrink-0 border-b border-slate-100">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-purple-200">
-                            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <div class="px-8 py-6 bg-white border-b border-slate-200/60 flex justify-between items-center shrink-0 z-10 shadow-sm">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-200 shrink-0">
+                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
                         <div>
-                            <h3 class="text-xl font-black text-purple-700 tracking-tight" id="titleGDV">Cấu Hình Gói Dịch Vụ</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Phát hành & Quản lý giới hạn SaaS</p>
+                            <h3 class="text-2xl font-black text-slate-800 tracking-tight" id="titleGDV">Cấu Hình Gói Dịch Vụ</h3>
+                            <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mt-1">Phát hành & Quản lý giới hạn SaaS</p>
                         </div>
                     </div>
-                    <button onclick="closeModalGDV()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                    <button onclick="closeModalGDV()" class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 transition flex items-center justify-center text-2xl">&times;</button>
                 </div>
 
                 <div class="p-6 md:p-8 overflow-y-auto custom-scroll flex-1">
-                    <form id="formGDV" class="grid grid-cols-1 lg:grid-cols-2 gap-6" autocomplete="off">
+                    <form id="formGDV" class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8" autocomplete="off">
                         <input type="hidden" name="is_new" id="is_new_gdv" value="true">
                         <input type="hidden" name="gioi_han_json" id="g_limit_json">
                         <input type="hidden" name="codes_json" id="g_codes_json">
                         
                         <div class="space-y-6">
                             
-                            <div class="bg-white rounded-2xl border border-purple-200/50 p-6 shadow-sm relative overflow-hidden">
-                                <div class="flex items-center gap-2 mb-6">
-                                    <div class="w-6 h-6 rounded border border-purple-200 text-purple-600 flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[12px]">1. Thông Tin Định Danh</h4>
+                            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm">
+                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                    <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[13px]">1. Thông Tin Định Danh</h4>
                                 </div>
                                 <div class="grid grid-cols-2 gap-5 mb-5">
+                                    <div><label class="form-lbl">Mã Gói (ID) <span class="text-red-500">*</span></label><input type="text" name="ma_goi" id="g_ma" class="input-premium font-black uppercase text-indigo-700 bg-slate-50 focus:bg-white" placeholder="PRO_1Y"></div>
                                     <div>
-                                        <label class="block text-[13px] text-slate-600 mb-1.5">Mã Gói (ID) <span class="text-red-500">*</span></label>
-                                        <input type="text" name="ma_goi" id="g_ma" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm font-black uppercase text-indigo-700 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition" placeholder="FREE_30N">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[13px] text-slate-600 mb-1.5">Loại Gói <span class="text-red-500">*</span></label>
-                                        <select name="loai_goi" id="g_loai" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm font-bold text-indigo-700 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition cursor-pointer">
-                                            <option value="STARTER">STARTER (Gói Nền Tảng)</option>
-                                            <option value="USER">USER (Thêm Nhân Viên)</option>
-                                            <option value="STORAGE">STORAGE (Thêm Dung Lượng)</option>
-                                            <option value="DOMAIN">DOMAIN (Gói Tên Miền)</option>
-                                            <option value="DURATION">DURATION (Gia Hạn Thời Gian)</option>
+                                        <label class="form-lbl">Loại Gói <span class="text-red-500">*</span></label>
+                                        <select name="loai_goi" id="g_loai" class="input-premium font-bold cursor-pointer text-indigo-700 bg-slate-50 focus:bg-white">
+                                            <option value="STARTER">STARTER (Nền Tảng)</option>
+                                            <option value="USER">USER (Nhân Viên)</option>
+                                            <option value="STORAGE">STORAGE (Dung Lượng)</option>
+                                            <option value="DOMAIN">DOMAIN (Tên Miền)</option>
+                                            <option value="DURATION">DURATION (Thời Gian)</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-[13px] text-slate-600 mb-1.5">Tên Gói Hiển Thị <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ten_goi" id="g_ten" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-[15px] font-black text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition" placeholder="Dùng thử miễn phí">
-                                </div>
+                                <div><label class="form-lbl">Tên Gói Hiển Thị <span class="text-red-500">*</span></label><input type="text" name="ten_goi" id="g_ten" class="input-premium font-black text-lg bg-slate-50 focus:bg-white" placeholder="VD: Gói Pro 1 Năm"></div>
                             </div>
 
-                            <div class="bg-white rounded-2xl border border-emerald-200/50 p-6 shadow-sm">
-                                <div class="flex items-center gap-2 mb-6">
-                                    <div class="w-6 h-6 rounded border border-emerald-200 text-emerald-600 flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[12px]">2. Chi Phí & Thời Hạn</h4>
+                            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 relative z-10">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[13px]">2. Chi Phí & Thời Hạn</h4>
                                 </div>
-                                <div class="grid grid-cols-2 gap-5 mb-5">
+                                <div class="grid grid-cols-2 gap-5 relative z-10">
+                                    <div><label class="form-lbl">Thời hạn (Ngày)</label><input type="number" name="thoi_han_ngay" id="g_han" class="input-premium text-center font-black bg-slate-50 focus:bg-white" value="30"></div>
+                                    <div><label class="form-lbl">Hiển thị (Khách thấy)</label><input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="input-premium text-center font-black bg-slate-50 focus:bg-white" placeholder="VD: 1 tháng"></div>
+                                    <div><label class="form-lbl text-slate-400">Giá Niêm Yết (Ảo)</label><input type="text" name="gia_niem_yet" id="g_nyet" class="input-premium text-right font-bold text-slate-400 line-through bg-slate-50 focus:bg-white" onkeyup="formatCurrency(this)"></div>
                                     <div>
-                                        <label class="block text-[13px] text-purple-600 mb-1.5">Thời hạn (Hệ thống tính)</label>
-                                        <input type="number" name="thoi_han_ngay" id="g_han" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-center text-[15px] font-black text-slate-800 outline-none focus:border-purple-500 transition" value="30">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[13px] text-purple-600 mb-1.5">Thời hạn (Khách nhìn thấy)</label>
-                                        <input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-center text-[15px] font-black text-slate-800 outline-none focus:border-purple-500 transition" placeholder="VD: 1 tháng, vĩnh viễn">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-5">
-                                    <div>
-                                        <label class="block text-[13px] text-slate-400 mb-1.5">Giá Niêm Yết (Ảo)</label>
-                                        <input type="text" name="gia_niem_yet" id="g_nyet" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-left text-[14px] font-bold text-slate-400 outline-none transition" onkeyup="formatCurrency(this)">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[13px] text-indigo-700 font-bold mb-1.5">Giá Bán Thật <span class="text-red-500">*</span></label>
+                                        <label class="form-lbl text-indigo-700 font-black">Giá Bán Thật <span class="text-red-500">*</span></label>
                                         <div class="relative">
-                                            <input type="text" name="gia_ban" id="g_ban" class="w-full bg-white border border-slate-200 rounded-lg pl-4 pr-8 py-3 text-left text-[15px] font-black text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition" onkeyup="formatCurrency(this)" value="0">
+                                            <input type="text" name="gia_ban" id="g_ban" class="input-premium text-right font-black text-xl text-indigo-600 pr-8 border-indigo-200 bg-indigo-50/30" onkeyup="formatCurrency(this)" value="0">
                                             <span class="absolute right-3 top-1/2 -translate-y-1/2 font-black text-slate-400">₫</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="bg-white rounded-2xl border border-orange-200/50 p-6 shadow-sm">
-                                <div class="flex items-center gap-2 mb-6">
-                                    <div class="w-6 h-6 rounded border border-orange-200 text-orange-500 flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg></div>
-                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[12px]">3. Trưng Bày Bảng Giá</h4>
+                            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm">
+                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                    <div class="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg></div>
+                                    <h4 class="font-black text-slate-800 uppercase tracking-widest text-[13px]">3. Trưng Bày Bảng Giá</h4>
                                 </div>
-                                <div class="mb-5">
-                                    <label class="block text-[13px] text-orange-600 mb-1.5">Nhãn nổi bật (Badge)</label>
-                                    <input type="text" name="nhan_hien_thi" id="g_nhan" class="w-full bg-white border border-orange-200 rounded-lg px-4 py-2.5 text-sm font-black text-orange-600 outline-none focus:border-orange-500 transition" placeholder="KHỞI TẠO">
-                                </div>
-                                <div>
-                                    <label class="block text-[13px] text-slate-600 mb-1.5">Mô tả đặc quyền (Dùng dấu | để ngắt dòng)</label>
-                                    <textarea name="mo_ta" id="g_mota" rows="4" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-[13px] font-bold text-slate-800 leading-relaxed outline-none focus:border-purple-500 transition" placeholder="Tạo tự động 100% | Hệ thống POS Google Sheet..."></textarea>
-                                </div>
+                                <div class="mb-5"><label class="form-lbl text-orange-600">Nhãn nổi bật (Badge)</label><input type="text" name="nhan_hien_thi" id="g_nhan" class="input-premium font-black text-orange-600 border-orange-100 bg-orange-50/30" placeholder="VD: PHỔ BIẾN NHẤT"></div>
+                                <div><label class="form-lbl">Mô tả đặc quyền (Dùng dấu | để ngắt dòng)</label><textarea name="mo_ta" id="g_mota" rows="4" class="input-premium text-sm font-bold leading-relaxed bg-slate-50 focus:bg-white" placeholder="Gợi ý: Quản lý 500 SP | 5 Nhân viên | Backup 24/7..."></textarea></div>
                             </div>
+
                         </div>
 
                         <div class="space-y-6">
                             
-                            <div class="bg-[#1e1b4b] p-6 rounded-2xl shadow-lg border border-indigo-500/20">
-                                <div class="flex items-center gap-2 mb-6 pb-4 border-b border-white/10">
-                                    <div class="w-6 h-6 rounded border border-white/20 text-white/80 flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg></div>
-                                    <h4 class="font-black text-white uppercase tracking-widest text-[12px]">4. Giới Hạn Tài Nguyên</h4>
+                            <div class="bg-indigo-900 p-6 rounded-[24px] shadow-lg relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-indigo-700/50 relative z-10">
+                                    <div class="w-8 h-8 rounded-xl bg-white/10 text-indigo-200 flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg></div>
+                                    <h4 class="font-black text-white uppercase tracking-widest text-[13px]">4. Giới Hạn Tài Nguyên</h4>
                                 </div>
                                 
-                                <div class="grid grid-cols-2 gap-4 mb-6">
-                                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <label class="block text-[11px] font-bold text-white/60 mb-2 text-center">Max Sản Phẩm</label>
-                                        <input type="number" id="g_max_sp" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none" value="100">
+                                <div class="grid grid-cols-2 gap-4 mb-6 relative z-10">
+                                    <div class="bg-indigo-950/50 p-4 rounded-2xl border border-indigo-500/30">
+                                        <label class="block text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2 text-center">Sản Phẩm Tối Đa</label>
+                                        <input type="number" id="g_max_sp" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none placeholder-indigo-700" value="1000">
                                     </div>
-                                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <label class="block text-[11px] font-bold text-white/60 mb-2 text-center">Max Nhân Viên</label>
-                                        <input type="number" id="g_max_nv" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none" value="1">
+                                    <div class="bg-indigo-950/50 p-4 rounded-2xl border border-indigo-500/30">
+                                        <label class="block text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2 text-center">Tài Khoản Nhân Viên</label>
+                                        <input type="number" id="g_max_nv" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none placeholder-indigo-700" value="1">
                                     </div>
                                 </div>
 
-                                <div class="space-y-3">
-                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition">
-                                        <span class="text-[12px] font-bold text-white/90">Kích hoạt Chat CSKH (Tin nhắn)</span>
+                                <div class="space-y-3 relative z-10">
+                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl cursor-pointer transition">
+                                        <span class="text-[13px] font-bold text-indigo-100">Kích hoạt Chat CSKH</span>
                                         <div class="relative">
                                             <input type="checkbox" id="g_tin_nhan" class="sr-only peer">
-                                            <div class="w-10 h-5 bg-white/20 rounded-full peer peer-checked:bg-purple-500 transition-colors duration-300"></div>
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-emerald-500 transition-colors duration-300"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                         </div>
                                     </label>
-                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition">
-                                        <span class="text-[12px] font-bold text-white/90">Mở Website Bán Hàng</span>
+                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl cursor-pointer transition">
+                                        <span class="text-[13px] font-bold text-indigo-100">Kích hoạt Web Bán Hàng</span>
                                         <div class="relative">
                                             <input type="checkbox" id="g_website" class="sr-only peer">
-                                            <div class="w-10 h-5 bg-white/20 rounded-full peer peer-checked:bg-purple-500 transition-colors duration-300"></div>
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-pink-500 transition-colors duration-300"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                         </div>
                                     </label>
-                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition">
-                                        <span class="text-[12px] font-bold text-white/90">Cấp Subdomain Miễn Phí</span>
+                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl cursor-pointer transition">
+                                        <span class="text-[13px] font-bold text-indigo-100">Cấp Subdomain Miễn Phí</span>
                                         <div class="relative">
                                             <input type="checkbox" id="g_ten_mien_free" class="sr-only peer">
-                                            <div class="w-10 h-5 bg-white/20 rounded-full peer peer-checked:bg-purple-500 transition-colors duration-300"></div>
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-blue-500 transition-colors duration-300"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                         </div>
                                     </label>
-                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition">
-                                        <span class="text-[12px] font-bold text-white/90">Quyền Trỏ Tên Miền Riêng (.com, .vn)</span>
+                                    <label class="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl cursor-pointer transition">
+                                        <span class="text-[13px] font-bold text-indigo-100">Quyền Trỏ Domain Riêng</span>
                                         <div class="relative">
                                             <input type="checkbox" id="g_ten_mien_rieng" class="sr-only peer">
-                                            <div class="w-10 h-5 bg-white/20 rounded-full peer peer-checked:bg-purple-500 transition-colors duration-300"></div>
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-amber-500 transition-colors duration-300"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                                <div class="flex justify-between items-center mb-5">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded border border-pink-200 text-pink-500 flex items-center justify-center"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg></div>
-                                        <h4 class="font-black text-slate-800 uppercase tracking-widest text-[12px]">5. Mã Giảm Giá</h4>
+                            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm flex flex-col min-h-[250px]">
+                                <div class="flex justify-between items-center mb-5 pb-4 border-b border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg></div>
+                                        <h4 class="font-black text-slate-800 uppercase tracking-widest text-[13px]">5. Mã Giảm Giá</h4>
                                     </div>
-                                    <button type="button" onclick="addCodeRow()" class="bg-[#1e293b] text-white px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-slate-700 transition active:scale-95 flex items-center gap-1"><span class="text-sm leading-none">+</span> THÊM MÃ</button>
+                                    <button type="button" onclick="addCodeRow()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition active:scale-95 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg> Thêm Mã</button>
                                 </div>
-                                <div id="codeHub" class="space-y-3 overflow-y-auto custom-scroll pr-1 flex-1 min-h-[120px]">
+                                <div id="codeHub" class="space-y-3 overflow-y-auto custom-scroll pr-1 flex-1">
                                     </div>
                             </div>
 
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-2 gap-5 items-center">
+                            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm grid grid-cols-2 gap-5 items-center">
                                 <div>
-                                    <label class="block text-[13px] text-slate-600 mb-1.5">Số lượng xuất kho</label>
-                                    <input type="number" name="so_luong_con_lai" id="g_conlai" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-center text-sm font-black text-slate-800 outline-none focus:border-purple-500 transition" value="10">
+                                    <label class="form-lbl">Số lượng xuất kho</label>
+                                    <input type="number" name="so_luong_con_lai" id="g_conlai" class="input-premium text-center font-black bg-slate-50" value="-1" title="-1 là vô hạn">
                                 </div>
                                 <div class="flex flex-col items-center justify-center pt-5">
                                     <label class="flex items-center gap-3 cursor-pointer group">
                                         <div class="relative">
                                             <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
-                                            <div class="w-10 h-5 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition duration-300"></div>
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition duration-300 peer-checked:translate-x-5"></div>
+                                            <div class="w-12 h-6 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition duration-300"></div>
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition duration-300 peer-checked:translate-x-6 shadow-md"></div>
                                         </div>
-                                        <span class="text-[13px] font-black text-slate-800">Cho phép bán ngay</span>
+                                        <span class="text-[13px] font-black text-slate-700 group-hover:text-purple-700 transition">Cho phép mua</span>
                                     </label>
                                 </div>
                             </div>
@@ -245,10 +223,11 @@
                     </form>
                 </div>
 
-                <div class="px-8 py-5 border-t border-slate-100 bg-white flex justify-end items-center gap-4 shrink-0">
-                    <button type="button" onclick="closeModalGDV()" class="px-6 py-2.5 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition text-[13px] uppercase tracking-widest">Hủy Bỏ</button>
-                    <button type="button" id="btnSaveGDV" onclick="saveGDV()" class="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-md shadow-purple-200 transition active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center">
-                        Lưu Cấu Hình
+                <div class="px-8 py-5 border-t border-slate-200/60 bg-white flex flex-col sm:flex-row justify-end items-center gap-4 shrink-0 rounded-b-[calc(1.5rem-3px)]">
+                    <button type="button" onclick="closeModalGDV()" class="w-full sm:w-auto px-8 py-3.5 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition active:scale-95 uppercase tracking-widest text-xs">Hủy Bỏ</button>
+                    <button type="button" id="btnSaveGDV" onclick="saveGDV()" class="w-full sm:w-auto px-12 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl shadow-lg shadow-purple-300/50 transition transform hover:-translate-y-0.5 active:scale-95 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        Lưu Thay Đổi
                     </button>
                 </div>
             </div>
@@ -274,15 +253,16 @@
             }; 
         });
 
+        // Đã cập nhật UI thẻ thêm Mã để fit với nền Card trắng
         function addCodeRow(code = "", giam = 0, sl = -1) {
             const container = document.getElementById('codeHub');
             const div = document.createElement('div');
-            div.className = "flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100";
+            div.className = "flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100 animate-[fadeIn_0.2s_ease-out]";
             div.innerHTML = `
-                <div class="flex-1"><input type="text" class="c-code w-full bg-white border border-slate-200 rounded-md h-9 px-3 text-[11px] font-black uppercase outline-none focus:border-purple-400" placeholder="MÃ" value="${code}"></div>
-                <div class="w-24"><input type="text" class="c-giam w-full bg-white border border-slate-200 rounded-md h-9 px-3 text-[11px] font-black text-right text-pink-600 outline-none focus:border-pink-400" placeholder="Giảm ₫" value="${formatNum(giam)}" onkeyup="formatCurrency(this)"></div>
-                <div class="w-16"><input type="number" class="c-sl w-full bg-white border border-slate-200 rounded-md h-9 px-2 text-[11px] font-black text-center outline-none focus:border-purple-400" placeholder="Lượt" value="${sl}"></div>
-                <button type="button" onclick="this.parentElement.remove()" class="w-7 h-7 rounded bg-white text-slate-400 border border-slate-200 hover:text-red-500 hover:bg-red-50 flex items-center justify-center font-bold text-lg">&times;</button>
+                <div class="flex-1"><input type="text" class="c-code w-full bg-white border border-slate-200 rounded-lg h-10 px-3 text-xs font-black uppercase outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition" placeholder="NHẬP MÃ" value="${code}"></div>
+                <div class="w-28"><input type="text" class="c-giam w-full bg-white border border-slate-200 rounded-lg h-10 px-3 text-xs font-black text-right text-pink-600 outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition" placeholder="Giảm ₫" value="${formatNum(giam)}" onkeyup="formatCurrency(this)"></div>
+                <div class="w-[70px]"><input type="number" class="c-sl w-full bg-white border border-slate-200 rounded-lg h-10 px-2 text-xs font-black text-center outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition" placeholder="Lượt" value="${sl}"></div>
+                <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 rounded-lg bg-white text-slate-300 border border-slate-200 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition flex items-center justify-center font-bold text-lg">&times;</button>
             `;
             container.appendChild(div);
         }
@@ -348,9 +328,10 @@
 
             const btn = document.getElementById('btnSaveGDV');
             const oldHtml = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
+            btn.disabled = true; btn.innerHTML = '<div class="spinner-led-btn"></div> Đang đồng bộ...';
             
             document.getElementById('g_codes_json').value = buildCodesJson();
+            
             let limitObj = {
                 max_san_pham: parseInt(document.getElementById('g_max_sp').value) || 0,
                 max_nhan_vien: parseInt(document.getElementById('g_max_nv').value) || 0,
@@ -380,47 +361,22 @@
             }
         }
 
-        // 🔥 POPUP PIN XỊN SÒ NHƯ BÊN ĐỒNG BỘ SHEETS 🔥
-        window.checkPinLength = function(input) {
-            if (input.value.length === 8) {
-                input.classList.remove('border-red-500');
-                input.classList.add('border-emerald-500', 'text-emerald-600');
-            } else {
-                input.classList.remove('border-emerald-500', 'text-emerald-600');
-            }
-        }
-
         function askMasterPIN() {
             return Swal.fire({
-                html: `
-                    <div class="relative w-full max-w-[340px] mx-auto rounded-[1.5rem] p-[2px] overflow-hidden shadow-xl mb-4 mt-2">
-                        <div class="absolute inset-[-50%] w-[200%] h-[200%] animate-[spin-slow_3s_linear_infinite] bg-[conic-gradient(transparent,transparent,transparent,#7e22ce,#f43f5e,transparent)] z-0 pointer-events-none"></div>
-                        <div class="relative bg-white rounded-[calc(1.5rem-2px)] p-6 z-10 flex flex-col items-center">
-                            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mb-3">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            </div>
-                            <h3 class="text-xl font-black text-purple-700 mb-1">Bảo mật 2 lớp</h3>
-                            <p class="text-[13px] text-slate-500 font-bold mb-6 text-center">Hệ thống yêu cầu xác minh danh tính.<br>Vui lòng nhập <b class="text-purple-600">Mã PIN</b> của bạn.</p>
-                            
-                            <div class="relative w-full">
-                                <input type="password" id="swal-pin-input" class="w-full bg-white border-2 border-slate-200 rounded-xl py-3 px-4 text-center tracking-[0.4em] font-black text-2xl text-slate-800 outline-none transition focus:border-purple-500 placeholder-slate-300" maxlength="8" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, ''); document.getElementById('swal-err').classList.add('hidden'); checkPinLength(this);">
-                            </div>
-                            <div id="swal-err" class="hidden text-red-500 bg-red-50 border border-red-100 rounded-lg px-4 py-1.5 text-[11px] font-bold mt-3 w-full text-center">⚠ Vui lòng nhập đủ 8 số!</div>
-                        </div>
-                    </div>
-                `,
-                customClass: { popup: '!bg-transparent !p-0 !shadow-none', confirmButton: 'bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl px-8 py-2.5 transition active:scale-95', cancelButton: 'bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold rounded-xl px-8 py-2.5 transition border border-slate-200' },
-                buttonsStyling: false, showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ', reverseButtons: true,
-                preConfirm: () => { 
-                    const input = document.getElementById('swal-pin-input'); const val = input.value; 
-                    if (val.length < 8) { input.classList.add('border-red-500'); document.getElementById('swal-err').classList.remove('hidden'); return false; } 
-                    return val; 
+                title: '<span class="text-2xl font-black title-gradient-purple">Xác minh danh tính</span>',
+                html: '<div class="text-sm font-bold text-slate-500 mb-4">Vui lòng nhập Mã PIN Admin để thực hiện.</div><input type="password" id="swal-pin" class="input-premium text-center text-3xl font-black tracking-[0.5em] h-16" maxlength="8" placeholder="••••••••">',
+                customClass: { popup: 'swal-animated-purple' },
+                showCancelButton: true, confirmButtonText: 'Xác nhận', cancelButtonText: 'Hủy',
+                preConfirm: () => {
+                    const pin = document.getElementById('swal-pin').value;
+                    if(pin.length < 8) { Swal.showValidationMessage('Mã PIN phải đủ 8 số'); return false; }
+                    return pin;
                 }
             }).then(r => r.value);
         }
 
-        function showSuccessAlert(msg) { return Swal.fire({ title: '<span class="text-3xl font-black text-purple-700">Thành Công</span>', html: `<div class="text-[14px] font-bold text-slate-600">${msg}</div>`, customClass: { popup: 'rounded-3xl shadow-2xl' }, showConfirmButton: false, timer: 1500 }); }
-        function showErrorAlert(msg) { return Swal.fire({ title: '<span class="text-3xl font-black text-red-500">Thất Bại</span>', html: `<div class="text-[14px] font-bold text-slate-600">${msg}</div>`, customClass: { popup: 'rounded-3xl shadow-2xl' }, confirmButtonText: 'Đã hiểu', buttonsStyling: false, confirmButtonClass: 'bg-red-500 text-white px-8 py-2.5 rounded-xl font-bold' }); }
+        function showSuccessAlert(msg) { return Swal.fire({ title: '<span class="text-3xl font-black title-gradient-purple">Thành Công</span>', html: `<div class="text-[15px] font-bold text-slate-600">${msg}</div>`, customClass: { popup: 'swal-master-success' }, showConfirmButton: false, timer: 1500 }); }
+        function showErrorAlert(msg) { return Swal.fire({ title: '<span class="text-3xl font-black title-gradient-red">Thất Bại</span>', html: `<div class="text-[15px] font-bold text-orange-900">${msg}</div>`, customClass: { popup: 'swal-master-error' }, confirmButtonText: 'Tôi hiểu rồi', buttonsStyling: false, confirmButtonClass: 'bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-200' }); }
     </script>
     {{ template "footer_master" . }}
 {{ end }}
