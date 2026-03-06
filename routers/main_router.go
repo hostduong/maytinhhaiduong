@@ -7,6 +7,7 @@ import (
 	"app/middlewares"
 	"app/modules/auth"
 	"app/modules/bang_gia"
+	"app/modules/bang_gia_admin"
 	"app/modules/cau_hinh"
 	"app/modules/database_admin"
 	"app/modules/dong_bo_sheets"
@@ -16,12 +17,10 @@ import (
 	"app/modules/nhap_hang"
 	"app/modules/san_pham"
 	"app/modules/thanh_toan"
-	"app/modules/thanh_vien"
+	"app/modules/thanh_vien_master" // [S.O.P] Đã trỏ đúng thư mục Master
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan_admin"
-    "app/modules/tong_quan_master"
-	"app/modules/bang_gia_admin"
-	"app/modules/thanh_vien_master"
+	"app/modules/tong_quan_master"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,41 +45,32 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Static("/static", "./static")
 
-	// Trạm IdentifyTenant: Đóng dấu APP_MODE từ Domain (Do sếp đã viết trước đó)
+	// Trạm IdentifyTenant: Đóng dấu APP_MODE từ Domain
 	router.Use(middlewares.IdentifyTenant())
 
 	// =======================================================
-	// 1. NGÃ BA ĐƯỜNG: ĐIỀU PHỐI TRANG CHỦ "/" DỰA VÀO TÊN MIỀN
+	// 1. VÙNG MẶC ĐỊNH (PUBLIC): router.GET / router.POST
 	// =======================================================
 	router.GET("/", func(c *gin.Context) {
 		mode := c.GetString("APP_MODE")
-		host := c.Request.Host // Lấy tên miền hiện tại để soi xét
+		host := c.Request.Host
 		
 		if mode == "MASTER_CORE" {
-			// Sếp gõ sss.99k.vn -> Vào thẳng Tổng quan Master
 			c.Redirect(http.StatusFound, "/master/tong-quan") 
-			
 		} else if mode == "TENANT_ADMIN" {
-			// [CHỐT CHẶN Ở ĐÂY]: Phân biệt rõ admin và www
 			if strings.HasPrefix(host, "admin.") {
-				// Nếu đúng là admin.99k.vn thì mới bẻ lái vào Dashboard
 				c.Redirect(http.StatusFound, "/tong-quan") 
 			} else {
-				// Nếu là www.99k.vn hoặc 99k.vn thì giữ nguyên là Landing Page
-				hien_thi_web.TrangChu(c) 
+				hien_thi_web.TrangChu(c) // www.99k.vn
 			}
-			
 		} else {
-			// Cửa hàng của khách lẻ (TENANT_STORE)
-			hien_thi_web.TrangChu(c) 
+			hien_thi_web.TrangChu(c) // [cuahang].99k.vn
 		}
 	})
 
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
-	// =======================================================
-	// 2. KHU VỰC ĐỊNH DANH (AUTH) - Hoạt động tự do trên các Domain
-	// =======================================================
+	// Auth (Xác thực)
 	router.GET("/login", auth.TrangDangNhap)
 	router.GET("/register", auth.TrangDangKy)
 	router.GET("/forgot-password", auth.TrangQuenMatKhau)
@@ -98,82 +88,77 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// 3. VŨ TRỤ TENANT ADMIN (admin.99k.vn) - Dành cho Khách Hàng
+	// 2. VŨ TRỤ CHỦ SHOP (TENANT ADMIN): admin.GET / apiAdmin.POST
 	// =======================================================
-	tenantAdmin := router.Group("")
-	tenantAdmin.Use(RequireAppMode("TENANT_ADMIN")) // KHÓA CHẶT TÊN MIỀN ADMIN
-	tenantAdmin.Use(middlewares.CheckAuth())
+	admin := router.Group("")
+	admin.Use(RequireAppMode("TENANT_ADMIN")) 
+	admin.Use(middlewares.CheckAuth())
 	{
-		// Mới chỉ cấp quyền cho 2 chức năng đã hoàn thiện
-		tenantAdmin.GET("/tong-quan", tong_quan_admin.TrangTongQuanAdmin)
-		tenantAdmin.GET("/database", database_admin.TrangThietLapDatabaseAdmin)
-		tenantAdmin.POST("/api/database/setup", database_admin.API_ThietLapDatabase)
-		tenantAdmin.GET("/bang-gia", bang_gia_admin.TrangBangGiaAdmin)
+		// Render Giao Diện
+		admin.GET("/tong-quan", tong_quan_admin.TrangTongQuanAdmin)
+		admin.GET("/database", database_admin.TrangThietLapDatabaseAdmin)
+		admin.GET("/bang-gia", bang_gia_admin.TrangBangGiaAdmin)
+		
+		// Render Giao Diện (Module dự kiến)
+		// admin.GET("/nha-cung-cap", nha_cung_cap_admin.TrangNhaCungCap)
 
-		// Kế toán trưởng: Xử lý Thanh toán
-		apiThanhToan := tenantAdmin.Group("/api/thanh-toan")
+		// Xử lý Dữ liệu ngầm
+		apiAdmin := admin.Group("/api")
 		{
-			apiThanhToan.POST("/check-price", thanh_toan.API_CheckPrice)
-			apiThanhToan.POST("/mua-goi", thanh_toan.API_MuaGoi)
+			apiAdmin.POST("/database/setup", database_admin.API_ThietLapDatabase)
+			apiAdmin.POST("/thanh-toan/check-price", thanh_toan.API_CheckPrice)
+			apiAdmin.POST("/thanh-toan/mua-goi", thanh_toan.API_MuaGoi)
+			
+			// API (Module dự kiến)
+			// apiAdmin.POST("/nha-cung-cap/save", nha_cung_cap_admin.API_LuuNhaCungCap)
 		}
 	}
 
 	// =======================================================
-	// 4. VŨ TRỤ GOD MODE (sss.99k.vn) - Full tính năng cho Sếp Test
+	// 3. VŨ TRỤ SẾP (MASTER CORE): master.GET / apiMaster.POST
 	// =======================================================
-	workspace := router.Group("/master")
-	workspace.Use(RequireAppMode("MASTER_CORE")) // KHÓA CHẶT TÊN MIỀN SẾP
-	workspace.Use(middlewares.CheckAuth())
-	workspace.Use(middlewares.RequireLevel(2))
+	master := router.Group("/master")
+	master.Use(RequireAppMode("MASTER_CORE")) 
+	master.Use(middlewares.CheckAuth())
+	master.Use(middlewares.RequireLevel(2))
 	{
-		// Giao diện Workspace (Giữ lại tất cả để sếp test)
-		workspace.GET("/tong-quan", tong_quan_master.TrangTongQuanMaster)
-		workspace.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
-		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
-		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
-		workspace.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
-		workspace.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
+		// Render Giao Diện
+		master.GET("/tong-quan", tong_quan_master.TrangTongQuanMaster)
+		master.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
+		master.GET("/ho-so", ho_so.TrangHoSoMaster)
+		master.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
+		master.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
+		master.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
+		
+		// (Các UI bọc thêm RequireLevel nếu cần, hiện tại master đã bọc sẵn Level 2)
+		master.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
+		master.GET("/thanh-vien", thanh_vien_master.TrangQuanLyThanhVienMaster) 
+		master.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
 
-		cauHinhUI := workspace.Group("/cau-hinh")
-		cauHinhUI.Use(middlewares.RequireLevel(2))
-		cauHinhUI.GET("/", cau_hinh.TrangCaiDatCauHinhMaster)
-
-		thanhVienUI := workspace.Group("/thanh-vien")
-		thanhVienUI.Use(middlewares.RequireLevel(2))
-		thanhVienUI.GET("/", thanh_vien_master.TrangQuanLyThanhVienMaster)
-
-
-		dongBoUI := workspace.Group("/dong-bo-sheets")
-		dongBoUI.Use(middlewares.RequireLevel(2))
-		dongBoUI.GET("/", dong_bo_sheets.TrangDongBoSheetsMaster)
-
-		// API Xử lý Master
-		api := workspace.Group("/api")
+		// Xử lý Dữ liệu ngầm
+		apiMaster := master.Group("/api")
 		{
-			api.POST("/ho-so", ho_so.API_LuuHoSoMaster)
-			api.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
-			api.POST("/change-pin", ho_so.API_DoiMaPinMaster)
-			api.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
-			api.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
+			apiMaster.POST("/ho-so", ho_so.API_LuuHoSoMaster)
+			apiMaster.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
+			apiMaster.POST("/change-pin", ho_so.API_DoiMaPinMaster)
+			apiMaster.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
+			apiMaster.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
 
-			api.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
-			api.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
-			api.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
-			api.POST("/nhap-hang/status", middlewares.RequirePermission("stock.import"), nhap_hang.API_DoiTrangThaiPhieu)
+			// Gắn Middleware kiểm tra Permission từng nút bấm
+			apiMaster.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
+			apiMaster.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
+			apiMaster.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
+			apiMaster.POST("/nhap-hang/status", middlewares.RequirePermission("stock.import"), nhap_hang.API_DoiTrangThaiPhieu)
 
-			apiAdmin := api.Group("")
-			apiAdmin.Use(middlewares.RequireLevel(2))
-			{
-				apiAdmin.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
-				apiAdmin.POST("/thanh-vien/save", thanh_vien.API_LuuThanhVienMaster)
-				apiAdmin.POST("/thanh-vien/send-msg", thanh_vien.API_GuiTinNhanMaster)
-				apiAdmin.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
-			}
+			apiMaster.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
+			apiMaster.POST("/thanh-vien/save", thanh_vien_master.API_LuuThanhVienMaster) 
+			apiMaster.POST("/thanh-vien/send-msg", thanh_vien_master.API_GuiTinNhanMaster) 
+			apiMaster.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
 		}
 	}
 
 	// =======================================================
-	// 5. GIỮ LẠI VIEW BẢNG GIÁ DỰ PHÒNG CHO WWW.99K.VN (Nếu cần)
+	// 4. GIỮ LẠI VIEW BẢNG GIÁ DỰ PHÒNG CHO WWW.99K.VN (Nếu cần)
 	// =======================================================
 	portal := router.Group("/bang-gia")
 	portal.Use(middlewares.CheckAuth())
