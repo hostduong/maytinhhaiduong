@@ -95,6 +95,7 @@ func SetupRouter() *gin.Engine {
 		tenantAdmin.GET("/tong-quan", tong_quan_admin.TrangTongQuanAdmin)
 		tenantAdmin.GET("/database", database_admin.TrangThietLapDatabaseAdmin)
 		tenantAdmin.POST("/api/database/setup", database_admin.API_ThietLapDatabase)
+		tenantAdmin.GET("/bang-gia", bang_gia_admin.TrangBangGiaAdmin)
 
 		// Kế toán trưởng: Xử lý Thanh toán
 		apiThanhToan := tenantAdmin.Group("/api/thanh-toan")
