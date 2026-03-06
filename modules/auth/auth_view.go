@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"app/core"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func checkLogin(c *gin.Context) bool {
