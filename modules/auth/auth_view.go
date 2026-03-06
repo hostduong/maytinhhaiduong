@@ -33,8 +33,37 @@ func TrangDangNhap(c *gin.Context) {
 }
 
 func TrangDangKy(c *gin.Context) {
-	if checkLogin(c) { c.Redirect(http.StatusFound, "/"); return }
-	c.HTML(http.StatusOK, "dang_ky", gin.H{"TieuDe": "Đăng Ký Tài Khoản"})
+	if checkLogin(c) {
+		return 
+	}
+
+	mode := c.GetString("APP_MODE")
+
+	if mode == "MASTER_CORE" {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	} else if mode == "TENANT_ADMIN" {
+		host := c.Request.Host
+		if strings.HasPrefix(host, "admin.") {
+			c.Redirect(http.StatusFound, "https://www.99k.vn/register")
+			return
+		}
+	}
+
+	// CHẺ LUỒNG RENDER GIAO DIỆN Ở ĐÂY
+	if mode == "TENANT_STORE" {
+		// Dành cho Khách mua lẻ (Không có trường Tên miền)
+		c.HTML(http.StatusOK, "dang_ky_khach_hang", gin.H{
+			"TieuDe": "Đăng Ký Thành Viên",
+			"Loi":    c.Query("loi"),
+		})
+	} else {
+		// Dành cho Chủ Shop tại www.99k.vn (Có trường chọn Tên miền .99k.vn)
+		c.HTML(http.StatusOK, "dang_ky", gin.H{
+			"TieuDe": "Tạo Cửa Hàng Mới",
+			"Loi":    c.Query("loi"),
+		})
+	}
 }
 
 func TrangQuenMatKhau(c *gin.Context) {
