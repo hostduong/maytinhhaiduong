@@ -21,6 +21,7 @@ import (
 	"app/modules/tong_quan_admin"
     "app/modules/tong_quan_master"
 	"app/modules/bang_gia_admin"
+	"app/modules/thanh_vien_master"
 
 	"github.com/gin-gonic/gin"
 )
@@ -139,7 +140,8 @@ func SetupRouter() *gin.Engine {
 
 		thanhVienUI := workspace.Group("/thanh-vien")
 		thanhVienUI.Use(middlewares.RequireLevel(2))
-		thanhVienUI.GET("/", thanh_vien.TrangQuanLyThanhVienMaster)
+		thanhVienUI.GET("/", thanh_vien_master.TrangQuanLyThanhVienMaster)
+
 
 		dongBoUI := workspace.Group("/dong-bo-sheets")
 		dongBoUI.Use(middlewares.RequireLevel(2))
