@@ -655,20 +655,6 @@ func NapSerial(shopID string) {
 	for _, sr := range list { CacheMapSerial[TaoCompositeKey(shopID, sr.SerialIMEI)] = sr }
 }
 
-// 11. NẠP GÓI DỊCH VỤ SAAS
-func NapGoiDichVu(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetMaster } // Gói dịch vụ gốc nằm ở Master
-	raw := napDataGeneric(shopID, TenSheetGoiDichVu, nil)
-	if raw == nil { return }
-
-	lock := GetSheetLock(shopID, TenSheetGoiDichVu)
-	lock.Lock(); defer lock.Unlock()
-	
-	CacheGoiDichVu[shopID] = list
-	for _, g := range list { 
-		CacheMapGoiDichVu[TaoCompositeKey(shopID, g.MaGoi)] = g 
-	}
-}
 
 // ==============================================================================
 // HÀM GỐC TƯƠNG TÁC GOOGLE API (KHÔNG ĐƯỢC XÓA)
