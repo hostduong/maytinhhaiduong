@@ -17,7 +17,8 @@ import (
 	"app/modules/thanh_toan"
 	"app/modules/thanh_vien"
 	"app/modules/tin_nhan"
-	"app/modules/tong_quan"
+	"app/modules/tong_quan_admin"
+    "app/modules/tong_quan_master"
 	"app/modules/trang_chu_admin"
 
 	"github.com/gin-gonic/gin"
@@ -97,6 +98,7 @@ func SetupRouter() *gin.Engine {
 	tenantAdmin.Use(middlewares.CheckAuth())
 	{
 		// Mới chỉ cấp quyền cho 2 chức năng đã hoàn thiện
+		tenantAdmin.GET("/tong-quan", tong_quan_admin.TrangTongQuanAdmin)
 		tenantAdmin.GET("/database", database_admin.TrangThietLapDatabaseAdmin)
 		tenantAdmin.POST("/api/database/setup", database_admin.API_ThietLapDatabase)
 
@@ -117,7 +119,7 @@ func SetupRouter() *gin.Engine {
 	workspace.Use(middlewares.RequireLevel(2))
 	{
 		// Giao diện Workspace (Giữ lại tất cả để sếp test)
-		workspace.GET("/tong-quan", tong_quan.TrangTongQuanMaster)
+		workspace.GET("/tong-quan", tong_quan_master.TrangTongQuanMaster)
 		workspace.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
 		workspace.GET("/ho-so", ho_so.TrangHoSoMaster)
 		workspace.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
