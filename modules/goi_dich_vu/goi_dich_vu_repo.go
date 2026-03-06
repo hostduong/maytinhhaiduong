@@ -6,14 +6,15 @@ import "app/core"
 // REPO: CHUYÊN GIAO TIẾP VỚI RAM VÀ ĐẨY HÀNG CHỜ (QUEUE)
 // ====================================================================
 
-func Repo_LayDanhSachGoiDichVu(masterID string) []*core.GoiDichVu {
-	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
+func Repo_FindByCode(shopID, maGoi string) (*core.GoiDichVu, bool) {
+	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVuMaster)
 	lock.RLock()
 	defer lock.RUnlock()
-	return core.CacheGoiDichVu[masterID]
+	g, ok := core.CacheMapGoiDichVu[core.TaoCompositeKey(shopID, maGoi)]
+	return g, ok
 }
 
-func Repo_ThemGoiDichVu(masterID string, gdv *core.GoiDichVu) {
+func Repo_Insert(masterID string, gdv *core.GoiDichVu) {
 	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
 	lock.Lock()
 	
@@ -24,7 +25,7 @@ func Repo_ThemGoiDichVu(masterID string, gdv *core.GoiDichVu) {
 	
 	lock.Unlock()
 
-	// Ghi xuống Queue để chạy ngầm (Sử dụng đúng biến Master)
+	// Ghi xuống Queue để chạy ngầm
 	core.PushAppend(masterID, core.TenSheetGoiDichVuMaster, []interface{}{
 		gdv.MaGoi, gdv.TenGoi, gdv.LoaiGoi, gdv.ThoiHanNgay, gdv.ThoiHanHienThi, gdv.NhanHienThi, 
 		gdv.GiaNiemYet, gdv.GiaBan, gdv.MaCodeKichHoatJson, gdv.GioiHanJson, 
@@ -32,14 +33,14 @@ func Repo_ThemGoiDichVu(masterID string, gdv *core.GoiDichVu) {
 	})
 }
 
-func Repo_CapNhatGoiDichVu(masterID string, gdv *core.GoiDichVu) {
+func Repo_Update(masterID string, gdv *core.GoiDichVu) {
 	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
 	lock.Lock()
 	// RAM đã được update từ Service trước đó
 	lock.Unlock()
 
 	r := gdv.DongTrongSheet
-	// Ghi từng ô xuống Queue ngầm (Sử dụng đúng biến Master)
+	// Ghi từng ô xuống Queue ngầm
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_TenGoi, gdv.TenGoi)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_LoaiGoi, gdv.LoaiGoi)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_ThoiHanNgay, gdv.ThoiHanNgay)
@@ -51,4 +52,5 @@ func Repo_CapNhatGoiDichVu(masterID string, gdv *core.GoiDichVu) {
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_GioiHanJson, gdv.GioiHanJson)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_MoTa, gdv.MoTa)
 	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_TrangThai, gdv.TrangThai)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_SoLuongConLai, gdv.SoLuongConLai)
 }
