@@ -1,0 +1,94 @@
+{{ define "trang_chu_admin" }}
+    {{ template "header_admin" . }}
+
+    <div class="max-w-7xl mx-auto animate-[fadeIn_0.5s_ease-out]">
+        
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-black text-gradient-animated mb-4 tracking-tighter">
+                {{ if .HasStarter }}Nâng Cấp Hệ Thống{{ else }}Kích Hoạt Không Gian Lưu Trữ{{ end }}
+            </h2>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">
+                {{ if .HasStarter }}Mở rộng dung lượng và tính năng cho cửa hàng của bạn{{ else }}Bạn cần đăng ký gói cước nền tảng để bắt đầu sử dụng 99K.VN{{ end }}
+            </p>
+        </div>
+
+        {{ if .HasStarter }}
+        {{ if not .NhanVien.DataSheets.SpreadsheetID }}
+        <div class="max-w-4xl mx-auto mb-16 animate-[fadeIn_0.8s_ease-out]">
+            <div class="animated-warning-wrapper shadow-xl shadow-orange-100">
+                <div class="animated-warning-inner p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-amber-50 to-orange-50/30">
+                    <div class="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-3xl flex items-center justify-center shadow-lg shrink-0">
+                        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-2xl font-black text-orange-900 mb-2 tracking-tight">Cần Thiết Lập Database!</h3>
+                        <p class="text-orange-800/80 font-bold text-sm leading-relaxed mb-6">Hệ thống phát hiện bạn đã có gói cước nhưng chưa kết nối Google Sheet. Vui lòng thiết lập để tiếp tục.</p>
+                        <a href="/admin/database" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-md transition transform hover:-translate-y-1">
+                            Kết nối Database Ngay
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ end }}
+        {{ end }}
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center items-stretch pb-20">
+            {{ range .ListGoi }}
+            <div class="relative feature-card-premium group !p-0 overflow-hidden flex flex-col pricing-card-led glow-shadow-purple !border-none transform transition duration-300 hover:-translate-y-2">
+                
+                {{ if eq .GiaBan 0.0 }}
+                <div class="corner-ribbon-wrap"><div class="corner-ribbon">Miễn Phí</div></div>
+                {{ end }}
+
+                <div class="pricing-card-led-inner p-8 md:p-10 flex-1 flex flex-col bg-white">
+                    <div class="mb-8 border-b border-slate-100 pb-8 text-center relative flex flex-col items-center">
+                        
+                        {{ if .NhanHienThi }}
+                        <span class="badge-animated-wrap theme-5 tier-s mb-5">
+                            <span class="badge-inner text-[11px] px-6 py-1.5">{{ .NhanHienThi }}</span>
+                        </span>
+                        {{ end }}
+
+                        <h3 class="text-[26px] md:text-3xl leading-tight font-black text-gradient-animated mb-6 uppercase tracking-tight min-h-[70px] flex items-center justify-center text-center">
+                            {{ .TenGoi }}
+                        </h3>
+                        
+                        <div class="flex flex-col items-center justify-center min-h-[70px] w-full">
+                            {{ if gt .GiaNiemYet .GiaBan }}
+                            <div class="mb-1">
+                                <span class="text-sm font-black text-slate-300 line-through decoration-slate-300 decoration-2">{{ format_money .GiaNiemYet }}₫</span>
+                            </div>
+                            {{ end }}
+                            <div class="flex items-baseline justify-center gap-1 w-full whitespace-nowrap">
+                                <span class="text-4xl md:text-[40px] font-black text-purple-600 tracking-tighter drop-shadow-sm">
+                                    {{ format_money .GiaBan }}₫
+                                </span>
+                                <span class="text-slate-400 font-bold text-sm">/{{ .ThoiHanHienThi }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 space-y-4 mb-10">
+                        {{ range split .MoTa "|" }}
+                        <div class="flex items-center gap-3 text-[13px] font-bold text-slate-600">
+                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            <span>{{ . }}</span>
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <button onclick="moModalMua('{{ .MaGoi }}', '{{ .TenGoi }}', {{ .GiaBan }})" class="w-full mt-auto btn-premium py-4 text-xs font-black tracking-widest uppercase !bg-premium-gradient animate-[glowpulse_2s_infinite]">
+                        {{ .TextNutBam }}
+                    </button>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <script src="/static/js/admin/trang_chu_admin.js"></script>
+
+    {{ template "footer_admin" . }}
+{{ end }}
