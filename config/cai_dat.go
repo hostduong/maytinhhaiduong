@@ -32,7 +32,7 @@ func KhoiTaoCauHinh() {
 
 	// 2. ID Của Các Chủ Shop (Vùng Đệm)
 	idAdmin := os.Getenv("SHEET_ID_ADMIN")
-	if idAdmin == "" { idAdmin = "1KVXOuPrpq8xkG9rtDoTP4_MG6uCjqQpuQ2dzFsPvXz0" }
+	if idAdmin == "" { idAdmin = "1afUZ6nmk9VeHkDJ-qZz5wJesqE2JRCRqn8MYzahoFBk" }
 
 	congWeb := os.Getenv("PORT")
 	if congWeb == "" { congWeb = "8080" }
