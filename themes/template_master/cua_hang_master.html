@@ -52,6 +52,7 @@
                                                 {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
                                                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
                                                 {{ if eq .TrangThai 0 }}<div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20"><div class="w-full h-full flex items-center justify-center -rotate-[15deg]"><span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Tạm<br>Khóa</span></div></div>{{ end }}
+                                                {{ if eq .TrangThai -1 }}<div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20"><div class="w-full h-full flex items-center justify-center -rotate-[15deg]"><span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Đợi<br>Xóa</span></div></div>{{ end }}
                                             </div>
                                             <button onclick="event.stopPropagation(); editShop('{{ .MaKhachHang }}')" class="sm:hidden w-full flex items-center justify-center gap-1 bg-white text-purple-600 border border-purple-200 px-2 py-1.5 rounded-lg text-[9px] font-bold shadow-sm active:scale-95">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Sửa
@@ -127,12 +128,13 @@
         {{ range .DanhSach }}
         <div class="shop-data" 
             data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
+            data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
             data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
             data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
             data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
             data-note="{{ .GhiChu }}" data-avatar="{{ .AnhDaiDien }}" data-source="{{ .NguonKhachHang }}"
-            data-created="{{ .NgayTao }}" data-updated="{{ .NgayCapNhat }}" data-updater="{{ .NguoiCapNhat }}"
-            data-domain="{{ .CauHinh.CustomDomain }}" data-sheet="{{ .DataSheets.SpreadsheetID }}" data-expire="{{ .HanSuDung }}">
+            data-created="{{ .NgayTao }}" data-updater="{{ .NguoiCapNhat }}" data-updated="{{ .NgayCapNhat }}"
+            data-plan="{{ .GoiDichVuHienTai }}" data-expire="{{ .HanSuDung }}" data-sheet="{{ .DataSheets.SpreadsheetID }}" data-domain="{{ .CauHinh.CustomDomain }}">
         </div>
         {{ end }}
     </div>
@@ -145,7 +147,7 @@
                     <span class="bg-purple-100 p-2 sm:p-2.5 rounded-2xl text-purple-600 shadow-inner">
                         <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     </span>
-                    <h3 class="text-xl sm:text-2xl font-black tracking-tight text-gradient-animated">Hồ Sơ & Cấu Hình</h3>
+                    <h3 class="text-xl sm:text-2xl font-black tracking-tight text-gradient-animated" id="modalTitle">Hồ Sơ & Phân Quyền</h3>
                 </div>
                 <button onclick="closeModal('modalEdit')" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">&times;</button>
             </div>
@@ -163,7 +165,7 @@
                             <div class="relative z-10">
                                 <h4 class="text-[15px] font-black text-orange-950 mb-1">Lưu ý quản trị</h4>
                                 <p class="text-[13px] text-orange-900/80 leading-relaxed font-medium">
-                                    Dữ liệu hiển thị bên dưới là <b class="text-orange-700">hồ sơ thật</b> của chủ cửa hàng. Mọi chỉnh sửa tại đây sẽ làm thay đổi thông tin hệ thống và hạ tầng Database của khách hàng.
+                                    Dữ liệu hiển thị bên dưới là <b class="text-orange-700">hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu và làm thay đổi thông tin cá nhân của người dùng trên toàn hệ thống.
                                 </p>
                             </div>
                         </div>
@@ -193,8 +195,16 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                 <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" name="zalo" id="f_zalo" class="input-premium"></div>
                                                 <div><label class="form-lbl text-emerald-600">Nguồn khách hàng</label><input type="text" name="nguon_khach_hang" id="f_source" class="input-premium bg-emerald-50/50" placeholder="VD: Đăng ký Web..."></div>
-                                                <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="facebook.com/username"></div>
-                                                <div class="sm:col-span-2"><label class="form-lbl text-blue-600">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="tiktok.com/username"></div>
+                                                
+                                                <div class="sm:col-span-2">
+                                                    <label class="form-lbl text-blue-600">Link Facebook</label>
+                                                    <input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="facebook.com/username" spellcheck="false">
+                                                </div>
+                                                
+                                                <div class="sm:col-span-2">
+                                                    <label class="form-lbl text-blue-600">Link Tiktok</label>
+                                                    <input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="tiktok.com/username" spellcheck="false">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -203,31 +213,31 @@
                         </div>
 
                         <div class="lg:col-span-5 space-y-6 sm:space-y-8">
+                            
                             <div class="animated-border-wrapper shadow-lg shadow-purple-100/50">
                                 <div class="animated-border-inner p-6 sm:p-8 relative">
                                     <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
                                     <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 uppercase tracking-widest text-[11px] flex items-center gap-2 mb-6 relative z-10">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hạ Tầng & Tên Miền
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Hệ thống & Quyền hạn
                                     </h4>
                                     <div class="space-y-6 relative z-10">
                                         <div>
-                                            <label class="form-lbl text-purple-900">Google Spreadsheet ID</label>
-                                            <input type="text" name="spreadsheet_id" id="f_sheet" class="input-premium bg-purple-50/50 font-mono text-[13px] border-purple-200 text-purple-900 shadow-sm" placeholder="1afUZ6nmk...">
+                                            <label class="form-lbl text-purple-900">Vai trò / Phân quyền <span class="text-red-500">*</span></label>
+                                            <select name="vai_tro" id="f_role" class="input-premium bg-purple-50/50 border-purple-200 text-purple-900 font-bold focus:ring-purple-600 cursor-pointer shadow-sm" required>
+                                                {{ range .DanhSachVaiTro }}<option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>{{ end }}
+                                            </select>
                                         </div>
+                                        <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-100" placeholder="Để trống sẽ lấy theo Vai trò..."></div>
                                         <div>
-                                            <label class="form-lbl text-emerald-700">Tên miền riêng (Custom Domain)</label>
-                                            <input type="text" name="custom_domain" id="f_domain" class="input-premium bg-emerald-50/50 font-bold border-emerald-200 text-emerald-700 shadow-sm" placeholder="shopcuatoi.com">
-                                        </div>
-                                        <div>
-                                            <label class="form-lbl text-purple-900">Trạng thái Cửa hàng</label>
+                                            <label class="form-lbl text-purple-900">Trạng thái tài khoản</label>
                                             <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer border-purple-100 shadow-sm">
                                                 <option value="1" class="text-emerald-600">🟢 Hoạt động bình thường</option>
                                                 <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
-                                                <option value="-1" class="text-red-600">🔴 Ngừng cung cấp (Xóa)</option>
+                                                <option value="-1" class="text-red-600">🔴 Đợi xóa</option>
                                             </select>
                                         </div>
 
-                                        <div id="box_cap_lai_bao_mat" class="pt-6 border-t border-purple-50">
+                                        <div class="pt-6 border-t border-purple-50">
                                             <h4 class="font-black text-orange-600 uppercase tracking-widest text-[10px] flex items-center gap-2 mb-4">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật
                                             </h4>
@@ -239,7 +249,37 @@
                                                         <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                                                     </div>
                                                 </div>
+                                                <div>
+                                                    <label class="form-lbl text-orange-800">Mã PIN mới (8 số)</label>
+                                                    <div class="relative">
+                                                        <input type="password" name="pin_moi" id="f_pin" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono tracking-widest pr-10 border-orange-200 bg-orange-50/30 text-center" placeholder="Để trống nếu không đổi...">
+                                                        <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                                    </div>
+                                                </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="animated-border-wrapper shadow-lg shadow-indigo-100/50">
+                                <div class="animated-border-inner p-6 sm:p-8 relative">
+                                    <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
+                                    <h4 class="font-black text-indigo-600 border-b border-indigo-50 pb-3 uppercase tracking-widest text-[11px] flex items-center gap-2 mb-6 relative z-10">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg> Hạ Tầng & Tên Miền
+                                    </h4>
+                                    <div class="space-y-6 relative z-10">
+                                        <div>
+                                            <label class="form-lbl text-slate-700">Google Spreadsheet ID</label>
+                                            <input type="text" name="spreadsheet_id" id="f_sheet" class="input-premium font-mono text-[13px] border-slate-200 shadow-sm" placeholder="1afUZ6nmk...">
+                                        </div>
+                                        <div>
+                                            <label class="form-lbl text-slate-700">Tên miền riêng (Custom Domain)</label>
+                                            <input type="text" name="custom_domain" id="f_domain" class="input-premium font-bold border-slate-200 shadow-sm" placeholder="shopcuatoi.com">
+                                        </div>
+                                        <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-3">
+                                            <div class="flex justify-between items-center"><span class="text-[12px] font-bold text-slate-500">Gói cước đang dùng:</span> <span id="f_view_plan" class="text-[12px] font-black text-purple-600">--</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-[12px] font-bold text-slate-500">Ngày hết hạn:</span> <span id="f_view_expire" class="text-[12px] font-black text-rose-500">--</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -254,8 +294,8 @@
                                     <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-500 relative z-10">
                                         <div class="flex justify-between items-center"><span class="text-slate-400">Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
                                         <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-slate-800">--</span></div>
-                                        <div class="flex justify-between items-center pt-2 border-t border-slate-100"><span class="text-slate-400">Hạn gói cước:</span> <span id="f_log_expire" class="font-black text-purple-600">--</span></div>
+                                        <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
+                                        <div class="flex justify-between items-center pt-2 border-t border-slate-100"><span class="text-slate-400">Hạn gói cước:</span> <span id="f_log_expire" class="font-black text-rose-500">--</span></div>
                                     </div>
                                     <div class="pt-5 border-t border-purple-50 relative z-10">
                                         <label class="form-lbl text-slate-500">Ghi chú nội bộ (Chỉ Admin thấy)</label>
@@ -277,6 +317,31 @@
         </div>
     </div>
 
+    <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg transform transition-all overflow-hidden border border-white/20">
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-indigo-600">
+                <h3 class="text-xl font-black text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
+                <button onclick="closeModal('modalMsg')" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 sm:p-8 space-y-6">
+                <div class="bg-purple-50 text-purple-700 p-4 rounded-2xl text-sm font-bold border border-purple-100 flex items-center justify-between shadow-sm"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-purple-700 text-2xl bg-white px-4 py-1 rounded-xl shadow-sm border border-purple-200">0</span></div>
+                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật..." required autocomplete="off" spellcheck="false"></div>
+                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required autocomplete="off" spellcheck="false"></textarea></div>
+                
+                {{ if lt .NhanVien.StyleLevel 3 }}
+                <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-purple-300 transition">
+                    <input type="checkbox" id="chkSendAsBot" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                    <label for="chkSendAsBot" class="text-[13px] font-bold text-slate-700 cursor-pointer select-none">Gửi dưới danh nghĩa Trợ lý ảo (Hệ thống)</label>
+                </div>
+                {{ end }}
+            </div>
+            <div class="px-6 sm:px-8 py-4 sm:py-5 border-t bg-slate-50 flex flex-col sm:flex-row justify-end gap-3 rounded-b-[2rem]">
+                <button onclick="closeModal('modalMsg')" class="w-full sm:w-auto px-6 py-3 text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl font-bold transition">Hủy</button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="w-full sm:w-auto px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">Phát sóng</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function filterTable(inputId, tableId) {
             const input = document.getElementById(inputId); const filter = input.value.toLowerCase();
@@ -286,13 +351,53 @@
                 rows[i].style.display = text.includes(filter) ? "" : "none";
             }
         }
+
         function toggleAllCheckboxes() {
             const master = document.getElementById('checkAll');
             document.querySelectorAll('.chk-member').forEach(c => c.checked = master.checked);
             updateCount();
         }
+
         function updateCount() {
             document.getElementById('countSelected').innerText = document.querySelectorAll('.chk-member:checked').length;
+        }
+
+        function openMessageModal() {
+            const count = document.querySelectorAll('.chk-member:checked').length;
+            if (count === 0) {
+                Swal.fire({ icon: 'warning', title: 'Cảnh Báo!', text: 'Vui lòng chọn ít nhất 1 cửa hàng.', confirmButtonText: 'Đã hiểu', confirmButtonColor: '#ea580c' });
+                return;
+            }
+            document.getElementById('lblMsgCount').innerText = count;
+            document.getElementById('msgTitle').value = '';
+            document.getElementById('msgContent').value = '';
+            document.getElementById('modalMsg').classList.remove('hidden');
+        }
+
+        async function sendMessages() {
+            const title = document.getElementById('msgTitle').value.trim();
+            const content = document.getElementById('msgContent').value.trim();
+            if (!title || !content) { Swal.fire('Lỗi', 'Tiêu đề và nội dung không được để trống!', 'error'); return; }
+
+            const list = Array.from(document.querySelectorAll('.chk-member:checked')).map(cb => cb.value);
+            const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'Đang gửi...';
+
+            const fd = new FormData();
+            fd.append('tieu_de', title); fd.append('noi_dung', content);
+            fd.append('danh_sach_id', JSON.stringify(list));
+            const chkBot = document.getElementById('chkSendAsBot');
+            if(chkBot && chkBot.checked) fd.append('send_as_bot', '1');
+
+            try {
+                const res = await fetch('/master/api/thanh-vien/send-msg', { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    Swal.fire('Thành công', data.msg, 'success');
+                    closeModal('modalMsg'); document.querySelectorAll('.chk-member').forEach(cb => cb.checked = false); updateCount(); document.getElementById('checkAll').checked = false;
+                } else { Swal.fire('Lỗi', data.msg, 'error'); }
+            } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối mạng', 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = old; }
         }
 
         function togglePass(id) {
@@ -305,7 +410,7 @@
             const el = document.querySelector(`.shop-data[data-id="${id}"]`);
             if(!el) return;
             
-            // Cột trái (Thông tin cơ bản)
+            // Đổ cột trái
             document.getElementById('f_ma').value = id;
             document.getElementById('f_ten').value = el.dataset.name;
             document.getElementById('f_avatar').value = el.dataset.avatar;
@@ -319,10 +424,19 @@
             document.getElementById('f_fb').value = el.dataset.fb;
             document.getElementById('f_tiktok').value = el.dataset.tiktok;
             
-            // Cột phải (Hạ tầng & Dữ liệu)
+            // Đổ cột phải
+            document.getElementById('f_role').value = el.dataset.role;
+            document.getElementById('f_title').value = el.dataset.title;
+            document.getElementById('f_status').value = el.dataset.status;
+            
+            // Xóa pass/pin cũ
+            document.getElementById('f_pass').value = '';
+            document.getElementById('f_pin').value = '';
+
             document.getElementById('f_sheet').value = el.dataset.sheet;
             document.getElementById('f_domain').value = el.dataset.domain;
-            document.getElementById('f_status').value = el.dataset.status;
+            document.getElementById('f_view_plan').innerText = el.dataset.plan || 'Chưa Đăng Ký';
+            document.getElementById('f_view_expire').innerText = el.dataset.expire || '--';
             document.getElementById('f_note').value = el.dataset.note;
 
             document.getElementById('f_log_created').innerText = el.dataset.created || '--';
@@ -345,6 +459,7 @@
             fd.append('pin_xac_nhan', pinXacNhan);
             
             try {
+                // API GỌI VỀ ĐÚNG MODULE CỬA HÀNG
                 const res = await fetch('/master/api/cua-hang/save', { method: 'POST', body: fd });
                 const data = await res.json();
                 if(data.status === 'ok') {
@@ -355,7 +470,7 @@
             } catch(e) { showErrorAlert("Lỗi kết nối máy chủ!"); btn.disabled = false; btn.innerHTML = old; }
         }
 
-        // HÀM NHẬP PIN VIP (SAO CHÉP TỪ DONG-BO-SHEETS)
+        // HÀM NHẬP PIN VIP (TỪ DONG-BO-SHEETS)
         window.checkPinLength = function(input) {
             if (input.value.length === 8) { input.classList.add('border-emerald-500', 'text-emerald-600'); } else { input.classList.remove('border-emerald-500', 'text-emerald-600'); }
         }
