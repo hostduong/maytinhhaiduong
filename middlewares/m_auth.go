@@ -56,6 +56,7 @@ func IdentifyTenant() gin.HandlerFunc {
 		c.Set("APP_MODE", appMode)
 		c.Set("THEME", theme)
 		c.Set("SHOP_ID", shopID)
+		// Đánh dấu thời gian truy cập cho Bác Lao Công biết
 		if appMode == "STOREFRONT" && shopID != "" {
 			core.DanhDauTruyCapShop(shopID)
 		}
