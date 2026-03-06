@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func API_LuuGoiDichVu(c *gin.Context) {
+func API_LuuGoiDichVuMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	
 	gn, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_niem_yet"), ".", ""), 64)
@@ -15,7 +15,7 @@ func API_LuuGoiDichVu(c *gin.Context) {
 	sl, _ := strconv.Atoi(c.PostForm("so_luong_con_lai"))
 	tt := 0; if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" { tt = 1 }
 
-	dto := DTO_LuuGoiDichVu{
+	dto := DTO_LuuGoiDichVuMaster{
 		IsNew: c.PostForm("is_new") == "true",
 		MaGoi: strings.ToUpper(strings.TrimSpace(c.PostForm("ma_goi"))),
 		TenGoi: c.PostForm("ten_goi"), LoaiGoi: c.PostForm("loai_goi"),
