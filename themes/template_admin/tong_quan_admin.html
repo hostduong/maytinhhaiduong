@@ -1,0 +1,88 @@
+{{ define "tong_quan_admin" }}
+    {{ template "header_admin" . }}
+
+    <div class="max-w-7xl mx-auto animate-[fadeIn_0.5s_ease-out]">
+        
+        <div class="bg-white rounded-3xl p-8 md:p-10 mb-10 shadow-sm border border-slate-200 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+
+            <div class="relative z-10 flex-1">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-widest mb-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
+                    {{ .TenGoiHienTai }}
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">
+                    Chào mừng trở lại, <span class="text-gradient-animated">{{ .NhanVien.TenKhachHang }}</span>!
+                </h1>
+                <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
+                    Hôm nay là một ngày tuyệt vời để bứt phá doanh thu. Hãy kiểm tra các chỉ số cửa hàng và chuẩn bị cho những đơn hàng mới nhé.
+                </p>
+                <div class="mt-6 flex gap-4">
+                    <a href="/quan-ly-may-tinh" class="btn-premium px-6 py-3 rounded-xl font-bold transition flex items-center gap-2 text-sm shadow-lg shadow-purple-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Thêm Sản Phẩm Mới
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full md:w-80 bg-slate-50 border border-slate-100 rounded-2xl p-6 shrink-0">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Hạn Mức Gói Cước</h3>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-600">Sản phẩm lưu trữ</span>
+                        <span class="{{ if ge .PhanTramSP 90 }}text-red-500{{ else }}text-purple-600{{ end }}">{{ .SoSanPhamHienTai }} / {{ .MaxSanPham }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="h-2.5 rounded-full transition-all duration-1000 {{ if ge .PhanTramSP 90 }}bg-red-500{{ else if ge .PhanTramSP 75 }}bg-orange-500{{ else }}bg-gradient-to-r from-purple-500 to-indigo-500{{ end }}" style="width: {{ .PhanTramSP }}%"></div>
+                    </div>
+                    {{ if ge .PhanTramSP 90 }}
+                    <p class="text-[10px] text-red-500 mt-1 font-bold">⚠️ Sắp hết dung lượng! <a href="/" class="underline">Nâng cấp ngay</a></p>
+                    {{ end }}
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+                    <span class="text-xs font-bold text-slate-600">Tài khoản Nhân viên</span>
+                    <span class="text-xs font-black text-slate-800">1 / {{ .MaxNhanVien }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:-translate-y-1 transition duration-300">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-slate-400 font-bold text-[11px] mb-1 uppercase tracking-widest">Doanh thu hôm nay</h3>
+                <div class="text-2xl font-black text-slate-800">0<span class="text-lg text-slate-400">₫</span></div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:-translate-y-1 transition duration-300">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </div>
+                <h3 class="text-slate-400 font-bold text-[11px] mb-1 uppercase tracking-widest">Đơn hàng chờ xử lý</h3>
+                <div class="text-2xl font-black text-slate-800">0</div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:-translate-y-1 transition duration-300">
+                <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <h3 class="text-slate-400 font-bold text-[11px] mb-1 uppercase tracking-widest">Khách hàng mới</h3>
+                <div class="text-2xl font-black text-slate-800">0</div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:-translate-y-1 transition duration-300">
+                <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <h3 class="text-slate-400 font-bold text-[11px] mb-1 uppercase tracking-widest">Sản phẩm sắp hết</h3>
+                <div class="text-2xl font-black text-slate-800">0</div>
+            </div>
+        </div>
+
+    </div>
+
+    {{ template "footer_admin" . }}
+{{ end }}
