@@ -11,7 +11,7 @@ import (
 	"app/modules/cau_hinh"
 	"app/modules/database_admin"
 	"app/modules/dong_bo_sheets"
-	"app/modules/goi_dich_vu"
+	"app/modules/goi_dich_vu-master"
 	"app/modules/hien_thi_web"
 	"app/modules/ho_so"
 	"app/modules/nhap_hang"
