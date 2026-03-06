@@ -12,44 +12,127 @@ import (
 )
 
 // ==============================================================================
-// 0. BỘ CHỈ HUY TỔNG (Hàm kích hoạt khi khởi động Server hoặc bấm Đồng bộ)
+// 0. TRẠM ĐĂNG KÝ HÀM NẠP (REGISTRY PATTERN) - NƠI DUY NHẤT CẦN SỬA KHI THÊM SHEET
+// ==============================================================================
+
+// Bọc 2 hàm này lại vì bản gốc của Sếp đang trả về error, ta cần nó về dạng chuẩn func(string)
+func napKhachHangMasterNoErr(id string) { _ = NapKhachHangMaster(id) }
+func napKhachHangAdminNoErr(id string)  { _ = NapKhachHangAdmin(id) }
+
+// [TẦNG 1]: Két sắt Master
+var CacHamNapMaster = []func(string){
+	NapPhanQuyenMaster,
+	napKhachHangMasterNoErr,
+	NapGoiDichVuMaster,
+	NapTinNhanMaster,
+}
+
+// [TẦNG 2]: Tổng kho Admin
+var CacHamNapAdmin = []func(string){
+	NapPhanQuyenAdmin,
+	napKhachHangAdminNoErr,
+}
+
+// [TẦNG 3]: Cửa hàng bán lẻ (Lazy Load)
+var CacHamNapCuaHang = []func(string){
+	// NapKhachHangCuaShop, // Sếp mở comment khi code xong
+	// NapPhanQuyenCuaShop, // Sếp mở comment khi code xong
+	NapMayTinh,
+	NapDanhMuc,
+	NapThuongHieu,
+	NapBienLoiNhuan,
+	NapNhaCungCap,
+	NapPhieuNhap,
+	NapSerial,
+	// NapPhieuXuat,        // Mở comment khi cần
+	// NapHoaDon,           // Mở comment khi cần
+	// NapPhieuThuChi,      // Mở comment khi cần
+	// NapPhieuBaoHanh,     // Mở comment khi cần
+}
+
+// ==============================================================================
+// 1. ĐỘNG CƠ NẠP SONG SONG (THE ENGINE)
+// ==============================================================================
+func ChayDanhSachNapSongSong(shopID string, danhSachHam []func(string)) {
+	var wg sync.WaitGroup
+	wg.Add(len(danhSachHam))
+	
+	for _, hamNap := range danhSachHam {
+		go func(f func(string)) {
+			defer wg.Done()
+			f(shopID) // Đẩy ID vào để hàm tự nạp
+		}(hamNap)
+	}
+	
+	wg.Wait()
+}
+
+// ==============================================================================
+// 2. KHỞI ĐỘNG HỆ THỐNG (Gọi khi bật Server hoặc Đồng bộ Lõi)
 // ==============================================================================
 func KhoiDongHeThongNapDuLieu() {
 	HeThongDangBan = true
 	defer func() { HeThongDangBan = false }()
-	log.Println("[LOADER] Bắt đầu nạp dữ liệu Tầng Master & Admin...")
+	log.Println("[LOADER] Bắt đầu khởi động Động cơ nạp Master & Admin...")
 
 	masterID := config.BienCauHinh.IdFileSheetMaster
 	adminID := config.BienCauHinh.IdFileSheetAdmin
 
-	// Dùng WaitGroup để nạp song song cho nhanh (Tăng tốc độ khởi động x3 lần)
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	// --- LUỒNG 1: Nạp Két Sắt Master ---
 	go func() {
 		defer wg.Done()
-		NapPhanQuyenMaster(masterID)
-		NapKhachHangMaster(masterID)
-		NapGoiDichVuMaster(masterID)
-		NapTinNhanMaster(masterID)
-		log.Println("[LOADER] ✔ Nạp xong Tầng MASTER.")
+		ChayDanhSachNapSongSong(masterID, CacHamNapMaster)
+		log.Println("[LOADER] ✔ Hoàn tất nạp Két sắt MASTER.")
 	}()
 
-	// --- LUỒNG 2: Nạp Tổng kho Admin ---
 	go func() {
 		defer wg.Done()
-		NapPhanQuyenAdmin(adminID)
-		NapKhachHangAdmin(adminID)
-		log.Println("[LOADER] ✔ Nạp xong Tầng ADMIN.")
+		ChayDanhSachNapSongSong(adminID, CacHamNapAdmin)
+		log.Println("[LOADER] ✔ Hoàn tất nạp Tổng kho ADMIN.")
 	}()
 
 	wg.Wait()
-	log.Println("[LOADER] Hệ thống đã sẵn sàng!")
+	log.Println("[LOADER] Động cơ sẵn sàng! Hệ thống đã lên mây ☁️")
 }
 
 // ==============================================================================
-// 1. TẦNG MASTER: NẠP KÉT SẮT & QUẢN TRỊ LÕI
+// 3. CƠ CHẾ NẠP ĐỘNG TẦNG 3 (LAZY LOADING KẾT HỢP DỌN RAM)
+// ==============================================================================
+func NapDuLieuCuaMotShop(shopID string) {
+	StatusMutex.RLock()
+	status := CacheStatusKhachHang[shopID]
+	StatusMutex.RUnlock()
+
+	// Tránh đàn ngựa giẫm đạp: Nếu đã nạp hoặc đang nạp thì bỏ qua
+	if status == FlagOK || status == FlagLoading {
+		return
+	}
+
+	// Đóng cổng, treo biển "Đang tải"
+	StatusMutex.Lock()
+	CacheStatusKhachHang[shopID] = FlagLoading
+	StatusMutex.Unlock()
+
+	log.Printf("⏳ [LAZY LOAD] Đang kéo Cửa hàng (ID: %s) lên RAM...", shopID)
+
+	// Gọi bác lao công kiểm tra RAM (Mức 75%), dọn bớt Shop cũ nếu cần (File: memory_manager.go)
+	KiemTraVaXoaRAMKhiDay()
+
+	// Khởi động Động cơ nạp Cửa hàng
+	ChayDanhSachNapSongSong(shopID, CacHamNapCuaHang)
+
+	// Mở cổng
+	StatusMutex.Lock()
+	CacheStatusKhachHang[shopID] = FlagOK
+	StatusMutex.Unlock()
+	
+	log.Printf("✅ [LAZY LOAD] Hoàn tất nạp Cửa hàng (ID: %s).", shopID)
+}
+
+// ==============================================================================
+// 4. TẦNG MASTER: NẠP KÉT SẮT & QUẢN TRỊ LÕI
 // ==============================================================================
 
 func NapPhanQuyenMaster(masterID string) {
@@ -133,7 +216,7 @@ func NapTinNhanMaster(masterID string) {
 }
 
 // ==============================================================================
-// 2. TẦNG ADMIN: NẠP TỔNG KHO CHỦ SHOP (CRM)
+// 5. TẦNG ADMIN: NẠP TỔNG KHO CHỦ SHOP (CRM)
 // ==============================================================================
 
 func NapPhanQuyenAdmin(adminID string) {
