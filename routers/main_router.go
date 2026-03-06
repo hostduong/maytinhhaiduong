@@ -18,7 +18,7 @@ import (
 	"app/modules/san_pham"
 	"app/modules/thanh_toan"
 	"app/modules/thanh_vien_master" // [S.O.P] Đã trỏ đúng thư mục Master
-	"app/modules/tin_nhan"
+	"app/modules/tin_nhan_master"
 	"app/modules/tong_quan_admin"
 	"app/modules/tong_quan_master"
 	"app/modules/cua_hang_master"
@@ -129,7 +129,7 @@ func SetupRouter() *gin.Engine {
 		master.GET("/ho-so", ho_so.TrangHoSoMaster)
 		master.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
 		master.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
-		master.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
+		master.GET("/tin-nhan", tin_nhan_master.TrangTinNhanMaster)
 		master.GET("/quan-ly-cua-hang", cua_hang_master.TrangQuanLyCuaHangMaster)
 		
 		// (Các UI bọc thêm RequireLevel nếu cần, hiện tại master đã bọc sẵn Level 2)
@@ -143,8 +143,8 @@ func SetupRouter() *gin.Engine {
 			apiMaster.POST("/ho-so", ho_so.API_LuuHoSoMaster)
 			apiMaster.POST("/change-pass", ho_so.API_DoiMatKhauMaster)
 			apiMaster.POST("/change-pin", ho_so.API_DoiMaPinMaster)
-			apiMaster.POST("/doc-tin-nhan", tin_nhan.API_DanhDauDaDocMaster)
-			apiMaster.POST("/tin-nhan/send-chat", tin_nhan.API_GuiTinNhanChat)
+			apiMaster.POST("/doc-tin-nhan", tin_nhan_master.API_DanhDauDaDocMaster)
+            apiMaster.POST("/tin-nhan/send-chat", tin_nhan_master.API_GuiTinNhanChat)
 
 			// Gắn Middleware kiểm tra Permission từng nút bấm
 			apiMaster.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), san_pham.API_LuuMayTinhMaster)
