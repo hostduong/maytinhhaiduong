@@ -70,6 +70,9 @@ func SetupRouter() *gin.Engine {
 	admin.Use(middlewares.CheckAuth())
 	admin.Use(middlewares.EnforceDomainBoundary())
 	{
+		// Trang chủ: Nơi hiển thị Bảng giá để chốt sale (Gọi Controller mới)
+		admin.GET("/", trang_chu_admin.TrangChuAdmin)
+		
 		// Cổng vào thiết lập Database sau khi mua gói
 		admin.GET("/database", database_admin.TrangThietLapDatabaseAdmin) 
 		admin.POST("/api/database/setup", database_admin.API_ThietLapDatabase)
