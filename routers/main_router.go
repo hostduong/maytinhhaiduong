@@ -53,14 +53,14 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// 3. KHU VỰC CHỌN GÓI (BẢNG GIÁ) - Bắt buộc Login
+	// 3. KHU VỰC THANH TOÁN
 	// =======================================================
-	portal := router.Group("/bang-gia")
-	portal.Use(middlewares.CheckAuth())
+	// Cổng Thanh Toán Chuẩn Mực
+	apiThanhToan := router.Group("/api/thanh-toan")
+	apiThanhToan.Use(middlewares.CheckAuth())
 	{
-		portal.GET("/", bang_gia.TrangCongPortalBangGia)
-		portal.POST("/api/check-price", bang_gia.API_CheckGia)
-		portal.POST("/api/mua-goi", bang_gia.API_MuaGoi)
+		apiThanhToan.POST("/check-price", thanh_toan.API_CheckPrice)
+		apiThanhToan.POST("/mua-goi", thanh_toan.API_MuaGoi)
 	}
 
 	// =======================================================
