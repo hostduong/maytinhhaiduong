@@ -1,49 +1,54 @@
 package goi_dich_vu
 
-import (
-	"app/core"
-)
+import "app/core"
 
-type Repo struct{}
+// ====================================================================
+// REPO: CHUYÊN GIAO TIẾP VỚI RAM VÀ ĐẨY HÀNG CHỜ (QUEUE)
+// ====================================================================
 
-func (r *Repo) FindByCode(shopID, maGoi string) (*core.GoiDichVu, bool) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
-	lock.RLock(); defer lock.RUnlock()
-	g, ok := core.CacheMapGoiDichVu[core.TaoCompositeKey(shopID, maGoi)]
-	return g, ok
+func Repo_LayDanhSachGoiDichVu(masterID string) []*core.GoiDichVu {
+	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
+	lock.RLock()
+	defer lock.RUnlock()
+	return core.CacheGoiDichVu[masterID]
 }
 
-func (r *Repo) Insert(shopID string, g *core.GoiDichVu) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
+func Repo_ThemGoiDichVu(masterID string, gdv *core.GoiDichVu) {
+	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
 	lock.Lock()
-	core.CacheGoiDichVu[shopID] = append(core.CacheGoiDichVu[shopID], g)
-	core.CacheMapGoiDichVu[core.TaoCompositeKey(shopID, g.MaGoi)] = g
-	g.DongTrongSheet = core.DongBatDau_GoiDichVu + len(core.CacheGoiDichVu[shopID]) - 1
+	
+	// Tính dòng tiếp theo (Dòng hiện tại + số dòng header)
+	gdv.DongTrongSheet = len(core.CacheGoiDichVu[masterID]) + core.DongBatDau_GoiDichVu
+	core.CacheGoiDichVu[masterID] = append(core.CacheGoiDichVu[masterID], gdv)
+	core.CacheMapGoiDichVu[core.TaoCompositeKey(masterID, gdv.MaGoi)] = gdv
+	
 	lock.Unlock()
 
-	rowData := []interface{}{
-		g.MaGoi, g.TenGoi, g.LoaiGoi, g.ThoiHanNgay, g.GiaNiemYet, g.GiaBan,
-		g.MaCodeKichHoatJson, g.GioiHanJson, g.MoTa, g.NhanHienThi,
-		g.NgayBatDau, g.NgayKetThuc, g.SoLuongConLai, g.TrangThai,
-	}
-	core.PushAppend(shopID, core.TenSheetGoiDichVu, rowData)
+	// Ghi xuống Queue để chạy ngầm (Sử dụng đúng biến Master)
+	core.PushAppend(masterID, core.TenSheetGoiDichVuMaster, []interface{}{
+		gdv.MaGoi, gdv.TenGoi, gdv.LoaiGoi, gdv.ThoiHanNgay, gdv.ThoiHanHienThi, gdv.NhanHienThi, 
+		gdv.GiaNiemYet, gdv.GiaBan, gdv.MaCodeKichHoatJson, gdv.GioiHanJson, 
+		gdv.MoTa, gdv.NgayBatDau, gdv.NgayKetThuc, gdv.SoLuongConLai, gdv.TrangThai,
+	})
 }
 
-func (r *Repo) Update(shopID string, g *core.GoiDichVu) {
-	lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVu)
-	lock.RLock()
-	row := g.DongTrongSheet
-	lock.RUnlock()
+func Repo_CapNhatGoiDichVu(masterID string, gdv *core.GoiDichVu) {
+	lock := core.GetSheetLock(masterID, core.TenSheetGoiDichVuMaster)
+	lock.Lock()
+	// RAM đã được update từ Service trước đó
+	lock.Unlock()
 
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_TenGoi, g.TenGoi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_LoaiGoi, g.LoaiGoi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_ThoiHanNgay, g.ThoiHanNgay)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GiaNiemYet, g.GiaNiemYet)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GiaBan, g.GiaBan)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_MaCodeKichHoatJson, g.MaCodeKichHoatJson)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_GioiHanJson, g.GioiHanJson)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_MoTa, g.MoTa)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_NhanHienThi, g.NhanHienThi)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_SoLuongConLai, g.SoLuongConLai)
-	core.PushUpdate(shopID, core.TenSheetGoiDichVu, row, core.CotGDV_TrangThai, g.TrangThai)
+	r := gdv.DongTrongSheet
+	// Ghi từng ô xuống Queue ngầm (Sử dụng đúng biến Master)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_TenGoi, gdv.TenGoi)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_LoaiGoi, gdv.LoaiGoi)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_ThoiHanNgay, gdv.ThoiHanNgay)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_ThoiHanHienThi, gdv.ThoiHanHienThi)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_NhanHienThi, gdv.NhanHienThi)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_GiaNiemYet, gdv.GiaNiemYet)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_GiaBan, gdv.GiaBan)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_MaCodeKichHoatJson, gdv.MaCodeKichHoatJson)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_GioiHanJson, gdv.GioiHanJson)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_MoTa, gdv.MoTa)
+	core.PushUpdate(masterID, core.TenSheetGoiDichVuMaster, r, core.CotGDV_TrangThai, gdv.TrangThai)
 }
