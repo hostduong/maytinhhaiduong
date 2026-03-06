@@ -732,3 +732,19 @@ func NapGoiDichVu(shopID string) {
 	}
 }
 
+// ==============================================================================
+// HÀM GỐC TƯƠNG TÁC GOOGLE API (KHÔNG ĐƯỢC XÓA)
+// ==============================================================================
+func napDataGeneric(shopID, sheetName string, target interface{}) [][]interface{} {
+	// [ĐÃ SỬA]: Không gán bừa idAdmin nếu shopID rỗng nữa. Phải báo lỗi.
+	if shopID == "" { 
+        log.Printf("⚠️ Lỗi: Đang cố nạp Sheet %s nhưng không có ShopID!", sheetName)
+        return nil 
+    }
+	raw, err := LoadSheetData(shopID, sheetName)
+	if err != nil {
+		log.Printf("❌ Lỗi LoadSheetData (%s): %v", sheetName, err)
+		return nil
+	}
+	return raw
+}
