@@ -1,7 +1,5 @@
-{{ define "tin_nhan" }}
-    {{ template "master_header" . }}
-
-    <div class="max-w-7xl mx-auto h-[calc(100vh-5.5rem)] md:h-[calc(100vh-6rem)] flex flex-col pb-4 md:pb-0 relative z-10">
+{{ define "tin_nhan_master" }}
+    {{ template "header_master" . }} <div class="max-w-7xl mx-auto h-[calc(100vh-5.5rem)] md:h-[calc(100vh-6rem)] flex flex-col pb-4 md:pb-0 relative z-10">
         
         <div class="bg-white rounded-[1.5rem] shadow-lg shadow-purple-100/50 border border-purple-100 flex-1 flex overflow-hidden relative min-h-0">
             <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
@@ -425,5 +423,4 @@
         renderContactList();
     </script>
     
-    {{ template "master_footer" . }}
-{{ end }}
+    {{ template "footer_master" . }} {{ end }}
