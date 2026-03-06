@@ -21,6 +21,7 @@ import (
 	"app/modules/tin_nhan"
 	"app/modules/tong_quan_admin"
 	"app/modules/tong_quan_master"
+	"app/modules/cua_hang_master"
 
 	"github.com/gin-gonic/gin"
 )
@@ -129,6 +130,7 @@ func SetupRouter() *gin.Engine {
 		master.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
 		master.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
 		master.GET("/tin-nhan", tin_nhan.TrangTinNhanMaster)
+		master.GET("/quan-ly-cua-hang", cua_hang_master.TrangQuanLyCuaHangMaster)
 		
 		// (Các UI bọc thêm RequireLevel nếu cần, hiện tại master đã bọc sẵn Level 2)
 		master.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
@@ -154,6 +156,7 @@ func SetupRouter() *gin.Engine {
 			apiMaster.POST("/thanh-vien/save", thanh_vien_master.API_LuuThanhVienMaster) 
 			apiMaster.POST("/thanh-vien/send-msg", thanh_vien_master.API_GuiTinNhanMaster) 
 			apiMaster.POST("/goi-dich-vu/save", goi_dich_vu_master.API_LuuGoiDichVuMaster)
+			apiMaster.POST("/cua-hang/save", cua_hang_master.API_LuuCuaHangMaster)
 		}
 	}
 
