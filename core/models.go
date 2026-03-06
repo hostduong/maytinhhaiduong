@@ -97,15 +97,31 @@ const (
 type TokenInfo struct { DeviceName string `json:"dev"`; ExpiresAt int64 `json:"exp"` }
 type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"`; GoogleAuthJson string `json:"google_auth_json"`; FolderDriveID string `json:"folder_drive_id"` }
 type PlanInfo struct {
-	MaGoi       string `json:"ma_goi"`
-	TenGoi      string `json:"ten_goi"`
-	LoaiGoi     string `json:"loai_goi"`       
-	NgayHetHan  string `json:"ngay_het_han"`
-	TrangThai   string `json:"trang_thai"`     
-	MaxSanPham  int    `json:"max_san_pham"`   
-	MaxNhanVien int    `json:"max_nhan_vien"`  
+	MaGoi          string `json:"ma_goi"`
+	TenGoi         string `json:"ten_goi"`
+	LoaiGoi        string `json:"loai_goi"`       
+	NgayHetHan     string `json:"ngay_het_han"`
+	TrangThai      string `json:"trang_thai"`     
+	MaxSanPham     int    `json:"max_san_pham"`   
+	MaxNhanVien    int    `json:"max_nhan_vien"`  
+	
+	// CÁC QUYỀN LỢI MỚI MỞ RỘNG CỦA GÓI CƯỚC
+	TinNhan        bool   `json:"tin_nhan"`       // true: Bật module Chat CSKH
+	TenMienFree    bool   `json:"ten_mien_free"`  // true: Được dùng Subdomain hệ thống
+	TenMienRieng   bool   `json:"ten_mien_rieng"` // true: Được trỏ Custom Domain
 }
-type UserConfig struct { Theme string `json:"theme"`; ChuyenNganh string `json:"chuyen_nganh"`; CustomDomain string `json:"custom_domain"`; DarkMode bool `json:"dark_mode"`; Language string `json:"lang"` }
+
+type UserConfig struct { 
+	Theme         string `json:"theme"` 
+	ChuyenNganh   string `json:"chuyen_nganh"` 
+	Language      string `json:"lang"` 
+	DarkMode      bool   `json:"dark_mode"` 
+	
+	// CẤU HÌNH TÊN MIỀN VÀ KHÔNG GIAN
+	CustomDomain  string `json:"custom_domain"`   // Ưu tiên 1 (VD: shopcuatoi.com)
+	Subdomain     string `json:"subdomain"`       // Ưu tiên 2 (VD: shopcuatoi.99k.vn)
+	Website       bool   `json:"website"`         // true: Có Web bán hàng / false: Chỉ dùng Admin Kế toán
+}
 type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
 type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
 
