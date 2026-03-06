@@ -1,7 +1,6 @@
 package trang_chu_admin
 
 import (
-	"fmt"
 	"net/http"
 
 	"app/core"
