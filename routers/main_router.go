@@ -2,7 +2,6 @@ package routers
 
 import (
 	"net/http"
-	"strings"
 
 	"app/middlewares"
 	"app/modules/auth"
