@@ -4,7 +4,6 @@ import (
 	"app/config"
 	"app/core"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -68,7 +67,6 @@ func API_ThietLapDatabase(c *gin.Context) {
 	jsonBytes, _ := json.Marshal(kh.DataSheets)
 	strJson := string(jsonBytes)
 	row := kh.DongTrongSheet
-	tenSubdomain := kh.TenDangNhap // Lấy tên đăng nhập để làm Subdomain
 	lock.Unlock()
 
 	// Đẩy lệnh xuống Queue để lưu vào Google Sheet Master
