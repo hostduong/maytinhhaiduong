@@ -44,6 +44,7 @@
                         </thead>
                         <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
                             {{ range .DanhSach }}
+                            
                             <tr class="hover-soft-row cursor-pointer transition-colors relative {{ if eq .TrangThai 0 }}row-locked{{ else if eq .TrangThai -1 }}row-deleted{{ end }}" onclick="editMember('{{ .MaKhachHang }}')">
                                 
                                 <td class="px-2 sm:px-5 py-3 sm:py-4 text-center align-middle cursor-pointer" onclick="event.stopPropagation(); if(event.target.tagName !== 'INPUT') { let cb = this.querySelector('.chk-member'); cb.checked = !cb.checked; updateCount(); }">
@@ -51,9 +52,11 @@
                                 </td>
                                 
                                 <td class="px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto align-middle relative">
+
                                     <div class="grid grid-cols-[auto_1fr] items-center sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
                                         
                                         <div class="flex flex-col items-center justify-center gap-2.5 shrink-0">
+                                            
                                             <div class="avatar-led-wrap w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
                                                 {{ $avatar := .AnhDaiDien }}
                                                 {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
@@ -61,13 +64,17 @@
                                                 
                                                 {{ if eq .TrangThai 0 }}
                                                 <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]"><span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Tạm<br>Khóa</span></div>
+                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Tạm<br>Khóa</span>
+                                                    </div>
                                                 </div>
                                                 {{ end }}
                                                 
                                                 {{ if eq .TrangThai -1 }}
                                                 <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]"><span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Đợi<br>Xóa</span></div>
+                                                    <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
+                                                        <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Đợi<br>Xóa</span>
+                                                    </div>
                                                 </div>
                                                 {{ end }}
                                             </div>
@@ -79,6 +86,7 @@
                                         </div>
                                         
                                         <div class="flex flex-col min-w-0 w-full justify-center">
+                                            
                                             <div class="relative inline-flex items-center mr-auto max-w-full">
                                                 <div class="badge-animated-wrap theme-{{ .StyleTheme }} {{ if lt .StyleLevel 4 }}tier-s{{ else if lt .StyleLevel 7 }}tier-a{{ else if eq .StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
                                                     <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none">{{ .TenKhachHang }}</div>
@@ -156,7 +164,7 @@
             <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem] shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="bg-purple-100 p-2 sm:p-2.5 rounded-2xl text-purple-600 shadow-inner">
-                        <svg class="w-5 h-5 sm:w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     </span>
                     <h3 class="text-xl sm:text-2xl font-black tracking-tight text-gradient-animated" id="modalTitle">Hồ Sơ & Phân Quyền</h3>
                 </div>
@@ -171,11 +179,13 @@
                         <div class="animated-warning-inner p-4 sm:p-5 flex items-start gap-4 bg-orange-50/40 backdrop-blur-sm relative">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none z-0"></div>
                             <div class="bg-gradient-to-br from-amber-100 to-orange-200 p-2.5 rounded-full text-orange-600 shrink-0 shadow-inner border border-orange-300/50 relative z-10">
-                                <svg class="w-5 h-5 sm:w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </div>
                             <div class="relative z-10">
                                 <h4 class="text-[15px] font-black text-orange-950 mb-1">Lưu ý quản trị</h4>
-                                <p class="text-[13px] text-orange-900/80 leading-relaxed font-medium">Dữ liệu hiển thị bên dưới là <b class="text-orange-700">hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu.</p>
+                                <p class="text-[13px] text-orange-900/80 leading-relaxed font-medium">
+                                    Dữ liệu hiển thị bên dưới là <b class="text-orange-700">hồ sơ thật</b> của thành viên. Mọi chỉnh sửa tại đây sẽ được lưu trực tiếp vào cơ sở dữ liệu và làm thay đổi thông tin cá nhân của người dùng trên toàn hệ thống.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -204,11 +214,15 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                 <div><label class="form-lbl text-blue-600">Zalo (SĐT)</label><input type="tel" id="f_zalo_fake" class="input-premium"></div>
                                                 <div><label class="form-lbl text-emerald-600">Nguồn khách hàng</label><input type="text" name="nguon_khach_hang" id="f_source" class="input-premium bg-emerald-50/50" placeholder="VD: Đăng ký Web..."></div>
+                                                
                                                 <div class="sm:col-span-2">
-                                                    <label class="form-lbl text-blue-600">Link Facebook</label><input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="facebook.com/username">
+                                                    <label class="form-lbl text-blue-600">Link Facebook</label>
+                                                    <input type="text" name="facebook" id="f_fb" class="input-premium font-mono text-[13px] text-blue-600" placeholder="facebook.com/username" spellcheck="false">
                                                 </div>
+                                                
                                                 <div class="sm:col-span-2">
-                                                    <label class="form-lbl text-blue-600">Link Tiktok</label><input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="tiktok.com/username">
+                                                    <label class="form-lbl text-blue-600">Link Tiktok</label>
+                                                    <input type="text" name="tiktok" id="f_tiktok" class="input-premium font-mono text-[13px] text-blue-600" placeholder="tiktok.com/username" spellcheck="false">
                                                 </div>
                                             </div>
                                         </div>
@@ -231,7 +245,7 @@
                                                 {{ range .DanhSachVaiTro }}<option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>{{ end }}
                                             </select>
                                         </div>
-                                        <div><label class="form-lbl text-purple-900">Chức vụ hiển thị</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-100"></div>
+                                        <div><label class="form-lbl text-purple-900">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-100" placeholder="Để trống sẽ lấy theo Vai trò..."></div>
                                         <div>
                                             <label class="form-lbl text-purple-900">Trạng thái tài khoản</label>
                                             <select name="trang_thai" id="f_status" class="input-premium bg-white font-bold cursor-pointer border-purple-100 shadow-sm">
@@ -242,20 +256,22 @@
                                         </div>
 
                                         <div id="box_cap_lai_bao_mat" class="pt-6 border-t border-purple-50">
-                                            <h4 class="font-black text-orange-600 uppercase tracking-widest text-[10px] flex items-center gap-2 mb-4"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật</h4>
+                                            <h4 class="font-black text-orange-600 uppercase tracking-widest text-[10px] flex items-center gap-2 mb-4">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Cấp lại Bảo mật
+                                            </h4>
                                             <div class="space-y-4">
                                                 <div>
                                                     <label class="form-lbl text-orange-800">Mật khẩu mới</label>
                                                     <div class="relative">
-                                                        <input type="password" name="mat_khau_moi" id="f_pass" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono pr-10 border-orange-200 bg-orange-50/30">
-                                                        <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                                        <input type="password" name="mat_khau_moi" id="f_pass" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono pr-10 border-orange-200 bg-orange-50/30" placeholder="Để trống nếu không đổi...">
+                                                        <button type="button" onclick="togglePass('f_pass')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pass" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pass" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="form-lbl text-orange-800">Mã PIN mới (8 số)</label>
                                                     <div class="relative">
-                                                        <input type="password" name="pin_moi" id="f_pin" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono tracking-widest pr-10 border-orange-200 bg-orange-50/30 text-center">
-                                                        <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                                        <input type="password" name="pin_moi" id="f_pin" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium font-mono tracking-widest pr-10 border-orange-200 bg-orange-50/30 text-center" placeholder="Để trống nếu không đổi...">
+                                                        <button type="button" onclick="togglePass('f_pin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-orange-600"><svg id="eye_slash_f_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_f_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -267,15 +283,17 @@
                             <div class="animated-border-wrapper shadow-lg shadow-purple-100/50">
                                 <div class="animated-border-inner p-6 sm:p-8 relative">
                                     <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
-                                    <h4 class="font-black text-purple-600 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Dữ liệu quản trị</h4>
+                                    <h4 class="font-black text-purple-600 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Dữ liệu quản trị
+                                    </h4>
                                     <div class="space-y-4 mb-6 text-[13px] font-medium font-mono text-slate-500 relative z-10">
                                         <div class="flex justify-between items-center"><span class="text-slate-400">Ngày gia nhập:</span> <span id="f_log_created" class="font-bold text-slate-800">--</span></div>
                                         <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật lúc:</span> <span id="f_log_updated" class="font-bold text-slate-800">--</span></div>
                                         <div class="flex justify-between items-center"><span class="text-slate-400">Cập nhật cuối:</span> <span id="f_log_updater" class="font-bold text-purple-600">--</span></div>
                                     </div>
                                     <div class="pt-5 border-t border-purple-50 relative z-10">
-                                        <label class="form-lbl text-slate-500">Ghi chú nội bộ</label>
-                                        <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-700 focus:border-purple-500 outline-none transition shadow-sm leading-relaxed"></textarea>
+                                        <label class="form-lbl text-slate-500">Ghi chú nội bộ (Chỉ Admin thấy)</label>
+                                        <textarea name="ghi_chu" id="f_note" rows="3" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-700 focus:border-purple-500 outline-none transition shadow-sm leading-relaxed" placeholder="Ghi chú về tài khoản này..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -286,7 +304,9 @@
 
             <div class="px-6 sm:px-8 py-4 sm:py-5 border-t border-slate-200 bg-white rounded-b-[2rem] flex flex-col sm:flex-row justify-end gap-3 shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
                 <button onclick="closeModal('modalEdit')" class="w-full sm:w-auto px-8 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition">Đóng Modal</button>
-                <button onclick="saveMember()" id="btnSaveMem" class="w-full sm:w-auto px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 text-[15px]">Lưu Thay Đổi</button>
+                <button onclick="saveMember()" id="btnSaveMem" class="w-full sm:w-auto px-10 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-600/30 transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 text-[15px]">
+                    Lưu Thay Đổi
+                </button>
             </div>
         </div>
     </div>
@@ -299,8 +319,9 @@
             </div>
             <div class="p-6 sm:p-8 space-y-6">
                 <div class="bg-purple-50 text-purple-700 p-4 rounded-2xl text-sm font-bold border border-purple-100 flex items-center justify-between shadow-sm"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-purple-700 text-2xl bg-white px-4 py-1 rounded-xl shadow-sm border border-purple-200">0</span></div>
-                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật..." required></div>
-                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required></textarea></div>
+                <div><label class="form-lbl">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật..." required autocomplete="off" spellcheck="false"></div>
+                <div><label class="form-lbl">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required autocomplete="off" spellcheck="false"></textarea></div>
+                
                 {{ if lt .NhanVien.StyleLevel 3 }}
                 <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-purple-300 transition">
                     <input type="checkbox" id="chkSendAsBot" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
