@@ -6,11 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	repo    = Repo{}
-	service = Service{repo: repo}
-)
-
 func API_LuuGoiDichVu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	
@@ -25,7 +20,7 @@ func API_LuuGoiDichVu(c *gin.Context) {
 		MaGoi: strings.ToUpper(strings.TrimSpace(c.PostForm("ma_goi"))),
 		TenGoi: c.PostForm("ten_goi"), LoaiGoi: c.PostForm("loai_goi"),
 		ThoiHanNgay: th, 
-		ThoiHanHienThi: c.PostForm("thoi_han_hien_thi"), // MỚI BẮT TỪ FORM
+		ThoiHanHienThi: c.PostForm("thoi_han_hien_thi"), 
 		GiaNiemYet: gn, GiaBan: gb,
 		CodesJson: c.PostForm("codes_json"), GioiHanJson: c.PostForm("gioi_han_json"),
 		MoTa: c.PostForm("mo_ta"), NhanHienThi: c.PostForm("nhan_hien_thi"),
@@ -33,7 +28,7 @@ func API_LuuGoiDichVu(c *gin.Context) {
 		SoLuongConLai: sl, TrangThai: tt,
 	}
 
-	if err := service.XuLyLuu(shopID, dto); err != nil {
+	if err := Service_XuLyLuu(shopID, dto); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
