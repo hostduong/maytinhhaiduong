@@ -172,9 +172,27 @@ func NapKhachHang(shopID string) error {
 	lock.Lock()
 	defer lock.Unlock()
 	CacheKhachHang[shopID] = list
+	
+	// [THÊM MỚI]: Khóa Global để cập nhật bản đồ Tên Miền an toàn
+	KhoaHeThong.Lock()
 	for _, kh := range list {
 		CacheMapKhachHang[TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
+		
+		// 1. Cập nhật định tuyến Subdomain mặc định (Ví dụ: duongyour.99k.vn)
+		if kh.TenDangNhap != "" && kh.DataSheets.SpreadsheetID != "" {
+			subdomain := kh.TenDangNhap + ".99k.vn"
+			CacheDomainToSheetID[subdomain] = kh.DataSheets.SpreadsheetID
+			
+			// Hỗ trợ thêm cả truy cập bằng Tên đăng nhập trơn (ví dụ chạy ở localhost)
+			CacheDomainToSheetID[kh.TenDangNhap] = kh.DataSheets.SpreadsheetID
+		}
+		
+		// 2. Cập nhật định tuyến Tên miền riêng (Custom Domain) nếu khách hàng có mua thêm
+		if kh.CauHinh.CustomDomain != "" && kh.DataSheets.SpreadsheetID != "" {
+			CacheDomainToSheetID[kh.CauHinh.CustomDomain] = kh.DataSheets.SpreadsheetID
+		}
 	}
+	KhoaHeThong.Unlock()
 
 	StatusMutex.Lock()
 	CacheStatusKhachHang[shopID] = FlagOK
