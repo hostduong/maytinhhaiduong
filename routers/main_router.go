@@ -153,7 +153,7 @@ func SetupRouter() *gin.Engine {
 			apiMaster.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
 			apiMaster.POST("/thanh-vien/save", thanh_vien_master.API_LuuThanhVienMaster) 
 			apiMaster.POST("/thanh-vien/send-msg", thanh_vien_master.API_GuiTinNhanMaster) 
-			apiMaster.POST("/goi-dich-vu/save", goi_dich_vu.API_LuuGoiDichVu)
+			apiMaster.POST("/goi-dich-vu-master/save", goi_dich_vu_master.API_LuuGoiDichVuMaster)
 		}
 	}
 
