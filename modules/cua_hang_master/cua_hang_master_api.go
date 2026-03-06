@@ -28,7 +28,12 @@ func API_LuuCuaHangMaster(c *gin.Context) {
 		MatKhauMoi:     strings.TrimSpace(c.PostForm("mat_khau_moi")),
 		GioiTinh:       gt,
 		
-		// Các trường đặc thù của Cửa Hàng
+		// [ĐÃ VÁ LỖI]: Hứng 4 trường bị thiếu từ HTML
+		VaiTro:         c.PostForm("vai_tro"),
+		ChucVu:         strings.TrimSpace(c.PostForm("chuc_vu")),
+		NguonKhachHang: strings.TrimSpace(c.PostForm("nguon_khach_hang")),
+		PinMoi:         strings.TrimSpace(c.PostForm("pin_moi")),
+		
 		SpreadsheetID:  strings.TrimSpace(c.PostForm("spreadsheet_id")),
 		CustomDomain:   strings.TrimSpace(c.PostForm("custom_domain")),
 	}
