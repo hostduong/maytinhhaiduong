@@ -53,20 +53,8 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 	}
 
 	go func() {
-		core.HeThongDangBan = true
-		// Nạp lại dữ liệu Lõi
-		core.NapPhanQuyen("")
-		core.NapKhachHang("")
-		core.NapGoiDichVu("")
-		core.NapDanhMuc("")
-		core.NapThuongHieu("")
-		core.NapBienLoiNhuan("")
-		core.NapNhaCungCap("")
-		core.NapMayTinh("")
-		core.NapTinNhan("")
-		core.NapPhieuNhap("")
-		core.NapSerial("")
-		core.HeThongDangBan = false
+		// Tái kích hoạt Động cơ Nạp Master và Admin
+		core.KhoiDongHeThongNapDuLieu()
 	}()
 
 	c.JSON(http.StatusOK, gin.H{
