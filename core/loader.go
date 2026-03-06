@@ -551,32 +551,6 @@ func NapBienLoiNhuan(shopID string) {
 	CacheBienLoiNhuan[shopID] = list
 }
 
-// 8. NẠP TIN NHẮN
-func NapTinNhan(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
-	raw := napDataGeneric(shopID, TenSheetTinNhan, nil)
-	if raw == nil { return }
-	list := []*TinNhan{}
-	for i, r := range raw {
-		if i < DongBatDau_TinNhan-1 { continue }
-		maTN := LayString(r, CotTN_MaTinNhan)
-		if maTN == "" { continue }
-		tn := &TinNhan{
-			SpreadsheetID: shopID, DongTrongSheet: i + 1, MaTinNhan: maTN,
-			LoaiTinNhan: LayString(r, CotTN_LoaiTinNhan), NguoiGuiID: LayString(r, CotTN_NguoiGuiID),
-			NguoiNhanID: LayString(r, CotTN_NguoiNhanID), TieuDe: LayString(r, CotTN_TieuDe),
-			NoiDung: LayString(r, CotTN_NoiDung), ThamChieuID: LayString(r, CotTN_ThamChieuID),
-			ReplyChoID: LayString(r, CotTN_ReplyChoID), NgayTao: LayString(r, CotTN_NgayTao),
-		}
-		json.Unmarshal([]byte(LayString(r, CotTN_DinhKemJson)), &tn.DinhKem)
-		json.Unmarshal([]byte(LayString(r, CotTN_NguoiDocJson)), &tn.NguoiDoc)
-		json.Unmarshal([]byte(LayString(r, CotTN_TrangThaiXoa)), &tn.TrangThaiXoa)
-		list = append(list, tn)
-	}
-	lock := GetSheetLock(shopID, TenSheetTinNhan)
-	lock.Lock(); defer lock.Unlock()
-	CacheTinNhan[shopID] = list
-}
 
 // 9. NẠP KHO HÀNG (Phiếu Nhập + Chi Tiết Phiếu Nhập)
 func NapPhieuNhap(shopID string) {
