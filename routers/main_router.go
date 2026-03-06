@@ -124,7 +124,7 @@ func SetupRouter() *gin.Engine {
 	{
 		// Render Giao Diện
 		master.GET("/tong-quan", tong_quan_master.TrangTongQuanMaster)
-		master.GET("/goi-dich-vu", goi_dich_vu.TrangGoiDichVuMaster)
+		master.GET("/goi-dich-vu", goi_dich_vu_master.TrangGoiDichVuMaster)
 		master.GET("/ho-so", ho_so.TrangHoSoMaster)
 		master.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
 		master.GET("/quan-ly-may-tinh", san_pham.TrangQuanLyMayTinhMaster)
