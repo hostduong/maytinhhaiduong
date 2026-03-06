@@ -60,7 +60,7 @@ func TrangDangKy(c *gin.Context) {
 		})
 	} else {
 		// Dành cho Chủ Shop tại www.99k.vn (Có trường chọn Tên miền .99k.vn)
-		c.HTML(http.StatusOK, "dang_ky", gin.H{
+		c.HTML(http.StatusOK, "dang_ky_cua_hang", gin.H{
 			"TieuDe": "Tạo Cửa Hàng Mới",
 			"Loi":    c.Query("loi"),
 		})
