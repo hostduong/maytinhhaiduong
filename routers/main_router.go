@@ -52,20 +52,14 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	router.GET("/", func(c *gin.Context) {
 		mode := c.GetString("APP_MODE")
-		
-		switch mode {
-		case "MASTER_CORE":
-			// [ĐÃ SỬA]: Gõ sss.99k.vn/ tự động bẻ lái vào thẳng Dashboard của sếp.
-			// (Nếu sếp chưa login, Middleware CheckAuth sẽ tự lo việc đá về /login)
+		if mode == "MASTER_CORE" {
+			// Sếp gõ sss.99k.vn -> Vào thẳng Tổng quan Master
 			c.Redirect(http.StatusFound, "/master/tong-quan") 
-			
-		case "TENANT_ADMIN":
-			// Khách gõ admin.99k.vn/ -> Mời anh xem Bảng giá gói cước
-			trang_chu_admin.TrangChuAdmin(c) 
-			
-		default:
-			// Cửa hàng của khách lẻ hoặc trang giới thiệu www
-			hien_thi_web.TrangChu(c) 
+		} else if mode == "TENANT_ADMIN" {
+			// [ĐÃ SỬA] Chủ shop gõ admin.99k.vn -> Vào thẳng Tổng quan Shop
+			c.Redirect(http.StatusFound, "/tong-quan") 
+		} else {
+			hien_thi_web.TrangChu(c) // www.99k.vn 
 		}
 	})
 
