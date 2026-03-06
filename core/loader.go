@@ -374,13 +374,22 @@ func xulyNhanDuLieuKhachHang(shopID string, sheetName string, raw [][]interface{
 		CacheMapKhachHang[TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
 		
 		// Map Subdomain (Chỉ áp dụng cho Chủ shop ở file Admin)
-		if sheetName == TenSheetKhachHangAdmin {
-			if kh.TenDangNhap != "" && kh.DataSheets.SpreadsheetID != "" {
-				subdomain := kh.TenDangNhap + ".99k.vn"
-				CacheDomainToSheetID[subdomain] = kh.DataSheets.SpreadsheetID
+		if sheetName == TenSheetKhachHangAdmin && kh.DataSheets.SpreadsheetID != "" {
+			
+			// 1. Tên đăng nhập mặc định (Mức ưu tiên 3)
+			if kh.TenDangNhap != "" {
+				subDefault := kh.TenDangNhap + ".99k.vn"
+				CacheDomainToSheetID[subDefault] = kh.DataSheets.SpreadsheetID
 				CacheDomainToSheetID[kh.TenDangNhap] = kh.DataSheets.SpreadsheetID
 			}
-			if kh.CauHinh.CustomDomain != "" && kh.DataSheets.SpreadsheetID != "" {
+
+			// 2. Subdomain cấp riêng (Mức ưu tiên 2 - Ghi đè ưu tiên 3)
+			if kh.CauHinh.Subdomain != "" {
+				CacheDomainToSheetID[kh.CauHinh.Subdomain] = kh.DataSheets.SpreadsheetID
+			}
+
+			// 3. Custom Domain chính chủ (Mức ưu tiên 1 - Lệnh tối cao)
+			if kh.CauHinh.CustomDomain != "" {
 				CacheDomainToSheetID[kh.CauHinh.CustomDomain] = kh.DataSheets.SpreadsheetID
 			}
 		}
