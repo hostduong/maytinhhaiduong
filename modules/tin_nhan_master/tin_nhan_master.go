@@ -1,4 +1,4 @@
-package tin_nhan
+package tin_nhan_master
 
 import (
 	"fmt"
@@ -40,12 +40,10 @@ func TrangTinNhanMaster(c *gin.Context) {
 		khCopy := *kh 
 		
 		if khCopy.MaKhachHang == "0000000000000000000" {
-			// [FIX]: Chặn Bot hiển thị toàn bộ tin nhắn của hệ thống. Chỉ hiện tin của Mình và Bot.
 			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
 			var myBotInbox []*core.TinNhan
 			allMyMsgs := core.LayHopThuNguoiDung(masterShopID, userID, vaiTro)
 			for _, m := range allMyMsgs {
-				// Lọc riêng tin nhắn hệ thống hoặc chat trực tiếp với Bot
 				if m.NguoiGuiID == "0000000000000000000" || m.NguoiNhanID == "0000000000000000000" || m.LoaiTinNhan == "SYSTEM" || m.LoaiTinNhan == "ALL" {
 					myBotInbox = append(myBotInbox, m)
 				}
@@ -64,8 +62,9 @@ func TrangTinNhanMaster(c *gin.Context) {
 		listChat = append(listChat, &khCopy)
 	}
 
-	c.HTML(http.StatusOK, "master_tin_nhan", gin.H{
-		"TieuDe":   "Tin nhắn",
+	// [ĐÃ FIX]: Đổi tên View chuẩn với hệ thống
+	c.HTML(http.StatusOK, "tin_nhan_master", gin.H{
+		"TieuDe":   "Tin nhắn Hệ thống",
 		"NhanVien": me,
 		"ListChat": listChat, 
 	})
@@ -92,7 +91,6 @@ func API_GuiTinNhanChat(c *gin.Context) {
 		return
 	}
 
-	// [MỚI]: Kích hoạt chức năng Trả lời dưới danh nghĩa Hệ Thống (Bot)
 	sendAsBot := c.PostForm("send_as_bot")
 	tieuDe := strings.TrimSpace(c.PostForm("tieu_de"))
 	
@@ -100,14 +98,13 @@ func API_GuiTinNhanChat(c *gin.Context) {
 	msgType := "CHAT"
 	
 	if sendAsBot == "1" {
-		// Chỉ Level 0, 1, 2 mới được dùng quyền này
 		if core.LayCapBacVaiTro(shopID, userID, c.GetString("USER_ROLE")) <= 2 {
-			senderID = "0000000000000000000" // Ép ID Bot
-			msgType = "AUTO" // Đổi sang AUTO để Front-end vẽ khung Card ở giữa
+			senderID = "0000000000000000000" 
+			msgType = "AUTO" 
 			if tieuDe == "" { tieuDe = "Phản hồi từ Hệ thống" }
 		}
 	} else {
-		tieuDe = "" // Chat 1-1 thường thì không cần tiêu đề
+		tieuDe = "" 
 	}
 
 	loc := time.FixedZone("ICT", 7*3600)
