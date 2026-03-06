@@ -39,19 +39,15 @@ func IdentifyTenant() gin.HandlerFunc {
 			appMode = "STOREFRONT"
 			theme = "default"
 			
-			// [FIX Ở ĐÂY]: Cắt bỏ đuôi .99k.vn để lấy ra đúng Tên Đăng Nhập (duongyour)
-			tenDangNhap := strings.Replace(domain, ".99k.vn", "", 1)
-
 			// Thuật toán tra cứu nhanh: Lấy SpreadsheetID từ RAM
 			core.KhoaHeThong.RLock() 
-			// [FIX Ở ĐÂY]: Truy vấn bằng tenDangNhap thay vì domain
-			id, exists := core.CacheDomainToSheetID[tenDangNhap] 
+			id, exists := core.CacheDomainToSheetID[domain] // TRẢ LẠI BIẾN domain NHƯ CŨ
 			core.KhoaHeThong.RUnlock()
 
 			if exists {
 				shopID = id
 			} else {
-				TuChoiTruyCap(c, http.StatusNotFound, "⛔ Không tìm thấy Cửa hàng này trên hệ thống!")
+				TuChoiTruyCap(c, http.StatusNotFound, "Không tìm thấy Cửa hàng này trên hệ thống!") // Xóa bớt 1 biển cấm
 				return
 			}
 		}
