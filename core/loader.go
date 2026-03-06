@@ -660,42 +660,6 @@ func NapGoiDichVu(shopID string) {
 	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetMaster } // Gói dịch vụ gốc nằm ở Master
 	raw := napDataGeneric(shopID, TenSheetGoiDichVu, nil)
 	if raw == nil { return }
-	
-	list := []*GoiDichVu{}
-	for i, r := range raw {
-		if i < DongBatDau_GoiDichVu-1 { continue }
-		maGoi := LayString(r, CotGDV_MaGoi)
-		if maGoi == "" { continue }
-		
-		gdv := &GoiDichVu{
-			SpreadsheetID:      shopID, 
-			DongTrongSheet:     i + 1, 
-			MaGoi:              maGoi,
-			TenGoi:             LayString(r, CotGDV_TenGoi),
-			LoaiGoi:            LayString(r, CotGDV_LoaiGoi),
-			ThoiHanNgay:        LayIntStr(LayString(r, CotGDV_ThoiHanNgay)),
-			ThoiHanHienThi:     LayString(r, CotGDV_ThoiHanHienThi), 
-			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),     
-			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),       
-			GiaBan:             LayFloat(r, CotGDV_GiaBan),           
-			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson), 
-			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),     
-			MoTa:               LayString(r, CotGDV_MoTa),            
-			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),      
-			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),     
-			SoLuongConLai:      -1, 
-			TrangThai:          LayInt(r, CotGDV_TrangThai),          
-			DanhSachCode:       make([]CodeKichHoat, 0),
-		}
-		slStr := LayString(r, CotGDV_SoLuongConLai)
-		if slStr != "" { gdv.SoLuongConLai = LayIntStr(slStr) }
-
-		if gdv.MaCodeKichHoatJson != "" {
-			_ = json.Unmarshal([]byte(gdv.MaCodeKichHoatJson), &gdv.DanhSachCode)
-		}
-
-		list = append(list, gdv)
-	}
 
 	lock := GetSheetLock(shopID, TenSheetGoiDichVu)
 	lock.Lock(); defer lock.Unlock()
