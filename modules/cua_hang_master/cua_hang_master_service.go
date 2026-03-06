@@ -17,7 +17,9 @@ type DTO_UpdateCuaHang struct {
 	GioiTinh                               int
 	MatKhauMoi                             string
 	
-	// Riêng của Cửa hàng
+	// [ĐÃ VÁ LỖI]: Bổ sung 4 trường vào DTO
+	VaiTro, ChucVu, NguonKhachHang, PinMoi string
+	
 	SpreadsheetID                          string
 	CustomDomain                           string
 }
@@ -44,6 +46,19 @@ func Service_LuuCuaHang(dto DTO_UpdateCuaHang) error {
 	// Bắt đầu nhào nặn RAM
 	core.KhoaHeThong.Lock()
 	
+	// [ĐÃ VÁ LỖI]: Xử lý cập nhật Vai trò và Chức vụ tùy chỉnh
+	if dto.VaiTro != "" {
+		kh.VaiTroQuyenHan = dto.VaiTro
+		if dto.ChucVu != "" { 
+			kh.ChucVu = dto.ChucVu 
+		} else {
+			kh.ChucVu = dto.VaiTro
+			for _, v := range core.CacheDanhSachVaiTro[adminID] {
+				if v.MaVaiTro == dto.VaiTro { kh.ChucVu = v.TenVaiTro; break }
+			}
+		}
+	}
+
 	kh.TenKhachHang = dto.TenKhachHang
 	kh.DienThoai = dto.DienThoai
 	kh.NgaySinh = dto.NgaySinh
@@ -52,6 +67,7 @@ func Service_LuuCuaHang(dto DTO_UpdateCuaHang) error {
 	kh.GhiChu = dto.GhiChu
 	kh.AnhDaiDien = dto.AnhDaiDien
 	kh.GioiTinh = dto.GioiTinh
+	kh.NguonKhachHang = dto.NguonKhachHang // [ĐÃ VÁ LỖI]
 
 	if dto.TrangThai == "1" { kh.TrangThai = 1 } else if dto.TrangThai == "-1" { kh.TrangThai = -1 } else { kh.TrangThai = 0 }
 
@@ -65,6 +81,12 @@ func Service_LuuCuaHang(dto DTO_UpdateCuaHang) error {
 	if dto.MatKhauMoi != "" {
 		hash, _ := config.HashMatKhau(dto.MatKhauMoi); kh.MatKhauHash = hash
 		core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
+	}
+
+	// [ĐÃ VÁ LỖI]: Xử lý cập nhật mã PIN mới
+	if dto.PinMoi != "" {
+		hashPin, _ := config.HashMatKhau(dto.PinMoi); kh.MaPinHash = hashPin
+		core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, kh.DongTrongSheet, core.CotKH_MaPinHash, hashPin)
 	}
 
 	kh.NgayCapNhat = time.Now().In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
@@ -85,6 +107,11 @@ func Service_LuuCuaHang(dto DTO_UpdateCuaHang) error {
 	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
 	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_NguoiCapNhat, kh.NguoiCapNhat)
 	
+	// [ĐÃ VÁ LỖI]: Bắn lệnh ghi 3 cột mới xuống Google Sheets
+	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_VaiTroQuyenHan, kh.VaiTroQuyenHan)
+	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_ChucVu, kh.ChucVu)
+	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_NguonKhachHang, kh.NguonKhachHang)
+
 	// JSON Fields
 	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_MangXaHoiJson, core.ToJSON(kh.MangXaHoi))
 	core.ThemVaoHangCho(adminID, core.TenSheetKhachHangAdmin, r, core.CotKH_DataSheetsJson, core.ToJSON(kh.DataSheets))
