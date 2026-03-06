@@ -52,14 +52,25 @@ func SetupRouter() *gin.Engine {
 	// =======================================================
 	router.GET("/", func(c *gin.Context) {
 		mode := c.GetString("APP_MODE")
+		host := c.Request.Host // Lấy tên miền hiện tại để soi xét
+		
 		if mode == "MASTER_CORE" {
 			// Sếp gõ sss.99k.vn -> Vào thẳng Tổng quan Master
 			c.Redirect(http.StatusFound, "/master/tong-quan") 
+			
 		} else if mode == "TENANT_ADMIN" {
-			// [ĐÃ SỬA] Chủ shop gõ admin.99k.vn -> Vào thẳng Tổng quan Shop
-			c.Redirect(http.StatusFound, "/tong-quan") 
+			// [CHỐT CHẶN Ở ĐÂY]: Phân biệt rõ admin và www
+			if strings.HasPrefix(host, "admin.") {
+				// Nếu đúng là admin.99k.vn thì mới bẻ lái vào Dashboard
+				c.Redirect(http.StatusFound, "/tong-quan") 
+			} else {
+				// Nếu là www.99k.vn hoặc 99k.vn thì giữ nguyên là Landing Page
+				hien_thi_web.TrangChu(c) 
+			}
+			
 		} else {
-			hien_thi_web.TrangChu(c) // www.99k.vn 
+			// Cửa hàng của khách lẻ (TENANT_STORE)
+			hien_thi_web.TrangChu(c) 
 		}
 	})
 
