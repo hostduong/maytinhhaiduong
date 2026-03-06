@@ -33,8 +33,6 @@ func TrangQuanLyCuaHangMaster(c *gin.Context) {
 
 	var listView []CuaHangView
 	for _, kh := range listAll {
-		// Chỉ lấy Chủ Shop (Bỏ qua nhân viên nếu có lẫn vào)
-		if kh.VaiTroQuyenHan != "chu_cua_hang" { continue }
 
 		cv := CuaHangView{
 			KhachHang: kh,
