@@ -5,74 +5,90 @@
         body { background-color: #f1f5f9 !important; }
     </style>
 
-    <div class="max-w-7xl mx-auto h-[calc(100vh-5.5rem)] md:h-[calc(100vh-6rem)] flex flex-col pb-4 md:pb-0 relative z-10">
+    <div class="max-w-[1400px] mx-auto h-[calc(100vh-5.5rem)] md:h-[calc(100vh-6rem)] flex flex-col pb-4 md:pb-0 relative z-10 px-2 sm:px-4">
         
-        <div class="bg-white rounded-[1.5rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-200 flex-1 flex overflow-hidden relative min-h-0">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
-            
-            <div id="contactPane" class="w-full md:w-80 lg:w-[400px] border-r border-slate-200 flex flex-col bg-slate-50 relative z-10 shrink-0 transition-all duration-300 h-full min-h-0">
-                <div class="py-4 pr-4 pl-14 md:p-5 border-b border-slate-200 bg-white shrink-0">
-                    <div class="relative">
-                        <input type="text" id="searchChat" onkeyup="renderContactList()" placeholder="Tìm tên, username, ID..." class="w-full pl-11 pr-4 py-2.5 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition shadow-sm bg-[#f8fafc]">
-                        <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                </div>
-                <div id="contactListRender" class="flex-1 overflow-y-auto chat-scroll divide-y divide-slate-100 min-h-0 bg-white"></div>
-            </div>
-
-            <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0 h-full min-h-0">
+        <div class="animated-border-wrapper flex-1 flex flex-col shadow-2xl shadow-purple-300/40 min-h-0">
+            <div class="animated-border-inner flex-1 flex overflow-hidden relative min-h-0 bg-white">
                 
-                <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-0 bg-slate-50/50">
-                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-5 shadow-sm border border-slate-100">
-                        <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-100/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
+                
+                <div id="contactPane" class="w-full md:w-80 lg:w-[400px] border-r border-slate-200 flex flex-col bg-slate-50 relative z-10 shrink-0 transition-all duration-300 ease-in-out h-full min-h-0">
+                    <div class="py-3.5 pr-4 pl-14 md:p-4 border-b border-slate-200 bg-white shrink-0 flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="searchChat" onkeyup="renderContactList()" placeholder="Tìm tên, ID..." class="w-full pl-10 pr-3 py-2.5 text-[13px] font-bold border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition shadow-sm bg-[#f8fafc]">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <button onclick="toggleSidebar()" class="hidden md:flex w-10 h-10 shrink-0 bg-slate-100 hover:bg-purple-100 text-slate-500 hover:text-purple-600 rounded-xl items-center justify-center transition shadow-sm" title="Thu gọn danh sách">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        </button>
                     </div>
-                    <p class="text-lg font-bold text-slate-600">Ứng dụng nhắn tin nội bộ</p>
-                    <p class="text-sm mt-1 text-slate-400">Chọn một thành viên bên trái để bắt đầu trò chuyện.</p>
+                    <div id="contactListRender" class="flex-1 overflow-y-auto chat-scroll divide-y divide-slate-100 min-h-0 bg-white"></div>
                 </div>
 
-                <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full">
+                <div id="chatPane" class="flex-1 flex flex-col bg-white relative z-10 hidden md:flex transition-all duration-300 transform translate-x-full md:translate-x-0 absolute md:static inset-0 h-full min-h-0 w-full">
                     
-                    <div class="h-16 border-b border-slate-200 pl-14 pr-4 md:px-5 flex items-center justify-between bg-white shrink-0 shadow-sm z-20">
-                        <div class="flex items-center gap-2">
-                            <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                            
-                            <div onclick="openUserProfile()" class="flex items-center gap-3 cursor-pointer hover:bg-slate-50 py-1.5 px-2 -ml-2 rounded-xl transition group" title="Xem hồ sơ thành viên">
-                                <div id="chatActiveAvatar" class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shadow-sm border border-slate-100 shrink-0 group-hover:shadow-md transition"></div>
-                                <div class="min-w-0">
-                                    <div id="chatActiveName" class="mb-1 leading-tight">--</div>
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        <p id="chatActiveRole" class="leading-tight truncate">--</p>
+                    <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-0 bg-slate-50/50 w-full">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-5 shadow-sm border border-slate-100 relative">
+                            <button id="btnExpandEmpty" onclick="toggleSidebar()" class="hidden absolute -left-12 w-10 h-10 bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-purple-700 transition" title="Mở danh sách">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            </button>
+                            <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                        </div>
+                        <p class="text-lg font-black text-slate-700 tracking-tight">Trung Tâm Tin Nhắn</p>
+                        <p class="text-[13px] font-medium mt-1 text-slate-400">Vui lòng chọn một liên hệ để bắt đầu tương tác.</p>
+                    </div>
+
+                    <div id="activeChatState" class="flex-1 flex flex-col hidden h-full min-h-0 w-full">
+                        
+                        <div class="h-[70px] border-b border-purple-100 pl-14 pr-4 md:px-5 flex items-center justify-between bg-gradient-to-r from-white to-purple-50/40 shrink-0 shadow-[0_4px_15px_-5px_rgba(147,51,234,0.05)] z-20">
+                            <div class="flex items-center gap-3">
+                                <button onclick="closeChatMobile()" class="md:hidden p-1.5 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                                
+                                <button id="btnExpandSidebar" onclick="toggleSidebar()" class="hidden md:flex w-10 h-10 shrink-0 bg-purple-600 hover:bg-purple-700 text-white rounded-xl items-center justify-center transition shadow-md shadow-purple-200 -ml-2 mr-1" title="Mở danh sách">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                </button>
+                                
+                                <div onclick="openUserProfile()" class="flex items-center gap-3.5 cursor-pointer hover:bg-white p-1.5 -ml-1.5 rounded-2xl transition group border border-transparent hover:border-purple-100 hover:shadow-sm" title="Xem hồ sơ thành viên">
+                                    <div id="chatActiveAvatar" class="w-11 h-11 rounded-full bg-slate-200 overflow-hidden shadow-sm border-2 border-white shrink-0 group-hover:border-purple-200 transition-colors"></div>
+                                    <div class="min-w-0 flex flex-col justify-center">
+                                        <div id="chatActiveName" class="mb-1 leading-tight">--</div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+                                            <p id="chatActiveRole" class="leading-tight truncate">--</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-slate-50/80 flex flex-col gap-5 min-h-0"></div>
+                        <div id="chatHistory" class="flex-1 overflow-y-auto p-4 md:p-6 chat-scroll bg-[#f8fafc] flex flex-col min-h-0 relative">
+                            <div class="absolute inset-0 opacity-[0.03] z-0 pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                            <div id="chatHistoryInner" class="flex flex-col gap-6 z-10 w-full relative"></div>
+                        </div>
 
-                    <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20 flex flex-col gap-2">
-                        {{ if lt .NhanVien.StyleLevel 3 }}
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-slate-50/80 p-2 rounded-xl border border-slate-100">
-                            <div class="flex items-center gap-2 px-2 shrink-0">
-                                <input type="checkbox" id="chatAsBot" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
-                                <label for="chatAsBot" class="text-xs font-bold text-slate-600 cursor-pointer select-none whitespace-nowrap">Phản hồi danh nghĩa Hệ Thống</label>
+                        <div class="p-3 md:p-4 bg-white border-t border-slate-200 shrink-0 z-20 flex flex-col gap-2">
+                            {{ if lt .NhanVien.StyleLevel 3 }}
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-indigo-50/50 py-1.5 px-3 rounded-xl border border-indigo-100">
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <input type="checkbox" id="chatAsBot" class="w-4 h-4 text-indigo-600 rounded border-indigo-300 focus:ring-indigo-500 cursor-pointer">
+                                    <label for="chatAsBot" class="text-[12px] font-black text-indigo-900 cursor-pointer select-none whitespace-nowrap">Phản hồi danh nghĩa Hệ Thống</label>
+                                </div>
+                                <div id="wrapBotTitle" class="hidden flex-1 w-full animate-[fadeIn_0.2s_ease-out]">
+                                    <input type="text" id="chatBotTitle" placeholder="Tiêu đề thông báo (VD: Cập nhật tính năng...)" class="w-full bg-white border border-indigo-200 rounded-lg py-1.5 px-3 text-[12px] font-bold text-indigo-700 outline-none focus:border-indigo-400 transition shadow-sm">
+                                </div>
                             </div>
-                            <div id="wrapBotTitle" class="hidden flex-1 w-full animate-[fadeIn_0.2s_ease-out]">
-                                <input type="text" id="chatBotTitle" placeholder="Tiêu đề thông báo..." class="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-[13px] font-bold text-purple-700 outline-none focus:border-purple-400 transition shadow-sm">
+                            {{ end }}
+
+                            <div class="relative flex items-end gap-2 bg-[#f8fafc] border border-slate-200 rounded-[1.2rem] p-1.5 shadow-inner focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
+                                <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-[14.5px] font-medium text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập nội dung (Shift + Enter xuống dòng)..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                                <button type="button" onclick="executeSendChat()" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50 disabled:grayscale">
+                                    <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                                </button>
                             </div>
                         </div>
-                        {{ end }}
-
-                        <div class="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.2rem] p-1.5 shadow-inner focus-within:ring-2 focus-within:ring-purple-500 focus-within:bg-white transition-all">
-                            <textarea id="chatInputContent" rows="1" class="w-full bg-transparent border-none outline-none resize-none py-2.5 pl-3 text-[15px] text-slate-800 placeholder-slate-400 custom-scroll max-h-32 leading-relaxed" placeholder="Nhập nội dung (Shift + Enter xuống dòng)..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
-                            <button type="button" onclick="executeSendChat()" id="btnSendChat" class="w-10 h-10 shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md transition transform active:scale-90 disabled:opacity-50 disabled:grayscale">
-                                <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
-                            </button>
-                        </div>
                     </div>
+
                 </div>
-
             </div>
         </div>
     </div>
@@ -94,60 +110,56 @@
     </div>
 
     <div id="modalViewProfile" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-[100] backdrop-blur-md p-4 sm:p-6">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl transform transition-all flex flex-col relative overflow-hidden border border-white/20">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-[500px] transform transition-all flex flex-col relative overflow-hidden border border-white/20">
             
-            <button onclick="closeModal('modalViewProfile')" class="absolute top-4 right-4 w-9 h-9 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition backdrop-blur-sm z-50 text-xl font-bold">&times;</button>
+            <button onclick="closeModal('modalViewProfile')" class="absolute top-4 right-4 w-9 h-9 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition backdrop-blur-sm z-50 text-xl font-bold shadow-sm">&times;</button>
             
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 h-36 relative shrink-0">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 h-32 relative shrink-0">
                 <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
             </div>
             
             <div class="text-center -mt-16 relative px-6 pb-6 z-10 shrink-0">
                 <div class="inline-block p-1.5 bg-white rounded-full shadow-md">
-                    <div class="w-28 h-28 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner relative">
+                    <div class="w-[104px] h-[104px] bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-inner relative">
                         <img id="vp_avatar" src="" class="w-full h-full object-cover bg-white">
                     </div>
                 </div>
                 
-                <h2 id="vp_name" class="mt-3 text-[26px] font-black tracking-tight text-transparent bg-clip-text text-gradient-animated pb-1">--</h2>
+                <h2 id="vp_name" class="mt-3 text-2xl font-black tracking-tight text-transparent bg-clip-text text-gradient-animated pb-1">--</h2>
                 <div id="vp_role_wrap" class="mt-1.5 flex justify-center"></div>
                 
                 <div id="vp_socials" class="flex justify-center gap-3 mt-5"></div>
             </div>
 
             <div class="px-6 pb-8 md:px-8 overflow-y-auto custom-scroll">
-                <div class="bg-slate-50/50 rounded-2xl p-6 sm:p-8 border border-slate-100 shadow-inner">
-                    <h3 class="text-sm font-black text-purple-700 mb-5 flex items-center gap-2 uppercase tracking-widest">
+                <div class="bg-slate-50/80 rounded-3xl p-6 sm:p-7 border border-slate-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+                    <h3 class="text-[13px] font-black text-purple-700 mb-5 flex items-center gap-2 uppercase tracking-widest border-b border-purple-100 pb-3">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> 
                         Thông Tin Liên Hệ
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                         <div>
-                            <label class="block text-[12px] text-slate-500 font-bold mb-1">Họ và tên</label>
-                            <div id="vp_fullname" class="text-[15px] font-black text-purple-700">--</div>
+                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Họ và tên</label>
+                            <div id="vp_fullname" class="text-[14px] font-black text-purple-700">--</div>
                         </div>
                         <div>
-                            <label class="block text-[12px] text-slate-500 font-bold mb-1">Số điện thoại</label>
-                            <div id="vp_phone" class="text-[15px] font-bold text-emerald-600">--</div>
+                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Số điện thoại</label>
+                            <div id="vp_phone" class="text-[14px] font-black text-emerald-600">--</div>
                         </div>
                         <div>
-                            <label class="block text-[12px] text-slate-500 font-bold mb-1">Email</label>
-                            <div id="vp_email" class="text-[15px] font-bold text-blue-600">--</div>
+                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Email</label>
+                            <div id="vp_email" class="text-[14px] font-black text-blue-600">--</div>
                         </div>
                         <div>
-                            <label class="block text-[12px] text-slate-500 font-bold mb-1">Ngày sinh</label>
-                            <div id="vp_dob" class="text-[15px] font-bold text-orange-600">--</div>
+                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Ngày sinh</label>
+                            <div id="vp_dob" class="text-[14px] font-black text-orange-600">--</div>
                         </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-[12px] text-slate-500 font-bold mb-1">Địa chỉ</label>
-                            <div id="vp_address" class="text-[15px] font-bold text-slate-800 leading-snug">--</div>
+                        <div class="sm:col-span-2 pt-2 border-t border-slate-100">
+                            <label class="block text-[11px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Địa chỉ</label>
+                            <div id="vp_address" class="text-[14px] font-bold text-slate-800 leading-snug">--</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
-                <button onclick="closeModal('modalViewProfile')" class="px-8 py-3 text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-800 rounded-xl font-bold transition text-[13px] uppercase tracking-widest shadow-sm">Đóng Lại</button>
             </div>
         </div>
     </div>
@@ -159,6 +171,7 @@
         let chatData = [];
         let userMap = {}; 
         let activeChatID = null;
+        let isSidebarOpen = true; // Biến trạng thái Yêu cầu 3
 
         const chkBot = document.getElementById('chatAsBot');
         if (chkBot) {
@@ -169,11 +182,57 @@
             });
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // YÊU CẦU 4: HÀM FORMAT THỜI GIAN THÔNG MINH
+        function formatChatTime(dateStr) {
+            if (!dateStr) return "";
+            const parts = dateStr.split(' ');
+            if (parts.length !== 2) return dateStr;
+
+            const datePart = parts[0]; 
+            const timePart = parts[1]; 
+            
+            // Xử lý tạo Date object an toàn cho các trình duyệt
+            const msgDate = new Date(datePart.replace(/-/g, '/')); 
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const isToday = msgDate.toDateString() === today.toDateString();
+            const isYesterday = msgDate.toDateString() === yesterday.toDateString();
+
+            if (isToday) {
+                return timePart; // VD: 22:36:03
+            } else if (isYesterday) {
+                return `Hôm qua, ${timePart}`; 
+            } else {
+                return dateStr; // VD: 2026-02-24 23:48:14
+            }
         }
 
-        // HÀM RENDER BADGE (DÙNG CHUNG CHO LIST, CHAT HEADER VÀ PROFILE)
+        // YÊU CẦU 3: HÀM CO DÃN SIDEBAR
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            const sidebar = document.getElementById('contactPane');
+            const btnExpandChat = document.getElementById('btnExpandSidebar');
+            const btnExpandEmpty = document.getElementById('btnExpandEmpty');
+
+            if (isSidebarOpen) {
+                sidebar.classList.remove('hidden', 'md:w-0', 'md:border-none', 'md:p-0', 'md:opacity-0');
+                sidebar.classList.add('md:w-80', 'lg:w-[400px]');
+                if(btnExpandChat) btnExpandChat.classList.add('hidden');
+                if(btnExpandEmpty) btnExpandEmpty.classList.add('hidden');
+            } else {
+                sidebar.classList.add('md:w-0', 'md:border-none', 'md:p-0', 'md:opacity-0');
+                sidebar.classList.remove('md:w-80', 'lg:w-[400px]');
+                setTimeout(() => sidebar.classList.add('hidden'), 300); // Đợi CSS transition xong
+                
+                if(btnExpandChat) btnExpandChat.classList.remove('hidden');
+                if(btnExpandEmpty) btnExpandEmpty.classList.remove('hidden');
+            }
+        }
+
         function getVipNameAndRole(name, role, level, theme, extraClass = "") {
             let tier = "tier-c";
             if (level < 4) tier = "tier-s"; else if (level < 7) tier = "tier-a"; else if (level === 7) tier = "tier-b";
@@ -215,7 +274,7 @@
         function parseData() {
             chatData = []; userMap = {}; 
             document.querySelectorAll('.u-data').forEach(el => {
-                const id = el.dataset.id;
+                const id = String(el.dataset.id).trim(); // Ép kiểu cẩn thận
                 let msgs = [];
                 el.querySelectorAll('.msg-node').forEach(m => {
                     msgs.push({ id: m.dataset.msgid, type: m.dataset.type, title: m.dataset.title, sender: m.dataset.sender, time: m.dataset.time, content: m.dataset.content, read: m.dataset.read === 'true' });
@@ -253,7 +312,11 @@
                 const strSearch = removeAccents(`${u.name} ${u.user} ${u.id}`).toLowerCase();
                 if (!strSearch.includes(query)) return;
 
-                const isActive = (u.id === activeChatID) ? 'bg-purple-50/80 border-l-4 border-purple-600 shadow-sm' : 'hover:bg-slate-50 border-l-4 border-transparent';
+                // YÊU CẦU 2: FIX LỖI KẺ TÍM CHỈ HOẠT ĐỘNG 1 NGƯỜI
+                // Sử dụng Border tuyệt đối (absolute) để vạch kẻ hiển thị sắc nét, đè lên padding
+                const isSelected = (String(u.id) === String(activeChatID));
+                const activeClasses = isSelected ? 'bg-purple-50/80 shadow-sm' : 'hover:bg-slate-50';
+                const activeBar = isSelected ? `<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-purple-600 rounded-r-md"></div>` : ``;
                 
                 let snippet = "<i class='text-slate-300'>Chưa có tin nhắn</i>";
                 let timeStr = "";
@@ -275,15 +338,16 @@
                 let nameAndRoleHtml = getVipNameAndRole(u.name, u.role, u.level, u.theme, "scale-[0.8] origin-left -ml-2 -mt-1");
 
                 html += `
-                <div onclick="openChat('${u.id}')" class="p-4 cursor-pointer transition-all flex gap-3 ${isActive}">
-                    <div class="relative shrink-0 w-12 h-12">
+                <div onclick="openChat('${u.id}')" class="relative p-4 cursor-pointer transition-all flex gap-3 border-b border-slate-50/50 ${activeClasses}">
+                    ${activeBar}
+                    <div class="relative shrink-0 w-12 h-12 ml-1">
                         <img src="${u.avatar}" class="w-full h-full rounded-full border border-slate-200 object-cover bg-white">
                         ${unreadDot}
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline">
                             ${nameAndRoleHtml}
-                            <span class="text-[10px] text-slate-400 shrink-0 font-medium">${timeStr}</span>
+                            <span class="text-[10px] text-slate-400 shrink-0 font-medium ml-1">${timeStr}</span>
                         </div>
                         <div class="text-[12px] text-slate-500 line-clamp-2 leading-snug mt-1">${snippet}</div>
                     </div>
@@ -293,8 +357,8 @@
         }
 
         function openChat(userID) {
-            activeChatID = userID;
-            const u = chatData.find(x => x.id === userID);
+            activeChatID = String(userID).trim(); // Ép kiểu
+            const u = chatData.find(x => String(x.id).trim() === activeChatID);
             if(!u) return;
 
             if(window.innerWidth < 768) {
@@ -307,10 +371,12 @@
 
             document.getElementById('chatActiveName').innerHTML = getVipBadgeOnly(u.name, u.level, u.theme, "scale-[0.9] origin-left -ml-1");
             document.getElementById('chatActiveRole').innerHTML = `<span class="text-[10px] sm:text-[10.5px] font-black uppercase tracking-widest text-theme-gradient text-theme-${u.theme}">${u.role}</span>`;
-            document.getElementById('chatActiveAvatar').innerHTML = `<img src="${u.avatar}" class="w-full h-full object-cover">`;
+            document.getElementById('chatActiveAvatar').style.backgroundImage = `url('${u.avatar}')`;
+            document.getElementById('chatActiveAvatar').style.backgroundSize = 'cover';
+            document.getElementById('chatActiveAvatar').style.backgroundPosition = 'center';
 
             renderMessages(u);
-            renderContactList();
+            renderContactList(); // Re-render để cập nhật thanh màu tím
             
             setTimeout(() => { document.getElementById('chatInputContent').focus(); }, 100);
         }
@@ -322,9 +388,6 @@
             renderContactList();
         }
 
-        // ==========================================
-        // MỞ MODAL XEM HỒ SƠ (VIEW-ONLY)
-        // ==========================================
         function openUserProfile() {
             if(!activeChatID) return;
             const u = userMap[activeChatID];
@@ -333,7 +396,6 @@
             document.getElementById('vp_avatar').src = u.avatar;
             document.getElementById('vp_name').innerText = u.name;
             
-            // Render Role Badge (Dùng lại hàm Render VIP)
             document.getElementById('vp_role_wrap').innerHTML = `
                 <div class="relative inline-flex items-center max-w-full">
                     <div class="badge-animated-wrap theme-${u.theme} ${u.level < 4 ? 'tier-s' : (u.level < 7 ? 'tier-a' : (u.level === 7 ? 'tier-b' : 'tier-c'))} !mt-0 !mr-0 max-w-full">
@@ -345,14 +407,12 @@
                 </div>
             `;
 
-            // Render Socials
             let socialsHtml = '';
             if(u.fb) socialsHtml += `<a href="${u.fb}" target="_blank" class="p-2.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`;
             if(u.tiktok) socialsHtml += `<a href="${u.tiktok}" target="_blank" class="p-2.5 bg-slate-100 text-slate-800 rounded-full hover:bg-black hover:text-white transition shadow-sm"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg></a>`;
             if(u.zalo) socialsHtml += `<a href="https://zalo.me/${u.zalo}" target="_blank" class="p-2.5 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition font-black text-xs flex items-center justify-center w-10 h-10 border border-blue-200 shadow-sm">Zalo</a>`;
             document.getElementById('vp_socials').innerHTML = socialsHtml;
 
-            // Render Info Grid
             document.getElementById('vp_fullname').innerText = u.name || '--';
             document.getElementById('vp_phone').innerText = u.phone || '--';
             document.getElementById('vp_email').innerText = u.email || '--';
@@ -363,21 +423,26 @@
         }
 
         function renderMessages(u) {
-            const history = document.getElementById('chatHistory');
+            const history = document.getElementById('chatHistoryInner');
             let html = '';
 
             if (u.messages.length === 0) {
-                html = `<div class="text-center text-slate-400 text-xs py-10 italic">Bắt đầu cuộc trò chuyện với ${u.name}</div>`;
+                html = `<div class="text-center text-slate-400 text-[13px] py-10 font-medium">Chưa có nội dung trò chuyện. Bắt đầu ngay!</div>`;
             } else {
                 u.messages.forEach(m => {
                     let isMe = (m.sender === myUserID);
+                    let formattedTime = formatChatTime(m.time); // YÊU CẦU 4: Dùng hàm format time
                     
+                    // THỜI GIAN LUÔN NẰM Ở GIỮA, BÊN TRÊN KHỐI TIN NHẮN
+                    let timeBadge = `<div class="w-full flex justify-center mb-2"><span class="text-[10px] text-slate-400 font-bold bg-white px-3 py-1 rounded-full border border-slate-200/60 shadow-[0_2px_4px_rgba(0,0,0,0.01)] tracking-wide z-10">${formattedTime}</span></div>`;
+
                     if (m.type === 'SYSTEM' || m.type === 'AUTO' || m.type === 'ALL' || m.sender === '0000000000000000000') {
                         let sender = userMap[m.sender] || { name: 'Hệ thống', role: 'Thông báo', level: 0, theme: 9, avatar: 'https://ui-avatars.com/api/?name=Sys&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.85] origin-left");
                         
                         html += `
-                        <div class="flex justify-center w-full my-4 animate-[fadeIn_0.3s_ease-out]">
+                        <div class="flex flex-col items-center w-full my-2 animate-[fadeIn_0.3s_ease-out]">
+                            ${timeBadge}
                             <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 max-w-[95%] sm:max-w-md w-full text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
                                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
                                 <div class="mx-auto w-12 h-12 bg-gradient-to-br from-purple-50 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-inner border border-indigo-100/50">
@@ -385,34 +450,29 @@
                                 </div>
                                 <h4 class="text-[15px] font-black text-slate-800 mb-2 tracking-tight">${m.title || 'Thông báo hệ thống'}</h4>
                                 <div class="text-[13.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3 rounded-xl whitespace-pre-wrap border border-slate-100/50">${m.content}</div>
-                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                                    <div class="flex items-center gap-1.5 -ml-1">
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center">
+                                    <div class="flex items-center gap-1.5">
                                         <img src="${sender.avatar}" class="w-6 h-6 rounded-full border border-slate-200 shadow-sm">
                                         ${senderInfoHtml}
                                     </div>
-                                    <span class="text-[10.5px] text-slate-400 font-medium font-mono">${m.time.split(' ')[1]}</span>
                                 </div>
                             </div>
                         </div>`;
                     } else if (isMe) {
                         html += `
-                        <div class="flex flex-col items-end w-full pl-12 mb-1.5 animate-[fadeIn_0.3s_ease-out]">
-                            <div class="flex items-end gap-2">
-                                <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
-                                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-[1.25rem] rounded-tr-sm shadow-md text-[14.5px] leading-relaxed whitespace-pre-wrap break-words border border-indigo-700/50">${m.content}</div>
-                            </div>
+                        <div class="flex flex-col items-end w-full pl-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
+                            ${timeBadge}
+                            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-[1.25rem] rounded-tr-sm shadow-md text-[14.5px] leading-relaxed whitespace-pre-wrap break-words border border-indigo-700/50 max-w-[85%]">${m.content}</div>
                         </div>`;
                     } else {
                         let sender = userMap[m.sender] || { name: 'Người dùng', role: 'Khách', level: 9, theme: 0, avatar: 'https://ui-avatars.com/api/?name=User&background=f3e8ff&color=7e22ce' };
                         let senderInfoHtml = getVipNameAndRole(sender.name, sender.role, sender.level, sender.theme, "scale-[0.8] origin-bottom-left ml-1 mb-0.5");
 
                         html += `
-                        <div class="flex flex-col items-start w-full pr-12 mb-2 animate-[fadeIn_0.3s_ease-out]">
+                        <div class="flex flex-col items-start w-full pr-12 mb-1 animate-[fadeIn_0.3s_ease-out]">
+                            ${timeBadge}
                             ${senderInfoHtml}
-                            <div class="flex items-end gap-2 mt-0.5">
-                                <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 rounded-[1.25rem] rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words">${m.content}</div>
-                                <span class="text-[9px] text-slate-400 font-medium mb-1 shrink-0">${m.time.split(' ')[1]}</span>
-                            </div>
+                            <div class="bg-white border border-slate-200 text-slate-800 px-4 py-2.5 mt-0.5 rounded-[1.25rem] rounded-tl-sm shadow-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words max-w-[85%]">${m.content}</div>
                         </div>`;
                     }
                     
@@ -424,12 +484,11 @@
                 });
             }
             history.innerHTML = html;
-            history.scrollTop = history.scrollHeight;
+            document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
         }
 
         async function executeSendChat() {
             if(!activeChatID) return;
-            
             const input = document.getElementById('chatInputContent');
             const content = input.value.trim();
             if(!content) return;
@@ -463,12 +522,8 @@
                     const msgTime = (data.data && (data.data.ngay_tao || data.data.NgayTao)) || new Date().toLocaleString('en-GB').replace(',', '');
                     const msgId = (data.data && (data.data.ma_tin_nhan || data.data.MaTinNhan)) || 'TMP_' + Date.now();
 
-                    const u = chatData.find(x => x.id === activeChatID);
-                    u.messages.push({
-                        id: msgId, type: isBot ? 'AUTO' : 'CHAT', sender: isBot ? '0000000000000000000' : myUserID,
-                        time: msgTime, content: content, title: title, read: true
-                    });
-                    
+                    const u = chatData.find(x => String(x.id).trim() === activeChatID);
+                    u.messages.push({ id: msgId, type: isBot ? 'AUTO' : 'CHAT', sender: isBot ? '0000000000000000000' : myUserID, time: msgTime, content: content, title: title, read: true });
                     u.latestMsg = u.messages[u.messages.length - 1];
                     chatData.sort((a, b) => { if (!a.latestMsg) return 1; if (!b.latestMsg) return -1; return b.latestMsg.time.localeCompare(a.latestMsg.time); });
 
