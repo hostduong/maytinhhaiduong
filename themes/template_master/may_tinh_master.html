@@ -1,4 +1,4 @@
-{{ define "master_quan_ly_may_tinh" }}
+{{ define "may_tinh_master" }}
     {{ template "header_master" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
-        /* GIỮ NGUYÊN LOGIC CSS - CHỈ ĐỔI SANG MÀU MASTER (TÍM/INDIGO) */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         .modal-body { max-height: calc(100vh - 180px); overflow-y: auto; scrollbar-width: thin; padding: 0 2rem 1.5rem 2rem; background-color: #f8fafc; }
         .modal-body::-webkit-scrollbar { width: 6px; }
@@ -21,7 +20,6 @@
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
         
-        /* ĐỔI FOCUS SANG MÀU TÍM */
         input.input-premium:focus, select.input-premium:focus, textarea.input-premium:focus { border-color: #9333ea !important; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1) !important; outline: none; }
         input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: dashed !important; }
         
@@ -43,7 +41,6 @@
         .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TABS CSS - ĐỔI MÀU MASTER */
         .sku-tab { padding: 0.5rem 1.25rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
         .sku-tab:hover { filter: brightness(0.95); }
         .copy-btn { font-size: 0.75rem; padding: 4px 10px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 6px; color: #9333ea; cursor: pointer; transition: 0.2s; font-weight: bold; text-transform: none; letter-spacing: 0; display: inline-flex; align-items: center; gap: 4px; }
@@ -223,7 +220,7 @@
                     </span>
                     <h3 class="text-xl font-black title-gradient-purple" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                 </div>
-                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">&times;</button>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-xl font-bold">×</button>
             </div>
             
             <div class="px-6 py-3 bg-slate-50/80 border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
@@ -994,7 +991,6 @@
             fd.set('data_skus', JSON.stringify(skus)); 
             
             try {
-                // ĐÃ ĐỔI LINK API ĐỂ KHỚP VỚI CONTROLLER MASTER MỚI
                 const res = await fetch('/master/api/may-tinh/save', { method: 'POST', body: fd }); 
                 const data = await res.json();
                 
@@ -1015,7 +1011,7 @@
                 }
             } catch(e) { 
                 Swal.fire({
-                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Mạng</span></div>',
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Mạng</span></div>',
                     html: `<div class="text-[15px] text-orange-900 font-medium px-4">Đường truyền đến máy chủ bị gián đoạn.</div>`,
                     customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
                     buttonsStyling: false, confirmButtonText: 'Đóng lại'
@@ -1037,8 +1033,6 @@
                 });
                 return; 
             }
-
-            // Bỏ qua bước Confirm để tăng tốc trải nghiệm (Như file cũ của bạn)
             saveSP();
         }
 
