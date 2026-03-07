@@ -31,6 +31,10 @@ var CacHamNapMaster = []func(string){
 var CacHamNapAdmin = []func(string){
 	NapPhanQuyenAdmin,
 	napKhachHangAdminNoErr,
+	NapDanhMuc,
+	NapThuongHieu,
+	NapBienLoiNhuan,
+	NapMayTinh,
 }
 
 // [TẦNG 3]: Cửa hàng bán lẻ (Lazy Load)
