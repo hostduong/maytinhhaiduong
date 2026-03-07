@@ -6,8 +6,131 @@
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
     <style>
+        /* =========================================================================
+           HỆ THỐNG CSS MASTER UI - CHUẨN HÓA BỐ CỤC CHIA ĐÔI (SPLIT-PANE SAAS)
+           ========================================================================= */
+           
+        /* 1. Bao bọc tổng: Tự động lấp đầy màn hình, xóa lề */
+        .saas-split-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            padding: 1rem;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        @media (min-width: 1280px) {
+            .saas-split-wrapper {
+                flex-direction: row;
+                padding: 1.5rem 1.5rem 2rem 1rem;
+            }
+        }
+
+        /* 2. Khối Danh Sách (Bên trái): Mặc định 100%, Lên màn to co lại 50% */
+        .saas-list-pane {
+            width: 100%;
+            flex: 1;
+            min-width: 0;
+            transition: width 0.15s ease-out;
+        }
+
+        /* 3. Khối Chi Tiết (Bên phải): Modal trên Mobile, Trượt thành Tab trên PC */
+        .saas-detail-pane {
+            display: none; /* Ẩn mặc định, điều khiển bằng JS */
+            flex-direction: column;
+        }
+        /* Chế độ Mobile/Tablet: Modal Popup hiển thị ở giữa màn hình */
+        @media (max-width: 1279px) {
+            .saas-detail-pane.is-open {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 100;
+                background-color: rgba(15, 23, 42, 0.7); /* Nền đen mờ */
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .saas-detail-box {
+                width: 100%;
+                max-width: 900px;
+                max-height: 95vh;
+            }
+        }
+        /* Chế độ PC (>=1280px): Trượt ra bên phải, chiếm ~35% không gian */
+        @media (min-width: 1280px) {
+            .saas-detail-pane.is-open {
+                display: flex;
+                position: relative;
+                z-index: 60;
+                width: 35%; /* Tỷ lệ vàng theo quy hoạch */
+                min-width: 450px;
+                max-width: 65vw;
+                flex-shrink: 0;
+            }
+            .saas-detail-box {
+                width: 100%;
+                height: calc(100vh - 120px); /* Dính trần tự động */
+                position: sticky;
+                top: 24px;
+            }
+        }
+
+        /* Khối Box chứa nội dung: Phân biệt nền Trắng tinh với nền Xám tổng thể */
+        .saas-detail-box {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 4. Thanh Kéo Thả (Drag Bar) */
+        .saas-drag-bar {
+            display: none;
+            width: 12px;
+            cursor: col-resize;
+            z-index: 70;
+            flex-shrink: 0;
+            margin: 0 -4px; /* Tràn lề để dễ bắt chuột */
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+        .saas-drag-bar::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: 24px;
+            width: 4px;
+            background-color: #cbd5e1;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .saas-drag-bar:hover::after, .saas-drag-bar.is-dragging::after {
+            background-color: #9333ea;
+            width: 6px;
+        }
+        @media (min-width: 1280px) {
+            .saas-drag-bar.is-open { display: flex; }
+        }
+
+        /* =========================================================================
+           KẾT THÚC HỆ THỐNG CSS MASTER UI
+           ========================================================================= */
+
+        /* CSS phụ trợ Form */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
-        .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 0 1.5rem 1.5rem 1.5rem; background-color: #f8fafc; flex: 1; min-h: 0; }
+        .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 0 1.5rem 1.5rem 1.5rem; background-color: #f8fafc; flex: 1; min-h: 0; border-top: 1px solid #f1f5f9; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
@@ -78,38 +201,40 @@
         </div>
     </div>
 
-    <div id="splitContainer" class="max-w-[1600px] mx-auto pb-8 mb-24 sm:mb-10 px-2 sm:px-4 mt-2 flex flex-col xl:flex-row gap-4 xl:gap-2 items-start">
+    <div id="splitUIContainer" class="saas-split-wrapper">
         
-        <div id="listPane" class="w-full flex-1 transition-all duration-300 min-w-0">
+        <div id="listPaneUI" class="saas-list-pane">
             
-            <div id="searchBarContainer" class="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 gap-3 w-full">
-                <div class="relative group w-full md:w-80 lg:w-96">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-3 w-full">
+                <div class="flex flex-col md:flex-row gap-3 w-full">
+                    <div class="relative group w-full md:w-80 lg:w-96">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="search" id="searchInput" onkeyup="filterAndSort(true)" 
+                            class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition outline-none shadow-sm" 
+                            placeholder="Tìm Mã, Tên sản phẩm...">
                     </div>
-                    <input type="search" id="searchInput" onkeyup="filterAndSort(true)" 
-                        class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition outline-none shadow-sm" 
-                        placeholder="Tìm Mã, Tên sản phẩm...">
+
+                    <select id="sortSelect" onchange="filterAndSort(true)" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-bold shadow-sm">
+                        <option value="newest">🕒 Mới nhất</option>
+                        <option value="oldest">🕒 Cũ nhất</option>
+                        <option value="price_asc">💰 Giá: Thấp -> Cao</option>
+                        <option value="price_desc">💰 Giá: Cao -> Thấp</option>
+                        <option value="name_asc">🔤 Tên: A -> Z</option>
+                        <option value="name_desc">🔤 Tên: Z -> A</option>
+                    </select>
+
+                    <button onclick="handleOpenModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        Thêm Mới
+                    </button>
                 </div>
-
-                <select id="sortSelect" onchange="filterAndSort(true)" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-bold shadow-sm">
-                    <option value="newest">🕒 Mới nhất</option>
-                    <option value="oldest">🕒 Cũ nhất</option>
-                    <option value="price_asc">💰 Giá: Thấp -> Cao</option>
-                    <option value="price_desc">💰 Giá: Cao -> Thấp</option>
-                    <option value="name_asc">🔤 Tên: A -> Z</option>
-                    <option value="name_desc">🔤 Tên: Z -> A</option>
-                </select>
-
-                <button onclick="handleOpenModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                    Thêm Mới
-                </button>
             </div>
 
-            <div class="animated-border-wrapper shadow-xl shadow-purple-100/50">
-                <div class="animated-border-inner flex flex-col w-full relative">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
+            <div class="animated-border-wrapper shadow-xl shadow-purple-100/50 bg-white">
+                <div class="animated-border-inner flex flex-col w-full relative bg-white">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none z-0"></div>
                     
                     <div class="table-scroll w-full relative z-10">
                         <table class="w-full text-sm text-left text-slate-600" id="tableSP">
@@ -123,9 +248,9 @@
                                     <th class="px-5 py-4 text-center w-36">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm" id="tableBodySP">
+                            <tbody class="divide-y divide-slate-100/80 bg-white backdrop-blur-sm" id="tableBodySP">
                                 {{ range .DanhSach }}
-                                <tr class="hover-soft-row transition-colors sp-row group cursor-pointer border-l-4 border-transparent" onclick="handleEditSP('{{ .MaSanPham }}')"
+                                <tr class="hover-soft-row transition-colors sp-row group cursor-pointer border-l-4 border-transparent bg-white" onclick="handleEditSP('{{ .MaSanPham }}')"
                                     data-code="{{ .MaSanPham }}" data-name="{{ .TenSanPham }}" data-sku-name="{{ .TenSKU }}"
                                     data-price="{{ .GiaBan }}" data-date="{{ .NgayCapNhat }}" data-status="{{ .TrangThai }}"
                                     data-status-text="{{ if eq .TrangThai 1 }}bán{{ else if eq .TrangThai -1 }}xóa{{ else }}tắt{{ end }}"
@@ -218,159 +343,147 @@
             </div>
         </div>
 
-        <div id="dragResizer" class="hidden xl:flex w-4 hover:w-5 bg-transparent cursor-col-resize z-[70] shrink-0 self-stretch mt-[58px] mb-8 relative group items-center justify-center mx-0.5">
-            <div class="absolute inset-y-0 w-1.5 bg-slate-200 group-hover:bg-purple-500 rounded-full transition-colors duration-300 flex flex-col items-center justify-center shadow-sm">
-                <div class="flex flex-col gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity">
-                    <div class="w-1 h-2 bg-slate-500 group-hover:bg-white rounded-full"></div>
-                    <div class="w-1 h-2 bg-slate-500 group-hover:bg-white rounded-full"></div>
-                    <div class="w-1 h-2 bg-slate-500 group-hover:bg-white rounded-full"></div>
-                </div>
-            </div>
-        </div>
+        <div id="dragResizerUI" class="saas-drag-bar"></div>
 
-        <div id="modalSP" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:relative xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 flex-col">
+        <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
-            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
-
-            <div class="animated-border-wrapper shadow-2xl w-full max-w-4xl xl:max-w-full xl:sticky xl:top-[24px] z-10 flex flex-col max-h-[96vh] xl:max-h-[calc(100vh-100px)] animate-[slideInRight_0.3s_ease-out] xl:animate-none">
+            <div class="saas-detail-box">
                 
-                <div class="animated-border-inner flex flex-col bg-white relative overflow-hidden h-full w-full">
-                    <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 relative z-20 shadow-sm">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="bg-gradient-to-br from-purple-100 to-indigo-100 p-2 rounded-xl text-purple-600 shadow-inner border border-purple-200 shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                            </span>
-                            <h3 class="text-[17px] font-black title-gradient-purple truncate" id="modalTitle">Thêm Sản Phẩm Mới</h3>
-                        </div>
-                        <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
+                <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 relative z-20 shadow-sm">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="bg-gradient-to-br from-purple-100 to-indigo-100 p-2 rounded-xl text-purple-600 shadow-inner border border-purple-200 shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        </span>
+                        <h3 class="text-[17px] font-black title-gradient-purple truncate" id="modalTitle">Thêm Sản Phẩm Mới</h3>
+                    </div>
+                    <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
+                </div>
+                
+                <div class="px-5 py-2.5 bg-slate-50/80 border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
+                
+                <div class="modal-body relative pt-5">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+                    
+                    <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-xl mb-4 text-sm font-bold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm relative z-10">
+                        <span class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Phiên bản này đang ĐỢI XÓA.</span>
+                        <button type="button" onclick="restoreTab()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs transition shadow-sm active:scale-95 whitespace-nowrap w-full sm:w-auto">Khôi phục ngay</button>
                     </div>
                     
-                    <div class="px-5 py-2.5 bg-slate-50/80 border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
-                    
-                    <div class="modal-body relative pt-5">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
-                        
-                        <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-xl mb-4 text-sm font-bold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm relative z-10">
-                            <span class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" /></svg> Phiên bản này đang ĐỢI XÓA.</span>
-                            <button type="button" onclick="restoreTab()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs transition shadow-sm active:scale-95 whitespace-nowrap w-full sm:w-auto">Khôi phục ngay</button>
-                        </div>
-                        
-                        <fieldset id="form_fieldset" class="relative z-10">
-                            <form id="formSP">
-                                
-                                <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/40">
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-                                        <div class="sm:col-span-2">
-                                            <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
-                                            <input type="text" id="f_ten_sku" class="input-premium font-bold text-purple-900" placeholder="VD: Bản 256GB - Màu Trắng" required onkeyup="updateTabName()">
-                                            <div id="f_info_cap_nhat" class="mt-2 text-[11px] text-slate-500 font-medium normal-case flex items-center gap-4 tracking-normal"></div>
-                                        </div>
-                                        <div>
-                                            <label>Mã SKU (Nội bộ/Mã Vạch)</label>
-                                            <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Chờ tạo tự động...">
-                                        </div>
-                                        <div class="flex flex-col gap-2.5 pt-1 sm:pt-6">
-                                            <label class="flex items-center cursor-pointer select-none mb-0">
-                                                <input type="radio" name="r_sku_chinh" id="f_sku_chinh" class="w-4 h-4 text-purple-600 focus:ring-purple-500 cursor-pointer" onchange="setMainSKU()">
-                                                <span class="ml-2 text-[13px] font-bold text-slate-800">👑 BẢN ĐẠI DIỆN WEB</span>
-                                            </label>
-                                            <label class="flex items-center cursor-pointer select-none mb-0">
-                                                <input type="checkbox" id="f_trang_thai" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer" onchange="updateTabColor()">
-                                                <span class="ml-2 text-[13px] font-bold text-slate-800">👁️ BẬT HIỂN THỊ TÌM KIẾM</span>
-                                            </label>
-                                        </div>
+                    <fieldset id="form_fieldset" class="relative z-10">
+                        <form id="formSP">
+                            
+                            <div class="form-section border-l-4 border-l-purple-500 bg-purple-50/40">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                                    <div class="sm:col-span-2">
+                                        <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
+                                        <input type="text" id="f_ten_sku" class="input-premium font-bold text-purple-900" placeholder="VD: Bản 256GB - Màu Trắng" required onkeyup="updateTabName()">
+                                        <div id="f_info_cap_nhat" class="mt-2 text-[11px] text-slate-500 font-medium normal-case flex items-center gap-4 tracking-normal"></div>
+                                    </div>
+                                    <div>
+                                        <label>Mã SKU (Nội bộ/Mã Vạch)</label>
+                                        <input type="text" id="f_ma_sku" class="input-premium font-mono" placeholder="Chờ tạo tự động...">
+                                    </div>
+                                    <div class="flex flex-col gap-2.5 pt-1 sm:pt-6">
+                                        <label class="flex items-center cursor-pointer select-none mb-0">
+                                            <input type="radio" name="r_sku_chinh" id="f_sku_chinh" class="w-4 h-4 text-purple-600 focus:ring-purple-500 cursor-pointer" onchange="setMainSKU()">
+                                            <span class="ml-2 text-[13px] font-bold text-slate-800">👑 BẢN ĐẠI DIỆN WEB</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer select-none mb-0">
+                                            <input type="checkbox" id="f_trang_thai" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer" onchange="updateTabColor()">
+                                            <span class="ml-2 text-[13px] font-bold text-slate-800">👁️ BẬT HIỂN THỊ TÌM KIẾM</span>
+                                        </label>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="form-section">
-                                    <div class="section-title">
-                                        <span>📝 Thông tin chung</span>
-                                        <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <span>📝 Thông tin chung</span>
+                                    <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
+                                        <input type="text" id="f_ten_san_pham" class="input-premium text-[15px] font-bold text-slate-900" required placeholder="Ví dụ: iPhone 15 Pro Max...">
                                     </div>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
-                                            <input type="text" id="f_ten_san_pham" class="input-premium text-[15px] font-bold text-slate-900" required placeholder="Ví dụ: iPhone 15 Pro Max...">
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div><label>Mã Gốc (SP)</label><input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-purple-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự sinh..."></div>
-                                            <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hóa đơn..."></div>
-                                        </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div><label>Mã Gốc (SP)</label><input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-purple-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự sinh..."></div>
+                                        <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hóa đơn..."></div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="form-section">
-                                    <div class="section-title">
-                                        <span>🏷️ Phân loại & Thuộc tính</span>
-                                        <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                        <div><label>Danh Mục <span class="text-red-500">*</span></label><input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục..."></div>
-                                        <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
-                                    </div>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái..."></div>
-                                        <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium text-sm" placeholder="Đen..."></div>
-                                        <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium text-sm" placeholder="Mới 100%..."></div>
-                                        <div><label>Khối lượng (Gr)</label><input type="number" id="f_khoi_luong" class="input-premium text-center" placeholder="500"></div>
-                                        <div><label>K.Thước (DxRxC)</label><input type="text" id="f_kich_thuoc" class="input-premium text-center font-mono text-sm" placeholder="10x20x5"></div>
-                                        <div class="col-span-2 sm:col-span-1">
-                                            <label>Bảo hành</label>
-                                            <div class="flex gap-1 items-stretch">
-                                                <input type="number" id="f_bao_hanh_num" class="input-premium text-center px-1 font-bold" style="width: 40%" placeholder="12">
-                                                <select id="f_bao_hanh_unit" class="input-premium cursor-pointer px-1 font-bold text-[13px]" style="width: 60%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option></select>
-                                            </div>
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <span>🏷️ Phân loại & Thuộc tính</span>
+                                    <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div><label>Danh Mục <span class="text-red-500">*</span></label><input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục..."></div>
+                                    <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái..."></div>
+                                    <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium text-sm" placeholder="Đen..."></div>
+                                    <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium text-sm" placeholder="Mới 100%..."></div>
+                                    <div><label>Khối lượng (Gr)</label><input type="number" id="f_khoi_luong" class="input-premium text-center" placeholder="500"></div>
+                                    <div><label>K.Thước (DxRxC)</label><input type="text" id="f_kich_thuoc" class="input-premium text-center font-mono text-sm" placeholder="10x20x5"></div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label>Bảo hành</label>
+                                        <div class="flex gap-1 items-stretch">
+                                            <input type="number" id="f_bao_hanh_num" class="input-premium text-center px-1 font-bold" style="width: 40%" placeholder="12">
+                                            <select id="f_bao_hanh_unit" class="input-premium cursor-pointer px-1 font-bold text-[13px]" style="width: 60%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option></select>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="form-section border-l-4 border-l-indigo-500 bg-indigo-50/20">
-                                    <div class="section-title flex justify-between">
-                                        <span class="text-indigo-800">💰 Định giá Kinh Doanh</span>
-                                        <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-indigo-600 bg-indigo-50 hover:bg-indigo-600 border-indigo-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5 items-end">
-                                        <div><label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
-                                        <div><label>Quy tắc tính lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
-                                        <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-indigo-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
-                                        <div><label>Lãi VNĐ</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm items-end">
-                                        <div><label>Giá Niêm Yết (Gạch ngang)</label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
-                                        <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
-                                        <div><label>Hoặc Giảm (VNĐ)</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
-                                        <div><label class="text-emerald-700">Giá Bán Thực Tế</label><input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-black text-xl" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()"></div>
-                                    </div>
+                            <div class="form-section border-l-4 border-l-indigo-500 bg-indigo-50/20">
+                                <div class="section-title flex justify-between">
+                                    <span class="text-indigo-800">💰 Định giá Kinh Doanh</span>
+                                    <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-indigo-600 bg-indigo-50 hover:bg-indigo-600 border-indigo-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
+                                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-5 items-end">
+                                    <div><label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
+                                    <div><label>Quy tắc tính lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
+                                    <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-indigo-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
+                                    <div><label>Lãi VNĐ</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
+                                </div>
+                                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-end">
+                                    <div><label>Giá Niêm Yết (Gạch ngang)</label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
+                                    <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
+                                    <div><label>Hoặc Giảm (VNĐ)</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
+                                    <div><label class="text-emerald-700">Giá Bán Thực Tế</label><input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-black text-xl" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()"></div>
+                                </div>
+                            </div>
 
-                                <div class="form-section mb-0">
-                                    <div class="section-title">
-                                        <span>🖼️ Media & Mô tả</span>
-                                        <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
-                                    </div>
-                                    <div class="mb-4">
-                                        <div class="flex justify-between items-center mb-2"><label style="margin-bottom:0">Danh sách Ảnh</label><button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-[11px] bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md font-bold hover:bg-purple-200 transition">+ Thêm ảnh</button></div>
-                                        <div id="f_imgContainer" class="space-y-2.5 border border-slate-200 rounded-xl p-3 bg-slate-50"></div>
-                                    </div>
-                                    <div class="space-y-4">
-                                        <div><label>Thông số kỹ thuật (HTML)</label><textarea id="f_thong_so_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
-                                        <div><label>Bài viết mô tả (HTML)</label><textarea id="f_mo_ta_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
-                                        <div><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-amber-50 text-amber-800 border-amber-200 font-medium text-sm"></div>
-                                    </div>
+                            <div class="form-section mb-0">
+                                <div class="section-title">
+                                    <span>🖼️ Media & Mô tả</span>
+                                    <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                            </form>
-                        </fieldset>
-                    </div>
-                    
-                    <div class="px-5 py-4 border-t border-slate-200 bg-white xl:rounded-b-[1.5rem] flex justify-between items-center shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
-                        <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
-                        <div class="flex justify-end gap-2.5 w-full sm:w-auto">
-                            <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition text-sm">Hủy</button>
-                            <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-md shadow-purple-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
-                            </button>
-                        </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2"><label style="margin-bottom:0">Danh sách Ảnh</label><button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-[11px] bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md font-bold hover:bg-purple-200 transition">+ Thêm ảnh</button></div>
+                                    <div id="f_imgContainer" class="space-y-2.5 border border-slate-200 rounded-xl p-3 bg-slate-50"></div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div><label>Thông số kỹ thuật (HTML)</label><textarea id="f_thong_so_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
+                                    <div><label>Bài viết mô tả (HTML)</label><textarea id="f_mo_ta_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
+                                    <div><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-amber-50 text-amber-800 border-amber-200 font-medium text-sm"></div>
+                                </div>
+                            </div>
+                        </form>
+                    </fieldset>
+                </div>
+                
+                <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 z-20">
+                    <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
+                    <div class="flex justify-end gap-2.5 w-full sm:w-auto">
+                        <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
+                        <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-md shadow-purple-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
+                        </button>
                     </div>
                 </div>
             </div>
@@ -379,53 +492,57 @@
     </div>
 
     <script>
-        const resizer = document.getElementById('dragResizer');
-        const rightPane = document.getElementById('modalSP');
+        // ==========================================
+        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
+        // ==========================================
+
+        const listPane = document.getElementById('listPaneUI');
+        const detailPane = document.getElementById('detailPaneUI');
+        const dragBar = document.getElementById('dragResizerUI');
+        const splitContainer = document.getElementById('splitUIContainer');
+        
         let isResizing = false;
 
-        resizer.addEventListener('mousedown', function(e) {
+        // Logic Kéo Thả (Drag to Resize) tự động tính % để không bị vỡ layout
+        dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
-            rightPane.style.transition = 'none'; 
+            dragBar.classList.add('is-dragging');
+            listPane.style.transition = 'none'; 
         });
 
         document.addEventListener('mousemove', function(e) {
             if (!isResizing) return;
             e.preventDefault(); 
-            const container = document.getElementById('splitContainer');
-            const containerRect = container.getBoundingClientRect();
+            const containerRect = splitContainer.getBoundingClientRect();
             
-            let newWidth = containerRect.right - e.clientX - 20; 
+            // Tính % chiều rộng dựa trên tọa độ chuột
+            // Trừ đi khoảng padding trái của container (tùy màn hình)
+            let offsetLeft = e.clientX - containerRect.left;
+            let percentage = (offsetLeft / containerRect.width) * 100;
             
-            if (newWidth < 450) newWidth = 450; 
-            if (newWidth > containerRect.width * 0.7) newWidth = containerRect.width * 0.7; 
+            // Ép khung an toàn (Min 40% cho list, Min 25% cho form sửa)
+            if (percentage < 40) percentage = 40;
+            if (percentage > 75) percentage = 75;
 
-            rightPane.style.width = newWidth + 'px';
-            rightPane.classList.remove('xl:w-[500px]', '2xl:w-[650px]'); 
+            listPane.style.width = percentage + '%';
+            listPane.style.flex = 'none'; // Tắt flex-1 để width cứng hoạt động
+            detailPane.style.width = (100 - percentage) + '%';
         });
 
         document.addEventListener('mouseup', function(e) {
             if (isResizing) {
                 isResizing = false;
                 document.body.classList.remove('cursor-col-resize', 'select-none');
-                rightPane.style.transition = ''; 
+                dragBar.classList.remove('is-dragging');
+                listPane.style.transition = ''; 
             }
         });
 
 
-        function syncTopAlignment() {
-            if(window.innerWidth >= 1280) { 
-                const searchBar = document.getElementById('searchBarContainer');
-                const spacer = document.getElementById('formSpacer');
-                if(searchBar && spacer) {
-                    const style = window.getComputedStyle(searchBar);
-                    const mb = parseFloat(style.marginBottom) || 0;
-                    spacer.style.height = (searchBar.offsetHeight + mb) + 'px';
-                }
-            }
-        }
-        window.addEventListener('resize', syncTopAlignment);
-
+        // ==========================================
+        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
+        // ==========================================
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -458,14 +575,19 @@
             }
         }
 
+        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
-            if (!document.getElementById('modalSP').classList.contains('hidden') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
+            // Kiểm tra xem có đang bấm lại chính dòng đang mở không
+            if (detailPane.classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
             checkUnsavedChanges(() => { editSP(id); });
         }
 
 
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
+        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -545,7 +667,6 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
-            setTimeout(syncTopAlignment, 100); 
         });
 
         function filterAndSort(resetPage = true) {
@@ -1106,48 +1227,40 @@
             container.appendChild(div);
         }
 
+        // Đã bọc tường lửa
         function openModal() {
-            isDirty = false;
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             
-            document.getElementById('modalSP').classList.remove('hidden', 'xl:hidden');
-            document.getElementById('modalSP').classList.add('flex');
-            
-            if (window.innerWidth >= 1280) {
-                document.getElementById('dragResizer').classList.remove('hidden', 'xl:hidden');
-                document.getElementById('dragResizer').classList.add('xl:flex');
-            }
+            // Xóa class display: none và bật is-open
+            detailPane.classList.add('is-open');
+            dragBar.classList.add('is-open');
 
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
-            syncTopAlignment();
-            
             setTimeout(() => { isDirty = false; }, 400);
         }
 
         function closeModal() { 
-            isDirty = false;
-            document.getElementById('modalSP').classList.add('hidden', 'xl:hidden'); 
-            document.getElementById('modalSP').classList.remove('flex'); 
+            // Ẩn Detail Pane
+            detailPane.classList.remove('is-open');
+            dragBar.classList.remove('is-open');
             
-            document.getElementById('dragResizer').classList.add('hidden', 'xl:hidden');
-            document.getElementById('dragResizer').classList.remove('xl:flex');
-            
-            document.getElementById('modalSP').style.width = '';
-            document.getElementById('modalSP').classList.add('xl:w-[500px]', '2xl:w-[650px]');
+            // Reset lại độ rộng inline để lần sau mở lên về chuẩn 35%
+            detailPane.style.width = '';
+            listPane.style.width = '100%'; 
 
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
+            isDirty = false;
         }
 
         function editSP(id) {
-            isDirty = false;
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
             
             document.querySelectorAll('.sp-row').forEach(r => {
@@ -1164,16 +1277,10 @@
             document.getElementById('modalTitle').innerHTML = `Sửa: <span class="text-purple-600 ml-1 font-mono tracking-wider">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             
-            document.getElementById('modalSP').classList.remove('hidden', 'xl:hidden');
-            document.getElementById('modalSP').classList.add('flex');
+            detailPane.classList.add('is-open');
+            dragBar.classList.add('is-open');
             
-            if (window.innerWidth >= 1280) {
-                document.getElementById('dragResizer').classList.remove('hidden', 'xl:hidden');
-                document.getElementById('dragResizer').classList.add('xl:flex');
-            }
-
-            syncTopAlignment();
-            
+            // Ép xóa cờ Dirty sau khi load xong Form Sửa
             setTimeout(() => { isDirty = false; }, 400);
         }
 
@@ -1221,7 +1328,7 @@
             const btnSave = document.getElementById('btnSave');
             const originalText = btnSave.innerHTML;
             
-            if(!document.getElementById('modalSP').classList.contains('hidden')) {
+            if(detailPane.classList.contains('is-open')) {
                 btnSave.disabled = true; btnSave.classList.add('opacity-80', 'cursor-not-allowed');
                 btnSave.innerHTML = `<div class="spinner-led-btn"></div> Đang xử lý...`;
             } else {
@@ -1271,7 +1378,7 @@
             }
         }
 
-        async function confirmSave() {
+        function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             saveCurrentTabToState(); 
             let hasMain = currentSkus.some(sku => sku.sku_chinh === 1 && sku.trang_thai !== -1);
@@ -1284,13 +1391,7 @@
                 });
                 return; 
             }
-
-            // Bỏ qua bước Confirm để tăng tốc trải nghiệm (Như file cũ của bạn)
             saveSP();
-        }
-
-        async function saveSP() {
-            await sendDataToBackend(currentSkus);
         }
     </script>
     {{ template "footer_master" . }}
