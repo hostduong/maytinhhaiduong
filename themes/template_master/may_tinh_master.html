@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto pb-8 mb-24 sm:mb-10 px-2 sm:px-4 mt-2 flex flex-col xl:flex-row gap-4 xl:gap-6 items-start">
+    <div id="splitContainer" class="max-w-[1600px] mx-auto pb-8 mb-24 sm:mb-10 px-2 sm:px-4 mt-2 flex flex-col xl:flex-row gap-4 xl:gap-3 items-start">
         
         <div id="listPane" class="w-full flex-1 transition-all duration-300 min-w-0">
             
@@ -101,7 +101,7 @@
                     <option value="name_desc">🔤 Tên: Z -> A</option>
                 </select>
 
-                <button onclick="openModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
+                <button onclick="handleOpenModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                     Thêm Mới
                 </button>
@@ -125,7 +125,7 @@
                             </thead>
                             <tbody class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm" id="tableBodySP">
                                 {{ range .DanhSach }}
-                                <tr class="hover-soft-row transition-colors sp-row group cursor-pointer border-l-4 border-transparent" onclick="editSP('{{ .MaSanPham }}')"
+                                <tr class="hover-soft-row transition-colors sp-row group cursor-pointer border-l-4 border-transparent" onclick="handleEditSP('{{ .MaSanPham }}')"
                                     data-code="{{ .MaSanPham }}" data-name="{{ .TenSanPham }}" data-sku-name="{{ .TenSKU }}"
                                     data-price="{{ .GiaBan }}" data-date="{{ .NgayCapNhat }}" data-status="{{ .TrangThai }}"
                                     data-status-text="{{ if eq .TrangThai 1 }}bán{{ else if eq .TrangThai -1 }}xóa{{ else }}tắt{{ end }}"
@@ -185,7 +185,7 @@
 
                                     <td class="px-5 py-5 text-center">
                                         <div class="flex justify-center gap-2">
-                                            <button onclick="event.stopPropagation(); editSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-white text-purple-600 hover:bg-purple-600 hover:text-white border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition shadow-sm active:scale-95 text-[11px] uppercase tracking-wider">
+                                            <button onclick="event.stopPropagation(); handleEditSP('{{ .MaSanPham }}')" class="flex items-center justify-center gap-1 bg-white text-purple-600 hover:bg-purple-600 hover:text-white border border-purple-200 px-3 py-1.5 rounded-lg font-bold transition shadow-sm active:scale-95 text-[11px] uppercase tracking-wider">
                                                 Sửa
                                             </button>
                                             
@@ -218,8 +218,12 @@
             </div>
         </div>
 
-        <div id="modalSP" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:relative xl:block xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300 flex-col">
-            <div class="absolute inset-0 z-0 xl:hidden" onclick="closeModal()"></div>
+        <div id="dragResizer" class="hidden w-2 hover:w-3 bg-slate-200/60 hover:bg-purple-400 cursor-col-resize transition-all duration-200 z-[70] shrink-0 rounded-full self-stretch mt-[58px] mb-8 relative group items-center justify-center">
+            <div class="h-8 w-1 bg-slate-400/50 rounded-full group-hover:bg-white transition-colors"></div>
+        </div>
+
+        <div id="modalSP" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:relative xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300 flex-col">
+            <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
             <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
 
@@ -233,7 +237,7 @@
                             </span>
                             <h3 class="text-[17px] font-black title-gradient-purple truncate" id="modalTitle">Thêm Sản Phẩm Mới</h3>
                         </div>
-                        <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
+                        <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
                     </div>
                     
                     <div class="px-5 py-2.5 bg-slate-50/80 border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
@@ -356,7 +360,7 @@
                     <div class="px-5 py-4 border-t border-slate-200 bg-white xl:rounded-b-[1.5rem] flex justify-between items-center shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
                         <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
                         <div class="flex justify-end gap-2.5 w-full sm:w-auto">
-                            <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition text-sm">Hủy</button>
+                            <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition text-sm">Hủy</button>
                             <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-md shadow-purple-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
                             </button>
@@ -369,9 +373,47 @@
     </div>
 
     <script>
-        // ĐỒNG BỘ ĐỈNH: Khối tàng hình (Spacer) sẽ tự đo chiều cao của khối Tìm Kiếm để đẩy Form Sửa xuống bằng đúng bảng danh sách
+        // ==========================================
+        // YÊU CẦU 3: LOGIC DRAG TO RESIZE PANE 
+        // ==========================================
+        const resizer = document.getElementById('dragResizer');
+        const rightPane = document.getElementById('modalSP');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', function(e) {
+            isResizing = true;
+            document.body.classList.add('cursor-col-resize', 'select-none');
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+            e.preventDefault(); 
+            const container = document.getElementById('splitContainer');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Tính toán bề rộng từ cạnh phải của Container đến vị trí con chuột
+            let newWidth = containerRect.right - e.clientX - 24; 
+            
+            // Ép khuôn giới hạn (Tránh kéo quá nhỏ làm méo form hoặc quá to che khuất bảng)
+            if (newWidth < 450) newWidth = 450; 
+            if (newWidth > containerRect.width * 0.65) newWidth = containerRect.width * 0.65; 
+
+            rightPane.style.width = newWidth + 'px';
+            // Gỡ bỏ class width cố định của Tailwind để style inline có tác dụng
+            rightPane.classList.remove('xl:w-[500px]', '2xl:w-[650px]'); 
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (isResizing) {
+                isResizing = false;
+                document.body.classList.remove('cursor-col-resize', 'select-none');
+            }
+        });
+
+
+        // ĐỒNG BỘ ĐỈNH: Khối tàng hình (Spacer) đo chiều cao để đẩy Form Sửa xuống bằng đúng bảng danh sách
         function syncTopAlignment() {
-            if(window.innerWidth >= 1280) { // Màn hình xl
+            if(window.innerWidth >= 1280) { 
                 const searchBar = document.getElementById('searchBarContainer');
                 const spacer = document.getElementById('formSpacer');
                 if(searchBar && spacer) {
@@ -383,6 +425,65 @@
         }
         window.addEventListener('resize', syncTopAlignment);
 
+
+        // ==========================================
+        // YÊU CẦU 4: LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
+        // ==========================================
+        let isDirty = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lắng nghe thao tác gõ phím trên toàn bộ form
+            document.getElementById('formSP').addEventListener('input', () => { isDirty = true; });
+            document.getElementById('formSP').addEventListener('change', () => { isDirty = true; });
+        });
+
+        // Hàm Tường lửa chặn thao tác khi đang có dữ liệu rác chưa lưu
+        async function checkUnsavedChanges(callback) {
+            if (isDirty) {
+                const result = await Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center shadow-inner border border-amber-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div><span class="text-2xl font-black text-amber-600">Dữ liệu chưa lưu!</span></div>',
+                    html: '<div class="text-[14px] text-slate-600 font-medium">Sản phẩm đang chỉnh sửa có thay đổi chưa được lưu.<br>Bạn có chắc chắn muốn thoát và hủy bỏ mọi thay đổi?</div>',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý thoát',
+                    cancelButtonText: 'Ở lại',
+                    customClass: { 
+                        popup: 'swal-master-error', 
+                        confirmButton: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold rounded-xl px-6 py-2.5 shadow-md active:scale-95 transition', 
+                        cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 active:scale-95 transition mr-3 hover:bg-slate-200' 
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: true
+                });
+                if (result.isConfirmed) {
+                    isDirty = false;
+                    callback();
+                }
+            } else {
+                callback();
+            }
+        }
+
+        // Các hàm Wrappers để nhúng Tường lửa vào luồng Click
+        function handleOpenModal() {
+            checkUnsavedChanges(() => { openModal(); });
+        }
+
+        function handleCloseModal() {
+            checkUnsavedChanges(() => { closeModal(); });
+        }
+
+        function handleEditSP(id) {
+            // Nếu click lại chính dòng đang mở thì bỏ qua, không thèm hỏi
+            if (!document.getElementById('modalSP').classList.contains('hidden') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) {
+                return; 
+            }
+            checkUnsavedChanges(() => { editSP(id); });
+        }
+
+
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ UI CƠ BẢN
+        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -462,7 +563,7 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
-            setTimeout(syncTopAlignment, 100); // Đo lại sau khi render
+            setTimeout(syncTopAlignment, 100); 
         });
 
         function filterAndSort(resetPage = true) {
@@ -586,6 +687,12 @@
         const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
         const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
 
+        // Cắm cờ isDirty cho Tagify
+        [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => {
+            t.on('add', function(e) { if(!isEditingMode) isDirty = true; });
+            t.on('remove', function(e) { if(!isEditingMode) isDirty = true; });
+        });
+
         tagifyDM.on('add', function(e) { 
             if(isEditingMode) return; 
             let maSpInput = document.getElementById('f_ma_san_pham');
@@ -653,7 +760,12 @@
             document.getElementById('tabs_container').innerHTML = html;
         }
 
-        function switchTab(idx) { saveCurrentTabToState(); activeTabIndex = idx; renderTabs(); loadTabToForm(idx); }
+        function switchTab(idx) { 
+            saveCurrentTabToState(); 
+            activeTabIndex = idx; 
+            renderTabs(); 
+            loadTabToForm(idx); 
+        }
 
         function addTab() {
             saveCurrentTabToState();
@@ -672,6 +784,7 @@
             activeTabIndex = currentSkus.length - 1;
             renderTabs();
             loadTabToForm(activeTabIndex);
+            isDirty = true;
         }
 
         async function removeTab(idx) {
@@ -707,6 +820,7 @@
                     if(newMain !== -1) currentSkus[newMain].sku_chinh = 1;
                 }
                 renderTabs(); loadTabToForm(activeTabIndex);
+                isDirty = true;
             }
         }
 
@@ -718,7 +832,12 @@
                     customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 transition active:scale-95 border border-slate-200 mr-3' },
                     buttonsStyling: false, showCancelButton: true, confirmButtonText: 'Đồng ý', cancelButtonText: 'Cancel'
                 }).then((result) => {
-                    if(result.isConfirmed) { currentSkus[activeTabIndex].trang_thai = 1; renderTabs(); loadTabToForm(activeTabIndex); }
+                    if(result.isConfirmed) { 
+                        currentSkus[activeTabIndex].trang_thai = 1; 
+                        renderTabs(); 
+                        loadTabToForm(activeTabIndex); 
+                        isDirty = true;
+                    }
                 });
             }
         }
@@ -744,6 +863,7 @@
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
                 loadTabToForm(activeTabIndex); 
             }
+            isDirty = true;
         }
 
         function saveCurrentTabToState() {
@@ -999,46 +1119,68 @@
             let imgSrc = value ? convertDriveLink(value) : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
             div.innerHTML = `
                 <img src="${imgSrc}" class="img-preview-mini" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2210%22%20fill%3D%22%2394a3b8%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E'">
-                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value)" ${isReadonly ? 'disabled' : ''}> 
-                <span onclick="this.parentElement.remove()" class="btn-remove-img ${isReadonly ? 'hidden' : ''}">✕</span>
+                <input type="text" class="input-premium font-mono text-sm flex-1" style="height: 42px;" placeholder="Link ảnh (Google Drive OK)..." value="${value}" onchange="this.previousElementSibling.src = convertDriveLink(this.value); isDirty = true;" ${isReadonly ? 'disabled' : ''}> 
+                <span onclick="this.parentElement.remove(); isDirty = true;" class="btn-remove-img ${isReadonly ? 'hidden' : ''}">✕</span>
             `;
             container.appendChild(div);
         }
 
-        // TÍCH HỢP GIAO DIỆN MỚI (SPLIT PANE & HIỆU ỨNG TÔ SÁNG HÀNG)
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ UI BỊ ĐÓNG GÓI BỞI TƯỜNG LỬA CHỐNG MẤT DATA
+        // ==========================================
         function openModal() {
+            isDirty = false;
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
             currentSkus = [newSku]; activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
-            document.getElementById('modalSP').classList.remove('hidden');
             
-            // XÓA HẾT HIGHLIGHT NẾU CÓ
+            // Xóa class hidden và hiện form
+            document.getElementById('modalSP').classList.remove('hidden', 'xl:hidden');
+            document.getElementById('modalSP').classList.add('flex');
+            
+            // Hiển thị thanh kéo thả trên PC
+            if (window.innerWidth >= 1280) {
+                document.getElementById('dragResizer').classList.remove('hidden', 'xl:hidden');
+                document.getElementById('dragResizer').classList.add('xl:flex');
+            }
+
             document.querySelectorAll('.sp-row').forEach(r => {
-                r.classList.remove('!bg-purple-50', '!border-purple-50');
+                r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
             syncTopAlignment();
         }
 
         function closeModal() { 
-            document.getElementById('modalSP').classList.add('hidden'); 
-            // XÓA HẾT HIGHLIGHT KHI ĐÓNG FORM
+            isDirty = false;
+            // Ẩn form hoàn toàn
+            document.getElementById('modalSP').classList.add('hidden', 'xl:hidden'); 
+            document.getElementById('modalSP').classList.remove('flex'); 
+            
+            // Ẩn thanh kéo thả
+            document.getElementById('dragResizer').classList.add('hidden', 'xl:hidden');
+            document.getElementById('dragResizer').classList.remove('xl:flex');
+            
+            // Reset lại độ rộng mặc định
+            document.getElementById('modalSP').style.width = '';
+            document.getElementById('modalSP').classList.add('xl:w-[500px]', '2xl:w-[650px]');
+
             document.querySelectorAll('.sp-row').forEach(r => {
-                r.classList.remove('!bg-purple-50', '!border-purple-50');
+                r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
         }
 
         function editSP(id) {
+            isDirty = false;
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
             
-            // YÊU CẦU 3: LÀM NỔI BẬT DÒNG ĐANG SỬA TINH TẾ (NỀN VÀ VIỀN NHẠT)
             document.querySelectorAll('.sp-row').forEach(r => {
-                r.classList.remove('!bg-purple-50', '!border-purple-50');
+                r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
             const activeRow = document.querySelector(`.sp-row[data-code="${id}"]`);
             if(activeRow) {
-                activeRow.classList.add('!bg-purple-50', '!border-purple-50');
+                activeRow.classList.add('!bg-purple-100', '!border-purple-500');
             }
 
             currentSkus = JSON.parse(JSON.stringify(list)); 
@@ -1046,7 +1188,17 @@
             if(activeTabIndex === -1) activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Sửa: <span class="text-purple-600 ml-1 font-mono tracking-wider">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
-            document.getElementById('modalSP').classList.remove('hidden');
+            
+            // Xóa class hidden và hiện form
+            document.getElementById('modalSP').classList.remove('hidden', 'xl:hidden');
+            document.getElementById('modalSP').classList.add('flex');
+            
+            // Hiển thị thanh kéo thả trên PC
+            if (window.innerWidth >= 1280) {
+                document.getElementById('dragResizer').classList.remove('hidden', 'xl:hidden');
+                document.getElementById('dragResizer').classList.add('xl:flex');
+            }
+
             syncTopAlignment();
         }
 
@@ -1118,6 +1270,7 @@
                 const data = await res.json();
                 
                 if(data.status === 'ok') {
+                    isDirty = false;
                     Swal.fire({
                         title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
                         html: `<div class="text-[15px] text-slate-600 font-medium px-4">${data.msg}</div>`,
