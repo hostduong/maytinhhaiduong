@@ -82,7 +82,7 @@
         
         <div id="listPane" class="w-full flex-1 transition-all duration-300 min-w-0">
             
-            <div class="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 gap-3 w-full">
+            <div id="searchBarContainer" class="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 gap-3 w-full">
                 <div class="relative group w-full md:w-80 lg:w-96">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -218,10 +218,12 @@
             </div>
         </div>
 
-        <div id="modalSP" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:static xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300">
+        <div id="modalSP" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:relative xl:block xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300 flex-col">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="closeModal()"></div>
             
-            <div class="animated-border-wrapper shadow-2xl w-full max-w-4xl xl:max-w-full xl:sticky xl:top-0 z-10 flex flex-col max-h-[96vh] xl:max-h-[calc(100vh-24px)] animate-[slideInRight_0.3s_ease-out] xl:animate-none">
+            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
+
+            <div class="animated-border-wrapper shadow-2xl w-full max-w-4xl xl:max-w-full xl:sticky xl:top-[24px] z-10 flex flex-col max-h-[96vh] xl:max-h-[calc(100vh-100px)] animate-[slideInRight_0.3s_ease-out] xl:animate-none">
                 
                 <div class="animated-border-inner flex flex-col bg-white relative overflow-hidden h-full w-full">
                     <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 relative z-20 shadow-sm">
@@ -351,7 +353,7 @@
                         </fieldset>
                     </div>
                     
-                    <div class="px-5 py-4 border-t border-slate-200 bg-white flex justify-between items-center shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+                    <div class="px-5 py-4 border-t border-slate-200 bg-white xl:rounded-b-[1.5rem] flex justify-between items-center shrink-0 z-20 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
                         <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
                         <div class="flex justify-end gap-2.5 w-full sm:w-auto">
                             <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold transition text-sm">Hủy</button>
@@ -367,6 +369,20 @@
     </div>
 
     <script>
+        // ĐỒNG BỘ ĐỈNH: Khối tàng hình (Spacer) sẽ tự đo chiều cao của khối Tìm Kiếm để đẩy Form Sửa xuống bằng đúng bảng danh sách
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { // Màn hình xl
+                const searchBar = document.getElementById('searchBarContainer');
+                const spacer = document.getElementById('formSpacer');
+                if(searchBar && spacer) {
+                    const style = window.getComputedStyle(searchBar);
+                    const mb = parseFloat(style.marginBottom) || 0;
+                    spacer.style.height = (searchBar.offsetHeight + mb) + 'px';
+                }
+            }
+        }
+        window.addEventListener('resize', syncTopAlignment);
+
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -446,6 +462,7 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
+            setTimeout(syncTopAlignment, 100); // Đo lại sau khi render
         });
 
         function filterAndSort(resetPage = true) {
@@ -998,22 +1015,31 @@
             document.getElementById('modalSP').classList.remove('hidden');
             
             // XÓA HẾT HIGHLIGHT NẾU CÓ
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
+            document.querySelectorAll('.sp-row').forEach(r => {
+                r.classList.remove('!bg-purple-50', '!border-purple-50');
+            });
+            syncTopAlignment();
         }
 
         function closeModal() { 
             document.getElementById('modalSP').classList.add('hidden'); 
             // XÓA HẾT HIGHLIGHT KHI ĐÓNG FORM
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
+            document.querySelectorAll('.sp-row').forEach(r => {
+                r.classList.remove('!bg-purple-50', '!border-purple-50');
+            });
         }
 
         function editSP(id) {
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
             
-            // YÊU CẦU 3: LÀM NỔI BẬT DÒNG ĐANG SỬA BẰNG MÀU TÍM NHẠT VÀ VIỀN
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
+            // YÊU CẦU 3: LÀM NỔI BẬT DÒNG ĐANG SỬA TINH TẾ (NỀN VÀ VIỀN NHẠT)
+            document.querySelectorAll('.sp-row').forEach(r => {
+                r.classList.remove('!bg-purple-50', '!border-purple-50');
+            });
             const activeRow = document.querySelector(`.sp-row[data-code="${id}"]`);
-            if(activeRow) activeRow.classList.add('ring-2', 'ring-purple-500', 'bg-purple-50');
+            if(activeRow) {
+                activeRow.classList.add('!bg-purple-50', '!border-purple-50');
+            }
 
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
@@ -1021,6 +1047,7 @@
             document.getElementById('modalTitle').innerHTML = `Sửa: <span class="text-purple-600 ml-1 font-mono tracking-wider">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
             document.getElementById('modalSP').classList.remove('hidden');
+            syncTopAlignment();
         }
 
         async function deleteSP(id) {
