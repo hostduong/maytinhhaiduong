@@ -1,4 +1,4 @@
-package san_pham
+package may_tinh_master
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"app/config"
 	"app/core"
 	"github.com/gin-gonic/gin"
 )
@@ -43,19 +44,22 @@ type InputSKUMayTinh struct {
 func TrangQuanLyMayTinhMaster(c *gin.Context) {
 	defer func() { if err := recover(); err != nil { c.String(500, "LỖI HỆ THỐNG: %v", err) } }()
 
-	shopID := c.GetString("SHOP_ID")
+	masterShopID := c.GetString("SHOP_ID") 
+	adminShopID := config.BienCauHinh.IdFileSheetAdmin 
+	
 	userID := c.GetString("USER_ID")
+	vaiTro := c.GetString("USER_ROLE")
 
-	kh, found := core.LayKhachHang(shopID, userID)
+	kh, found := core.LayKhachHang(masterShopID, userID)
 	if !found || kh == nil { c.Redirect(http.StatusFound, "/login"); return }
 
-	if !core.KiemTraQuyen(shopID, kh.VaiTroQuyenHan, "product.view") {
+	if vaiTro != "quan_tri_he_thong" && !core.KiemTraQuyen(masterShopID, vaiTro, "product.view") {
 		c.Writer.WriteHeader(http.StatusForbidden)
 		c.Writer.Write([]byte(`<h3>⛔ Truy cập bị từ chối</h3><a href="/">Về trang chủ</a>`))
 		return
 	}
 
-	rawList := core.LayDanhSachSanPhamMayTinh(shopID)
+	rawList := core.LayDanhSachSanPhamMayTinh(adminShopID)
 	
 	var cleanList []*core.SanPhamMayTinh 
 	var fullList []*core.SanPhamMayTinh  
@@ -75,23 +79,21 @@ func TrangQuanLyMayTinhMaster(c *gin.Context) {
 		if spChinh != nil { cleanList = append(cleanList, spChinh) }
 	}
 
-	// TRỎ TÊN ĐÚNG VÀO TEMPLATE MỚI
-	c.HTML(http.StatusOK, "master_quan_ly_may_tinh", gin.H{
+	// [ĐÃ SỬA]: Gọi tên Template chuẩn theo cấu trúc mới
+	c.HTML(http.StatusOK, "may_tinh_master", gin.H{
 		"TieuDe":         "Quản lý sản phẩm (Máy Tính)",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang,
-		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       cleanList, 
 		"DanhSachFull":   fullList,  
-		"ListDanhMuc":    core.LayDanhSachDanhMuc(shopID),    
-		"ListThuongHieu": core.LayDanhSachThuongHieu(shopID), 
-		"ListBLN":        core.LayDanhSachBienLoiNhuan(shopID), 
+		"ListDanhMuc":    core.LayDanhSachDanhMuc(adminShopID),    
+		"ListThuongHieu": core.LayDanhSachThuongHieu(adminShopID), 
+		"ListBLN":        core.LayDanhSachBienLoiNhuan(adminShopID), 
 	})
 }
 
 func API_LayChiTietMayTinhMaster(c *gin.Context) {
-	masterShopID := c.GetString("SHOP_ID")
+	adminShopID := config.BienCauHinh.IdFileSheetAdmin 
 	vaiTro := c.GetString("USER_ROLE")
 
 	if vaiTro != "quan_tri_he_thong" && vaiTro != "quan_tri_vien_he_thong" {
@@ -103,7 +105,7 @@ func API_LayChiTietMayTinhMaster(c *gin.Context) {
 	if maSP == "" { c.JSON(200, gin.H{"status": "error", "msg": "Thiếu mã sản phẩm!"}); return }
 
 	core.KhoaHeThong.RLock()
-	listSKU := core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(masterShopID, maSP)]
+	listSKU := core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(adminShopID, maSP)]
 	core.KhoaHeThong.RUnlock()
 
 	if len(listSKU) == 0 { c.JSON(200, gin.H{"status": "error", "msg": "Không tìm thấy sản phẩm!"}); return }
@@ -111,17 +113,18 @@ func API_LayChiTietMayTinhMaster(c *gin.Context) {
 }
 
 func API_LuuMayTinhMaster(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID")
+	masterShopID := c.GetString("SHOP_ID") 
+	adminShopID := config.BienCauHinh.IdFileSheetAdmin 
 	vaiTro := c.GetString("USER_ROLE")
 	userID := c.GetString("USER_ID")
 	
 	maSP := strings.TrimSpace(c.PostForm("ma_san_pham"))
 	if maSP == "" {
-		if !core.KiemTraQuyen(shopID, vaiTro, "product.create") {
+		if vaiTro != "quan_tri_he_thong" && !core.KiemTraQuyen(masterShopID, vaiTro, "product.create") {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền thêm sản phẩm!"}); return
 		}
 	} else {
-		if !core.KiemTraQuyen(shopID, vaiTro, "product.edit") {
+		if vaiTro != "quan_tri_he_thong" && !core.KiemTraQuyen(masterShopID, vaiTro, "product.edit") {
 			c.JSON(200, gin.H{"status": "error", "msg": "Bạn không có quyền sửa sản phẩm!"}); return
 		}
 	}
@@ -140,7 +143,7 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 
 	core.KhoaHeThong.RLock()
-	existingSKUs := core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(shopID, maSP)]
+	existingSKUs := core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(adminShopID, maSP)] 
 	core.KhoaHeThong.RUnlock()
 
 	if maSP == "" {
@@ -149,7 +152,7 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 			parsedDM := xuLyTags(inputSKUs[0].MaDanhMuc)
 			if parsedDM != "" { firstCodeDM = strings.Split(parsedDM, "|")[0] }
 		}
-		maSP = core.TaoMaSPMayTinhMoi(shopID, firstCodeDM)
+		maSP = core.TaoMaSPMayTinhMoi(adminShopID, firstCodeDM) 
 	} else {
 		if len(existingSKUs) == 0 {
 			firstCodeDM := ""
@@ -162,7 +165,7 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 			if len(nums) > 0 {
 				lastNumStr := nums[len(nums)-1] 
 				if slotMoi, err := strconv.Atoi(lastNumStr); err == nil {
-					if firstCodeDM != "" { core.CapNhatSlotThuCong(shopID, firstCodeDM, slotMoi) }
+					if firstCodeDM != "" { core.CapNhatSlotThuCong(adminShopID, firstCodeDM, slotMoi) }
 				}
 			}
 		}
@@ -186,9 +189,9 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 			sp = exist; processedSKUs[skuID] = true
 		} else {
 			isNewSKU = true
-			currentList := core.CacheSanPhamMayTinh[shopID]
+			currentList := core.CacheSanPhamMayTinh[adminShopID] 
 			sp = &core.SanPhamMayTinh{
-				SpreadsheetID:  shopID,
+				SpreadsheetID:  adminShopID, 
 				DongTrongSheet: core.DongBatDau_SanPhamMayTinh + len(currentList),
 				MaSanPham:      maSP,
 				MaSKU:          skuID,
@@ -234,33 +237,33 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 			sp.PhanTramGiam = in.PhanTramGiam; sp.SoTienGiam = in.SoTienGiam; sp.GiaBan = in.GiaBan; sp.GhiChu = in.GhiChu
 
 			if isNewSKU {
-				core.CacheSanPhamMayTinh[shopID] = append(core.CacheSanPhamMayTinh[shopID], sp)
-				core.CacheMapSKUMayTinh[core.TaoCompositeKey(shopID, sp.LayIDDuyNhat())] = sp
-				core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(shopID, sp.MaSanPham)] = append(core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(shopID, sp.MaSanPham)], sp)
+				core.CacheSanPhamMayTinh[adminShopID] = append(core.CacheSanPhamMayTinh[adminShopID], sp)
+				core.CacheMapSKUMayTinh[core.TaoCompositeKey(adminShopID, sp.LayIDDuyNhat())] = sp
+				core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(adminShopID, sp.MaSanPham)] = append(core.CacheGroupSanPhamMayTinh[core.TaoCompositeKey(adminShopID, sp.MaSanPham)], sp)
 			}
 
 			ghi := core.ThemVaoHangCho
 			sheet := core.TenSheetMayTinh
 			r := sp.DongTrongSheet
 			
-			ghi(shopID, sheet, r, core.CotPC_MaSanPham, sp.MaSanPham); ghi(shopID, sheet, r, core.CotPC_TenSanPham, sp.TenSanPham)
-			ghi(shopID, sheet, r, core.CotPC_TenRutGon, sp.TenRutGon); ghi(shopID, sheet, r, core.CotPC_Slug, sp.Slug)
-			ghi(shopID, sheet, r, core.CotPC_MaSKU, sp.MaSKU); ghi(shopID, sheet, r, core.CotPC_TenSKU, sp.TenSKU)
-			ghi(shopID, sheet, r, core.CotPC_SKUChinh, sp.SKUChinh); ghi(shopID, sheet, r, core.CotPC_TrangThai, sp.TrangThai)
-			ghi(shopID, sheet, r, core.CotPC_MaDanhMuc, sp.MaDanhMuc); ghi(shopID, sheet, r, core.CotPC_MaThuongHieu, sp.MaThuongHieu)
-			ghi(shopID, sheet, r, core.CotPC_DonVi, sp.DonVi); ghi(shopID, sheet, r, core.CotPC_MauSac, sp.MauSac)
-			ghi(shopID, sheet, r, core.CotPC_KhoiLuong, sp.KhoiLuong); ghi(shopID, sheet, r, core.CotPC_KichThuoc, sp.KichThuoc)
-			ghi(shopID, sheet, r, core.CotPC_UrlHinhAnh, sp.UrlHinhAnh); ghi(shopID, sheet, r, core.CotPC_ThongSoHTML, sp.ThongSoHTML)
-			ghi(shopID, sheet, r, core.CotPC_MoTaHTML, sp.MoTaHTML); ghi(shopID, sheet, r, core.CotPC_BaoHanh, sp.BaoHanh)
-			ghi(shopID, sheet, r, core.CotPC_TinhTrang, sp.TinhTrang); ghi(shopID, sheet, r, core.CotPC_GiaNhap, sp.GiaNhap)
-			ghi(shopID, sheet, r, core.CotPC_PhanTramLai, sp.PhanTramLai); ghi(shopID, sheet, r, core.CotPC_GiaNiemYet, sp.GiaNiemYet)
-			ghi(shopID, sheet, r, core.CotPC_PhanTramGiam, sp.PhanTramGiam); ghi(shopID, sheet, r, core.CotPC_SoTienGiam, sp.SoTienGiam)
-			ghi(shopID, sheet, r, core.CotPC_GiaBan, sp.GiaBan); ghi(shopID, sheet, r, core.CotPC_GhiChu, sp.GhiChu)
+			ghi(adminShopID, sheet, r, core.CotPC_MaSanPham, sp.MaSanPham); ghi(adminShopID, sheet, r, core.CotPC_TenSanPham, sp.TenSanPham)
+			ghi(adminShopID, sheet, r, core.CotPC_TenRutGon, sp.TenRutGon); ghi(adminShopID, sheet, r, core.CotPC_Slug, sp.Slug)
+			ghi(adminShopID, sheet, r, core.CotPC_MaSKU, sp.MaSKU); ghi(adminShopID, sheet, r, core.CotPC_TenSKU, sp.TenSKU)
+			ghi(adminShopID, sheet, r, core.CotPC_SKUChinh, sp.SKUChinh); ghi(adminShopID, sheet, r, core.CotPC_TrangThai, sp.TrangThai)
+			ghi(adminShopID, sheet, r, core.CotPC_MaDanhMuc, sp.MaDanhMuc); ghi(adminShopID, sheet, r, core.CotPC_MaThuongHieu, sp.MaThuongHieu)
+			ghi(adminShopID, sheet, r, core.CotPC_DonVi, sp.DonVi); ghi(adminShopID, sheet, r, core.CotPC_MauSac, sp.MauSac)
+			ghi(adminShopID, sheet, r, core.CotPC_KhoiLuong, sp.KhoiLuong); ghi(adminShopID, sheet, r, core.CotPC_KichThuoc, sp.KichThuoc)
+			ghi(adminShopID, sheet, r, core.CotPC_UrlHinhAnh, sp.UrlHinhAnh); ghi(adminShopID, sheet, r, core.CotPC_ThongSoHTML, sp.ThongSoHTML)
+			ghi(adminShopID, sheet, r, core.CotPC_MoTaHTML, sp.MoTaHTML); ghi(adminShopID, sheet, r, core.CotPC_BaoHanh, sp.BaoHanh)
+			ghi(adminShopID, sheet, r, core.CotPC_TinhTrang, sp.TinhTrang); ghi(adminShopID, sheet, r, core.CotPC_GiaNhap, sp.GiaNhap)
+			ghi(adminShopID, sheet, r, core.CotPC_PhanTramLai, sp.PhanTramLai); ghi(adminShopID, sheet, r, core.CotPC_GiaNiemYet, sp.GiaNiemYet)
+			ghi(adminShopID, sheet, r, core.CotPC_PhanTramGiam, sp.PhanTramGiam); ghi(adminShopID, sheet, r, core.CotPC_SoTienGiam, sp.SoTienGiam)
+			ghi(adminShopID, sheet, r, core.CotPC_GiaBan, sp.GiaBan); ghi(adminShopID, sheet, r, core.CotPC_GhiChu, sp.GhiChu)
 			
 			if isNewSKU {
-				ghi(shopID, sheet, r, core.CotPC_NguoiTao, sp.NguoiTao); ghi(shopID, sheet, r, core.CotPC_NgayTao, sp.NgayTao)
+				ghi(adminShopID, sheet, r, core.CotPC_NguoiTao, sp.NguoiTao); ghi(adminShopID, sheet, r, core.CotPC_NgayTao, sp.NgayTao)
 			}
-			ghi(shopID, sheet, r, core.CotPC_NguoiCapNhat, sp.NguoiCapNhat); ghi(shopID, sheet, r, core.CotPC_NgayCapNhat, sp.NgayCapNhat)
+			ghi(adminShopID, sheet, r, core.CotPC_NguoiCapNhat, sp.NguoiCapNhat); ghi(adminShopID, sheet, r, core.CotPC_NgayCapNhat, sp.NgayCapNhat)
 		}
 	}
 
@@ -268,17 +271,16 @@ func API_LuuMayTinhMaster(c *gin.Context) {
 		if !processedSKUs[skuID] {
 			if sp.TrangThai != -1 {
 				sp.TrangThai = -1; sp.SKUChinh = 0; sp.NgayCapNhat = nowStr; sp.NguoiCapNhat = userID
-				core.ThemVaoHangCho(shopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_TrangThai, -1)
-				core.ThemVaoHangCho(shopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_SKUChinh, 0)
-				core.ThemVaoHangCho(shopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_NgayCapNhat, nowStr)
-				core.ThemVaoHangCho(shopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_NguoiCapNhat, userID)
+				core.ThemVaoHangCho(adminShopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_TrangThai, -1)
+				core.ThemVaoHangCho(adminShopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_SKUChinh, 0)
+				core.ThemVaoHangCho(adminShopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_NgayCapNhat, nowStr)
+				core.ThemVaoHangCho(adminShopID, core.TenSheetMayTinh, sp.DongTrongSheet, core.CotPC_NguoiCapNhat, userID)
 			}
 		}
 	}
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đã lưu thành công!"})
 }
 
-// Helper Functions
 type TagifyItem struct { Value string `json:"value"` }
 
 func xuLyTags(raw string) string {
