@@ -50,6 +50,8 @@ func TrangQuanLyMayTinhMaster(c *gin.Context) {
 		"TieuDe":         "Quản lý sản phẩm (Máy Tính)",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
+		"TenNguoiDung":   kh.TenKhachHang,
+		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       cleanList, 
 		"DanhSachFull":   fullList,  
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(adminShopID),    
