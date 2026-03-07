@@ -218,10 +218,10 @@
             </div>
         </div>
 
-        <div id="modalSP" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:static xl:z-10 xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300">
+        <div id="modalSP" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 xl:bg-transparent xl:static xl:z-[60] xl:w-[500px] 2xl:w-[650px] xl:p-0 shrink-0 transition-all duration-300">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="closeModal()"></div>
             
-            <div class="animated-border-wrapper shadow-2xl w-full max-w-4xl xl:max-w-full xl:sticky xl:top-0 z-10 flex flex-col max-h-[96vh] xl:max-h-[calc(100vh-100px)] animate-[slideInRight_0.3s_ease-out] xl:animate-none">
+            <div class="animated-border-wrapper shadow-2xl w-full max-w-4xl xl:max-w-full xl:sticky xl:top-0 z-10 flex flex-col max-h-[96vh] xl:max-h-[calc(100vh-24px)] animate-[slideInRight_0.3s_ease-out] xl:animate-none">
                 
                 <div class="animated-border-inner flex flex-col bg-white relative overflow-hidden h-full w-full">
                     <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 relative z-20 shadow-sm">
@@ -367,7 +367,6 @@
     </div>
 
     <script>
-        // HÀM HIỂN THỊ POPUP NHẬP PIN CHUẨN XÁC
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -998,21 +997,23 @@
             renderTabs(); loadTabToForm(0);
             document.getElementById('modalSP').classList.remove('hidden');
             
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50/50'));
+            // XÓA HẾT HIGHLIGHT NẾU CÓ
+            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
         }
 
         function closeModal() { 
             document.getElementById('modalSP').classList.add('hidden'); 
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50/50'));
+            // XÓA HẾT HIGHLIGHT KHI ĐÓNG FORM
+            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
         }
 
         function editSP(id) {
             const list = mapGroupSP[id]; if(!list || list.length === 0) return;
             
-            // Xóa highlight của tất cả row cũ, bật cho row mới
-            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50/50'));
+            // YÊU CẦU 3: LÀM NỔI BẬT DÒNG ĐANG SỬA BẰNG MÀU TÍM NHẠT VÀ VIỀN
+            document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-50'));
             const activeRow = document.querySelector(`.sp-row[data-code="${id}"]`);
-            if(activeRow) activeRow.classList.add('ring-2', 'ring-purple-500', 'bg-purple-50/50');
+            if(activeRow) activeRow.classList.add('ring-2', 'ring-purple-500', 'bg-purple-50');
 
             currentSkus = JSON.parse(JSON.stringify(list)); 
             activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1);
@@ -1033,14 +1034,13 @@
             if (!result.isConfirmed) return;
             if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
             
-            // XÓA BÊN NGOÀI BẢNG: Yêu cầu nhập PIN
             const pinXacNhan = await askMasterPIN();
-            if (!pinXacNhan) return; // User cancel PIN
+            if (!pinXacNhan) return; 
 
             const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
             skusToDelete.forEach(s => { 
                 s.trang_thai = -1; 
-                s._pin_delete_auth = pinXacNhan; // Truyền PIN xuống backend (nếu backend support)
+                s._pin_delete_auth = pinXacNhan; 
             });
 
             await sendDataToBackend(skusToDelete);
@@ -1082,7 +1082,6 @@
             fd.set('ma_san_pham', skus[0].ma_san_pham || ""); 
             fd.set('data_skus', JSON.stringify(skus)); 
             
-            // Lấy PIN xác nhận nếu có từ logic xóa
             let pinAuth = "";
             skus.forEach(s => { if(s._pin_delete_auth) pinAuth = s._pin_delete_auth; });
             if (pinAuth) fd.set('pin_xac_nhan', pinAuth);
@@ -1153,5 +1152,3 @@
     </script>
     {{ template "footer_master" . }}
 {{ end }}
-
-}
