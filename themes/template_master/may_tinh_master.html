@@ -33,11 +33,11 @@
         }
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
-                display: flex; position: relative; z-index: 60; margin-top: 0;
+                display: flex; position: relative; z-index: 60;
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
-            /* YÊU CẦU 1: ÉP CHIỀU CAO FULL MÀN HÌNH ĐỂ BẰNG BẢNG DANH SÁCH */
-            .saas-detail-box { width: 100%; height: calc(100vh - 100px) !important; position: sticky; top: 24px; }
+            /* PHỤC HỒI CHIỀU CAO CHUẨN ĐỂ 2 BẢNG BẰNG ĐÁY NHAU */
+            .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 24px; }
         }
 
         .animated-border-blue { position: relative; border-radius: 1.25rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
@@ -46,7 +46,6 @@
             background: conic-gradient(transparent, transparent, transparent, #3b82f6, #06b6d4, transparent);
             animation: spin-slow 4s linear infinite; z-index: 0; pointer-events: none;
         }
-        /* YÊU CẦU 2: ĐỔ NỀN TRẮNG ĐẶC ĐỂ CHỐNG LÒI VIỀN LED */
         .animated-border-blue-inner { position: relative; background: #ffffff !important; border-radius: calc(1.25rem - 2px); z-index: 1; height: 100%; overflow: hidden; }
 
         .title-gradient-blue {
@@ -72,7 +71,7 @@
             display: none; width: 16px; cursor: col-resize; z-index: 70; flex-shrink: 0; margin: 0 -4px; 
             align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch;
         }
-        @media (min-width: 1280px) { .saas-drag-bar.is-open { display: flex; margin-top: 0; } }
+        @media (min-width: 1280px) { .saas-drag-bar.is-open { display: flex; } }
 
         /* CSS phụ trợ chung */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
@@ -298,6 +297,8 @@
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
+            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
+
             <div class="animated-border-blue shadow-2xl saas-detail-box z-10">
                 
                 <div class="px-5 py-4 border-b border-slate-200 bg-white shrink-0 relative z-20 shadow-sm flex justify-between items-center">
@@ -394,13 +395,13 @@
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5 items-end">
+                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-5 items-end">
                                     <div><label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
                                     <div><label>Quy tắc tính lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
                                     <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
                                     <div><label>Lãi VNĐ</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm items-end">
+                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-end">
                                     <div><label>Giá Niêm Yết (Gạch ngang)</label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
                                     <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
                                     <div><label>Hoặc Giảm (VNĐ)</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
@@ -417,11 +418,11 @@
                                     <div class="flex justify-between items-center mb-2"><label style="margin-bottom:0">Danh sách Ảnh</label><button type="button" id="btn_add_img" onclick="addImgInput('')" class="text-[11px] bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md font-bold hover:bg-blue-200 transition">+ Thêm ảnh</button></div>
                                     <div id="f_imgContainer" class="space-y-2.5 border border-slate-200 rounded-xl p-3 bg-slate-50"></div>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="space-y-4">
                                     <div><label>Thông số kỹ thuật (HTML)</label><textarea id="f_thong_so_html" rows="4" class="input-premium font-mono text-[12px] text-slate-700 bg-slate-50 leading-relaxed"></textarea></div>
                                     <div><label>Bài viết mô tả (HTML)</label><textarea id="f_mo_ta_html" rows="4" class="input-premium font-mono text-[12px] text-slate-700 bg-slate-50 leading-relaxed"></textarea></div>
+                                    <div><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-amber-50 text-amber-800 border-amber-200 font-medium text-sm"></div>
                                 </div>
-                                <div class="mt-4"><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-amber-50 text-amber-800 border-amber-200 font-medium text-sm"></div>
                             </div>
                         </form>
                     </fieldset>
@@ -442,14 +443,18 @@
     </div>
 
     <script>
-        const resizer = document.getElementById('dragResizerUI');
+        // ==========================================
+        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
+        // ==========================================
+
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
+        const dragBar = document.getElementById('dragResizerUI');
         const splitContainer = document.getElementById('splitUIContainer');
         
         let isResizing = false;
 
-        resizer.addEventListener('mousedown', function(e) {
+        dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
             listPane.style.transition = 'none'; 
@@ -479,7 +484,26 @@
             }
         });
 
+        // YÊU CẦU 1: PHỤC HỒI HÀM CĂN ĐỈNH CHUẨN TỪ BẢN THAM KHẢO
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { 
+                const searchBar = document.getElementById('searchBarContainer');
+                const spacer = document.getElementById('formSpacer');
+                if(searchBar && spacer) {
+                    const style = window.getComputedStyle(searchBar);
+                    const mb = parseFloat(style.marginBottom) || 0;
+                    spacer.style.height = (searchBar.offsetHeight + mb) + 'px';
+                }
+            } else {
+                const spacer = document.getElementById('formSpacer');
+                if(spacer) spacer.style.height = '0px';
+            }
+        }
+        window.addEventListener('resize', syncTopAlignment);
 
+        // ==========================================
+        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
+        // ==========================================
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -519,6 +543,10 @@
             checkUnsavedChanges(() => { editSP(id); });
         }
 
+
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
+        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -598,6 +626,7 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
+            setTimeout(syncTopAlignment, 100); 
         });
 
         function filterAndSort(resetPage = true) {
@@ -685,7 +714,7 @@
                 let html = "";
                 rawMa.split('|').forEach(m => {
                     let ten = dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m;
-                    html += `<span class="dm-tag-single">${ten}</span>`;
+                    html += `<span class="dm-tag-single shadow-sm">${ten}</span>`;
                 });
                 div.innerHTML = html; 
             }
@@ -770,7 +799,7 @@
             };
         }
 
-        // YÊU CẦU 2: ĐỔI MÀU TAB SANG XANH, BỎ VIỀN VÀNG
+        // YÊU CẦU 2: PHỤC HỒI MÀU TAB THÔNG MINH Y HỆT FILE THAM KHẢO
         function renderTabs() {
             let html = "";
             let aliveCount = currentSkus.filter(s => s.trang_thai !== -1).length;
@@ -783,6 +812,7 @@
                 
                 if (isActive) cls += "bg-blue-600 text-white border-transparent z-10 "; 
                 else if (isDeleted) cls += "bg-red-50 text-red-500 border-red-200 line-through opacity-70 ";
+                else if (isMain) cls += "bg-gradient-to-r from-amber-100 to-amber-200 text-amber-900 border-amber-300 font-extrabold "; 
                 else if (isOff) cls += "bg-slate-100 text-slate-500 border-slate-200 ";
                 else cls += "bg-white text-slate-600 border-slate-200 hover:bg-blue-50 hover:text-blue-600 ";
                 
@@ -1176,6 +1206,7 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1212,6 +1243,7 @@
             document.getElementById('detailPaneUI').classList.add('is-open');
             document.getElementById('dragResizerUI').classList.add('is-open');
             
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
