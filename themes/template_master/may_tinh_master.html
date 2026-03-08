@@ -33,11 +33,11 @@
         }
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
-                display: flex; position: relative; z-index: 60;
+                display: flex; position: relative; z-index: 60; margin-top: 0;
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
-            /* PHỤC HỒI CHIỀU CAO CHUẨN ĐỂ 2 BẢNG BẰNG ĐÁY NHAU */
-            .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 24px; }
+            /* CỐ ĐỊNH CHIỀU CAO VÀ STICKY CHO PC */
+            .saas-detail-box { width: 100%; height: calc(100vh - 100px); position: sticky; top: 16px; }
         }
 
         .animated-border-blue { position: relative; border-radius: 1.25rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
@@ -146,31 +146,29 @@
         
         <div id="listPaneUI" class="saas-list-pane pb-8 mb-24 sm:mb-10">
             
-            <div id="searchBarContainer" class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-3 w-full">
-                <div class="flex flex-col md:flex-row gap-3 w-full">
-                    <div class="relative group w-full md:w-80 lg:w-96">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="search" id="searchInput" onkeyup="filterAndSort(true)" 
-                            class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition outline-none shadow-sm" 
-                            placeholder="Tìm Mã, Tên sản phẩm...">
+            <div id="searchBarContainer" class="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 gap-3 w-full">
+                <div class="relative group w-full md:w-80 lg:w-96">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-
-                    <select id="sortSelect" onchange="filterAndSort(true)" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-bold shadow-sm">
-                        <option value="newest">🕒 Mới nhất</option>
-                        <option value="oldest">🕒 Cũ nhất</option>
-                        <option value="price_asc">💰 Giá: Thấp -> Cao</option>
-                        <option value="price_desc">💰 Giá: Cao -> Thấp</option>
-                        <option value="name_asc">🔤 Tên: A -> Z</option>
-                        <option value="name_desc">🔤 Tên: Z -> A</option>
-                    </select>
-
-                    <button onclick="handleOpenModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                        Thêm Mới
-                    </button>
+                    <input type="search" id="searchInput" onkeyup="filterAndSort(true)" 
+                        class="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition outline-none shadow-sm" 
+                        placeholder="Tìm Mã, Tên sản phẩm...">
                 </div>
+
+                <select id="sortSelect" onchange="filterAndSort(true)" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full md:w-48 p-2.5 outline-none cursor-pointer font-bold shadow-sm">
+                    <option value="newest">🕒 Mới nhất</option>
+                    <option value="oldest">🕒 Cũ nhất</option>
+                    <option value="price_asc">💰 Giá: Thấp -> Cao</option>
+                    <option value="price_desc">💰 Giá: Cao -> Thấp</option>
+                    <option value="name_asc">🔤 Tên: A -> Z</option>
+                    <option value="name_desc">🔤 Tên: Z -> A</option>
+                </select>
+
+                <button onclick="handleOpenModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-purple-200 flex items-center justify-center gap-2 transition transform active:scale-95 whitespace-nowrap border border-purple-500 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Thêm Mới
+                </button>
             </div>
 
             <div class="animated-border-wrapper shadow-xl shadow-purple-100/50 bg-white">
@@ -297,7 +295,7 @@
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
-            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
+            <div class="hidden xl:block w-full shrink-0 pointer-events-none" style="height: 58px;"></div>
 
             <div class="animated-border-blue shadow-2xl saas-detail-box z-10">
                 
@@ -311,7 +309,7 @@
                     <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
                 </div>
                 
-                <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
+                <div class="px-5 py-3 bg-slate-100 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
                 
                 <div class="modal-body relative pt-5">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
@@ -443,18 +441,14 @@
     </div>
 
     <script>
-        // ==========================================
-        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
-        // ==========================================
-
+        const resizer = document.getElementById('dragResizerUI');
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
-        const dragBar = document.getElementById('dragResizerUI');
         const splitContainer = document.getElementById('splitUIContainer');
         
         let isResizing = false;
 
-        dragBar.addEventListener('mousedown', function(e) {
+        resizer.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
             listPane.style.transition = 'none'; 
@@ -484,26 +478,7 @@
             }
         });
 
-        // YÊU CẦU 1: PHỤC HỒI HÀM CĂN ĐỈNH CHUẨN TỪ BẢN THAM KHẢO
-        function syncTopAlignment() {
-            if(window.innerWidth >= 1280) { 
-                const searchBar = document.getElementById('searchBarContainer');
-                const spacer = document.getElementById('formSpacer');
-                if(searchBar && spacer) {
-                    const style = window.getComputedStyle(searchBar);
-                    const mb = parseFloat(style.marginBottom) || 0;
-                    spacer.style.height = (searchBar.offsetHeight + mb) + 'px';
-                }
-            } else {
-                const spacer = document.getElementById('formSpacer');
-                if(spacer) spacer.style.height = '0px';
-            }
-        }
-        window.addEventListener('resize', syncTopAlignment);
 
-        // ==========================================
-        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
-        // ==========================================
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -539,14 +514,11 @@
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
-            if (detailPane.classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
+            if (document.getElementById('detailPaneUI').classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
             checkUnsavedChanges(() => { editSP(id); });
         }
 
 
-        // ==========================================
-        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
-        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -626,7 +598,6 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
-            setTimeout(syncTopAlignment, 100); 
         });
 
         function filterAndSort(resetPage = true) {
@@ -1190,9 +1161,7 @@
             container.appendChild(div);
         }
 
-        // ==========================================
-        // TƯỜNG LỬA (DIRTY CHECK) KHI BẤM NÚT "X" HOẶC "THÊM MỚI"
-        // ==========================================
+        // Đã bọc tường lửa
         function openModal() {
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
@@ -1206,7 +1175,6 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
-            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1220,7 +1188,7 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
-            isDirty = false; 
+            isDirty = false;
         }
 
         function editSP(id) {
@@ -1243,7 +1211,6 @@
             document.getElementById('detailPaneUI').classList.add('is-open');
             document.getElementById('dragResizerUI').classList.add('is-open');
             
-            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
