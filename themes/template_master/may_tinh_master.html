@@ -33,11 +33,10 @@
         }
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
-                display: flex; position: relative; z-index: 60; margin-top: 0;
+                display: flex; position: relative; z-index: 60;
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
-            /* CỐ ĐỊNH CHIỀU CAO VÀ STICKY CHO PC */
-            .saas-detail-box { width: 100%; height: calc(100vh - 100px); position: sticky; top: 16px; }
+            .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 24px; }
         }
 
         .animated-border-blue { position: relative; border-radius: 1.25rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
@@ -75,7 +74,7 @@
 
         /* CSS phụ trợ chung */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
-        .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 0 1.5rem 3rem 1.5rem; background-color: #f8fafc; flex: 1; min-h: 0; border-top: 1px solid #f1f5f9; }
+        .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 0 1.5rem 3rem 1.5rem; background-color: #ffffff; flex: 1; min-h: 0; border-top: 1px solid #f1f5f9; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
@@ -295,11 +294,11 @@
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
-            <div class="hidden xl:block w-full shrink-0 pointer-events-none" style="height: 58px;"></div>
+            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
 
             <div class="animated-border-blue shadow-2xl saas-detail-box z-10">
                 
-                <div class="px-5 py-4 border-b border-slate-200 bg-white shrink-0 relative z-20 shadow-sm flex justify-between items-center">
+                <div class="px-5 py-4 bg-white shrink-0 relative z-20 flex justify-between items-center rounded-t-[1.25rem]">
                     <div class="flex items-center gap-3 min-w-0">
                         <span class="bg-gradient-to-br from-blue-100 to-cyan-100 p-2 rounded-xl text-blue-600 shadow-inner border border-blue-200 shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
@@ -309,7 +308,7 @@
                     <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
                 </div>
                 
-                <div class="px-5 py-3 bg-slate-100 overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
+                <div class="px-5 pb-3 pt-1 bg-white overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
                 
                 <div class="modal-body relative pt-5">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
@@ -393,13 +392,13 @@
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-5 items-end">
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 items-end">
                                     <div><label>Giá Vốn (Nhập) <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
                                     <div><label>Quy tắc tính lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
                                     <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
                                     <div><label>Lãi VNĐ</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
                                 </div>
-                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-end">
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-end">
                                     <div><label>Giá Niêm Yết (Gạch ngang)</label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
                                     <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
                                     <div><label>Hoặc Giảm (VNĐ)</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
@@ -426,7 +425,7 @@
                     </fieldset>
                 </div>
                 
-                <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 z-20">
+                <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 z-20 rounded-b-[1.25rem]">
                     <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
                     <div class="flex justify-end gap-2.5 w-full sm:w-auto">
                         <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 xl:px-8 xl:py-3.5 xl:text-[15px] text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
@@ -478,12 +477,30 @@
             }
         });
 
+        // YÊU CẦU 1: PHỤC HỒI HÀM CĂN ĐỈNH CHUẨN TỪ BẢN THAM KHẢO
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { 
+                const searchBar = document.getElementById('searchBarContainer');
+                const spacer = document.getElementById('formSpacer');
+                if(searchBar && spacer) {
+                    const rect = searchBar.getBoundingClientRect();
+                    const style = window.getComputedStyle(searchBar);
+                    const mb = parseFloat(style.marginBottom) || 0;
+                    spacer.style.height = (rect.height + mb) + 'px';
+                }
+            } else {
+                const spacer = document.getElementById('formSpacer');
+                if(spacer) spacer.style.height = '0px';
+            }
+        }
+        window.addEventListener('resize', syncTopAlignment);
 
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('formSP').addEventListener('input', () => { if(!isEditingMode) isDirty = true; });
             document.getElementById('formSP').addEventListener('change', () => { if(!isEditingMode) isDirty = true; });
+            setTimeout(syncTopAlignment, 100); 
         });
 
         async function checkUnsavedChanges(callback) {
@@ -1161,7 +1178,9 @@
             container.appendChild(div);
         }
 
-        // Đã bọc tường lửa
+        // ==========================================
+        // TƯỜNG LỬA (DIRTY CHECK) KHI BẤM NÚT "X" HOẶC "THÊM MỚI"
+        // ==========================================
         function openModal() {
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
@@ -1175,6 +1194,7 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1188,7 +1208,7 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
-            isDirty = false;
+            isDirty = false; 
         }
 
         function editSP(id) {
@@ -1211,6 +1231,7 @@
             document.getElementById('detailPaneUI').classList.add('is-open');
             document.getElementById('dragResizerUI').classList.add('is-open');
             
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
