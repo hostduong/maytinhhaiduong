@@ -37,17 +37,16 @@
 
         /* 3. Khối Chi Tiết (Bên phải): Modal trên Mobile, Trượt thành Tab trên PC */
         .saas-detail-pane {
-            display: none; /* Ẩn mặc định, điều khiển bằng JS */
+            display: none; 
             flex-direction: column;
         }
-        /* Chế độ Mobile/Tablet: Modal Popup hiển thị ở giữa màn hình */
         @media (max-width: 1279px) {
             .saas-detail-pane.is-open {
                 display: flex;
                 position: fixed;
                 inset: 0;
                 z-index: 100;
-                background-color: rgba(15, 23, 42, 0.7); /* Nền đen mờ */
+                background-color: rgba(15, 23, 42, 0.7); 
                 align-items: center;
                 justify-content: center;
                 padding: 1rem;
@@ -58,7 +57,6 @@
                 max-height: 95vh;
             }
         }
-        /* Chế độ PC (>=1280px): Trượt ra bên phải, chiếm ~35% không gian */
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
                 display: flex;
@@ -71,13 +69,12 @@
             }
             .saas-detail-box {
                 width: 100%;
-                height: calc(100vh - 120px); /* Dính trần tự động */
+                height: calc(100vh - 120px); 
                 position: sticky;
                 top: 24px;
             }
         }
 
-        /* Khối Box chứa nội dung: Phân biệt nền Trắng tinh với nền Xám tổng thể */
         .saas-detail-box {
             display: flex;
             flex-direction: column;
@@ -93,32 +90,18 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* 4. Thanh Kéo Thả (Drag Bar) */
+        /* 4. Thanh Kéo Thả (Drag Bar) - Đã fix hiển thị */
         .saas-drag-bar {
             display: none;
-            width: 12px;
+            width: 16px;
             cursor: col-resize;
             z-index: 70;
             flex-shrink: 0;
-            margin: 0 -4px; /* Tràn lề để dễ bắt chuột */
+            margin: 0 -4px; 
             align-items: center;
             justify-content: center;
             position: relative;
             user-select: none;
-        }
-        .saas-drag-bar::after {
-            content: '';
-            position: absolute;
-            top: 24px;
-            bottom: 24px;
-            width: 4px;
-            background-color: #cbd5e1;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-        .saas-drag-bar:hover::after, .saas-drag-bar.is-dragging::after {
-            background-color: #9333ea;
-            width: 6px;
         }
         @media (min-width: 1280px) {
             .saas-drag-bar.is-open { display: flex; }
@@ -128,7 +111,6 @@
            KẾT THÚC HỆ THỐNG CSS MASTER UI
            ========================================================================= */
 
-        /* CSS phụ trợ Form */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 0 1.5rem 1.5rem 1.5rem; background-color: #f8fafc; flex: 1; min-h: 0; border-top: 1px solid #f1f5f9; }
         .modal-body::-webkit-scrollbar { width: 6px; }
@@ -205,7 +187,7 @@
         
         <div id="listPaneUI" class="saas-list-pane">
             
-            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-3 w-full">
+            <div id="searchBarContainer" class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-3 w-full">
                 <div class="flex flex-col md:flex-row gap-3 w-full">
                     <div class="relative group w-full md:w-80 lg:w-96">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 group-focus-within:text-purple-600 transition">
@@ -343,11 +325,21 @@
             </div>
         </div>
 
-        <div id="dragResizerUI" class="saas-drag-bar"></div>
+        <div id="dragResizerUI" class="saas-drag-bar group">
+            <div class="absolute top-1/2 -translate-y-1/2 w-1.5 h-16 bg-slate-200 group-hover:bg-purple-500 rounded-full transition-colors duration-300 flex flex-col items-center justify-center shadow-sm">
+                <div class="flex flex-col gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <div class="w-1 h-1 bg-slate-500 group-hover:bg-white rounded-full"></div>
+                    <div class="w-1 h-1 bg-slate-500 group-hover:bg-white rounded-full"></div>
+                    <div class="w-1 h-1 bg-slate-500 group-hover:bg-white rounded-full"></div>
+                </div>
+            </div>
+        </div>
 
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
+            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
+
             <div class="saas-detail-box">
                 
                 <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-center bg-white shrink-0 relative z-20 shadow-sm">
@@ -503,7 +495,7 @@
         
         let isResizing = false;
 
-        // Logic Kéo Thả (Drag to Resize) tự động tính % để không bị vỡ layout
+        // Logic Kéo Thả (Drag to Resize) mượt mà 
         dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
@@ -516,8 +508,6 @@
             e.preventDefault(); 
             const containerRect = splitContainer.getBoundingClientRect();
             
-            // Tính % chiều rộng dựa trên tọa độ chuột
-            // Trừ đi khoảng padding trái của container (tùy màn hình)
             let offsetLeft = e.clientX - containerRect.left;
             let percentage = (offsetLeft / containerRect.width) * 100;
             
@@ -526,7 +516,7 @@
             if (percentage > 75) percentage = 75;
 
             listPane.style.width = percentage + '%';
-            listPane.style.flex = 'none'; // Tắt flex-1 để width cứng hoạt động
+            listPane.style.flex = 'none'; 
             detailPane.style.width = (100 - percentage) + '%';
         });
 
@@ -539,6 +529,22 @@
             }
         });
 
+        // ĐỒNG BỘ ĐỈNH (TOP ALIGNMENT) THÔNG MINH
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { 
+                const searchBar = document.getElementById('searchBarContainer');
+                const spacer = document.getElementById('formSpacer');
+                if(searchBar && spacer) {
+                    const style = window.getComputedStyle(searchBar);
+                    const mb = parseFloat(style.marginBottom) || 0;
+                    spacer.style.height = (searchBar.offsetHeight + mb) + 'px';
+                }
+            } else {
+                const spacer = document.getElementById('formSpacer');
+                if(spacer) spacer.style.height = '0px';
+            }
+        }
+        window.addEventListener('resize', syncTopAlignment);
 
         // ==========================================
         // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
@@ -575,18 +581,15 @@
             }
         }
 
-        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
-            // Kiểm tra xem có đang bấm lại chính dòng đang mở không
             if (detailPane.classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
             checkUnsavedChanges(() => { editSP(id); });
         }
 
-
         // ==========================================
-        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
+        // CÁC HÀM XỬ LÝ DỮ LIỆU CỐT LÕI
         // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
@@ -667,6 +670,7 @@
             document.getElementById('tableBodySP').innerHTML = '';
             setupInfiniteScroll();
             filterAndSort(true);
+            setTimeout(syncTopAlignment, 100); 
         });
 
         function filterAndSort(resetPage = true) {
@@ -1227,7 +1231,9 @@
             container.appendChild(div);
         }
 
-        // Đã bọc tường lửa
+        // ==========================================
+        // TƯỜNG LỬA (DIRTY CHECK) KHI BẤM NÚT "X" HOẶC "THÊM MỚI"
+        // ==========================================
         function openModal() {
             document.getElementById('formSP').reset();
             let newSku = createEmptySKU(); newSku.sku_chinh = 1; 
@@ -1235,29 +1241,27 @@
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`;
             renderTabs(); loadTabToForm(0);
             
-            // Xóa class display: none và bật is-open
             detailPane.classList.add('is-open');
             dragBar.classList.add('is-open');
 
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
-            setTimeout(() => { isDirty = false; }, 400);
+            syncTopAlignment();
+            setTimeout(() => { isDirty = false; }, 400); // Xóa cờ rác sau khi mở mới
         }
 
         function closeModal() { 
-            // Ẩn Detail Pane
             detailPane.classList.remove('is-open');
             dragBar.classList.remove('is-open');
             
-            // Reset lại độ rộng inline để lần sau mở lên về chuẩn 35%
             detailPane.style.width = '';
             listPane.style.width = '100%'; 
 
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-purple-100', '!border-purple-500');
             });
-            isDirty = false;
+            isDirty = false; // Xóa cờ khi đóng
         }
 
         function editSP(id) {
@@ -1280,8 +1284,8 @@
             detailPane.classList.add('is-open');
             dragBar.classList.add('is-open');
             
-            // Ép xóa cờ Dirty sau khi load xong Form Sửa
-            setTimeout(() => { isDirty = false; }, 400);
+            syncTopAlignment();
+            setTimeout(() => { isDirty = false; }, 400); // Xóa cờ rác khi load data cũ xong
         }
 
         async function deleteSP(id) {
@@ -1378,7 +1382,7 @@
             }
         }
 
-        function confirmSave() {
+        async function confirmSave() {
             const form = document.getElementById('formSP'); if (!form.checkValidity()) { form.reportValidity(); return; }
             saveCurrentTabToState(); 
             let hasMain = currentSkus.some(sku => sku.sku_chinh === 1 && sku.trang_thai !== -1);
