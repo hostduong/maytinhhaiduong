@@ -34,11 +34,10 @@
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
                 display: flex; position: relative; z-index: 60; 
-                /* KHÓA TỌA ĐỘ Y: Đẩy Form xuống chính xác 58px (bằng độ cao thanh tìm kiếm) để ngang bằng với Bảng */
-                margin-top: 58px; 
+                margin-top: 0; 
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
-            .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 24px; }
+            .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 0; }
         }
 
         .animated-border-blue { position: relative; border-radius: 1.25rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
@@ -74,7 +73,7 @@
         }
         @media (min-width: 1280px) { 
             .saas-drag-bar.is-open { 
-                display: flex; margin-top: 58px; 
+                display: flex; margin-top: 0; 
             } 
         }
 
@@ -300,6 +299,8 @@
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
             
+            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
+
             <div class="animated-border-blue shadow-2xl saas-detail-box z-10">
                 
                 <div class="px-5 py-4 bg-white shrink-0 relative z-20 flex justify-between items-center rounded-t-[1.25rem]">
@@ -312,7 +313,7 @@
                     <button onclick="handleCloseModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold shrink-0">✕</button>
                 </div>
                 
-                <div class="px-5 pb-3 pt-1 bg-white overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
+                <div class="px-5 pb-3 bg-white overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
                 
                 <div class="modal-body relative pt-5">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
@@ -432,9 +433,9 @@
                 <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 z-20 rounded-b-[1.25rem]">
                     <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
                     <div class="flex justify-end gap-2.5 w-full sm:w-auto">
-                        <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
-                        <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black rounded-xl hover:from-blue-700 hover:to-cyan-700 shadow-md shadow-blue-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
+                        <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 xl:px-8 xl:py-3.5 xl:text-[15px] text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
+                        <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 xl:px-10 xl:py-3.5 xl:text-[15px] bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black rounded-xl hover:from-blue-700 hover:to-cyan-700 shadow-md shadow-blue-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
+                            <svg class="w-4 h-4 xl:w-5 xl:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
                         </button>
                     </div>
                 </div>
@@ -452,6 +453,7 @@
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
         const splitContainer = document.getElementById('splitUIContainer');
+        const searchBarWrapper = document.getElementById('searchBarContainer');
         
         let isResizing = false;
 
@@ -459,7 +461,9 @@
         dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
+            dragBar.classList.add('is-dragging');
             listPane.style.transition = 'none'; 
+            if(searchBarWrapper) searchBarWrapper.style.transition = 'none';
         });
 
         document.addEventListener('mousemove', function(e) {
@@ -476,6 +480,8 @@
 
             listPane.style.width = percentage + '%';
             listPane.style.flex = 'none'; 
+            if(searchBarWrapper) searchBarWrapper.style.width = percentage + '%';
+            
             detailPane.style.width = (100 - percentage) + '%';
         });
 
@@ -483,9 +489,29 @@
             if (isResizing) {
                 isResizing = false;
                 document.body.classList.remove('cursor-col-resize', 'select-none');
+                dragBar.classList.remove('is-dragging');
                 listPane.style.transition = ''; 
+                if(searchBarWrapper) searchBarWrapper.style.transition = '';
             }
         });
+
+        // ĐỒNG BỘ ĐỈNH (TOP ALIGNMENT) THÔNG MINH
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { 
+                const searchBar = document.getElementById('searchBarContainer');
+                const spacer = document.getElementById('formSpacer');
+                if(searchBar && spacer) {
+                    const rect = searchBar.getBoundingClientRect();
+                    const style = window.getComputedStyle(searchBar);
+                    const mb = parseFloat(style.marginBottom) || 0;
+                    spacer.style.height = (rect.height + mb) + 'px';
+                }
+            } else {
+                const spacer = document.getElementById('formSpacer');
+                if(spacer) spacer.style.height = '0px';
+            }
+        }
+        window.addEventListener('resize', syncTopAlignment);
 
         // ==========================================
         // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
@@ -495,6 +521,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('formSP').addEventListener('input', () => { if(!isEditingMode) isDirty = true; });
             document.getElementById('formSP').addEventListener('change', () => { if(!isEditingMode) isDirty = true; });
+            setTimeout(syncTopAlignment, 150); 
         });
 
         async function checkUnsavedChanges(callback) {
@@ -522,7 +549,6 @@
             }
         }
 
-        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
@@ -785,7 +811,6 @@
             };
         }
 
-        // ĐÃ KHÔI PHỤC CHUẨN MÀU TAB THÔNG MINH BẢN GỐC
         function renderTabs() {
             let html = "";
             let aliveCount = currentSkus.filter(s => s.trang_thai !== -1).length;
@@ -1192,6 +1217,7 @@
             document.querySelectorAll('.sp-row').forEach(r => {
                 r.classList.remove('!bg-blue-100', '!border-blue-500');
             });
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1228,6 +1254,7 @@
             document.getElementById('detailPaneUI').classList.add('is-open');
             document.getElementById('dragResizerUI').classList.add('is-open');
             
+            syncTopAlignment();
             setTimeout(() => { isDirty = false; }, 400); 
         }
 
