@@ -72,15 +72,12 @@
             align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch;
         }
         @media (min-width: 1280px) { 
-            .saas-drag-bar.is-open { 
-                display: flex; margin-top: 58px; 
-            } 
+            .saas-drag-bar.is-open { display: flex; margin-top: 58px; } 
         }
 
         /* CSS phụ trợ chung */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
         
-        /* ĐÃ FIX: Tăng padding-top lên 1.5rem và bỏ border-top để Form tách xuống 1 chút nhưng nền vẫn liền khối */
         .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 1.5rem 3rem 1.5rem; background-color: #ffffff; flex: 1; min-h: 0; border-top: none; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
@@ -101,21 +98,25 @@
         .tagify[readonly] .tagify__tag { background-color: #e5e7eb; color: #374151; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
-        .dm-tag-single {
-            display: inline-flex; align-items: center; 
-            background-color: #e5e7eb; color: #374151; 
-            font-size: 0.8rem; font-weight: 600;
-            padding: 0.2rem 0.6rem; border-radius: 4px; 
-            margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb;
-        }
+        .dm-tag-single { display: inline-flex; align-items: center; background-color: #e5e7eb; color: #374151; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb; }
 
-        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 1.05rem; }
+        /* Tùy chỉnh riêng cho các ô nhập Giá (Pricing) */
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
+
+        /* Khối Smart Input kế thừa từ nhap_hang.html */
+        .smart-input-wrap { position: relative; display: flex; align-items: center; height: 36px; }
+        .smart-input-btn { cursor: pointer; transition: 0.2s; border-style: dashed; height: 100%; border: 1px dashed #cbd5e1; }
+        .smart-input-btn:hover { border-style: solid; background-color: #f1f5f9; color: #2563eb; }
+        .smart-input-field { display: none; align-items: center; height: 100%; }
+        .smart-input-wrap.active .smart-input-btn { display: none !important; }
+        .smart-input-wrap.active .smart-input-field { display: flex !important; }
+
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
         .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
         .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ĐÃ FIX: TRẢ LẠI TAB BO TRÒN THEO CHUẨN GỐC CỦA SẾP */
+        /* TAB BO TRÒN THEO CHUẨN GỐC CỦA SẾP */
         .sku-tab { padding: 0.5rem 1rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
         .sku-tab:hover { filter: brightness(0.95); }
         
@@ -357,6 +358,12 @@
                                     <span>📝 Thông tin chung</span>
                                     <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
+                                
+                                <div class="mb-4">
+                                    <label>Danh Mục <span class="text-red-500">*</span></label>
+                                    <input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục...">
+                                </div>
+
                                 <div class="space-y-4">
                                     <div>
                                         <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
@@ -372,23 +379,50 @@
                             <div class="form-section">
                                 <div class="section-title">
                                     <span>🏷️ Phân loại & Thuộc tính</span>
-                                    <button type="button" onclick="syncFromMain('ma_danh_muc', 'ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                    <div><label>Danh Mục <span class="text-red-500">*</span></label><input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục..."></div>
+                                
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                                     <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái..."></div>
                                     <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium text-sm" placeholder="Đen..."></div>
                                     <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium text-sm" placeholder="Mới 100%..."></div>
-                                    <div><label>Khối lượng (Gr)</label><input type="number" id="f_khoi_luong" class="input-premium text-center" placeholder="500"></div>
-                                    <div><label>K.Thước (DxRxC)</label><input type="text" id="f_kich_thuoc" class="input-premium text-center font-mono text-sm" placeholder="10x20x5"></div>
-                                    <div class="col-span-2 sm:col-span-1">
-                                        <label>Bảo hành</label>
-                                        <div class="flex gap-1 items-stretch">
-                                            <input type="number" id="f_bao_hanh_num" class="input-premium text-center px-1 font-bold" style="width: 40%" placeholder="12">
-                                            <select id="f_bao_hanh_unit" class="input-premium cursor-pointer px-1 font-bold text-[13px]" style="width: 60%"><option value="Tháng">Tháng</option><option value="Năm">Năm</option></select>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-3 sm:gap-5 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                    
+                                    <div class="flex items-center shrink-0">
+                                        <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Bảo hành:</span>
+                                        <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
+                                            <input type="number" id="f_bao_hanh_num" class="w-[60px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
+                                            <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="w-px h-6 bg-slate-300 hidden sm:block"></div>
+                                    
+                                    <div class="smart-input-wrap shrink-0" id="wrapKhoiLuong">
+                                        <button type="button" class="smart-input-btn bg-white border border-slate-300 text-slate-500 hover:text-blue-600 px-3 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition" onclick="document.getElementById('wrapKhoiLuong').classList.add('active'); document.getElementById('f_khoi_luong').focus();">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> Khối lượng
+                                        </button>
+                                        <div class="smart-input-field hidden">
+                                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Trọng lượng:</span>
+                                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px]">
+                                                <input type="number" id="f_khoi_luong" class="w-[70px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
+                                                <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">Gr</span>
+                                            </div>
+                                            <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_khoi_luong').value=''; document.getElementById('wrapKhoiLuong').classList.remove('active');">✕</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="smart-input-wrap shrink-0" id="wrapKichThuoc">
+                                        <button type="button" class="smart-input-btn bg-white border border-slate-300 text-slate-500 hover:text-blue-600 px-3 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition" onclick="document.getElementById('wrapKichThuoc').classList.add('active'); document.getElementById('f_kich_thuoc').focus();">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> Kích thước
+                                        </button>
+                                        <div class="smart-input-field hidden items-center">
+                                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">K.Thước:</span>
+                                            <input type="text" id="f_kich_thuoc" class="input-premium font-mono text-center h-[36px] w-[110px] text-[13px] !py-0 px-2" placeholder="10x20x5">
+                                            <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_kich_thuoc').value=''; document.getElementById('wrapKichThuoc').classList.remove('active');">✕</button>
                                         </div>
                                     </div>
                                 </div>
@@ -399,17 +433,62 @@
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-5 items-end">
-                                    <div><label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label><input type="text" id="f_gia_nhap" required class="input-premium price-input text-slate-700 bg-white" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();"></div>
-                                    <div><label>Quy tắc lãi</label><select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-slate-700 bg-white cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select></div>
-                                    <div><label>Biên độ Lãi (%)</label><input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-blue-700 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
-                                    <div><label>Lãi VNĐ</label><input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500 cursor-not-allowed bg-slate-100 border-dashed" placeholder="0"></div>
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5 items-end">
+                                    <div>
+                                        <label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_nhap" required class="input-premium price-input text-[15px] font-bold text-slate-800 pr-8" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Quy tắc lãi</label>
+                                        <select id="f_quy_tac_gia" class="input-premium font-bold text-[14px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
+                                    </div>
+                                    <div>
+                                        <label>Biên độ Lãi</label>
+                                        <div class="relative">
+                                            <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-[15px] text-blue-700 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Lãi VNĐ</label>
+                                        <div class="relative">
+                                            <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-[15px] font-bold text-slate-500 cursor-not-allowed bg-slate-100 border-dashed pr-8" placeholder="0">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm items-end">
-                                    <div><label>Niêm Yết <span class="hidden sm:inline">(Gạch ngang)</span></label><input type="text" id="f_gia_niem_yet" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()"></div>
-                                    <div><label>Giảm giá (%)</label><input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-orange-600 bg-white" placeholder="0" step="any" onkeyup="calcPrices()"></div>
-                                    <div><label>Hoặc Giảm VNĐ</label><input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600 bg-white" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()"></div>
-                                    <div><label class="text-emerald-700">Giá Bán Thực</label><input type="text" id="f_gia_ban" class="input-premium price-input border-transparent ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700 font-black text-xl" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()"></div>
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-end">
+                                    <div>
+                                        <label>Niêm Yết <span class="hidden sm:inline">(Gạch ngang)</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_niem_yet" required class="input-premium price-input text-[15px] font-bold text-slate-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Giảm giá</label>
+                                        <div class="relative">
+                                            <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-[15px] text-orange-600 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label>Hoặc Giảm VNĐ</label>
+                                        <div class="relative">
+                                            <input type="text" id="f_so_tien_giam" class="input-premium price-input text-[15px] font-bold text-orange-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="text-emerald-700">Giá Bán Thực</label>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_ban" class="input-premium price-input border-emerald-400 ring-2 ring-emerald-500/20 bg-emerald-50 text-[16px] font-black text-emerald-700 pr-8 shadow-sm" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-[15px] pointer-events-none">₫</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -435,9 +514,9 @@
                 <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0 z-20 rounded-b-[1.25rem]">
                     <span class="text-[11px] text-slate-400 font-medium hidden sm:block w-1/3">Dữ liệu tự động đồng bộ Master</span>
                     <div class="flex justify-end gap-2.5 w-full sm:w-auto">
-                        <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
-                        <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black rounded-xl hover:from-blue-700 hover:to-cyan-700 shadow-md shadow-blue-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
+                        <button type="button" onclick="handleCloseModal()" class="px-5 py-2.5 xl:px-8 xl:py-3.5 xl:text-[15px] text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl font-bold transition text-sm">Hủy</button>
+                        <button type="button" id="btnSave" onclick="confirmSave()" class="px-6 py-2.5 xl:px-10 xl:py-3.5 xl:text-[15px] bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black rounded-xl hover:from-blue-700 hover:to-cyan-700 shadow-md shadow-blue-600/30 transition transform active:scale-95 flex items-center justify-center gap-1.5 text-sm tracking-wide">
+                            <svg class="w-4 h-4 xl:w-5 xl:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> LƯU SẢN PHẨM
                         </button>
                     </div>
                 </div>
@@ -447,10 +526,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
-        // ==========================================
-
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
@@ -459,7 +534,6 @@
         
         let isResizing = false;
 
-        // Logic Kéo Thả (Drag to Resize)
         dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
@@ -496,10 +570,6 @@
             }
         });
 
-
-        // ==========================================
-        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
-        // ==========================================
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -532,7 +602,6 @@
             }
         }
 
-        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
@@ -540,10 +609,6 @@
             checkUnsavedChanges(() => { editSP(id); });
         }
 
-
-        // ==========================================
-        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
-        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -954,8 +1019,8 @@
             sku.kich_thuoc = document.getElementById('f_kich_thuoc').value;
             
             let bhN = document.getElementById('f_bao_hanh_num').value;
-            let bhU = document.getElementById('f_bao_hanh_unit').value;
-            sku.bao_hanh = bhN ? `${bhN} ${bhU}` : "";
+            // Xóa unit dropdown logic, gán cứng chữ Tháng vào data lưu
+            sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
 
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
             sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; 
@@ -1041,14 +1106,21 @@
             tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
             tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
 
+            // SMART INPUT KHỐI LƯỢNG
             document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
+            if (sp.khoi_luong > 0) document.getElementById('wrapKhoiLuong').classList.add('active');
+            else document.getElementById('wrapKhoiLuong').classList.remove('active');
+
+            // SMART INPUT KÍCH THƯỚC
             document.getElementById('f_kich_thuoc').value = sp.kich_thuoc;
+            if (sp.kich_thuoc && sp.kich_thuoc.trim() !== "") document.getElementById('wrapKichThuoc').classList.add('active');
+            else document.getElementById('wrapKichThuoc').classList.remove('active');
             
+            // XỬ LÝ BẢO HÀNH GẮN ĐUÔI
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
-                if (parts.length >= 2) { document.getElementById('f_bao_hanh_num').value = parts[0]; document.getElementById('f_bao_hanh_unit').value = parts[1]; } 
-                else { document.getElementById('f_bao_hanh_num').value = sp.bao_hanh; }
-            } else { document.getElementById('f_bao_hanh_num').value = ""; document.getElementById('f_bao_hanh_unit').value = "Tháng"; }
+                document.getElementById('f_bao_hanh_num').value = parts[0]; 
+            } else { document.getElementById('f_bao_hanh_num').value = ""; }
 
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_bien_do_phan_tram').value = sp.phan_tram_lai > 0 ? sp.phan_tram_lai : ""; 
