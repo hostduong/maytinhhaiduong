@@ -92,17 +92,22 @@
         }
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
-        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: dashed !important; }
+        
+        /* ĐÃ FIX: XÓA ĐƯỜNG KẺ ĐỨT VÀ TRẢ VỀ MÀU NỀN CHUẨN XỊN SÒ CHO CÁC Ô BỊ KHÓA */
+        input:disabled, textarea:disabled, select:disabled { background-color: #f8fafc !important; cursor: not-allowed !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; border-style: solid !important;}
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         fieldset:disabled .btn-sync-main { display: none !important; }
-        .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
-        .tagify[readonly] .tagify__tag { background-color: #e5e7eb; color: #374151; }
+        .tagify[readonly] { background-color: #f8fafc !important; cursor: not-allowed !important; border-style: solid !important; border-color: #e2e8f0 !important; pointer-events: none; }
+        .tagify[readonly] .tagify__tag { background-color: #e2e8f0; color: #64748b; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
         .dm-tag-single { display: inline-flex; align-items: center; background-color: #e5e7eb; color: #374151; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb; }
 
-        /* ĐÃ FIX: HỆ THỐNG SMART PRICE WRAPPER CHỐNG ĐÈ CHỮ đ VÀ % */
+        /* Tùy chỉnh riêng cho các ô nhập Giá (Pricing) */
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
+
+        /* ĐÃ FIX: HỆ THỐNG SMART PRICE WRAPPER CHỐNG ĐÈ CHỮ đ VÀ % VÀ KHÔNG DÙNG GẠCH ĐỨT HAY VIỀN NEON */
         .smart-price-wrap {
             display: flex; align-items: center; width: 100%; height: 42px;
             background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem;
@@ -112,28 +117,17 @@
             border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
         .smart-price-wrap.disabled-wrap {
-            background-color: #f1f5f9; border-style: dashed;
+            background-color: #f8fafc; border-color: #e2e8f0; border-style: solid;
         }
         .smart-price-input {
             flex: 1; min-width: 0; height: 100%; border: none; outline: none; background: transparent;
             text-align: right; font-weight: 700; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; color: #1e293b;
-            padding-left: 0.75rem; padding-right: 0.3rem; /* padding rất nhỏ để chữ đ sát vào số */
+            padding-left: 0.75rem; padding-right: 0.3rem;
         }
         .smart-price-input:disabled { color: #94a3b8; cursor: not-allowed; }
         .smart-price-symbol {
             color: #94a3b8; font-weight: 700; font-size: 13px; padding-right: 0.75rem; user-select: none; flex-shrink: 0;
         }
-        
-        /* Riêng cho ô Giá bán thực */
-        .smart-price-wrap.wrap-emerald {
-            border-color: #34d399; background-color: #ecfdf5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .smart-price-wrap.wrap-emerald:focus-within {
-            border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-        .smart-price-wrap.wrap-emerald .smart-price-input { color: #047857; font-size: 16px; font-weight: 900; }
-        .smart-price-wrap.wrap-emerald .smart-price-symbol { color: #059669; font-weight: 900; }
-
 
         /* Khối Smart Input kế thừa từ nhap_hang.html */
         .smart-input-wrap { position: relative; display: flex; align-items: center; height: 36px; }
@@ -467,26 +461,26 @@
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-2 md:flex md:flex-row gap-3 sm:gap-4 mb-4 items-end">
-                                    <div class="flex-1 min-w-0">
+                                <div class="grid grid-cols-2 lg:flex lg:flex-row gap-3 sm:gap-4 mb-5 items-end">
+                                    <div class="lg:flex-1 min-w-0">
                                         <label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label>
                                         <div class="smart-price-wrap">
                                             <input type="text" id="f_gia_nhap" required class="smart-price-input" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
                                             <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div class="flex-1 min-w-0">
+                                    <div class="lg:flex-1 min-w-0">
                                         <label>Quy tắc lãi</label>
                                         <select id="f_quy_tac_gia" class="input-premium font-bold text-[14px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
                                     </div>
-                                    <div class="w-full md:w-[100px] shrink-0">
+                                    <div class="lg:w-[100px] shrink-0">
                                         <label>Biên độ Lãi</label>
                                         <div class="smart-price-wrap" id="wrap_bien_do">
                                             <input type="number" id="f_bien_do_phan_tram" class="smart-price-input text-blue-700" placeholder="0" step="any" onkeyup="calcPrices()">
                                             <span class="smart-price-symbol">%</span>
                                         </div>
                                     </div>
-                                    <div class="flex-[1.2] min-w-0">
+                                    <div class="lg:flex-1 min-w-0">
                                         <label>Lãi VNĐ</label>
                                         <div class="smart-price-wrap disabled-wrap">
                                             <input type="text" id="f_lai_vnd" readonly class="smart-price-input text-slate-500" placeholder="0">
@@ -494,33 +488,33 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-2 md:flex md:flex-row gap-3 sm:gap-4 items-end">
-                                    <div class="flex-1 min-w-0">
-                                        <label>Niêm Yết <span class="hidden xl:inline">(Gạch ngang)</span></label>
+                                <div class="grid grid-cols-2 lg:flex lg:flex-row gap-3 sm:gap-4 items-end mt-4">
+                                    <div class="lg:flex-1 min-w-0">
+                                        <label>Niêm Yết <span class="hidden lg:inline">(Gạch ngang)</span></label>
                                         <div class="smart-price-wrap">
                                             <input type="text" id="f_gia_niem_yet" required class="smart-price-input text-slate-600" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
                                             <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div class="w-full md:w-[100px] shrink-0">
+                                    <div class="lg:w-[100px] shrink-0">
                                         <label>Giảm giá</label>
                                         <div class="smart-price-wrap">
                                             <input type="number" id="f_phan_tram_giam" class="smart-price-input text-orange-600" placeholder="0" step="any" onkeyup="calcPrices()">
                                             <span class="smart-price-symbol">%</span>
                                         </div>
                                     </div>
-                                    <div class="flex-[1.2] min-w-0">
+                                    <div class="lg:flex-1 min-w-0">
                                         <label>Hoặc Giảm VNĐ</label>
                                         <div class="smart-price-wrap">
                                             <input type="text" id="f_so_tien_giam" class="smart-price-input text-orange-600" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
                                             <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div class="flex-[1.5] min-w-0">
+                                    <div class="lg:flex-1 min-w-0">
                                         <label class="text-emerald-700">Giá Bán Thực</label>
-                                        <div class="smart-price-wrap wrap-emerald">
-                                            <input type="text" id="f_gia_ban" class="smart-price-input" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
-                                            <span class="smart-price-symbol">₫</span>
+                                        <div class="smart-price-wrap bg-emerald-50 border-emerald-400">
+                                            <input type="text" id="f_gia_ban" class="smart-price-input text-emerald-700 text-[16px]" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
+                                            <span class="smart-price-symbol text-emerald-600">₫</span>
                                         </div>
                                     </div>
                                 </div>
@@ -536,8 +530,8 @@
                                     <div id="f_imgContainer" class="space-y-2.5 border border-slate-200 rounded-xl p-3 bg-slate-50"></div>
                                 </div>
                                 <div class="space-y-4">
-                                    <div><label>Thông số kỹ thuật (HTML)</label><textarea id="f_thong_so_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
-                                    <div><label>Bài viết mô tả (HTML)</label><textarea id="f_mo_ta_html" rows="4" class="input-premium font-mono text-[12px] text-blue-700 bg-slate-50 leading-relaxed"></textarea></div>
+                                    <div><label>Thông số kỹ thuật (HTML)</label><textarea id="f_thong_so_html" rows="4" class="input-premium font-mono text-[12px] text-slate-700 bg-slate-50 leading-relaxed"></textarea></div>
+                                    <div><label>Bài viết mô tả (HTML)</label><textarea id="f_mo_ta_html" rows="4" class="input-premium font-mono text-[12px] text-slate-700 bg-slate-50 leading-relaxed"></textarea></div>
                                     <div><label>Ghi chú nội bộ</label><input type="text" id="f_ghi_chu" class="input-premium bg-amber-50 text-amber-800 border-amber-200 font-medium text-sm"></div>
                                 </div>
                             </div>
@@ -560,6 +554,10 @@
     </div>
 
     <script>
+        // ==========================================
+        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
+        // ==========================================
+
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
@@ -568,6 +566,7 @@
         
         let isResizing = false;
 
+        // Logic Kéo Thả (Drag to Resize)
         dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
@@ -604,6 +603,7 @@
             }
         });
 
+        // ĐỒNG BỘ ĐỈNH BẰNG JS TỪ BẢN GỐC
         function syncTopAlignment() {
             if(window.innerWidth >= 1280) { 
                 const searchBar = document.getElementById('searchBarContainer');
@@ -621,12 +621,15 @@
         }
         window.addEventListener('resize', syncTopAlignment);
 
+        // ==========================================
+        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
+        // ==========================================
         let isDirty = false;
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('formSP').addEventListener('input', () => { if(!isEditingMode) isDirty = true; });
             document.getElementById('formSP').addEventListener('change', () => { if(!isEditingMode) isDirty = true; });
-            setTimeout(syncTopAlignment, 150); 
+            setTimeout(syncTopAlignment, 150);
         });
 
         async function checkUnsavedChanges(callback) {
@@ -654,6 +657,7 @@
             }
         }
 
+        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
         function handleEditSP(id) {
@@ -661,6 +665,10 @@
             checkUnsavedChanges(() => { editSP(id); });
         }
 
+
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
+        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -1128,11 +1136,9 @@
             maSkuInput.value = sp.ma_sku;
             if (sp._is_saved) { 
                 maSkuInput.disabled = true;
-                maSkuInput.classList.add('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
             } else {
                 if (sp.trang_thai !== -1) {
                     maSkuInput.disabled = false;
-                    maSkuInput.classList.remove('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
                 }
             }
 
