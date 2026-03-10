@@ -82,7 +82,9 @@
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
-        .form-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02); }
+        /* ĐÃ FIX: LOẠI BỎ VIỀN BOX, CHUYỂN SANG ĐƯỜNG KẺ NGANG THOÁNG ĐÃNG */
+        .form-section { padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
+        .form-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .section-title { font-size: 0.875rem; font-weight: 900; color: #1e3a8a; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
 
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
@@ -116,7 +118,6 @@
         .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TAB BO TRÒN THEO CHUẨN GỐC CỦA SẾP */
         .sku-tab { padding: 0.5rem 1rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
         .sku-tab:hover { filter: brightness(0.95); }
         
@@ -303,7 +304,7 @@
 
         <div id="detailPaneUI" class="saas-detail-pane">
             <div class="absolute inset-0 z-0 xl:hidden" onclick="handleCloseModal()"></div>
-
+            
             <div class="animated-border-blue shadow-2xl saas-detail-box z-10">
                 
                 <div class="px-5 py-4 bg-white shrink-0 relative z-20 flex justify-between items-center rounded-t-[1.25rem]">
@@ -329,7 +330,7 @@
                     <fieldset id="form_fieldset" class="relative z-10">
                         <form id="formSP">
                             
-                            <div class="form-section border-l-4 border-l-blue-500 bg-blue-50/40">
+                            <div class="form-section">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                                     <div class="sm:col-span-2">
                                         <label>Tên Phiên Bản (Hiển thị) <span class="text-red-500">*</span></label>
@@ -356,19 +357,19 @@
                             <div class="form-section">
                                 <div class="section-title">
                                     <span>📝 Thông tin chung</span>
-                                    <button type="button" onclick="syncFromMain('ten_san_pham', 'ten_rut_gon')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                    <button type="button" onclick="syncFromMain('ten_san_pham', 'ma_danh_muc', 'ten_rut_gon')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                
-                                <div class="mb-4">
-                                    <label>Danh Mục <span class="text-red-500">*</span></label>
-                                    <input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục...">
-                                </div>
-
                                 <div class="space-y-4">
                                     <div>
                                         <label>Tên sản phẩm gốc <span class="text-red-500">*</span></label>
                                         <input type="text" id="f_ten_san_pham" class="input-premium text-[15px] font-bold text-slate-900" required placeholder="Ví dụ: iPhone 15 Pro Max...">
                                     </div>
+                                    
+                                    <div>
+                                        <label>Danh Mục <span class="text-red-500">*</span></label>
+                                        <input id="f_ma_danh_muc" class="input-premium" placeholder="Chọn danh mục...">
+                                    </div>
+
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div><label>Mã Gốc (SP)</label><input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự sinh..."></div>
                                         <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hóa đơn..."></div>
@@ -428,7 +429,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-section border-l-4 border-l-blue-500 bg-blue-50/20">
+                            <div class="form-section">
                                 <div class="section-title flex justify-between">
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
@@ -1019,7 +1020,6 @@
             sku.kich_thuoc = document.getElementById('f_kich_thuoc').value;
             
             let bhN = document.getElementById('f_bao_hanh_num').value;
-            // Xóa unit dropdown logic, gán cứng chữ Tháng vào data lưu
             sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
 
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
@@ -1106,17 +1106,14 @@
             tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
             tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
 
-            // SMART INPUT KHỐI LƯỢNG
             document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
             if (sp.khoi_luong > 0) document.getElementById('wrapKhoiLuong').classList.add('active');
             else document.getElementById('wrapKhoiLuong').classList.remove('active');
 
-            // SMART INPUT KÍCH THƯỚC
             document.getElementById('f_kich_thuoc').value = sp.kich_thuoc;
             if (sp.kich_thuoc && sp.kich_thuoc.trim() !== "") document.getElementById('wrapKichThuoc').classList.add('active');
             else document.getElementById('wrapKichThuoc').classList.remove('active');
             
-            // XỬ LÝ BẢO HÀNH GẮN ĐUÔI
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
                 document.getElementById('f_bao_hanh_num').value = parts[0]; 
