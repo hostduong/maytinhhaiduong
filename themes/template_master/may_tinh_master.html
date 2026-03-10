@@ -34,7 +34,7 @@
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
                 display: flex; position: relative; z-index: 60; 
-                margin-top: 58px; /* KHÓA TỌA ĐỘ Y: Căn đỉnh ngang hàng Bảng bên trái */
+                margin-top: 0; /* ĐÃ FIX: TRẢ VỀ 0, CHỈ DÙNG JS ĐỂ ĐẨY BẰNG formSpacer */
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
             .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 0; }
@@ -72,7 +72,7 @@
             align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch;
         }
         @media (min-width: 1280px) { 
-            .saas-drag-bar.is-open { display: flex; margin-top: 58px; } 
+            .saas-drag-bar.is-open { display: flex; margin-top: 0; } /* ĐÃ FIX: TRẢ VỀ 0 */
         }
 
         /* CSS phụ trợ chung */
@@ -85,7 +85,6 @@
         .form-section { padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
         .form-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         
-        /* ĐÃ FIX: Xóa border-bottom và margin dưới của tiêu đề để UI phẳng hơn */
         .section-title { font-size: 0.875rem; font-weight: 900; color: #1e3a8a; text-transform: uppercase; border-bottom: none; padding-bottom: 0; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
 
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
@@ -93,18 +92,26 @@
         }
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
-        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: dashed !important; }
+        
+        /* ĐÃ FIX LỖI 2: TRẢ LẠI GIAO DIỆN BÌNH THƯỜNG CHO Ô KHÓA (KHÔNG NÉT ĐỨT) */
+        input:disabled, textarea:disabled, select:disabled { background-color: #f8fafc !important; cursor: not-allowed !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; border-style: solid !important; }
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         fieldset:disabled .btn-sync-main { display: none !important; }
-        .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
-        .tagify[readonly] .tagify__tag { background-color: #e5e7eb; color: #374151; }
+        .tagify[readonly] { background-color: #f8fafc !important; cursor: not-allowed !important; border-style: solid !important; border-color: #e2e8f0 !important; pointer-events: none; }
+        .tagify[readonly] .tagify__tag { background-color: #e2e8f0; color: #64748b; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
         .dm-tag-single { display: inline-flex; align-items: center; background-color: #e5e7eb; color: #374151; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb; }
 
-        /* Tùy chỉnh riêng cho các ô nhập Giá (Pricing) */
-        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
+        /* ĐÃ FIX LỖI 2: CHỐNG ĐÈ CHỮ Đ BẰNG ĐỆM PADDING BÊN PHẢI */
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; padding-right: 28px !important; }
+        .percent-input { padding-right: 28px !important; }
+
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
+        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
+        .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Khối Smart Input kế thừa từ nhap_hang.html */
         .smart-input-wrap { position: relative; display: flex; align-items: center; height: 36px; }
@@ -113,11 +120,6 @@
         .smart-input-field { display: none; align-items: center; height: 100%; }
         .smart-input-wrap.active .smart-input-btn { display: none !important; }
         .smart-input-wrap.active .smart-input-field { display: flex !important; }
-
-        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
-        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
-        .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
         .sku-tab { padding: 0.5rem 1rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
         .sku-tab:hover { filter: brightness(0.95); }
@@ -398,7 +400,7 @@
                                     <div class="flex items-center shrink-0">
                                         <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Bảo hành:</span>
                                         <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
-                                            <input type="number" id="f_bao_hanh_num" class="w-[60px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
+                                            <input type="number" id="f_bao_hanh_num" class="w-[50px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
                                             <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
                                         </div>
                                     </div>
@@ -410,7 +412,7 @@
                                         <div class="smart-input-field hidden items-center">
                                             <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Trọng lượng:</span>
                                             <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px]">
-                                                <input type="number" id="f_khoi_luong" class="w-[70px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
+                                                <input type="number" id="f_khoi_luong" class="w-[60px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
                                                 <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">Gr</span>
                                             </div>
                                             <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_khoi_luong').value=''; document.getElementById('wrapKhoiLuong').classList.remove('active');">✕</button>
@@ -433,66 +435,65 @@
                                 </div>
                             </div>
 
-                            <div class="form-section">
+                            <div class="form-section border-l-4 border-l-blue-500 bg-blue-50/20">
                                 <div class="section-title flex justify-between">
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 items-end">
-                                    <div>
+                                <div class="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 mb-5 items-end">
+                                    <div class="flex-1 min-w-[120px]">
                                         <label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <input type="text" id="f_gia_nhap" required class="input-premium price-input text-[15px] font-bold text-slate-800 pr-8" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        <div class="smart-price-wrap">
+                                            <input type="text" id="f_gia_nhap" required class="smart-price-input" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
+                                            <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div class="flex-1 min-w-[110px]">
                                         <label>Quy tắc lãi</label>
-                                        <select id="f_quy_tac_gia" class="input-premium font-bold text-[14px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
+                                        <select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
                                     </div>
-                                    <div>
-                                        <label>Biên độ Lãi</label>
-                                        <div class="relative">
-                                            <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-[15px] text-blue-700 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                    <div class="w-[80px] shrink-0">
+                                        <label>Lãi</label>
+                                        <div class="smart-price-wrap" id="wrap_bien_do">
+                                            <input type="number" id="f_bien_do_phan_tram" class="smart-price-input percent-input text-blue-700" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="smart-price-symbol">%</span>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div class="flex-1 min-w-[120px]">
                                         <label>Lãi VNĐ</label>
-                                        <div class="relative">
-                                            <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-[15px] font-bold text-slate-500 cursor-not-allowed bg-slate-100 border-dashed pr-8" placeholder="0">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        <div class="smart-price-wrap disabled-wrap">
+                                            <input type="text" id="f_lai_vnd" readonly class="smart-price-input text-slate-500" placeholder="0">
+                                            <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end mt-4">
-                                    <div>
+                                <div class="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 items-end mt-4">
+                                    <div class="flex-1 min-w-[120px]">
                                         <label>Niêm Yết <span class="hidden sm:inline">(Gạch ngang)</span></label>
-                                        <div class="relative">
-                                            <input type="text" id="f_gia_niem_yet" required class="input-premium price-input text-[15px] font-bold text-slate-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        <div class="smart-price-wrap">
+                                            <input type="text" id="f_gia_niem_yet" required class="smart-price-input text-slate-600" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                            <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <label>Giảm giá</label>
-                                        <div class="relative">
-                                            <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-[15px] text-orange-600 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                    <div class="w-[80px] shrink-0">
+                                        <label>Giảm</label>
+                                        <div class="smart-price-wrap">
+                                            <input type="number" id="f_phan_tram_giam" class="smart-price-input percent-input text-orange-600" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="smart-price-symbol">%</span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <label>Hoặc Giảm VNĐ</label>
-                                        <div class="relative">
-                                            <input type="text" id="f_so_tien_giam" class="input-premium price-input text-[15px] font-bold text-orange-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                    <div class="flex-1 min-w-[120px]">
+                                        <label>Giảm VNĐ</label>
+                                        <div class="smart-price-wrap">
+                                            <input type="text" id="f_so_tien_giam" class="smart-price-input text-orange-600" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
+                                            <span class="smart-price-symbol">₫</span>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div class="flex-1 min-w-[120px]">
                                         <label class="text-emerald-700">Giá Bán Thực</label>
-                                        <div class="relative">
-                                            <input type="text" id="f_gia_ban" class="input-premium price-input border-emerald-400 ring-2 ring-emerald-500/20 bg-emerald-50 text-[16px] font-black text-emerald-700 pr-8 shadow-sm" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-[15px] pointer-events-none">₫</span>
+                                        <div class="smart-price-wrap">
+                                            <input type="text" id="f_gia_ban" class="smart-price-input font-black text-emerald-700 text-[16px]" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
+                                            <span class="smart-price-symbol font-black text-emerald-600 text-[14px]">₫</span>
                                         </div>
                                     </div>
                                 </div>
@@ -532,6 +533,10 @@
     </div>
 
     <script>
+        // ==========================================
+        // KHU VỰC ĐIỀU KHIỂN CSS CHUẨN (MASTER UI)
+        // ==========================================
+
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
@@ -540,6 +545,7 @@
         
         let isResizing = false;
 
+        // Logic Kéo Thả (Drag to Resize)
         dragBar.addEventListener('mousedown', function(e) {
             isResizing = true;
             document.body.classList.add('cursor-col-resize', 'select-none');
@@ -576,6 +582,7 @@
             }
         });
 
+        // ĐỒNG BỘ ĐỈNH BẰNG JS TỪ BẢN GỐC
         function syncTopAlignment() {
             if(window.innerWidth >= 1280) { 
                 const searchBar = document.getElementById('searchBarContainer');
@@ -593,11 +600,15 @@
         }
         window.addEventListener('resize', syncTopAlignment);
 
+        // ==========================================
+        // LOGIC CỜ CẢNH BÁO CHƯA LƯU (DIRTY FLAG)
+        // ==========================================
         let isDirty = false;
+
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('formSP').addEventListener('input', () => { if(!isEditingMode) isDirty = true; });
             document.getElementById('formSP').addEventListener('change', () => { if(!isEditingMode) isDirty = true; });
-            setTimeout(syncTopAlignment, 150); 
+            setTimeout(syncTopAlignment, 150);
         });
 
         async function checkUnsavedChanges(callback) {
@@ -605,18 +616,37 @@
                 const result = await Swal.fire({
                     title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center shadow-inner border border-amber-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div><span class="text-2xl font-black text-amber-600">Dữ liệu chưa lưu!</span></div>',
                     html: '<div class="text-[14px] text-slate-600 font-medium">Sản phẩm đang thao tác có thay đổi chưa được lưu.<br>Bạn có chắc chắn muốn thoát và hủy bỏ mọi thay đổi?</div>',
-                    showCancelButton: true, confirmButtonText: 'Đồng ý thoát', cancelButtonText: 'Ở lại',
-                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-xl px-6 py-2.5', cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 mr-3' },
-                    buttonsStyling: false, reverseButtons: true
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý thoát',
+                    cancelButtonText: 'Ở lại',
+                    customClass: { 
+                        popup: 'swal-master-error', 
+                        confirmButton: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold rounded-xl px-6 py-2.5 shadow-md active:scale-95 transition', 
+                        cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 active:scale-95 transition mr-3 hover:bg-slate-200' 
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: true
                 });
-                if (result.isConfirmed) { isDirty = false; callback(); }
-            } else { callback(); }
+                if (result.isConfirmed) {
+                    isDirty = false;
+                    callback();
+                }
+            } else {
+                callback();
+            }
         }
 
+        // Đã bọc tường lửa
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
-        function handleEditSP(id) { if (detailPane.classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; checkUnsavedChanges(() => { editSP(id); }); }
+        function handleEditSP(id) {
+            if (!document.getElementById('detailPaneUI').classList.contains('hidden') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
+            checkUnsavedChanges(() => { editSP(id); });
+        }
 
+        // ==========================================
+        // CÁC HÀM HIỂN THỊ MẬT KHẨU & TÍNH TOÁN
+        // ==========================================
         window.checkPinLength = function(input) {
             document.getElementById('swal-custom-err').classList.add('hidden');
             input.classList.remove('pin-error');
@@ -1084,11 +1114,9 @@
             maSkuInput.value = sp.ma_sku;
             if (sp._is_saved) { 
                 maSkuInput.disabled = true;
-                maSkuInput.classList.add('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
             } else {
                 if (sp.trang_thai !== -1) {
                     maSkuInput.disabled = false;
-                    maSkuInput.classList.remove('bg-slate-100', 'text-blue-700', 'cursor-not-allowed', 'border-dashed');
                 }
             }
 
@@ -1181,10 +1209,13 @@
         function applyQuyTacGia() {
             let select = document.getElementById('f_quy_tac_gia');
             let inputPhanTram = document.getElementById('f_bien_do_phan_tram');
+            let wrapPhanTram = document.getElementById('wrap_bien_do');
             if (select.value === "manual") {
-                inputPhanTram.disabled = false; inputPhanTram.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.add('bg-white', 'text-blue-700');
+                inputPhanTram.disabled = false; 
+                if(wrapPhanTram) wrapPhanTram.classList.remove('disabled-wrap');
             } else {
-                inputPhanTram.disabled = true; inputPhanTram.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed'); inputPhanTram.classList.remove('bg-white', 'text-blue-700');
+                inputPhanTram.disabled = true; 
+                if(wrapPhanTram) wrapPhanTram.classList.add('disabled-wrap');
                 let selectedOpt = select.options[select.selectedIndex]; let margin = selectedOpt.getAttribute('data-margin'); if (margin) inputPhanTram.value = margin;
             }
             if (!isEditingMode) calcPrices();
