@@ -34,7 +34,7 @@
         @media (min-width: 1280px) {
             .saas-detail-pane.is-open {
                 display: flex; position: relative; z-index: 60; 
-                margin-top: 0; /* ĐÃ FIX: TRẢ VỀ 0 ĐỂ DÙNG JS ĐẨY formSpacer, TRÁNH LỖI LỆCH ĐỈNH */
+                margin-top: 0;
                 width: 35%; min-width: 450px; max-width: 65vw; flex-shrink: 0;
             }
             .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 0; }
@@ -72,17 +72,20 @@
             align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch;
         }
         @media (min-width: 1280px) { 
-            .saas-drag-bar.is-open { display: flex; margin-top: 0; } /* ĐÃ FIX: TRẢ VỀ 0 */
+            .saas-drag-bar.is-open { display: flex; margin-top: 58px; } 
         }
 
         /* CSS phụ trợ chung */
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.5rem; display: block; }
+        
         .modal-body { overflow-y: auto; scrollbar-width: thin; padding: 1.5rem 1.5rem 3rem 1.5rem; background-color: #ffffff; flex: 1; min-h: 0; border-top: none; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
         .form-section { padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
         .form-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        /* ĐÃ FIX: Xóa border-bottom và margin dưới của tiêu đề để UI phẳng hơn */
         .section-title { font-size: 0.875rem; font-weight: 900; color: #1e3a8a; text-transform: uppercase; border-bottom: none; padding-bottom: 0; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
 
         input.input-premium, select.input-premium, textarea.input-premium, .tagify {
@@ -90,23 +93,32 @@
         }
         input.input-premium, select.input-premium { height: 42px; padding: 0 0.75rem; }
         textarea.input-premium { padding: 0.75rem; line-height: 1.5; }
-        
-        /* TRẢ LẠI NỀN XÁM CHO Ô KHÓA NHƯ FILE 5 */
-        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: solid !important; }
+        input:disabled, textarea:disabled, select:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; color: #94a3b8 !important; border-style: dashed !important; }
         
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; }
         fieldset:disabled .btn-sync-main { display: none !important; }
-        .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: solid !important; pointer-events: none; }
+        .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         .tagify[readonly] .tagify__tag { background-color: #e5e7eb; color: #374151; }
         .tagify[readonly] .tagify__tag__removeBtn { display: none; }
         
         .dm-tag-single { display: inline-flex; align-items: center; background-color: #e5e7eb; color: #374151; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb; }
 
-        /* ĐÃ FIX: CHỐNG ĐÈ CHỮ đ VÀ % BẰNG PADDING PHẢI */
-        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; padding-right: 32px !important; }
-        .percent-input { padding-right: 32px !important; text-align: center; }
+        /* Tùy chỉnh riêng cho các ô nhập Giá (Pricing) */
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
 
-        /* TRẢ LẠI CÁCH BO TRÒN TAB NGUYÊN BẢN CỦA SẾP */
+        /* Khối Smart Input kế thừa từ nhap_hang.html */
+        .smart-input-wrap { position: relative; display: flex; align-items: center; height: 36px; }
+        .smart-input-btn { cursor: pointer; transition: 0.2s; border-style: dashed; height: 100%; border: 1px dashed #cbd5e1; }
+        .smart-input-btn:hover { border-style: solid; background-color: #f1f5f9; color: #2563eb; }
+        .smart-input-field { display: none; align-items: center; height: 100%; }
+        .smart-input-wrap.active .smart-input-btn { display: none !important; }
+        .smart-input-wrap.active .smart-input-field { display: flex !important; }
+
+        .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
+        .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
+        .img-preview-mini { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; border: 1px solid #cbd5e1; background: #fff; flex-shrink: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
         .sku-tab { padding: 0.5rem 1rem; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none; }
         .sku-tab:hover { filter: brightness(0.95); }
         
@@ -310,7 +322,7 @@
                 
                 <div class="px-5 pt-2 pb-2 bg-white overflow-x-auto whitespace-nowrap flex gap-2 items-center shrink-0 z-20 custom-scroll" id="tabs_container"></div>
                 
-                <div class="modal-body relative pt-5">
+                <div class="modal-body relative">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none z-0"></div>
                     
                     <div id="warning_deleted" class="hidden bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-xl mb-4 text-sm font-bold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm relative z-10">
@@ -362,7 +374,7 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div><label>Mã Gốc (SP)</label><input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold" disabled placeholder="Tự sinh..."></div>
+                                        <div><label>Mã Gốc (SP)</label><input type="text" id="f_ma_san_pham" class="input-premium bg-slate-100 text-blue-700 cursor-not-allowed font-mono font-bold border-dashed" disabled placeholder="Tự sinh..."></div>
                                         <div><label>Tên hiển thị rút gọn</label><input type="text" id="f_ten_rut_gon" class="input-premium" placeholder="Hóa đơn..."></div>
                                     </div>
                                 </div>
@@ -382,10 +394,11 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-3 sm:gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                    
                                     <div class="flex items-center shrink-0">
                                         <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Bảo hành:</span>
                                         <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
-                                            <input type="number" id="f_bao_hanh_num" class="w-[50px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
+                                            <input type="number" id="f_bao_hanh_num" class="w-[60px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
                                             <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
                                         </div>
                                     </div>
@@ -397,7 +410,7 @@
                                         <div class="smart-input-field hidden items-center">
                                             <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Trọng lượng:</span>
                                             <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px]">
-                                                <input type="number" id="f_khoi_luong" class="w-[60px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
+                                                <input type="number" id="f_khoi_luong" class="w-[70px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
                                                 <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">Gr</span>
                                             </div>
                                             <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_khoi_luong').value=''; document.getElementById('wrapKhoiLuong').classList.remove('active');">✕</button>
@@ -420,54 +433,67 @@
                                 </div>
                             </div>
 
-                            <div class="form-section border-l-4 border-l-blue-500 bg-blue-50/20">
+                            <div class="form-section">
                                 <div class="section-title flex justify-between">
                                     <span class="text-blue-800">💰 Định giá Kinh Doanh</span>
                                     <button type="button" onclick="syncFromMain('gia_nhap', 'phan_tram_lai', 'gia_niem_yet', 'phan_tram_giam', 'so_tien_giam', 'gia_ban')" class="copy-btn btn-sync-main text-blue-600 bg-blue-50 hover:bg-blue-600 border-blue-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
-                                
-                                <div class="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 mb-4 items-end">
-                                    <div class="flex-1 min-w-[120px] relative">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 items-end">
+                                    <div>
                                         <label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label>
-                                        <input type="text" id="f_gia_nhap" required class="input-premium price-input" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_nhap" required class="input-premium price-input text-[15px] font-bold text-slate-800 pr-8" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-[110px]">
+                                    <div>
                                         <label>Quy tắc lãi</label>
-                                        <select id="f_quy_tac_gia" class="input-premium font-bold text-[13px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
+                                        <select id="f_quy_tac_gia" class="input-premium font-bold text-[14px] text-blue-700 cursor-pointer" onchange="applyQuyTacGia()"><option value="manual">Tự chỉnh</option></select>
                                     </div>
-                                    <div class="w-[80px] shrink-0 relative">
-                                        <label>Lãi</label>
-                                        <input type="number" id="f_bien_do_phan_tram" class="input-premium percent-input text-blue-700" placeholder="0" step="any" onkeyup="calcPrices()">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                    <div>
+                                        <label>Biên độ Lãi</label>
+                                        <div class="relative">
+                                            <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-[15px] text-blue-700 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-[120px] relative">
+                                    <div>
                                         <label>Lãi VNĐ</label>
-                                        <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-slate-500" placeholder="0">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        <div class="relative">
+                                            <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-[15px] font-bold text-slate-500 cursor-not-allowed bg-slate-100 border-dashed pr-8" placeholder="0">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 items-end mt-4">
-                                    <div class="flex-1 min-w-[120px] relative">
-                                        <label>Niêm Yết <span class="hidden lg:inline">(Gạch ngang)</span></label>
-                                        <input type="text" id="f_gia_niem_yet" required class="input-premium price-input text-slate-600" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end mt-4">
+                                    <div>
+                                        <label>Niêm Yết <span class="hidden sm:inline">(Gạch ngang)</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_niem_yet" required class="input-premium price-input text-[15px] font-bold text-slate-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
                                     </div>
-                                    <div class="w-[80px] shrink-0 relative">
-                                        <label>Giảm</label>
-                                        <input type="number" id="f_phan_tram_giam" class="input-premium percent-input text-orange-600" placeholder="0" step="any" onkeyup="calcPrices()">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                    <div>
+                                        <label>Giảm giá</label>
+                                        <div class="relative">
+                                            <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-[15px] text-orange-600 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-[120px] relative">
-                                        <label>Giảm VNĐ</label>
-                                        <input type="text" id="f_so_tien_giam" class="input-premium price-input text-orange-600" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
-                                        <span class="absolute right-3 bottom-[11px] text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                    <div>
+                                        <label>Hoặc Giảm VNĐ</label>
+                                        <div class="relative">
+                                            <input type="text" id="f_so_tien_giam" class="input-premium price-input text-[15px] font-bold text-orange-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                        </div>
                                     </div>
-                                    <div class="flex-1 min-w-[120px] relative">
+                                    <div>
                                         <label class="text-emerald-700">Giá Bán Thực</label>
-                                        <input type="text" id="f_gia_ban" class="input-premium price-input font-black text-emerald-700" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
-                                        <span class="absolute right-3 bottom-[11px] text-emerald-600 font-black text-[13px] pointer-events-none">₫</span>
+                                        <div class="relative">
+                                            <input type="text" id="f_gia_ban" class="input-premium price-input border-emerald-400 ring-2 ring-emerald-500/20 bg-emerald-50 text-[16px] font-black text-emerald-700 pr-8 shadow-sm" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-[15px] pointer-events-none">₫</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -568,7 +594,6 @@
         window.addEventListener('resize', syncTopAlignment);
 
         let isDirty = false;
-
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('formSP').addEventListener('input', () => { if(!isEditingMode) isDirty = true; });
             document.getElementById('formSP').addEventListener('change', () => { if(!isEditingMode) isDirty = true; });
@@ -580,31 +605,65 @@
                 const result = await Swal.fire({
                     title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center shadow-inner border border-amber-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div><span class="text-2xl font-black text-amber-600">Dữ liệu chưa lưu!</span></div>',
                     html: '<div class="text-[14px] text-slate-600 font-medium">Sản phẩm đang thao tác có thay đổi chưa được lưu.<br>Bạn có chắc chắn muốn thoát và hủy bỏ mọi thay đổi?</div>',
-                    showCancelButton: true,
-                    confirmButtonText: 'Đồng ý thoát',
-                    cancelButtonText: 'Ở lại',
-                    customClass: { 
-                        popup: 'swal-master-error', 
-                        confirmButton: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold rounded-xl px-6 py-2.5 shadow-md active:scale-95 transition', 
-                        cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 active:scale-95 transition mr-3 hover:bg-slate-200' 
-                    },
-                    buttonsStyling: false,
-                    reverseButtons: true
+                    showCancelButton: true, confirmButtonText: 'Đồng ý thoát', cancelButtonText: 'Ở lại',
+                    customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-xl px-6 py-2.5', cancelButton: 'bg-slate-100 text-slate-600 font-bold rounded-xl px-6 py-2.5 mr-3' },
+                    buttonsStyling: false, reverseButtons: true
                 });
-                if (result.isConfirmed) {
-                    isDirty = false;
-                    callback();
-                }
-            } else {
-                callback();
-            }
+                if (result.isConfirmed) { isDirty = false; callback(); }
+            } else { callback(); }
         }
 
         function handleOpenModal() { checkUnsavedChanges(() => { openModal(); }); }
         function handleCloseModal() { checkUnsavedChanges(() => { closeModal(); }); }
-        function handleEditSP(id) {
-            if (!document.getElementById('detailPaneUI').classList.contains('hidden') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; 
-            checkUnsavedChanges(() => { editSP(id); });
+        function handleEditSP(id) { if (detailPane.classList.contains('is-open') && currentSkus.length > 0 && currentSkus[0].ma_san_pham === id) return; checkUnsavedChanges(() => { editSP(id); }); }
+
+        window.checkPinLength = function(input) {
+            document.getElementById('swal-custom-err').classList.add('hidden');
+            input.classList.remove('pin-error');
+            if (input.value.length === 8) {
+                input.classList.remove('border-purple-500', 'focus:border-purple-500', 'text-slate-800');
+                input.classList.add('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600');
+                input.style.transform = 'scale(1.03)'; setTimeout(() => input.style.transform = 'scale(1)', 150);
+            } else {
+                input.classList.remove('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600');
+                input.classList.add('border-purple-500', 'focus:border-purple-500', 'text-slate-800');
+            }
+        }
+
+        function toggleSwalPinCustom(inputId, slashId, openId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") { input.type = "text"; document.getElementById(slashId).classList.add('hidden'); document.getElementById(openId).classList.remove('hidden'); } 
+            else { input.type = "password"; document.getElementById(openId).classList.add('hidden'); document.getElementById(slashId).classList.remove('hidden'); }
+        }
+
+        async function askMasterPIN() {
+            const { value: pinXacNhan } = await Swal.fire({
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><span class="text-2xl font-black tracking-tight text-gradient-animated">Bảo mật 2 lớp</span></div>',
+                customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 transition active:scale-95 border border-slate-200' },
+                buttonsStyling: false, 
+                html: `
+                    <div class="text-[14px] text-slate-600 mb-8 font-medium leading-relaxed">Hệ thống yêu cầu xác minh danh tính.<br>Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của bạn để ủy quyền.</div>
+                    <div class="relative w-full max-w-[280px] mx-auto group">
+                        <div class="absolute inset-0 bg-purple-500/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
+                        <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)] placeholder-slate-300" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.classList.remove('pin-error'); document.getElementById('swal-custom-err').classList.add('hidden'); checkPinLength(this);">
+                        <button type="button" onclick="toggleSwalPinCustom('swal-pin-input', 'eye_slash_swal', 'eye_open_swal')" class="absolute inset-y-0 right-2 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl">
+                            <svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                            <svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                    </div>
+                    <div id="swal-custom-err" class="hidden text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-2 text-[13px] font-bold mt-4 flex items-center justify-center gap-1.5 w-full max-w-[280px] mx-auto shadow-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Vui lòng nhập đủ 8 số!
+                    </div>
+                `,
+                showCancelButton: true, confirmButtonText: 'Xác nhận', cancelButtonText: 'Hủy bỏ', reverseButtons: true, 
+                didOpen: () => { setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100); },
+                preConfirm: () => { 
+                    const input = document.getElementById('swal-pin-input'); const errBox = document.getElementById('swal-custom-err'); const val = input.value; 
+                    if (val.length < 8) { input.classList.add('pin-error'); errBox.classList.remove('hidden'); errBox.classList.add('animate-bounce'); setTimeout(() => errBox.classList.remove('animate-bounce'), 1000); return false; } 
+                    return val; 
+                }
+            });
+            return pinXacNhan;
         }
 
         function decodeGo(str) { if (!str) return ""; return decodeURIComponent(str.replace(/\+/g, '%20')); }
@@ -649,9 +708,11 @@
                 const code = (row.getAttribute('data-code') || '').toLowerCase();
                 const name = (row.getAttribute('data-name') || '').toLowerCase();
                 const skuName = (row.getAttribute('data-sku-name') || '').toLowerCase();
+                
                 const catRaw = (row.getAttribute('data-category') || '');
                 let catName = "";
                 catRaw.split('|').forEach(m => { if(dicDanhMucByMa[m]) catName += dicDanhMucByMa[m].ten.toLowerCase() + " "; });
+                
                 const price = row.getAttribute('data-price') || '';
                 const statusText = (row.getAttribute('data-status-text') || '').toLowerCase();
                 
@@ -685,15 +746,19 @@
         function renderTable() {
             const tbody = document.getElementById('tableBodySP');
             if (currentPage === 1) { tbody.innerHTML = ''; }
+
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = currentPage * itemsPerPage;
             const rowsToRender = filteredAndSortedRows.slice(startIndex, endIndex);
+
             const fragment = document.createDocumentFragment();
             rowsToRender.forEach(row => { row.style.display = ''; fragment.appendChild(row); });
             tbody.appendChild(fragment);
+
             const noRes = document.getElementById('noResult');
             if (filteredAndSortedRows.length === 0) noRes.classList.remove('hidden');
             else noRes.classList.add('hidden');
+
             const sentinel = document.getElementById('scrollSentinel');
             if (endIndex < filteredAndSortedRows.length) sentinel.classList.remove('hidden');
             else sentinel.classList.add('hidden');
@@ -962,8 +1027,7 @@
             sku.kich_thuoc = document.getElementById('f_kich_thuoc').value;
             
             let bhN = document.getElementById('f_bao_hanh_num').value;
-            let bhU = document.getElementById('f_bao_hanh_unit').value;
-            sku.bao_hanh = bhN ? `${bhN} ${bhU}` : "";
+            sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
 
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
             sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; 
@@ -1049,7 +1113,6 @@
             tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
             tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
 
-            // ĐÃ FIX: TRẢ LẠI NỀN XÁM VÀ BÔ TRÒN SMART INPUT NHƯ FILE 5
             document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
             if (sp.khoi_luong > 0) document.getElementById('wrapKhoiLuong').classList.add('active');
             else document.getElementById('wrapKhoiLuong').classList.remove('active');
@@ -1060,9 +1123,8 @@
             
             if (sp.bao_hanh) {
                 const parts = sp.bao_hanh.split(" ");
-                if (parts.length >= 2) { document.getElementById('f_bao_hanh_num').value = parts[0]; document.getElementById('f_bao_hanh_unit').value = parts[1]; } 
-                else { document.getElementById('f_bao_hanh_num').value = sp.bao_hanh; }
-            } else { document.getElementById('f_bao_hanh_num').value = ""; document.getElementById('f_bao_hanh_unit').value = "Tháng"; }
+                document.getElementById('f_bao_hanh_num').value = parts[0]; 
+            } else { document.getElementById('f_bao_hanh_num').value = ""; }
 
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_bien_do_phan_tram').value = sp.phan_tram_lai > 0 ? sp.phan_tram_lai : ""; 
