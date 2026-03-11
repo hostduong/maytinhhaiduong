@@ -10,6 +10,7 @@ const (
 	TenSheetPhanQuyenMaster  = "PHAN_QUYEN_MASTER"
 	TenSheetGoiDichVuMaster  = "GOI_DICH_VU_MASTER"
 	TenSheetTinNhanMaster    = "TIN_NHAN_MASTER"
+	TenSheetCauHinhThuocTinh = "CAU_HINH_THUOC_TINH" // Sheet cấu hình Meta-data (Dynamic UI)
 )
 
 // --- VŨ TRỤ 2: ADMIN (admin.99k.vn) ---
@@ -24,7 +25,6 @@ const (
 	TenSheetPhanQuyen        = "PHAN_QUYEN"
 	
 	// Dữ liệu Vận hành kinh doanh (Chỉ có ở Shop)
-	TenSheetMayTinh          = "MAY_TINH"
 	TenSheetDanhMuc          = "DANH_MUC"
 	TenSheetThuongHieu       = "THUONG_HIEU"
 	TenSheetBienLoiNhuan     = "BIEN_LOI_NHUAN"
@@ -215,7 +215,126 @@ type KhachHangShop struct {
 }
 
 // ==============================================================================
-// 5. CÁC CẤU TRÚC VẬN HÀNH: TÀI CHÍNH & HÓA ĐƠN (MỚI)
+// CẤU TRÚC ĐỘNG: CẤU HÌNH THUỘC TÍNH (EAV META-DATA)
+// ==============================================================================
+const (
+	DongBatDau_CauHinhThuocTinh = 2
+	CotCHTT_MaThuocTinh  = 0 // A
+	CotCHTT_TenThuocTinh = 1 // B
+	CotCHTT_KieuNhap     = 2 // C
+	CotCHTT_DonVi        = 3 // D
+	CotCHTT_StartNganh   = 4 // E trở đi (Chứa JSON cấu hình)
+)
+
+// ConfigNganhHang dùng để hứng JSON trên dòng 1 của Cột Ngành
+type ConfigNganhHang struct {
+	MaNganh    string `json:"ma"`
+	TenSheet   string `json:"sheet"`
+	TenHienThi string `json:"ten"`
+	Icon       string `json:"icon,omitempty"`
+	Sort       int    `json:"sort,omitempty"`
+}
+
+type ThuocTinhNganh struct {
+	MaThuocTinh  string `json:"ma_thuoc_tinh"`
+	TenThuocTinh string `json:"ten_thuoc_tinh"`
+	KieuNhap     string `json:"kieu_nhap"`
+	DonVi        string `json:"don_vi"`
+}
+
+// ==============================================================================
+// CẤU TRÚC CHUẨN: SẢN PHẨM NOSQL (DÙNG CHUNG MỌI NGÀNH HÀNG)
+// ==============================================================================
+const (
+	DongBatDau_Product = 2
+	CotProd_MaSanPham  = 0 // Cột A
+	CotProd_DataJSON   = 1 // Cột B
+)
+
+// ProductRow đại diện cho 1 dòng vật lý trên Google Sheets
+type ProductRow struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+	MaSanPham      string `json:"ma_san_pham"`
+	DataJSON       string `json:"data_json"`
+}
+
+// ProductJSON định nghĩa lõi dữ liệu sẽ được Serialize/Deserialize từ DataJSON (Cột B)
+type ProductJSON struct {
+	MaSanPham    string        `json:"ma_san_pham"`
+	Version      int           `json:"version"`      // Quản lý migrate schema
+	CreatedAt    int64         `json:"created_at"`   // Unix timestamp
+	UpdatedAt    int64         `json:"updated_at"`   // Unix timestamp
+	TrangThai    int           `json:"trang_thai"`   // 1=hoạt động, 0=ẩn, -1=xóa mềm, 2=hết hàng, v.v.
+	MaNganh      string        `json:"ma_nganh"`
+	MaDanhMuc    []string      `json:"ma_danh_muc"`
+	MaThuongHieu string        `json:"ma_thuong_hieu"`
+	TenSanPham   string        `json:"ten_san_pham"`
+	TenRutGon    string        `json:"ten_rut_gon"`
+	Slug         string        `json:"slug"`
+	NenTang      []string      `json:"nen_tang"`     // web, shopee, pos...
+	LoaiSanPham  string        `json:"loai_san_pham"`
+	SearchText   string        `json:"search_text"`  // Text không dấu tối ưu query RAM
+	SearchBoost  int           `json:"search_boost"`
+	Sort         int           `json:"sort"`
+	Views        int           `json:"views"`
+	DaBan        int           `json:"da_ban"`
+	SKUChinh     string        `json:"sku_chinh"`
+	Tags         []string      `json:"tags"`
+	SKU          []ProductSKU  `json:"sku"`
+	SEO          ProductSEO    `json:"seo"`
+	QuanLy       ProductQuanLy `json:"quan_ly"`
+}
+
+type ProductSKU struct {
+	MaSanPham    string                 `json:"ma_san_pham"`
+	MaSKU        string                 `json:"ma_sku"`
+	TrangThai    int                    `json:"trang_thai"`
+	TenSKU       string                 `json:"ten_sku"`
+	Barcode      string                 `json:"barcode"`
+	TinhTrang    string                 `json:"tinh_trang"`
+	BaoHanh      string                 `json:"bao_hanh"`
+	MaNhaCungCap string                 `json:"ma_nha_cung_cap"`
+	XuatXu       string                 `json:"xuat_xu"`
+	DonVi        string                 `json:"don_vi"`
+	GhiChu       string                 `json:"ghi_chu"`
+	AnhDaiDien   string                 `json:"anh_dai_dien"`
+	HinhAnh      []string               `json:"hinh_anh"`
+	MoTaHTML     string                 `json:"mo_ta_html"`
+	ThongSoHTML  string                 `json:"thong_so_html"`
+	Gia          ProductGia             `json:"gia"`
+	TonKho       int                    `json:"ton_kho"`
+	DaBan        int                    `json:"da_ban"`
+	DatTruoc     int                    `json:"dat_truoc"`
+	ThuocTinh    map[string]interface{} `json:"thuoc_tinh"` // Ma trận thuộc tính động (Dynamic EAV)
+}
+
+type ProductGia struct {
+	GiaNhap     float64 `json:"gia_nhap"`
+	PhanTramLai float64 `json:"phan_tram_lai"`
+	PhanTramVAT float64 `json:"phan_tram_vat"`
+	ChiPhiNhap  float64 `json:"chi_phi_nhap"`
+	GiaNiemYet  float64 `json:"gia_niem_yet"`
+	GiaBan      float64 `json:"gia_ban"`
+}
+
+type ProductSEO struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Keywords    string `json:"keywords"`
+	OGImage     string `json:"og_image"`
+}
+
+type ProductQuanLy struct {
+	NguoiTao     string `json:"nguoi_tao"`
+	NgayTao      string `json:"ngay_tao"` // Có thể dùng timestamp hoặc chuỗi ISO
+	NguoiCapNhat string `json:"nguoi_cap_nhat"`
+	NgayCapNhat  string `json:"ngay_cap_nhat"`
+}
+
+
+// ==============================================================================
+// 5. CÁC CẤU TRÚC VẬN HÀNH: TÀI CHÍNH & HÓA ĐƠN
 // ==============================================================================
 
 // --- HÓA ĐƠN TÀI CHÍNH (20 Cột) ---
@@ -412,7 +531,7 @@ const (
 	CotNCC_KhuVuc             = 5  // F
 	CotNCC_DiaChi             = 6  // G
 	CotNCC_NguoiLienHe        = 7  // H
-	CotNCC_AnhDaiDien         = 8  // I (MỚI THÊM)
+	CotNCC_AnhDaiDien         = 8  // I
 	CotNCC_NganHang           = 9  // J
 	CotNCC_NhomNhaCungCap     = 10 // K
 	CotNCC_LoaiNhaCungCap     = 11 // L
@@ -441,7 +560,7 @@ type NhaCungCap struct {
 	KhuVuc             string  `json:"khu_vuc"`
 	DiaChi             string  `json:"dia_chi"`
 	NguoiLienHe        string  `json:"nguoi_lien_he"`
-	AnhDaiDien         string  `json:"anh_dai_dien"` // Thêm mới
+	AnhDaiDien         string  `json:"anh_dai_dien"` 
 	NganHang           string  `json:"ngan_hang"`
 	NhomNhaCungCap     string  `json:"nhom_nha_cung_cap"`
 	LoaiNhaCungCap     string  `json:"loai_nha_cung_cap"`
@@ -458,6 +577,7 @@ type NhaCungCap struct {
 	NgayTao            string  `json:"ngay_tao"`
 	NgayCapNhat        string  `json:"ngay_cap_nhat"`
 }
+
 // ==============================================================================
 // CẤU TRÚC: DANH MỤC
 // ==============================================================================
@@ -527,87 +647,6 @@ type BienLoiNhuan struct {
 }
 
 // ==============================================================================
-// CẤU TRÚC: SẢN PHẨM MÁY TÍNH
-// ==============================================================================
-const (
-	DongBatDau_SanPhamMayTinh = 11
-	
-	CotPC_MaSanPham      = 0  
-	CotPC_TenSanPham     = 1  
-	CotPC_TenRutGon      = 2  
-	CotPC_Slug           = 3  
-	CotPC_MaSKU          = 4  
-	CotPC_TenSKU         = 5  
-	CotPC_SKUChinh       = 6  
-	CotPC_TrangThai      = 7  
-	CotPC_MaDanhMuc      = 8  
-	CotPC_MaThuongHieu   = 9  
-	CotPC_DonVi          = 10 
-	CotPC_MauSac         = 11 
-	CotPC_KhoiLuong      = 12 
-	CotPC_KichThuoc      = 13 
-	CotPC_UrlHinhAnh     = 14 
-	CotPC_ThongSoHTML    = 15 
-	CotPC_MoTaHTML       = 16 
-	CotPC_BaoHanh        = 17 
-	CotPC_TinhTrang      = 18 
-	CotPC_GiaNhap        = 19 
-	CotPC_PhanTramLai    = 20  
-	CotPC_GiaNiemYet     = 21 
-	CotPC_PhanTramGiam   = 22 
-	CotPC_SoTienGiam     = 23 
-	CotPC_GiaBan         = 24 
-	CotPC_GhiChu         = 25 
-	CotPC_NguoiTao       = 26 
-	CotPC_NgayTao        = 27 
-	CotPC_NguoiCapNhat   = 28 
-	CotPC_NgayCapNhat    = 29 
-)
-
-type SanPhamMayTinh struct {
-	SpreadsheetID  string `json:"-"`
-	DongTrongSheet int    `json:"-"`
-
-	MaSanPham      string  `json:"ma_san_pham"`
-	TenSanPham     string  `json:"ten_san_pham"`
-	TenRutGon      string  `json:"ten_rut_gon"`
-	Slug           string  `json:"slug"`
-	MaSKU          string  `json:"ma_sku"`
-	TenSKU         string  `json:"ten_sku"`
-	SKUChinh       int     `json:"sku_chinh"`
-	TrangThai      int     `json:"trang_thai"`
-	MaDanhMuc      string  `json:"ma_danh_muc"`
-	MaThuongHieu   string  `json:"ma_thuong_hieu"`
-	DonVi          string  `json:"don_vi"`
-	MauSac         string  `json:"mau_sac"`
-	KhoiLuong      float64 `json:"khoi_luong"`
-	KichThuoc      string  `json:"kich_thuoc"`
-	UrlHinhAnh     string  `json:"url_hinh_anh"`
-	ThongSoHTML    string  `json:"thong_so_html"`
-	MoTaHTML       string  `json:"mo_ta_html"`
-	BaoHanh        string  `json:"bao_hanh"`
-	TinhTrang      string  `json:"tinh_trang"`
-	GiaNhap        float64 `json:"gia_nhap"`
-	PhanTramLai    float64 `json:"phan_tram_lai"`
-	GiaNiemYet     float64 `json:"gia_niem_yet"`
-	PhanTramGiam   float64 `json:"phan_tram_giam"`
-	SoTienGiam     float64 `json:"so_tien_giam"`
-	GiaBan         float64 `json:"gia_ban"`
-	GhiChu         string  `json:"ghi_chu"`
-	NguoiTao       string  `json:"nguoi_tao"`
-	NgayTao        string  `json:"ngay_tao"`
-	NguoiCapNhat   string  `json:"nguoi_cap_nhat"`
-	NgayCapNhat    string  `json:"ngay_cap_nhat"`
-}
-// Hàm vệ tinh tạo ID duy nhất cho Sản phẩm máy tính
-func (sp *SanPhamMayTinh) LayIDDuyNhat() string {
-	if sp.MaSKU != "" {
-		return sp.MaSKU
-	}
-	return sp.MaSanPham
-}
-
-// ==============================================================================
 // CẤU TRÚC: TIN NHẮN
 // ==============================================================================
 const (
@@ -650,7 +689,6 @@ type TinNhan struct {
 	NguoiDoc       []string      `json:"nguoi_doc"`
 	TrangThaiXoa   []string      `json:"trang_thai_xoa"`
 	
-	// [ĐÃ FIX]: Thêm biến ảo để Front-end biết tin này đã đọc hay chưa
 	DaDoc          bool          `json:"da_doc"` 
 }
 
@@ -901,10 +939,6 @@ type ChiTietPhieuXuat struct {
 	GhiChuDong     string  `json:"ghi_chu_dong"`
 }
 
-
-// Định nghĩa thêm hằng số tên Sheet ở đầu file (Chỗ hằng số TenSheet)
-// TenSheetGoiDichVu = "GOI_DICH_VU"
-
 // ==============================================================================
 // CẤU TRÚC: GÓI DỊCH VỤ SAAS
 // ==============================================================================
@@ -915,7 +949,7 @@ const (
 	CotGDV_TenGoi             = 1  // B
 	CotGDV_LoaiGoi            = 2  // C
 	CotGDV_ThoiHanNgay        = 3  // D
-	CotGDV_ThoiHanHienThi     = 4  // E (MỚI THÊM)
+	CotGDV_ThoiHanHienThi     = 4  // E 
 	CotGDV_NhanHienThi        = 5  // F
 	CotGDV_GiaNiemYet         = 6  // G
 	CotGDV_GiaBan             = 7  // H
@@ -944,7 +978,7 @@ type GoiDichVu struct {
 	TenGoi             string          `json:"ten_goi"`
 	LoaiGoi            string          `json:"loai_goi"`
 	ThoiHanNgay        int             `json:"thoi_han_ngay"`
-	ThoiHanHienThi     string          `json:"thoi_han_hien_thi"` // MỚI THÊM
+	ThoiHanHienThi     string          `json:"thoi_han_hien_thi"` 
 	NhanHienThi        string          `json:"nhan_hien_thi"`
 	GiaNiemYet         float64         `json:"gia_niem_yet"`
 	GiaBan             float64         `json:"gia_ban"`
