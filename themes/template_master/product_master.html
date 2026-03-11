@@ -45,13 +45,13 @@
         input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; }
         .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; font-size: 15px; }
 
-        /* TAGIFY CUSTOM CHUNG */
+        /* TAGIFY CUSTOM CHUNG (Chỉ dùng cho Danh Mục) */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; }
         .tagify--focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         
         /* =========================================================
-           SMART INPUT CHUẨN MỰC
+           SMART INPUT CHUẨN MỰC (DÀNH CHO TẤT CẢ CÁC TRƯỜNG THUỘC TÍNH)
            ========================================================= */
         .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 32px; }
         
@@ -67,11 +67,13 @@
         .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; border-radius: 0 0.5rem 0.5rem 0;}
         .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
         
-        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
+        /* Ô nhập liệu: Tự giãn bề ngang, không padding thừa */
+        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; }
         
-        /* Ẩn các thuộc tính chưa được chọn */
+        /* [THÊM MỚI] Class dùng để giấu kín các thuộc tính chưa được chọn */
         .hidden-attr { display: none !important; }
         
+        /* Tinh chỉnh cho datalist mũi tên không đè chữ */
         input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
         input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
@@ -310,7 +312,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-section">
+                            <div class="form-section mb-0">
                                 <div class="section-title">
                                     <span>🖼️ Media & Mô tả</span>
                                     <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn btn-sync-main">Kéo từ Đại Diện</button>
@@ -510,9 +512,7 @@
                 try {
                     let sp = JSON.parse(rawJSON);
                     if(!mapGroupSP[sp.ma_san_pham]) mapGroupSP[sp.ma_san_pham] = [];
-                    let skusList = sp.sku && sp.sku.length > 0 ? sp.sku : [{ ma_san_pham: sp.ma_san_pham, ma_sku: sp.ma_san_pham + "-01", ten_sku: "Mặc định", trang_thai: 1 }];
-                    
-                    skusList.forEach(s => {
+                    sp.sku.forEach(s => {
                         let isMain = sp.sku_chinh === s.ma_sku ? 1 : 0;
                         mapGroupSP[sp.ma_san_pham].push({
                             _is_saved: true, ma_san_pham: sp.ma_san_pham, ten_san_pham: s.ten_san_pham || sp.ten_san_pham, ten_rut_gon: sp.ten_rut_gon, slug: sp.slug,
@@ -572,16 +572,18 @@
         }
 
         // =========================================================================
-        // ĐỘNG CƠ RENDER UNIFIED VÀ NÚT THÊM
+        // ĐỘNG CƠ RENDER UNIFIED KẾT HỢP OBJECT KÍCH THƯỚC 3D VÀ NÚT THÊM
         // =========================================================================
         function renderDynamicAttributes(nganh, currentSKU) {
             const container = document.getElementById('unified_attributes_container'); 
             container.innerHTML = '';
             
+            // 1. TẠO 4 TRƯỜNG CỐ ĐỊNH (Mặc định luôn hiển thị)
             let thName = "";
             if(currentSKU.ma_thuong_hieu) {
                 let parts = currentSKU.ma_thuong_hieu.split("|");
-                thName = dicThuongHieuByMa[parts[0]] ? dicThuongHieuByMa[parts[0]].ten : parts[0]; 
+                // [ĐÃ VÁ LỖI TYPE ERROR]: Trực tiếp lấy String từ dicThuongHieuByMa
+                thName = dicThuongHieuByMa[parts[0]] ? dicThuongHieuByMa[parts[0]] : parts[0]; 
             }
             let bhVal = currentSKU.bao_hanh ? currentSKU.bao_hanh.split(" ")[0] : "";
 
@@ -594,17 +596,22 @@
 
             coreAttributes.forEach(a => renderSingleAttribute(container, a, true, true));
 
-            // [ĐÃ FIX]: Không loại trừ 'kich_thuoc' nữa, để nó chạy như EAV bình thường
+            // 2. RENDER CÁC THUỘC TÍNH ĐỘNG (ẨN ĐI NẾU KHÔNG CÓ DỮ LIỆU)
             const dynamicAttrs = G_ThuocTinhNganh[nganh] || [];
             dynamicAttrs.forEach(a => {
+                // [ĐÃ THÁO GÔNG KÍCH THƯỚC]: Trả lại tự do cho trường Kích thước hiển thị như EAV bình thường
                 if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang') return; 
-                a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh] || "";
+                
+                a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh];
+                if (a.val === undefined || a.val === null) a.val = "";
+                
                 if(a.don_vi) a.center = true;
                 
-                let isVisible = a.val !== ""; 
+                let isVisible = a.val !== ""; // Chỉ hiện nếu đã từng lưu dữ liệu
                 renderSingleAttribute(container, a, false, isVisible);
             });
 
+            // 3. THÊM NÚT "+ THÊM THUỘC TÍNH" VÀO CUỐI
             let addBtnHTML = `
                 <button type="button" onclick="openAttributeSelector()" class="h-[32px] px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 border-dashed hover:border-solid rounded-lg font-bold text-[12px] transition flex items-center gap-1.5 shadow-sm">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -614,8 +621,11 @@
             container.innerHTML += addBtnHTML;
         }
 
+        // HÀM TIỆN ÍCH VẼ Ô INPUT (Đã vá lỗi Type Error của Number.length)
         function renderSingleAttribute(container, a, isCore, isVisible) {
-            let isActive = a.val !== "" ? "active" : ""; 
+            // Chuyển mọi thứ về String để đếm chữ an toàn tuyệt đối
+            let valStr = (a.val !== null && a.val !== undefined) ? a.val.toString() : "";
+            let isActive = valStr !== "" ? "active" : ""; 
             let visibilityClass = isVisible ? "" : "hidden-attr"; 
             
             let donViHtml = "";
@@ -627,7 +637,7 @@
 
             let datalistAttr = a.datalist ? `list="${a.datalist}"` : "";
             let extraCh = a.datalist ? 5 : 2; 
-            let initialWidth = a.val.length > 0 ? (a.val.length + extraCh) + 'ch' : '4ch';
+            let initialWidth = valStr.length > 0 ? (valStr.length + extraCh) + 'ch' : '4ch';
             let shortLabel = isCore ? (a.ten_thuoc_tinh.substring(0,1) + '.' + a.ten_thuoc_tinh.substring(a.ten_thuoc_tinh.indexOf(' ')+1)) : a.ten_thuoc_tinh; 
 
             let html = `
@@ -642,7 +652,7 @@
                            class="auto-expand-input ${inputAlign} ${isCore ? 'core-attr' : 'dynamic-attr'}" 
                            data-key="${a.ma_thuoc_tinh}" 
                            ${datalistAttr}
-                           value="${a.val}" 
+                           value="${valStr}" 
                            placeholder="..."
                            style="width: ${initialWidth};"
                            oninput="let ext = this.hasAttribute('list') ? 5 : 2; this.style.width = (this.value.length > 0 ? this.value.length + ext : 4) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
@@ -668,7 +678,7 @@
 
         async function openAttributeSelector() {
             const dynamicAttrs = G_ThuocTinhNganh[CURRENT_NGANH] || [];
-            // [ĐÃ FIX]: Bỏ 'kich_thuoc' khỏi danh sách đen
+            // Đã dọn dẹp lệnh chặn Kích thước ở đây
             const availableAttrs = dynamicAttrs.filter(a => a.ma_thuoc_tinh !== 'bao_hanh' && a.ma_thuoc_tinh !== 'tinh_trang');
 
             if (availableAttrs.length === 0) {
@@ -858,9 +868,6 @@
             sku.ghi_chu = document.getElementById('f_ghi_chu').value;
         }
 
-        // =========================================================================
-        // ĐÃ XÓA SẠCH CÁC MÃ TÌM HTML CŨ GÂY SẬP JS TẠI ĐÂY
-        // =========================================================================
         function loadTabToForm(idx) {
             if(idx < 0 || idx >= currentSkus.length) return;
             isEditingMode = true; 
@@ -1020,14 +1027,10 @@
             container.appendChild(div);
         }
 
-        // ĐÃ SỬA: XÓA CÁC ĐỊNH DẠNG ĐỘ RỘNG MẶC ĐỊNH CỦA DETAIL PANE ĐỂ TRÁNH LỖI PANEL KHÔNG MỞ LÊN ĐƯỢC
         function openModal() {
             document.getElementById('formSP').reset(); let newSku = createEmptySKU(); newSku.sku_chinh = 1; currentSkus = [newSku]; activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`; renderTabs(); loadTabToForm(0);
-            
             document.getElementById('detailPaneUI').classList.add('is-open'); document.getElementById('dragResizerUI').classList.add('is-open');
-            document.getElementById('detailPaneUI').style.width = ''; document.getElementById('listPaneUI').style.width = ''; 
-            
             document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('!bg-blue-100', '!border-blue-500'));
             syncTopAlignment(); setTimeout(() => { isDirty = false; }, 400); 
         }
@@ -1045,10 +1048,7 @@
             currentSkus = JSON.parse(JSON.stringify(list)); activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1); if(activeTabIndex === -1) activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Sửa: <span class="text-blue-600 ml-1 font-mono tracking-wider">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
-            
             document.getElementById('detailPaneUI').classList.add('is-open'); document.getElementById('dragResizerUI').classList.add('is-open');
-            document.getElementById('detailPaneUI').style.width = ''; document.getElementById('listPaneUI').style.width = ''; 
-            
             syncTopAlignment(); setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1061,8 +1061,11 @@
             });
             if (!result.isConfirmed) return; if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
             
+            const pinXacNhan = await askMasterPIN();
+            if (!pinXacNhan) return; 
+
             const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
-            skusToDelete.forEach(s => { s.trang_thai = -1; });
+            skusToDelete.forEach(s => { s.trang_thai = -1; s._pin_delete_auth = pinXacNhan; });
             await sendDataToBackend(skusToDelete);
         }
 
@@ -1107,6 +1110,7 @@
             };
 
             const fd = new FormData(); fd.set('ma_nganh', CURRENT_NGANH); fd.set('ma_san_pham', productJSON.ma_san_pham || ""); fd.set('data_json', JSON.stringify(productJSON)); 
+            let pinAuth = ""; skus.forEach(s => { if(s._pin_delete_auth) pinAuth = s._pin_delete_auth; }); if (pinAuth) fd.set('pin_xac_nhan', pinAuth);
 
             try {
                 const res = await fetch('/master/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
