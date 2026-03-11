@@ -45,44 +45,33 @@
         input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; }
         .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; font-size: 15px; }
 
-        /* =========================================================
-           TAGIFY CUSTOM CHUNG (Khử giới hạn, tự do co giãn)
-           ========================================================= */
+        /* TAGIFY CUSTOM CHUNG (Chỉ dùng cho Danh Mục) */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; }
         .tagify--focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         
-        /* 1. Ghi đè Tagify (Dành riêng cho Thương Hiệu, Đơn Vị, Tình Trạng) */
-        .tagify-mini-wrap { display: inline-flex; align-items: center; }
-        .tagify-mini-wrap .tagify { border: none !important; padding: 0 !important; width: auto !important; display: inline-flex; flex-wrap: nowrap !important; align-items: center; min-height: unset; box-shadow: none !important; background: transparent; }
-        .tagify-mini-wrap .tagify__input { margin: 0 !important; padding: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; line-height: 1; min-width: 10px !important; width: auto !important; }
-        
-        /* CẤM RỚT DÒNG VÀ CHỪA CHỖ CHO MŨI TÊN "v" (padding-right: 16px) */
-        .tagify-mini-wrap .tagify__tag { margin: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; padding: 0 16px 0 0 !important; height: auto; border-radius: 0; background: transparent; white-space: nowrap !important; }
-        .tagify-mini-wrap .tagify__tag>div { padding: 0 !important; white-space: nowrap !important; }
-        .tagify-mini-wrap .tagify__tag__removeBtn { display: none !important; }
-
-        /* GIẢI CỨU MENU THẢ XUỐNG: Cấm bóp méo, tự mở rộng theo chữ bên trong */
-        .tagify__dropdown { min-width: max-content !important; width: auto !important; white-space: nowrap !important; }
-
         /* =========================================================
-           2. SMART INPUT (BỌP GỌN, ÉP SÁT CHỮ, KHÔNG THỪA)
+           SMART INPUT CHUẨN MỰC (DÀNH CHO TẤT CẢ CÁC TRƯỜNG THUỘC TÍNH)
            ========================================================= */
         .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 32px; }
         
         .smart-input-btn { height: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 0.5rem; color: #64748b; font-size: 12px; font-weight: 700; transition: 0.2s; display: flex; align-items: center; padding: 0 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
         .smart-input-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #f8fafc; border-style: solid; }
         
-        .smart-input-field { height: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; overflow: hidden; white-space: nowrap; width: max-content; }
+        .smart-input-field { height: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 10px; padding-right: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; white-space: nowrap; width: max-content; overflow: hidden; }
         .smart-input-field:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
         
         .smart-input-wrap.active .smart-input-btn { display: none; }
         .smart-input-wrap.active .smart-input-field { display: flex; }
 
-        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; border-radius: 0 0.5rem 0.5rem 0;}
         .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
         
-        .auto-expand-input { min-width: 10px; max-width: 250px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
+        /* Ô nhập liệu: Tự giãn bề ngang, không padding thừa */
+        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
+        /* Tinh chỉnh cho datalist mũi tên không đè chữ */
+        input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
         /* Khác */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
@@ -101,6 +90,10 @@
         <div id="data_bln">{{ range .ListBLN }}<div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>{{ end }}</div>
         <div id="data_sanpham">{{ range .DanhSachFull }}<div class="sp-data" data-json="{{ .DataJSON }}"></div>{{ end }}</div>
     </div>
+
+    <datalist id="dl_thuong_hieu"></datalist>
+    <datalist id="dl_don_vi"><option value="Cái"></option><option value="Bộ"></option><option value="Hộp"></option><option value="Chiếc"></option><option value="Combo"></option></datalist>
+    <datalist id="dl_tinh_trang"><option value="Mới 100%"></option><option value="Like New"></option><option value="Cũ"></option><option value="Trưng bày"></option></datalist>
 
     <div id="splitUIContainer" class="saas-split-wrapper max-w-[1600px] mx-auto">
         
@@ -247,30 +240,7 @@
                                 </div>
                                 
                                 <div class="flex flex-wrap items-center gap-2 mb-4" id="unified_attributes_container">
-                                    
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
-                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">T.HIỆU:</span>
-                                         <div class="tagify-mini-wrap"><input id="f_ma_thuong_hieu" placeholder="..."></div>
                                     </div>
-
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
-                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">Đ.VỊ:</span>
-                                         <div class="tagify-mini-wrap"><input id="f_don_vi" placeholder="..."></div>
-                                    </div>
-
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
-                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">T.TRẠNG:</span>
-                                         <div class="tagify-mini-wrap"><input id="f_tinh_trang" placeholder="..."></div>
-                                    </div>
-
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] focus-within:border-blue-500 transition overflow-hidden shadow-sm w-max pl-2">
-                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">B.HÀNH:</span>
-                                         <input type="text" id="f_bao_hanh_num" class="text-center font-bold text-slate-800 outline-none text-[13px] bg-transparent auto-expand-input" placeholder="12" style="width: 2ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length : 2) + 'ch'; this.value=this.value.replace(/[^0-9]/g, ''); isDirty = true;">
-                                         <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold ml-1">Tháng</span>
-                                    </div>
-                                    
-                                    <div id="dynamic_standard_container" class="contents"></div>
-                                </div>
                             </div>
 
                             <div class="form-section">
@@ -468,6 +438,10 @@
             }, { rootMargin: '100px' }); 
             observer.observe(sentinel);
             
+            // Nạp DataList Thương Hiệu
+            let dlTH = document.getElementById('dl_thuong_hieu');
+            if(dlTH) { listTH.forEach(th => dlTH.innerHTML += `<option value="${th}"></option>`); }
+
             filterAndSort(true);
         });
 
@@ -542,13 +516,6 @@
 
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('#f_ma_danh_muc'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
-        const tagifyTH = new Tagify(document.querySelector('#f_ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
-        const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { mode: 'select', enforceWhitelist: false, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc"] });
-        const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { mode: 'select', enforceWhitelist: false, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Mới 100%", "Like New", "Cũ"] });
-
-        [tagifyDM, tagifyTH, tagifyDonVi, tagifyTinhTrang].forEach(t => {
-            t.on('add', function() { if(!isEditingMode) isDirty = true; }); t.on('remove', function() { if(!isEditingMode) isDirty = true; });
-        });
 
         tagifyDM.on('add', function() { 
             if(isEditingMode) return; 
@@ -584,50 +551,80 @@
             };
         }
 
-        // ĐỘNG CƠ RENDER THUỘC TÍNH (FIX LỖI ÉP SIZE)
-        function renderDynamicAttributes(nganh, thuocTinhData) {
-            const container = document.getElementById('dynamic_standard_container'); 
+        // =========================================================================
+        // ĐỘNG CƠ RENDER UNIFIED: XÓA SỔ RANH GIỚI GIỮA TRƯỜNG CỐ ĐỊNH VÀ ĐỘNG
+        // Tất cả 100% được sinh ra từ đây, không còn HTML cứng!
+        // =========================================================================
+        function renderDynamicAttributes(nganh, currentSKU) {
+            const container = document.getElementById('unified_attributes_container'); 
             container.innerHTML = '';
-            const attrs = G_ThuocTinhNganh[nganh] || [];
+            
+            // 1. CHUẨN BỊ 4 TRƯỜNG CỐ ĐỊNH TRƯỚC (Giả lập cấu trúc giống thuộc tính động)
+            let thName = "";
+            if(currentSKU.ma_thuong_hieu) {
+                let parts = currentSKU.ma_thuong_hieu.split("|");
+                thName = dicThuongHieuByMa[parts[0]] ? dicThuongHieuByMa[parts[0]].ten : parts[0]; 
+            }
+            let bhVal = currentSKU.bao_hanh ? currentSKU.bao_hanh.split(" ")[0] : "";
 
-            attrs.forEach(a => {
-                if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang') return;
+            const coreAttributes = [
+                { ma_thuoc_tinh: 'core_thuong_hieu', ten_thuoc_tinh: 'Thương hiệu', kieu_nhap: 'text', val: thName, datalist: 'dl_thuong_hieu' },
+                { ma_thuoc_tinh: 'core_don_vi', ten_thuoc_tinh: 'Đơn vị', kieu_nhap: 'text', val: currentSKU.don_vi || "", datalist: 'dl_don_vi', center: true },
+                { ma_thuoc_tinh: 'core_tinh_trang', ten_thuoc_tinh: 'Tình trạng', kieu_nhap: 'text', val: currentSKU.tinh_trang || "", datalist: 'dl_tinh_trang', center: true },
+                { ma_thuoc_tinh: 'core_bao_hanh', ten_thuoc_tinh: 'Bảo hành', kieu_nhap: 'number', val: bhVal, don_vi: 'Tháng', center: true }
+            ];
 
-                let val = thuocTinhData[a.ma_thuoc_tinh] || "";
-                let isActive = val !== "" ? "active" : ""; 
-                
-                let donViHtml = "";
-                let inputAlign = "text-left";
-                if (a.don_vi) {
-                    donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold whitespace-nowrap ml-1">${a.don_vi}</span>`;
-                    inputAlign = "text-center";
-                }
-
-                // Chiều rộng khởi tạo tự động, nếu rỗng thì 3 ký tự, nếu có dữ liệu thì nới rộng thêm 1 xíu cho dễ thở
-                let initialWidth = val.length > 0 ? (val.length + 1) + 'ch' : '3ch';
-
-                let html = `
-                <div class="smart-input-wrap ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
-                    <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
-                        <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh}
-                    </button>
-                    <div class="smart-input-field px-2">
-                        <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1 whitespace-nowrap">${a.ten_thuoc_tinh}:</span>
-                        <input type="${a.kieu_nhap === 'number' ? 'text' : 'text'}" 
-                               id="attr_${a.ma_thuoc_tinh}" 
-                               class="auto-expand-input dynamic-attr ${inputAlign}" 
-                               data-key="${a.ma_thuoc_tinh}" 
-                               value="${val}" 
-                               placeholder="..."
-                               style="width: ${initialWidth};"
-                               oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 3) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
-                        ${donViHtml}
-                        <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
-                    </div>
-                </div>
-                `;
-                container.innerHTML += html;
+            // 2. KẾT HỢP VỚI CÁC TRƯỜNG ĐỘNG TỪ CẤU HÌNH EAV
+            const dynamicAttrs = G_ThuocTinhNganh[nganh] || [];
+            
+            // Render 4 trường cố định
+            coreAttributes.forEach(a => renderSingleAttribute(container, a, true));
+            // Render các trường động
+            dynamicAttrs.forEach(a => {
+                if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang') return; // Tránh trùng lặp nếu trên sheet lỡ cấu hình
+                a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh] || "";
+                if(a.don_vi) a.center = true;
+                renderSingleAttribute(container, a, false);
             });
+        }
+
+        // Hàm tiện ích vẽ từng ô Input (Giống nhau 100%)
+        function renderSingleAttribute(container, a, isCore) {
+            let isActive = a.val !== "" ? "active" : ""; 
+            let donViHtml = "";
+            let inputAlign = a.center ? "text-center" : "text-left";
+            
+            if (a.don_vi) {
+                donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold whitespace-nowrap ml-1">${a.don_vi}</span>`;
+            }
+
+            let datalistAttr = a.datalist ? `list="${a.datalist}"` : "";
+            let initialWidth = a.val.length > 0 ? (a.val.length + 1) + 'ch' : '3ch';
+
+            let shortLabel = isCore ? (a.ten_thuoc_tinh.substring(0,1) + '.' + a.ten_thuoc_tinh.substring(a.ten_thuoc_tinh.indexOf(' ')+1)) : a.ten_thuoc_tinh; // Rút gọn chữ T.HIỆU, Đ.VỊ
+
+            let html = `
+            <div class="smart-input-wrap ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
+                <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
+                    <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh}
+                </button>
+                <div class="smart-input-field px-2">
+                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1 whitespace-nowrap">${shortLabel}:</span>
+                    <input type="${a.kieu_nhap === 'number' ? 'text' : 'text'}" 
+                           id="attr_${a.ma_thuoc_tinh}" 
+                           class="auto-expand-input ${inputAlign} ${isCore ? 'core-attr' : 'dynamic-attr'}" 
+                           data-key="${a.ma_thuoc_tinh}" 
+                           ${datalistAttr}
+                           value="${a.val}" 
+                           placeholder="..."
+                           style="width: ${initialWidth};"
+                           oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 3) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                    ${donViHtml}
+                    <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
+                </div>
+            </div>
+            `;
+            container.innerHTML += html;
         }
 
         function renderTabs() {
@@ -719,6 +716,9 @@
             isDirty = true;
         }
 
+        // =========================================================================
+        // GOM DỮ LIỆU TỪ CẢ TRƯỜNG CỐ ĐỊNH VÀ TRƯỜNG ĐỘNG
+        // =========================================================================
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
@@ -734,16 +734,21 @@
             let arrTenDM = tagifyDM.value.map(v => v.value);
             sku.ma_danh_muc = arrTenDM.map(t => dicDanhMucByTen[t] ? dicDanhMucByTen[t].ma : t).join("|");
 
-            let arrTenTH = tagifyTH.value.map(v => v.value);
-            sku.ma_thuong_hieu = arrTenTH.map(t => dicThuongHieuByTen[t] ? dicThuongHieuByTen[t] : t).join("|");
+            // Đọc 4 trường xương sống từ giao diện Smart Input mới
+            let tenTH = document.getElementById('attr_core_thuong_hieu') ? document.getElementById('attr_core_thuong_hieu').value.trim() : "";
+            sku.ma_thuong_hieu = dicThuongHieuByTen[tenTH] ? dicThuongHieuByTen[tenTH] : tenTH;
+            
+            sku.don_vi = document.getElementById('attr_core_don_vi') ? document.getElementById('attr_core_don_vi').value.trim() : "";
+            sku.tinh_trang = document.getElementById('attr_core_tinh_trang') ? document.getElementById('attr_core_tinh_trang').value.trim() : "";
+            
+            let bhN = document.getElementById('attr_core_bao_hanh') ? document.getElementById('attr_core_bao_hanh').value.trim() : ""; 
+            sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
 
-            sku.don_vi = tagifyDonVi.value.map(v => v.value).join("|");
-            sku.tinh_trang = tagifyTinhTrang.value.map(v => v.value).join("|");
-            let bhN = document.getElementById('f_bao_hanh_num').value; sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
-
-            // LƯU CÁC THUỘC TÍNH ĐỘNG
+            // Lưu các thuộc tính động
             sku.thuoc_tinh = {};
-            document.querySelectorAll('.dynamic-attr').forEach(inp => { if(inp.value.trim() !== '') { sku.thuoc_tinh[inp.getAttribute('data-key')] = inp.value; } });
+            document.querySelectorAll('.dynamic-attr').forEach(inp => { 
+                if(inp.value.trim() !== '') { sku.thuoc_tinh[inp.getAttribute('data-key')] = inp.value; } 
+            });
 
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
             sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; 
@@ -770,10 +775,10 @@
             
             if (sp.trang_thai === -1) {
                 fieldset.disabled = true; warningBox.classList.remove('hidden'); syncBtns.forEach(b => b.classList.add('hidden'));
-                [tagifyDM, tagifyTH, tagifyDonVi, tagifyTinhTrang].forEach(t => t.setReadonly(true)); document.getElementById('btn_add_img').classList.add('hidden');
+                tagifyDM.setReadonly(true); document.getElementById('btn_add_img').classList.add('hidden');
             } else {
                 fieldset.disabled = false; warningBox.classList.add('hidden'); syncBtns.forEach(b => b.classList.remove('hidden'));
-                [tagifyDM, tagifyTH, tagifyDonVi, tagifyTinhTrang].forEach(t => t.setReadonly(false)); document.getElementById('btn_add_img').classList.remove('hidden');
+                tagifyDM.setReadonly(false); document.getElementById('btn_add_img').classList.remove('hidden');
             }
 
             document.getElementById('f_ma_san_pham').value = sp.ma_san_pham;
@@ -794,15 +799,9 @@
             document.getElementById('f_ten_rut_gon').value = sp.ten_rut_gon;
 
             tagifyDM.removeAllTags(); if(sp.ma_danh_muc) tagifyDM.addTags(sp.ma_danh_muc.split("|").map(m => dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m));
-            tagifyTH.removeAllTags(); if(sp.ma_thuong_hieu) tagifyTH.addTags(sp.ma_thuong_hieu.split("|").map(m => dicThuongHieuByMa[m] ? dicThuongHieuByMa[m] : m));
-            tagifyDonVi.removeAllTags(); if(sp.don_vi) tagifyDonVi.addTags(sp.don_vi.split("|"));
-            tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
-
-            if (sp.bao_hanh) document.getElementById('f_bao_hanh_num').value = sp.bao_hanh.split(" ")[0]; 
-            else document.getElementById('f_bao_hanh_num').value = "";
-            document.getElementById('f_bao_hanh_num').dispatchEvent(new Event('input')); 
-
-            renderDynamicAttributes(CURRENT_NGANH, sp.thuoc_tinh || {});
+            
+            // GỌI HÀM VẼ GIAO DIỆN (NÓ SẼ TỰ ĐỘNG ĐIỀN DỮ LIỆU CỦA CẢ 4 TRƯỜNG CỐ ĐỊNH VÀ TRƯỜNG ĐỘNG)
+            renderDynamicAttributes(CURRENT_NGANH, sp);
 
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_bien_do_phan_tram').value = sp.phan_tram_lai > 0 ? sp.phan_tram_lai : ""; 
