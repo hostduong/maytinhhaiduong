@@ -218,7 +218,7 @@ type KhachHangShop struct {
 // CẤU TRÚC ĐỘNG: CẤU HÌNH THUỘC TÍNH (EAV META-DATA)
 // ==============================================================================
 const (
-	DongBatDau_CauHinhThuocTinh = 2
+	DongBatDau_CauHinhThuocTinh = 11
 	CotCHTT_MaThuocTinh  = 0 // A
 	CotCHTT_TenThuocTinh = 1 // B
 	CotCHTT_KieuNhap     = 2 // C
