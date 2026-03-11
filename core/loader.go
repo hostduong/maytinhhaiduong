@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
 	"app/config"
 )
 
@@ -25,6 +26,7 @@ var CacHamNapMaster = []func(string){
 	napKhachHangMasterNoErr,
 	NapGoiDichVuMaster,
 	NapTinNhanMaster,
+	NapCauHinhThuocTinh, // [MỚI] Nạp ma trận Meta-data cấu hình EAV
 }
 
 // [TẦNG 2]: Tổng kho Admin
@@ -34,14 +36,14 @@ var CacHamNapAdmin = []func(string){
 	NapDanhMuc,
 	NapThuongHieu,
 	NapBienLoiNhuan,
-	NapMayTinh,
+	NapSanPhamGeneric, // [MỚI] Quái vật nạp NoSQL Đa ngành
 }
 
 // [TẦNG 3]: Cửa hàng bán lẻ (Lazy Load)
 var CacHamNapCuaHang = []func(string){
 	// NapKhachHangCuaShop, // Sếp mở comment khi code xong
 	// NapPhanQuyenCuaShop, // Sếp mở comment khi code xong
-	NapMayTinh,
+	NapSanPhamGeneric, // [MỚI] Quái vật nạp NoSQL Đa ngành
 	NapDanhMuc,
 	NapThuongHieu,
 	NapBienLoiNhuan,
@@ -134,6 +136,135 @@ func NapDuLieuCuaMotShop(shopID string) {
 	
 	log.Printf("✅ [LAZY LOAD] Hoàn tất nạp Cửa hàng (ID: %s).", shopID)
 }
+
+// ==============================================================================
+// [MỚI] NẠP CẤU HÌNH THUỘC TÍNH (EAV META-DATA) - CHẠY TỪ MASTER
+// ==============================================================================
+func NapCauHinhThuocTinh(masterID string) {
+	raw := napDataGeneric(masterID, TenSheetCauHinhThuocTinh, nil)
+	if raw == nil || len(raw) == 0 { return }
+
+	var listNganh []ConfigNganhHang
+	mapNganh := make(map[string]ConfigNganhHang)
+	mapThuocTinh := make(map[string][]ThuocTinhNganh)
+	colToNganh := make(map[int]string) // Ánh xạ tọa độ cột -> ma_nganh
+
+	// Bước 1: Quét Dòng 1 (Header chứa JSON cấu hình ngành)
+	headerRow := raw[0]
+	for i := CotCHTT_StartNganh; i < len(headerRow); i++ {
+		jsonStr := LayString(headerRow, i)
+		if jsonStr == "" { continue }
+		
+		var cfg ConfigNganhHang
+		if err := json.Unmarshal([]byte(jsonStr), &cfg); err == nil && cfg.MaNganh != "" {
+			listNganh = append(listNganh, cfg)
+			mapNganh[cfg.MaNganh] = cfg
+			colToNganh[i] = cfg.MaNganh
+			mapThuocTinh[cfg.MaNganh] = []ThuocTinhNganh{} // Khởi tạo mảng rỗng
+		}
+	}
+
+	// Bước 2: Quét các dòng dưới (Cấu hình từng thuộc tính)
+	for i, row := range raw {
+		if i < DongBatDau_CauHinhThuocTinh-1 { continue } 
+		
+		maTT := LayString(row, CotCHTT_MaThuocTinh)
+		if maTT == "" { continue }
+		
+		tt := ThuocTinhNganh{
+			MaThuocTinh:  maTT,
+			TenThuocTinh: LayString(row, CotCHTT_TenThuocTinh),
+			KieuNhap:     LayString(row, CotCHTT_KieuNhap),
+			DonVi:        LayString(row, CotCHTT_DonVi),
+		}
+
+		// Ngành nào đánh số "1" thì gắn thuộc tính này vào mảng của ngành đó
+		for colIdx, maNganh := range colToNganh {
+			val := LayString(row, colIdx)
+			if val == "1" {
+				mapThuocTinh[maNganh] = append(mapThuocTinh[maNganh], tt)
+			}
+		}
+	}
+
+	KhoaHeThong.Lock()
+	defer KhoaHeThong.Unlock()
+	CacheDanhSachNganh = listNganh
+	CacheMapNganh = mapNganh
+	CacheThuocTinh = mapThuocTinh
+	log.Println("✅ [LOADER] Đã nạp thành công Ma trận Cấu hình Thuộc tính (EAV).")
+}
+
+// ==============================================================================
+// [MỚI] NẠP TỔNG KHO SẢN PHẨM JSON (NOSQL - CHẠY CHUNG MỌI NGÀNH)
+// ==============================================================================
+func NapSanPhamGeneric(shopID string) {
+	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
+
+	// 1. Thu thập danh sách các Sheet vật lý đang lưu trữ sản phẩm (Từ cấu hình)
+	KhoaHeThong.RLock()
+	uniqueSheets := make(map[string]bool)
+	for _, nganh := range CacheDanhSachNganh {
+		if nganh.TenSheet != "" {
+			uniqueSheets[nganh.TenSheet] = true
+		}
+	}
+	KhoaHeThong.RUnlock()
+
+	// Khởi tạo các Map tạm để nhào nặn O(1)
+	tempCacheSP := make(map[string][]*ProductJSON)
+	tempMapSP := make(map[string]*ProductJSON)
+	tempMapSKU := make(map[string]*ProductSKU)
+
+	// 2. Chọc vào từng Sheet Vật lý tải JSON lên
+	for sheetName := range uniqueSheets {
+		raw := napDataGeneric(shopID, sheetName, nil)
+		if raw == nil { continue }
+
+		for i, r := range raw {
+			if i < DongBatDau_Product-1 { continue } // Bỏ qua Header
+			maSP := LayString(r, CotProd_MaSanPham)
+			dataJSON := LayString(r, CotProd_DataJSON)
+			
+			if maSP == "" || dataJSON == "" { continue }
+
+			var sp ProductJSON
+			if err := json.Unmarshal([]byte(dataJSON), &sp); err == nil {
+				spPtr := &sp
+				// Phân lô dữ liệu theo Mã Ngành
+				tempCacheSP[sp.MaNganh] = append(tempCacheSP[sp.MaNganh], spPtr)
+				
+				// Nạp vào Map O(1) siêu tốc
+				tempMapSP[TaoCompositeKey(shopID, maSP)] = spPtr
+				for sIdx := range sp.SKU {
+					skuPtr := &sp.SKU[sIdx]
+					tempMapSKU[TaoCompositeKey(shopID, skuPtr.MaSKU)] = skuPtr
+				}
+			} else {
+				log.Printf("⚠️ [LOADER] Lỗi Unmarshal JSON Sản phẩm %s (Shop: %s): %v", maSP, shopID, err)
+			}
+		}
+	}
+
+	// 3. Đổ mẻ trộn vào Bồn chứa RAM chính thức
+	lockSP := GetSheetLock(shopID, "PRODUCTS_CACHE")
+	lockSP.Lock()
+	CacheSanPham[shopID] = tempCacheSP
+	lockSP.Unlock()
+
+	// Ghi đè vào Map O(1) Global (Dọn rác cũ trước khi ghi để tránh dính bóng ma)
+	KhoaHeThong.Lock()
+	for k := range CacheMapSanPham {
+		if strings.HasPrefix(k, shopID+"__") { delete(CacheMapSanPham, k) }
+	}
+	for k := range CacheMapSKU {
+		if strings.HasPrefix(k, shopID+"__") { delete(CacheMapSKU, k) }
+	}
+	for k, v := range tempMapSP { CacheMapSanPham[k] = v }
+	for k, v := range tempMapSKU { CacheMapSKU[k] = v }
+	KhoaHeThong.Unlock()
+}
+
 
 // ==============================================================================
 // 4. TẦNG MASTER: NẠP KÉT SẮT & QUẢN TRỊ LÕI
@@ -440,55 +571,6 @@ func NapNhaCungCap(shopID string) {
 	CacheNhaCungCap[shopID] = list
 	for _, ncc := range list {
 		CacheMapNhaCungCap[TaoCompositeKey(shopID, ncc.MaNhaCungCap)] = ncc
-	}
-}
-
-// 4. NẠP MÁY TÍNH (FULL TỪNG SKUS)
-func NapMayTinh(shopID string) {
-	if shopID == "" { shopID = config.BienCauHinh.IdFileSheetAdmin }
-	raw := napDataGeneric(shopID, TenSheetMayTinh, nil)
-	if raw == nil { return }
-	list := []*SanPhamMayTinh{}
-	for i, r := range raw {
-		if i < DongBatDau_SanPhamMayTinh-1 { continue }
-		maSP := LayString(r, CotPC_MaSanPham)
-		if maSP == "" { continue }
-		sp := &SanPhamMayTinh{
-			SpreadsheetID: shopID, DongTrongSheet: i + 1, MaSanPham: maSP,
-			TenSanPham: LayString(r, CotPC_TenSanPham), TenRutGon: LayString(r, CotPC_TenRutGon),
-			Slug: LayString(r, CotPC_Slug), MaSKU: LayString(r, CotPC_MaSKU),
-			TenSKU: LayString(r, CotPC_TenSKU), SKUChinh: LayInt(r, CotPC_SKUChinh),
-			TrangThai: LayInt(r, CotPC_TrangThai), MaDanhMuc: LayString(r, CotPC_MaDanhMuc),
-			MaThuongHieu: LayString(r, CotPC_MaThuongHieu), DonVi: LayString(r, CotPC_DonVi),
-			MauSac: LayString(r, CotPC_MauSac), KhoiLuong: LayFloat(r, CotPC_KhoiLuong),
-			KichThuoc: LayString(r, CotPC_KichThuoc), UrlHinhAnh: LayString(r, CotPC_UrlHinhAnh),
-			ThongSoHTML: LayString(r, CotPC_ThongSoHTML), MoTaHTML: LayString(r, CotPC_MoTaHTML),
-			BaoHanh: LayString(r, CotPC_BaoHanh), TinhTrang: LayString(r, CotPC_TinhTrang),
-			GiaNhap: LayFloat(r, CotPC_GiaNhap), PhanTramLai: LayFloat(r, CotPC_PhanTramLai),
-			GiaNiemYet: LayFloat(r, CotPC_GiaNiemYet), PhanTramGiam: LayFloat(r, CotPC_PhanTramGiam),
-			SoTienGiam: LayFloat(r, CotPC_SoTienGiam), GiaBan: LayFloat(r, CotPC_GiaBan),
-			GhiChu: LayString(r, CotPC_GhiChu), NguoiTao: LayString(r, CotPC_NguoiTao),
-			NgayTao: LayString(r, CotPC_NgayTao), NguoiCapNhat: LayString(r, CotPC_NguoiCapNhat),
-			NgayCapNhat: LayString(r, CotPC_NgayCapNhat),
-		}
-		list = append(list, sp)
-	}
-
-	lock := GetSheetLock(shopID, TenSheetMayTinh)
-	lock.Lock()
-	defer lock.Unlock()
-	CacheSanPhamMayTinh[shopID] = list
-	
-	for k := range CacheGroupSanPhamMayTinh {
-		if strings.HasPrefix(k, shopID+"__") { delete(CacheGroupSanPhamMayTinh, k) }
-	}
-	for _, sp := range list {
-		CacheMapSKUMayTinh[TaoCompositeKey(shopID, sp.LayIDDuyNhat())] = sp
-		kGroup := TaoCompositeKey(shopID, sp.MaSanPham)
-		if CacheGroupSanPhamMayTinh[kGroup] == nil {
-			CacheGroupSanPhamMayTinh[kGroup] = []*SanPhamMayTinh{}
-		}
-		CacheGroupSanPhamMayTinh[kGroup] = append(CacheGroupSanPhamMayTinh[kGroup], sp)
 	}
 }
 
