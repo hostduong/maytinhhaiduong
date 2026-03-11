@@ -840,50 +840,41 @@
         // HỆ THỐNG RENDER THUỘC TÍNH ĐỘNG (AUTO-RENDER UI EAV)
         // ==============================================================
         function renderDynamicAttributes(nganh, thuocTinhData) {
-            const standardContainer = document.getElementById('dynamic_standard_container');
-            const smartContainer = document.getElementById('dynamic_smart_container');
-            const smartWrapper = document.getElementById('dynamic_smart_wrapper');
-            
-            standardContainer.innerHTML = '';
-            smartContainer.innerHTML = '';
+            // Thay vì chia 2 div, giờ gom hết vào 1 div Container duy nhất (Sếp xóa bớt cái dynamic_smart_wrapper cũ trong HTML nhé)
+            const container = document.getElementById('dynamic_standard_container'); 
+            container.innerHTML = '';
             
             const attrs = G_ThuocTinhNganh[nganh] || [];
-            let hasSmart = false;
 
             attrs.forEach(a => {
                 let val = thuocTinhData[a.ma_thuoc_tinh] || "";
+                let isActive = val !== "" ? "active" : ""; // Có dữ liệu là nút biến thành ô nhập
                 
-                if (!a.don_vi) {
-                    standardContainer.innerHTML += `
-                        <div>
-                            <label>${a.ten_thuoc_tinh}</label>
-                            <input type="${a.kieu_nhap}" class="input-premium text-sm dynamic-attr" data-key="${a.ma_thuoc_tinh}" value="${val}" placeholder="Nhập ${a.ten_thuoc_tinh.toLowerCase()}...">
-                        </div>
-                    `;
-                } else {
-                    hasSmart = true;
-                    // FIX 3: Căn chỉnh lại chiều rộng phù hợp để không bị dính lề
-                    let inputWidth = "w-[70px]";
-                    if(a.ma_thuoc_tinh === "bao_hanh") inputWidth = "w-[60px]";
-                    if(a.ma_thuoc_tinh === "kich_thuoc") inputWidth = "w-[100px]";
-                    
-                    smartContainer.innerHTML += `
-                        <div class="flex items-center shrink-0">
-                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">${a.ten_thuoc_tinh}:</span>
-                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
-                                <input type="${a.kieu_nhap}" class="${inputWidth} h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px] dynamic-attr" data-key="${a.ma_thuoc_tinh}" value="${val}" placeholder="0">
-                                <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">${a.don_vi}</span>
-                            </div>
-                        </div>
-                    `;
+                let alignClass = "text-left";
+                let donViHtml = "";
+                
+                if (a.don_vi) {
+                    alignClass = "text-center";
+                    donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">${a.don_vi}</span>`;
                 }
-            });
 
-            if (!hasSmart) {
-                smartWrapper.style.display = 'none';
-            } else {
-                smartWrapper.style.display = 'flex';
-            }
+                let html = `
+                <div class="smart-input-wrap shrink-0 ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
+                    <button type="button" class="smart-input-btn bg-white border border-slate-300 text-slate-500 hover:text-blue-600 px-3 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition w-full justify-start" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> + ${a.ten_thuoc_tinh}
+                    </button>
+                    <div class="smart-input-field hidden items-center w-full">
+                        <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0 truncate max-w-[80px]" title="${a.ten_thuoc_tinh}">${a.ten_thuoc_tinh}:</span>
+                        <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px] flex-1">
+                            <input type="${a.kieu_nhap}" id="attr_${a.ma_thuoc_tinh}" class="h-full font-bold text-slate-800 outline-none p-0 m-0 text-[13px] dynamic-attr flex-1 px-2 ${alignClass}" data-key="${a.ma_thuoc_tinh}" value="${val}" placeholder="...">
+                            ${donViHtml}
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition shrink-0" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
         }
 
         function renderTabs() {
