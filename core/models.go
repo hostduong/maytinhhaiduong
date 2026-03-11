@@ -226,7 +226,6 @@ const (
 	CotCHTT_StartNganh   = 4 // E trở đi (Chứa JSON cấu hình)
 )
 
-// ConfigNganhHang dùng để hứng JSON trên dòng 1 của Cột Ngành
 type ConfigNganhHang struct {
 	MaNganh    string `json:"ma"`
 	TenSheet   string `json:"sheet"`
@@ -251,7 +250,6 @@ const (
 	CotProd_DataJSON   = 1 // Cột B
 )
 
-// ProductRow đại diện cho 1 dòng vật lý trên Google Sheets
 type ProductRow struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -259,24 +257,23 @@ type ProductRow struct {
 	DataJSON       string `json:"data_json"`
 }
 
-// ProductJSON định nghĩa lõi dữ liệu sẽ được Serialize/Deserialize từ DataJSON (Cột B)
 type ProductJSON struct {
 	SpreadsheetID  string        `json:"-"`
-	DongTrongSheet int           `json:"-"`          // Lưu tọa độ dòng
+	DongTrongSheet int           `json:"-"`          
 	MaSanPham    string        `json:"ma_san_pham"`
-	Version      int           `json:"version"`      // Quản lý migrate schema
-	CreatedAt    int64         `json:"created_at"`   // Unix timestamp
-	UpdatedAt    int64         `json:"updated_at"`   // Unix timestamp
-	TrangThai    int           `json:"trang_thai"`   // 1=hoạt động, 0=ẩn, -1=xóa mềm, 2=hết hàng, v.v.
+	Version      int           `json:"version"`      
+	CreatedAt    int64         `json:"created_at"`   
+	UpdatedAt    int64         `json:"updated_at"`   
+	TrangThai    int           `json:"trang_thai"`   
 	MaNganh      string        `json:"ma_nganh"`
 	MaDanhMuc    []string      `json:"ma_danh_muc"`
 	MaThuongHieu string        `json:"ma_thuong_hieu"`
 	TenSanPham   string        `json:"ten_san_pham"`
 	TenRutGon    string        `json:"ten_rut_gon"`
 	Slug         string        `json:"slug"`
-	NenTang      []string      `json:"nen_tang"`     // web, shopee, pos...
+	NenTang      []string      `json:"nen_tang"`     
 	LoaiSanPham  string        `json:"loai_san_pham"`
-	SearchText   string        `json:"search_text"`  // Text không dấu tối ưu query RAM
+	SearchText   string        `json:"search_text"`  
 	SearchBoost  int           `json:"search_boost"`
 	Sort         int           `json:"sort"`
 	Views        int           `json:"views"`
@@ -293,6 +290,7 @@ type ProductSKU struct {
 	MaSKU        string                 `json:"ma_sku"`
 	TrangThai    int                    `json:"trang_thai"`
 	TenSKU       string                 `json:"ten_sku"`
+	TenSanPham   string                 `json:"ten_san_pham"` // [BỔ SUNG] Tên hiển thị riêng biệt theo từng phiên bản
 	Barcode      string                 `json:"barcode"`
 	TinhTrang    string                 `json:"tinh_trang"`
 	BaoHanh      string                 `json:"bao_hanh"`
@@ -308,7 +306,7 @@ type ProductSKU struct {
 	TonKho       int                    `json:"ton_kho"`
 	DaBan        int                    `json:"da_ban"`
 	DatTruoc     int                    `json:"dat_truoc"`
-	ThuocTinh    map[string]interface{} `json:"thuoc_tinh"` // Ma trận thuộc tính động (Dynamic EAV)
+	ThuocTinh    map[string]interface{} `json:"thuoc_tinh"` 
 }
 
 type ProductGia struct {
@@ -329,39 +327,37 @@ type ProductSEO struct {
 
 type ProductQuanLy struct {
 	NguoiTao     string `json:"nguoi_tao"`
-	NgayTao      string `json:"ngay_tao"` // Có thể dùng timestamp hoặc chuỗi ISO
+	NgayTao      string `json:"ngay_tao"` 
 	NguoiCapNhat string `json:"nguoi_cap_nhat"`
 	NgayCapNhat  string `json:"ngay_cap_nhat"`
 }
-
 
 // ==============================================================================
 // 5. CÁC CẤU TRÚC VẬN HÀNH: TÀI CHÍNH & HÓA ĐƠN
 // ==============================================================================
 
-// --- HÓA ĐƠN TÀI CHÍNH (20 Cột) ---
 const (
 	DongBatDau_HoaDon = 11
-	CotHD_MaHoaDon           = 0  // A
-	CotHD_MaTraCuu           = 1  // B
-	CotHD_XmlUrl             = 2  // C
-	CotHD_LoaiHoaDon         = 3  // D
-	CotHD_MaPhieuXuat        = 4  // E
-	CotHD_MaKhachHang        = 5  // F
-	CotHD_NgayHoaDon         = 6  // G
-	CotHD_KyHieu             = 7  // H
-	CotHD_SoHoaDon           = 8  // I
-	CotHD_MauSo              = 9  // J
-	CotHD_LinkChungTu        = 10 // K
-	CotHD_TongTienPhieu      = 11 // L
-	CotHD_TongVAT            = 12 // M
-	CotHD_TongTienSauVAT     = 13 // N
-	CotHD_TrangThai          = 14 // O
-	CotHD_TrangThaiThanhToan = 15 // P
-	CotHD_GhiChu             = 16 // Q
-	CotHD_NguoiTao           = 17 // R
-	CotHD_NgayTao            = 18 // S
-	CotHD_NgayCapNhat        = 19 // T
+	CotHD_MaHoaDon           = 0  
+	CotHD_MaTraCuu           = 1  
+	CotHD_XmlUrl             = 2  
+	CotHD_LoaiHoaDon         = 3  
+	CotHD_MaPhieuXuat        = 4  
+	CotHD_MaKhachHang        = 5  
+	CotHD_NgayHoaDon         = 6  
+	CotHD_KyHieu             = 7  
+	CotHD_SoHoaDon           = 8  
+	CotHD_MauSo              = 9  
+	CotHD_LinkChungTu        = 10 
+	CotHD_TongTienPhieu      = 11 
+	CotHD_TongVAT            = 12 
+	CotHD_TongTienSauVAT     = 13 
+	CotHD_TrangThai          = 14 
+	CotHD_TrangThaiThanhToan = 15 
+	CotHD_GhiChu             = 16 
+	CotHD_NguoiTao           = 17 
+	CotHD_NgayTao            = 18 
+	CotHD_NgayCapNhat        = 19 
 )
 
 type HoaDon struct {
@@ -392,19 +388,18 @@ type HoaDon struct {
 	ChiTiet            []*HoaDonChiTiet `json:"chi_tiet"`
 }
 
-// --- HÓA ĐƠN CHI TIẾT (11 Cột) ---
 const (
-	CotHDCT_MaHoaDon    = 0  // A
-	CotHDCT_MaSanPham   = 1  // B
-	CotHDCT_MaSKU       = 2  // C
-	CotHDCT_MaNganhHang = 3  // D
-	CotHDCT_TenSanPham  = 4  // E
-	CotHDCT_DonVi       = 5  // F
-	CotHDCT_SoLuong     = 6  // G
-	CotHDCT_DonGiaBan   = 7  // H
-	CotHDCT_VATPercent  = 8  // I
-	CotHDCT_TienVAT     = 9  // J
-	CotHDCT_ThanhTien   = 10 // K
+	CotHDCT_MaHoaDon    = 0  
+	CotHDCT_MaSanPham   = 1  
+	CotHDCT_MaSKU       = 2  
+	CotHDCT_MaNganhHang = 3  
+	CotHDCT_TenSanPham  = 4  
+	CotHDCT_DonVi       = 5  
+	CotHDCT_SoLuong     = 6  
+	CotHDCT_DonGiaBan   = 7  
+	CotHDCT_VATPercent  = 8  
+	CotHDCT_TienVAT     = 9  
+	CotHDCT_ThanhTien   = 10 
 )
 
 type HoaDonChiTiet struct {
@@ -421,25 +416,24 @@ type HoaDonChiTiet struct {
 	ThanhTien   float64 `json:"thanh_tien"`
 }
 
-// --- PHIẾU THU CHI QUỸ KẾ TOÁN (16 Cột) ---
 const (
 	DongBatDau_PhieuThuChi = 11
-	CotPTC_MaPhieu             = 0  // A
-	CotPTC_NgayTaoPhieu        = 1  // B
-	CotPTC_LoaiPhieu           = 2  // C
-	CotPTC_DoiTuongLoai        = 3  // D
-	CotPTC_DoiTuongID          = 4  // E
-	CotPTC_HangMucThuChi       = 5  // F
-	CotPTC_CoHoaDonDo          = 6  // G
-	CotPTC_MaChungTuThamChieu  = 7  // H
-	CotPTC_SoTien              = 8  // I
-	CotPTC_PhuongThucThanhToan = 9  // J
-	CotPTC_TrangThaiDuyet      = 10 // K
-	CotPTC_NguoiDuyet          = 11 // L
-	CotPTC_GhiChu              = 12 // M
-	CotPTC_NguoiTao            = 13 // N
-	CotPTC_NgayTao             = 14 // O
-	CotPTC_NgayCapNhat         = 15 // P
+	CotPTC_MaPhieu             = 0  
+	CotPTC_NgayTaoPhieu        = 1  
+	CotPTC_LoaiPhieu           = 2  
+	CotPTC_DoiTuongLoai        = 3  
+	CotPTC_DoiTuongID          = 4  
+	CotPTC_HangMucThuChi       = 5  
+	CotPTC_CoHoaDonDo          = 6  
+	CotPTC_MaChungTuThamChieu  = 7  
+	CotPTC_SoTien              = 8  
+	CotPTC_PhuongThucThanhToan = 9  
+	CotPTC_TrangThaiDuyet      = 10 
+	CotPTC_NguoiDuyet          = 11 
+	CotPTC_GhiChu              = 12 
+	CotPTC_NguoiTao            = 13 
+	CotPTC_NgayTao             = 14 
+	CotPTC_NgayCapNhat         = 15 
 )
 
 type PhieuThuChi struct {
@@ -464,31 +458,30 @@ type PhieuThuChi struct {
 	NgayCapNhat          string  `json:"ngay_cap_nhat"`
 }
 
-// --- PHIẾU BẢO HÀNH KỸ THUẬT (22 Cột) ---
 const (
 	DongBatDau_PhieuBaoHanh = 11
-	CotPBH_MaPhieu           = 0  // A
-	CotPBH_LoaiPhieu         = 1  // B
-	CotPBH_SerialIMEI        = 2  // C
-	CotPBH_MaSanPham         = 3  // D
-	CotPBH_MaKhachHang       = 4  // E
-	CotPBH_TenNguoiGui       = 5  // F
-	CotPBH_SDTNguoiGui       = 6  // G
-	CotPBH_NgayNhan          = 7  // H
-	CotPBH_TinhTrangLoi      = 8  // I
-	CotPBH_HinhThuc          = 9  // J
-	CotPBH_TrangThai         = 10 // K
-	CotPBH_NgayTraDuKien     = 11 // L
-	CotPBH_NgayTraThucTe     = 12 // M
-	CotPBH_ChiPhiSua         = 13 // N
-	CotPBH_PhiThuKhach       = 14 // O
-	CotPBH_KetQuaSuaChua     = 15 // P
-	CotPBH_LinhKienThayThe   = 16 // Q
-	CotPBH_MaNhanVienKyThuat = 17 // R
-	CotPBH_GhiChu            = 18 // S
-	CotPBH_NguoiTao          = 19 // T
-	CotPBH_NgayTao           = 20 // U
-	CotPBH_NgayCapNhat       = 21 // V
+	CotPBH_MaPhieu           = 0  
+	CotPBH_LoaiPhieu         = 1  
+	CotPBH_SerialIMEI        = 2  
+	CotPBH_MaSanPham         = 3  
+	CotPBH_MaKhachHang       = 4  
+	CotPBH_TenNguoiGui       = 5  
+	CotPBH_SDTNguoiGui       = 6  
+	CotPBH_NgayNhan          = 7  
+	CotPBH_TinhTrangLoi      = 8  
+	CotPBH_HinhThuc          = 9  
+	CotPBH_TrangThai         = 10 
+	CotPBH_NgayTraDuKien     = 11 
+	CotPBH_NgayTraThucTe     = 12 
+	CotPBH_ChiPhiSua         = 13 
+	CotPBH_PhiThuKhach       = 14 
+	CotPBH_KetQuaSuaChua     = 15 
+	CotPBH_LinhKienThayThe   = 16 
+	CotPBH_MaNhanVienKyThuat = 17 
+	CotPBH_GhiChu            = 18 
+	CotPBH_NguoiTao          = 19 
+	CotPBH_NgayTao           = 20 
+	CotPBH_NgayCapNhat       = 21 
 )
 
 type PhieuBaoHanh struct {
@@ -525,30 +518,30 @@ type PhieuBaoHanh struct {
 // ==============================================================================
 const (
 	DongBatDau_NhaCungCap = 11
-	CotNCC_MaNhaCungCap       = 0  // A
-	CotNCC_TenNhaCungCap      = 1  // B
-	CotNCC_MaSoThue           = 2  // C
-	CotNCC_DienThoai          = 3  // D
-	CotNCC_Email              = 4  // E
-	CotNCC_KhuVuc             = 5  // F
-	CotNCC_DiaChi             = 6  // G
-	CotNCC_NguoiLienHe        = 7  // H
-	CotNCC_AnhDaiDien         = 8  // I
-	CotNCC_NganHang           = 9  // J
-	CotNCC_NhomNhaCungCap     = 10 // K
-	CotNCC_LoaiNhaCungCap     = 11 // L
-	CotNCC_DieuKhoanThanhToan = 12 // M
-	CotNCC_ChietKhauMacDinh   = 13 // N
-	CotNCC_HanMucCongNo       = 14 // O
-	CotNCC_CongNoDauKy        = 15 // P
-	CotNCC_TongMua            = 16 // Q
-	CotNCC_NoCanTra           = 17 // R
-	CotNCC_ThongTinThemJson   = 18 // S
-	CotNCC_TrangThai          = 19 // T
-	CotNCC_GhiChu             = 20 // U
-	CotNCC_NguoiTao           = 21 // V
-	CotNCC_NgayTao            = 22 // W
-	CotNCC_NgayCapNhat        = 23 // X
+	CotNCC_MaNhaCungCap       = 0  
+	CotNCC_TenNhaCungCap      = 1  
+	CotNCC_MaSoThue           = 2  
+	CotNCC_DienThoai          = 3  
+	CotNCC_Email              = 4  
+	CotNCC_KhuVuc             = 5  
+	CotNCC_DiaChi             = 6  
+	CotNCC_NguoiLienHe        = 7  
+	CotNCC_AnhDaiDien         = 8  
+	CotNCC_NganHang           = 9  
+	CotNCC_NhomNhaCungCap     = 10 
+	CotNCC_LoaiNhaCungCap     = 11 
+	CotNCC_DieuKhoanThanhToan = 12 
+	CotNCC_ChietKhauMacDinh   = 13 
+	CotNCC_HanMucCongNo       = 14 
+	CotNCC_CongNoDauKy        = 15 
+	CotNCC_TongMua            = 16 
+	CotNCC_NoCanTra           = 17 
+	CotNCC_ThongTinThemJson   = 18 
+	CotNCC_TrangThai          = 19 
+	CotNCC_GhiChu             = 20 
+	CotNCC_NguoiTao           = 21 
+	CotNCC_NgayTao            = 22 
+	CotNCC_NgayCapNhat        = 23 
 )
 
 type NhaCungCap struct {
@@ -654,18 +647,18 @@ type BienLoiNhuan struct {
 const (
 	DongBatDau_TinNhan = 11
 
-	CotTN_MaTinNhan    = 0  // A
-	CotTN_LoaiTinNhan  = 1  // B
-	CotTN_NguoiGuiID   = 2  // C
-	CotTN_NguoiNhanID  = 3  // D
-	CotTN_TieuDe       = 4  // E
-	CotTN_NoiDung      = 5  // F
-	CotTN_DinhKemJson  = 6  // G
-	CotTN_ThamChieuID  = 7  // H
-	CotTN_ReplyChoID   = 8  // I
-	CotTN_NgayTao      = 9  // J
-	CotTN_NguoiDocJson = 10 // K
-	CotTN_TrangThaiXoa = 11 // L
+	CotTN_MaTinNhan    = 0  
+	CotTN_LoaiTinNhan  = 1  
+	CotTN_NguoiGuiID   = 2  
+	CotTN_NguoiNhanID  = 3  
+	CotTN_TieuDe       = 4  
+	CotTN_NoiDung      = 5  
+	CotTN_DinhKemJson  = 6  
+	CotTN_ThamChieuID  = 7  
+	CotTN_ReplyChoID   = 8  
+	CotTN_NgayTao      = 9  
+	CotTN_NguoiDocJson = 10 
+	CotTN_TrangThaiXoa = 11 
 )
 
 type FileDinhKem struct {
@@ -699,76 +692,70 @@ type TinNhan struct {
 // ==============================================================================
 const (
 	DongBatDau_PhieuNhap       = 11
-	CotPN_MaPhieuNhap          = 0  // A
-	CotPN_MaNhaCungCap         = 1  // B
-	CotPN_MaKho                = 2  // C
-	CotPN_NgayNhap             = 3  // D
-	CotPN_ChiTietJson          = 4  // E (Mới: Lưu mảng JSON chi tiết)
-	CotPN_TrangThai            = 5  // F (-1: Xóa, 0: Nháp, 1: Hoàn thành, 2: Chờ duyệt)
-	CotPN_SoHoaDon             = 6  // G
-	CotPN_NgayHoaDon           = 7  // H
-	CotPN_UrlChungTu           = 8  // I
-	CotPN_TongTienPhieu        = 9  // J
-	CotPN_GiamGiaPhieu         = 10 // K
-	CotPN_ChiPhiNhap           = 11 // L (Mới: Phí vận chuyển, bốc vác...)
-	CotPN_DaThanhToan          = 12 // M
-	CotPN_ConNo                = 13 // N
-	CotPN_PhuongThucThanhToan  = 14 // O
-	CotPN_TrangThaiThanhToan   = 15 // P
-	CotPN_GhiChu               = 16 // Q
-	CotPN_NguoiTao             = 17 // R
-	CotPN_NgayTao              = 18 // S
-	CotPN_NguoiDuyet           = 19 // T (Mới)
-	CotPN_NgayDuyet            = 20 // U (Mới)
-	CotPN_NguoiCapNhat         = 21 // V
-	CotPN_NgayCapNhat          = 22 // W
+	CotPN_MaPhieuNhap          = 0  
+	CotPN_MaNhaCungCap         = 1  
+	CotPN_MaKho                = 2  
+	CotPN_NgayNhap             = 3  
+	CotPN_ChiTietJson          = 4  
+	CotPN_TrangThai            = 5  
+	CotPN_SoHoaDon             = 6  
+	CotPN_NgayHoaDon           = 7  
+	CotPN_UrlChungTu           = 8  
+	CotPN_TongTienPhieu        = 9  
+	CotPN_GiamGiaPhieu         = 10 
+	CotPN_ChiPhiNhap           = 11 
+	CotPN_DaThanhToan          = 12 
+	CotPN_ConNo                = 13 
+	CotPN_PhuongThucThanhToan  = 14 
+	CotPN_TrangThaiThanhToan   = 15 
+	CotPN_GhiChu               = 16 
+	CotPN_NguoiTao             = 17 
+	CotPN_NgayTao              = 18 
+	CotPN_NguoiDuyet           = 19 
+	CotPN_NgayDuyet            = 20 
+	CotPN_NguoiCapNhat         = 21 
+	CotPN_NgayCapNhat          = 22 
 )
 
-// --- CHI TIẾT PHIẾU NHẬP (15 Cột) ---
 const (
-	CotCTPN_MaPhieuNhap     = 0  // A
-	CotCTPN_MaSanPham       = 1  // B
-	CotCTPN_MaSKU           = 2  // C
-	CotCTPN_MaNganhHang     = 3  // D
-	CotCTPN_TenSanPham      = 4  // E
-	CotCTPN_DonVi           = 5  // F
-	CotCTPN_SoLuong         = 6  // G
-	CotCTPN_DonGiaNhap      = 7  // H
-	CotCTPN_VATPercent      = 8  // I
-	CotCTPN_GiaSauVAT       = 9  // J
-	CotCTPN_ChietKhauDong   = 10 // K
-	CotCTPN_ThanhTienDong   = 11 // L
-	CotCTPN_GiaVonThucTe    = 12 // M
-	CotCTPN_BaoHanhThang    = 13 // N
-	CotCTPN_GhiChuDong      = 14 // O
+	CotCTPN_MaPhieuNhap     = 0  
+	CotCTPN_MaSanPham       = 1  
+	CotCTPN_MaSKU           = 2  
+	CotCTPN_MaNganhHang     = 3  
+	CotCTPN_TenSanPham      = 4  
+	CotCTPN_DonVi           = 5  
+	CotCTPN_SoLuong         = 6  
+	CotCTPN_DonGiaNhap      = 7  
+	CotCTPN_VATPercent      = 8  
+	CotCTPN_GiaSauVAT       = 9  
+	CotCTPN_ChietKhauDong   = 10 
+	CotCTPN_ThanhTienDong   = 11 
+	CotCTPN_GiaVonThucTe    = 12 
+	CotCTPN_BaoHanhThang    = 13 
+	CotCTPN_GhiChuDong      = 14 
 )
 
-// --- SERIAL SẢN PHẨM (19 Cột) ---
 const (
-	CotSR_SerialIMEI             = 0  // A
-	CotSR_MaSanPham              = 1  // B
-	CotSR_MaSKU                  = 2  // C
-	CotSR_MaNganhHang            = 3  // D
-	CotSR_MaNhaCungCap           = 4  // E
-	CotSR_MaPhieuNhap            = 5  // F
-	CotSR_MaPhieuXuat            = 6  // G
-	CotSR_TrangThai              = 7  // H
-	CotSR_BaoHanhNhaCungCap      = 8  // I
-	CotSR_HanBaoHanhNhaCungCap   = 9  // J
-	CotSR_MaKhachHangHienTai     = 10 // K
-	CotSR_NgayNhapKho            = 11 // L
-	CotSR_NgayXuatKho            = 12 // M
-	CotSR_GiaVonNhap             = 13 // N
-	CotSR_KichHoatBaoHanhKhach   = 14 // O
-	CotSR_HanBaoHanhKhach        = 15 // P
-	CotSR_MaKho                  = 16 // Q
-	CotSR_GhiChu                 = 17 // R
-	CotSR_NgayCapNhat            = 18 // S
+	CotSR_SerialIMEI             = 0  
+	CotSR_MaSanPham              = 1  
+	CotSR_MaSKU                  = 2  
+	CotSR_MaNganhHang            = 3  
+	CotSR_MaNhaCungCap           = 4  
+	CotSR_MaPhieuNhap            = 5  
+	CotSR_MaPhieuXuat            = 6  
+	CotSR_TrangThai              = 7  
+	CotSR_BaoHanhNhaCungCap      = 8  
+	CotSR_HanBaoHanhNhaCungCap   = 9  
+	CotSR_MaKhachHangHienTai     = 10 
+	CotSR_NgayNhapKho            = 11 
+	CotSR_NgayXuatKho            = 12 
+	CotSR_GiaVonNhap             = 13 
+	CotSR_KichHoatBaoHanhKhach   = 14 
+	CotSR_HanBaoHanhKhach        = 15 
+	CotSR_MaKho                  = 16 
+	CotSR_GhiChu                 = 17 
+	CotSR_NgayCapNhat            = 18 
 )
-
-// ====================================================================
-// 3. KHAI BÁO STRUCT GIAO TIẾP JSON
-// ====================================================================
 
 type PhieuNhap struct {
 	SpreadsheetID  string `json:"-"`
@@ -778,14 +765,14 @@ type PhieuNhap struct {
 	MaNhaCungCap         string  `json:"ma_nha_cung_cap"`
 	MaKho                string  `json:"ma_kho"`
 	NgayNhap             string  `json:"ngay_nhap"`
-	ChiTietJson          string  `json:"chi_tiet_json"` // Thêm mới
+	ChiTietJson          string  `json:"chi_tiet_json"` 
 	TrangThai            int     `json:"trang_thai"`
 	SoHoaDon             string  `json:"so_hoa_don"`
 	NgayHoaDon           string  `json:"ngay_hoa_don"`
 	UrlChungTu           string  `json:"url_chung_tu"`
 	TongTienPhieu        float64 `json:"tong_tien_phieu"`
 	GiamGiaPhieu         float64 `json:"giam_gia_phieu"`
-	ChiPhiNhap           float64 `json:"chi_phi_nhap"` // Thêm mới
+	ChiPhiNhap           float64 `json:"chi_phi_nhap"` 
 	DaThanhToan          float64 `json:"da_thanh_toan"`
 	ConNo                float64 `json:"con_no"`
 	PhuongThucThanhToan  string  `json:"phuong_thuc_thanh_toan"`
@@ -793,12 +780,11 @@ type PhieuNhap struct {
 	GhiChu               string  `json:"ghi_chu"`
 	NguoiTao             string  `json:"nguoi_tao"`
 	NgayTao              string  `json:"ngay_tao"`
-	NguoiDuyet           string  `json:"nguoi_duyet"` // Thêm mới
-	NgayDuyet            string  `json:"ngay_duyet"`  // Thêm mới
+	NguoiDuyet           string  `json:"nguoi_duyet"` 
+	NgayDuyet            string  `json:"ngay_duyet"`  
 	NguoiCapNhat         string  `json:"nguoi_cap_nhat"`
 	NgayCapNhat          string  `json:"ngay_cap_nhat"`
 	
-	// Thuộc tính này để chứa dữ liệu dạng Struct khi RAM bung JSON ra (Không lưu trực tiếp biến này xuống sheet Phiếu Nhập)
 	ChiTiet              []*ChiTietPhieuNhap `json:"chi_tiet"`
 }
 
@@ -848,9 +834,6 @@ type SerialSanPham struct {
 	NgayCapNhat              string  `json:"ngay_cap_nhat"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: PHIẾU XUẤT BÁN HÀNG
-// ==============================================================================
 const (
 	CotPX_MaPhieuXuat          = 0  
 	CotPX_LoaiXuat             = 1  
@@ -941,37 +924,32 @@ type ChiTietPhieuXuat struct {
 	GhiChuDong     string  `json:"ghi_chu_dong"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: GÓI DỊCH VỤ SAAS
-// ==============================================================================
 const (
 	DongBatDau_GoiDichVu = 11
 
-	CotGDV_MaGoi              = 0  // A
-	CotGDV_TenGoi             = 1  // B
-	CotGDV_LoaiGoi            = 2  // C
-	CotGDV_ThoiHanNgay        = 3  // D
-	CotGDV_ThoiHanHienThi     = 4  // E 
-	CotGDV_NhanHienThi        = 5  // F
-	CotGDV_GiaNiemYet         = 6  // G
-	CotGDV_GiaBan             = 7  // H
-	CotGDV_MaCodeKichHoatJson = 8  // I
-	CotGDV_GioiHanJson        = 9  // J
-	CotGDV_MoTa               = 10 // K
-	CotGDV_NgayBatDau         = 11 // L
-	CotGDV_NgayKetThuc        = 12 // M
-	CotGDV_SoLuongConLai      = 13 // N
-	CotGDV_TrangThai          = 14 // O
+	CotGDV_MaGoi              = 0  
+	CotGDV_TenGoi             = 1  
+	CotGDV_LoaiGoi            = 2  
+	CotGDV_ThoiHanNgay        = 3  
+	CotGDV_ThoiHanHienThi     = 4   
+	CotGDV_NhanHienThi        = 5  
+	CotGDV_GiaNiemYet         = 6  
+	CotGDV_GiaBan             = 7  
+	CotGDV_MaCodeKichHoatJson = 8  
+	CotGDV_GioiHanJson        = 9  
+	CotGDV_MoTa               = 10 
+	CotGDV_NgayBatDau         = 11 
+	CotGDV_NgayKetThuc        = 12 
+	CotGDV_SoLuongConLai      = 13 
+	CotGDV_TrangThai          = 14 
 )
 
-// Cấu trúc để bóc tách JSON Cột I (Mã Code Khuyến Mãi)
 type CodeKichHoat struct {
 	Code     string  `json:"code"`
 	GiamTien float64 `json:"giam_tien"`
-	SoLuong  int     `json:"so_luong"` // -1 là không giới hạn
+	SoLuong  int     `json:"so_luong"` 
 }
 
-// Cấu trúc dữ liệu chính của Gói Dịch Vụ
 type GoiDichVu struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -994,25 +972,21 @@ type GoiDichVu struct {
 	TrangThai          int             `json:"trang_thai"`
 }
 
-// ==============================================================================
-// CẤU TRÚC TẦNG 3: NHÂN VIÊN & KHÁCH LẺ CỦA CỬA HÀNG (BẢN RÚT GỌN)
-// Tên Sheet: THANH_VIEN_SHOP
-// ==============================================================================
 const (
 	DongBatDau_ThanhVienShop = 11
 
-	CotTVS_MaThanhVien    = 0  // A
-	CotTVS_TenDangNhap    = 1  // B
-	CotTVS_MatKhauHash    = 2  // C
-	CotTVS_MaPinHash      = 3  // D
-	CotTVS_HoTen          = 4  // E
-	CotTVS_DienThoai      = 5  // F
-	CotTVS_Email          = 6  // G
-	CotTVS_VaiTro         = 7  // H (VD: ban_hang, ke_toan, khach_le)
-	CotTVS_TrangThai      = 8  // I (1: Hoạt động, 0: Khóa)
-	CotTVS_DiemThuong     = 9  // J
-	CotTVS_GhiChu         = 10 // K
-	CotTVS_NgayTao        = 11 // L
+	CotTVS_MaThanhVien    = 0  
+	CotTVS_TenDangNhap    = 1  
+	CotTVS_MatKhauHash    = 2  
+	CotTVS_MaPinHash      = 3  
+	CotTVS_HoTen          = 4  
+	CotTVS_DienThoai      = 5  
+	CotTVS_Email          = 6  
+	CotTVS_VaiTro         = 7  
+	CotTVS_TrangThai      = 8  
+	CotTVS_DiemThuong     = 9  
+	CotTVS_GhiChu         = 10 
+	CotTVS_NgayTao        = 11 
 )
 
 type ThanhVienShop struct {
