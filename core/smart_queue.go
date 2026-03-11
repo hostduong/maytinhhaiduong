@@ -54,13 +54,25 @@ func ProcessQueue() {
 	for k, v := range NoteQueue { currentNotes[k] = v }
 	queueMutex.Unlock()
 
+	// 1. [MỚI] Thu thập danh sách Tên Sheet Sản Phẩm hợp lệ từ Cấu Hình RAM
+	KhoaHeThong.RLock()
+	mapSheetSanPham := make(map[string]bool)
+	for _, nganh := range CacheDanhSachNganh {
+		if nganh.TenSheet != "" {
+			mapSheetSanPham[nganh.TenSheet] = true
+		}
+	}
+	KhoaHeThong.RUnlock()
+
+	// 2. Chạy vòng lặp xử lý
 	for key, note := range currentNotes {
 		success := false
 		
-		if strings.HasPrefix(note.TableName, "SP_") {
+		// [ĐÃ SỬA]: So khớp động 100% với tên Sheet trong file cấu hình, bất chấp tiền tố là gì
+		if mapSheetSanPham[note.TableName] {
 			success = ghiSanPhamNoSQL(note)
 		} else {
-			success = true // Bỏ qua các bảng cũ chưa tích hợp
+			success = true // Bỏ qua các bảng cũ chưa áp dụng Smart Queue
 		}
 
 		if success {
@@ -71,7 +83,6 @@ func ProcessQueue() {
 		}
 	}
 }
-
 func ghiSanPhamNoSQL(note *SyncNote) bool {
 	KhoaHeThong.RLock()
 	sp, ok := CacheMapSanPham[TaoCompositeKey(note.ShopID, note.ObjectID)]
