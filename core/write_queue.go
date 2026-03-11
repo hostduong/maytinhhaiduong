@@ -1,33 +1,38 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
 	"google.golang.org/api/sheets/v4"
 )
 
-// KHÔNG CÓ TỪ "HOẶC" - CHỈ CÓ 2 ACTION DUY NHẤT
+// ==============================================================================
+// 1. CẤU TRÚC HÀNG CHỜ
+// ==============================================================================
 const (
-	ActionUpdate = "UPDATE"
-	ActionAppend = "APPEND"
+	ActionUpdate     = "UPDATE"
+	ActionAppend     = "APPEND"
+	ActionSmartSync  = "SMART_SYNC" // Hành động mới: Đồng bộ nguyên dòng JSON 2 cột
 )
 
-// QueueJob: Định dạng lệnh duy nhất được đẩy xuống Google Sheets
 type QueueJob struct {
 	ShopID      string
 	SheetName   string
 	Action      string
 	
-	// Dùng cho UPDATE
+	// Dùng cho Cổ điển (Nhiều cột)
 	Row         int
 	Col         int
 	Value       interface{}
-	
-	// Dùng cho APPEND
 	RowData     []interface{}
+	
+	// Dùng cho Smart Queue (NoSQL 2 cột)
+	ObjectID    string // ID Sản phẩm, Khách hàng...
 }
 
 type WriteQueueManager struct {
@@ -40,7 +45,11 @@ var (
 	WakeUpQueue = make(chan struct{}, 1)
 )
 
-// PushUpdate: Dùng để sửa 1 Ô dữ liệu
+// ==============================================================================
+// 2. CÁC HÀM BƠM DATA VÀO QUEUE (PRODUCER)
+// ==============================================================================
+
+// Cổ điển: Dùng để sửa 1 Ô dữ liệu (Các bảng chưa chuyển JSON)
 func PushUpdate(shopID, sheetName string, row, col int, value interface{}) {
 	Queue.mu.Lock()
 	Queue.Jobs = append(Queue.Jobs, QueueJob{
@@ -51,12 +60,26 @@ func PushUpdate(shopID, sheetName string, row, col int, value interface{}) {
 	TriggerWorker()
 }
 
-// PushAppend: Dùng để chèn 1 Dòng dữ liệu mới (Tuyệt đối không đè định dạng)
+// Cổ điển: Dùng để chèn 1 Dòng mới (Tuyệt đối không đè định dạng)
 func PushAppend(shopID, sheetName string, rowData []interface{}) {
 	Queue.mu.Lock()
 	Queue.Jobs = append(Queue.Jobs, QueueJob{
 		ShopID: shopID, SheetName: sheetName, Action: ActionAppend,
 		RowData: rowData,
+	})
+	Queue.mu.Unlock()
+	TriggerWorker()
+}
+
+// [MỚI] Tương lai: Bơm một tín hiệu "Báo mộng" (Smart Sync)
+func GhiChuDongBo(shopID, tableName, action, objectID string) {
+	// Khi gọi hàm này, chúng ta khóa RAM lại để tránh bị xóa
+	TangTaskQueue(shopID)
+	
+	Queue.mu.Lock()
+	Queue.Jobs = append(Queue.Jobs, QueueJob{
+		ShopID: shopID, SheetName: tableName, Action: ActionSmartSync,
+		ObjectID: objectID,
 	})
 	Queue.mu.Unlock()
 	TriggerWorker()
@@ -69,9 +92,12 @@ func TriggerWorker() {
 	}
 }
 
+// ==============================================================================
+// 3. ĐỘNG CƠ XỬ LÝ NGẦM (CONSUMER)
+// ==============================================================================
 func KhoiTaoWorkerGhiSheet() {
 	go func() {
-		log.Println("🚀 [CORE WORKER] Đã khởi động đường ống Ghi dữ liệu (Append & Update)...")
+		log.Println("🚀 [CORE WORKER] Đã khởi động Hàng Chờ Hỗn Hợp (Classic + Smart)...")
 		for {
 			<-WakeUpQueue
 			time.Sleep(5 * time.Second) // Gom mẻ (Batching window)
@@ -87,49 +113,79 @@ func ProcessQueue() {
 		return
 	}
 	currentJobs := Queue.Jobs
-	Queue.Jobs = make([]QueueJob, 0)
+	Queue.Jobs = make([]QueueJob, 0) // Làm rỗng Queue cũ để nạp đợt mới
 	Queue.mu.Unlock()
 
-	log.Printf("⚡ [QUEUE] Đang xử lý mẻ %d tác vụ...", len(currentJobs))
+	log.Printf("⚡ [QUEUE] Đang xử lý mẻ %d tác vụ hỗn hợp...", len(currentJobs))
 
-	// Gom nhóm theo ShopID
 	jobsByShop := make(map[string][]QueueJob)
+	
+	// [MỚI] Bộ lọc Debounce cho Smart Queue (Xóa bỏ các lệnh SmartSync bị trùng lặp)
+	smartSyncMap := make(map[string]QueueJob) 
+	
 	for _, job := range currentJobs {
+		if job.Action == ActionSmartSync {
+			// Ghi đè: Chỉ giữ lại hành động mới nhất của Object đó
+			key := job.ShopID + "_" + job.SheetName + "_" + job.ObjectID
+			smartSyncMap[key] = job
+		} else {
+			jobsByShop[job.ShopID] = append(jobsByShop[job.ShopID], job)
+		}
+	}
+	
+	// Đẩy ngược lại Smart Sync vào list theo Shop
+	for _, job := range smartSyncMap {
 		jobsByShop[job.ShopID] = append(jobsByShop[job.ShopID], job)
 	}
 
+	// Xử lý nã súng lên Google
 	for shopID, jobs := range jobsByShop {
-		srv := LayDichVuSheet(shopID) // Hàm này phải nằm trong utils.go hoặc sheet_driver.go
+		srv := LayDichVuSheet(shopID)
 		if srv == nil {
 			log.Printf("❌ [QUEUE] Lỗi: Không lấy được API Google cho Shop %s", shopID[:5])
+			// Nhét lại toàn bộ jobs của Shop này vào Queue để lần sau Retry
+			Queue.mu.Lock()
+			Queue.Jobs = append(Queue.Jobs, jobs...)
+			Queue.mu.Unlock()
 			continue
 		}
 
 		var updateRequests []*sheets.ValueRange
+		var retryJobs []QueueJob // Những thằng cần chạy lại
 
 		for _, job := range jobs {
-			if job.Action == ActionAppend {
-				// Xử lý APPEND (Ghi chèn dòng cuối)
+			switch job.Action {
+			
+			case ActionAppend:
 				rangeToAppend := fmt.Sprintf("%s!A:Z", job.SheetName)
 				vr := &sheets.ValueRange{Values: [][]interface{}{job.RowData}}
-				
 				_, err := srv.Spreadsheets.Values.Append(shopID, rangeToAppend, vr).
 					ValueInputOption("RAW").InsertDataOption("OVERWRITE").Do()
 				
 				if err != nil {
-					log.Printf("❌ [APPEND ERROR] Shop %s - Sheet %s: %v", shopID[:5], job.SheetName, err)
+					log.Printf("❌ [APPEND ERROR] Shop %s - %s: %v", shopID[:5], job.SheetName, err)
+					retryJobs = append(retryJobs, job)
 				}
-			} else if job.Action == ActionUpdate {
-				// Gom Update (Ghi đè ô)
+				
+			case ActionUpdate:
 				rangeStr := fmt.Sprintf("%s!%s%d", job.SheetName, layTenCot(job.Col), job.Row)
 				updateRequests = append(updateRequests, &sheets.ValueRange{
 					Range:  rangeStr,
 					Values: [][]interface{}{{job.Value}},
 				})
+				
+			case ActionSmartSync:
+				// [MỚI] Cơ chế NoSQL 2 cột
+				success := thucThiSmartSync(srv, shopID, job)
+				if !success {
+					retryJobs = append(retryJobs, job) // Lỗi thì Retry
+				} else {
+					GiamTaskQueue(shopID) // Thành công thì Mở khóa RAM
+				}
 			}
 		}
 
-		// Đẩy toàn bộ Update lên 1 lần (BatchUpdate)
+		// Đẩy toàn bộ Cổ điển Update lên 1 lần (BatchUpdate)
 		if len(updateRequests) > 0 {
 			req := &sheets.BatchUpdateValuesRequest{
 				ValueInputOption: "RAW",
@@ -137,11 +193,67 @@ func ProcessQueue() {
 			}
 			_, err := srv.Spreadsheets.Values.BatchUpdate(shopID, req).Do()
 			if err != nil {
-				log.Printf("❌ [UPDATE ERROR] Shop %s: %v", shopID[:5], err)
+				log.Printf("❌ [UPDATE BATCH ERROR] Shop %s: %v", shopID[:5], err)
+				// Khôi phục các job update lại
+				for _, j := range jobs {
+					if j.Action == ActionUpdate { retryJobs = append(retryJobs, j) }
+				}
 			}
 		}
+
+		// Đưa các lệnh xịt vào lại Queue chờ 5 giây sau nã tiếp
+		if len(retryJobs) > 0 {
+			Queue.mu.Lock()
+			Queue.Jobs = append(Queue.Jobs, retryJobs...)
+			Queue.mu.Unlock()
+		}
 	}
-	log.Println("✅ [QUEUE] Đã giải quyết xong mẻ tác vụ.")
+}
+
+// [MỚI] Thực thi lệnh của NoSQL
+func thucThiSmartSync(srv *sheets.Service, shopID string, job QueueJob) bool {
+	// Lấy danh sách Tên Sheet Sản Phẩm để xác định nó là SP hay KH
+	KhoaHeThong.RLock()
+	isSanPham := false
+	for _, nganh := range CacheDanhSachNganh {
+		if nganh.TenSheet == job.SheetName { isSanPham = true; break }
+	}
+	KhoaHeThong.RUnlock()
+
+	if isSanPham {
+		KhoaHeThong.RLock()
+		sp, ok := CacheMapSanPham[TaoCompositeKey(shopID, job.ObjectID)]
+		KhoaHeThong.RUnlock()
+
+		// Nếu RAM đã xóa, nghĩa là object không tồn tại
+		if !ok || sp == nil { return true } 
+
+		b, _ := json.Marshal(sp)
+		jsonStr := string(b)
+		
+		// Luôn luôn UPDATE (Dù thêm mới hay sửa)
+		// (Hệ thống Service đã có trách nhiệm tự Append 1 dòng trống mới trước khi gọi SmartSync)
+		rangeID := fmt.Sprintf("%s!A%d", job.SheetName, sp.DongTrongSheet)
+		rangeJSON := fmt.Sprintf("%s!B%d", job.SheetName, sp.DongTrongSheet)
+		
+		req := &sheets.BatchUpdateValuesRequest{
+			ValueInputOption: "RAW",
+			Data: []*sheets.ValueRange{
+				{Range: rangeID, Values: [][]interface{}{{sp.MaSanPham}}},
+				{Range: rangeJSON, Values: [][]interface{}{{jsonStr}}},
+			},
+		}
+		
+		_, err := srv.Spreadsheets.Values.BatchUpdate(shopID, req).Do()
+		if err != nil {
+			log.Printf("❌ [SMART_SYNC ERROR] %s: %v", job.ObjectID, err)
+			return false
+		}
+		return true
+	}
+
+	// Mở rộng sau này cho Khách Hàng, Đơn Hàng...
+	return true 
 }
 
 func layTenCot(i int) string {
