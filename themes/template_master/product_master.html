@@ -9,11 +9,23 @@
         /* =========================================================================
            HỆ THỐNG CSS MASTER UI - CHUẨN HÓA BỐ CỤC CHIA ĐÔI (SPLIT-PANE SAAS)
            ========================================================================= */
-           
+        /* Khối Smart Input (Đã nâng cấp UI theo chuẩn SaaS) */
+        .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 34px; }
+        .smart-input-btn { cursor: pointer; transition: 0.2s; background: white; border: 1px dashed #cbd5e1; color: #64748b; padding: 0 12px; border-radius: 8px; font-size: 12px; font-weight: 700; height: 100%; display: flex; align-items: center; white-space: nowrap;}
+        .smart-input-btn:hover { border-style: solid; background-color: #f8fafc; color: #3b82f6; border-color: #3b82f6; }
+        
+        .smart-input-field { display: none; align-items: center; height: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; padding-left: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .smart-input-field:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+        
+        .smart-input-wrap.active .smart-input-btn { display: none !important; }
+        .smart-input-wrap.active .smart-input-field { display: flex !important; }
+        
+        .auto-expand-input { min-width: 40px; max-width: 250px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0 4px; background: transparent; transition: width 0.1s; }
         .saas-split-wrapper {
             display: flex; flex-direction: column; width: 100%; max-width: 100%;
             padding: 0 1rem 1rem 1rem; gap: 1rem; align-items: flex-start;
         }
+        
         @media (min-width: 1280px) {
             .saas-split-wrapper { flex-direction: row; padding: 0 1.5rem 2rem 1rem; }
         }
@@ -364,21 +376,25 @@
                             <div class="form-section">
                                 <div class="section-title">
                                     <span>🏷️ Phân loại & Thuộc tính</span>
-                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'thuoc_tinh')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang', 'thuoc_tinh')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                                    <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
-                                    <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái..."></div>
-                                </div>
-
-                                <div id="dynamic_standard_container" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                                    </div>
-
-                                <div class="flex flex-wrap items-center gap-3 sm:gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl" id="dynamic_smart_wrapper" style="display: none;">
-                                    <div id="dynamic_smart_container" class="flex flex-wrap items-center gap-3 sm:gap-4 w-full">
+                                    <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn..."></div>
+                                    <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái, Bộ..."></div>
+                                    <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium text-sm" placeholder="Mới 100%..."></div>
+                                    <div>
+                                        <label>Bảo hành</label>
+                                        <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[42px]">
+                                            <input type="number" id="f_bao_hanh_num" class="w-full h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
+                                            <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
                                         </div>
+                                    </div>
                                 </div>
+
+                                <div id="dynamic_standard_container" class="flex flex-wrap items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[58px]">
+                                    </div>
+                            </div>
                             </div>
 
                             <div class="form-section">
