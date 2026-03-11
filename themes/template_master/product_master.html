@@ -492,21 +492,9 @@
     </div>
 
     <script>
-        // MOCKUP Cấu hình thuộc tính ngành (Thực tế sẽ load từ file Cấu Hình Master)
-        const G_ThuocTinhNganh = {
-            "dien_tu": [
-                { ma_thuoc_tinh: "mau_sac", ten_thuoc_tinh: "Màu sắc", kieu_nhap: "text", don_vi: "" },
-                { ma_thuoc_tinh: "tinh_trang", ten_thuoc_tinh: "Tình trạng", kieu_nhap: "text", don_vi: "" },
-                { ma_thuoc_tinh: "cpu", ten_thuoc_tinh: "CPU", kieu_nhap: "text", don_vi: "" },
-                { ma_thuoc_tinh: "bao_hanh", ten_thuoc_tinh: "Bảo hành", kieu_nhap: "number", don_vi: "Tháng" },
-                { ma_thuoc_tinh: "khoi_luong", ten_thuoc_tinh: "Trọng lượng", kieu_nhap: "number", don_vi: "Gr" },
-                { ma_thuoc_tinh: "kich_thuoc", ten_thuoc_tinh: "Kích thước", kieu_nhap: "text", don_vi: "Cm" },
-                { ma_thuoc_tinh: "ram", ten_thuoc_tinh: "RAM", kieu_nhap: "number", don_vi: "GB" },
-                { ma_thuoc_tinh: "ssd", ten_thuoc_tinh: "SSD", kieu_nhap: "number", don_vi: "GB" }
-            ]
-        };
-        let CURRENT_NGANH = "dien_tu"; // Mặc định hiển thị Điện tử để test
 
+        const G_ThuocTinhNganh = {{ json .CauHinhThuocTinh }};
+        let CURRENT_NGANH = "{{ .MaNganh }}";
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
