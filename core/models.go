@@ -246,7 +246,7 @@ type ThuocTinhNganh struct {
 // CẤU TRÚC CHUẨN: SẢN PHẨM NOSQL (DÙNG CHUNG MỌI NGÀNH HÀNG)
 // ==============================================================================
 const (
-	DongBatDau_Product = 2
+	DongBatDau_Product = 11
 	CotProd_MaSanPham  = 0 // Cột A
 	CotProd_DataJSON   = 1 // Cột B
 )
