@@ -111,13 +111,17 @@ func kiemTraMucRAMThuCap() uint64 { var m runtime.MemStats; runtime.ReadMemStats
 
 // HÀM SÁT THỦ: Hủy diệt toàn bộ dữ liệu của 1 Shop khỏi các biến Map
 func xoaShopKhoiRAM(shopID string) {
-	// (Chú ý: Cần Lock cẩn thận ở đây, trong thực tế sẽ gọi Lock từng biến Map)
 	StatusMutex.Lock()
 	delete(CacheStatusKhachHang, shopID)
 	StatusMutex.Unlock()
 
 	delete(CacheKhachHang, shopID)
-	delete(CacheSanPhamMayTinh, shopID)
+	
+	// XÓA BỘ NHỚ SẢN PHẨM MỚI
+	KhoaHeThong.Lock()
+	delete(CacheSanPham, shopID)
+	KhoaHeThong.Unlock()
+
 	delete(CachePhieuNhap, shopID)
 	delete(CachePhieuXuat, shopID)
 	delete(CacheSerialSanPham, shopID)
@@ -127,6 +131,10 @@ func xoaShopKhoiRAM(shopID string) {
 	
 	// Quét và xóa các Composite Key (shopID__xyz)
 	for k := range CacheMapKhachHang { if k[:len(shopID)] == shopID { delete(CacheMapKhachHang, k) } }
-	for k := range CacheMapSKUMayTinh { if k[:len(shopID)] == shopID { delete(CacheMapSKUMayTinh, k) } }
-	for k := range CacheGroupSanPhamMayTinh { if k[:len(shopID)] == shopID { delete(CacheGroupSanPhamMayTinh, k) } }
+	
+	// Quét dọn bộ nhớ O(1) mới của Sản Phẩm
+	KhoaHeThong.Lock()
+	for k := range CacheMapSanPham { if k[:len(shopID)] == shopID { delete(CacheMapSanPham, k) } }
+	for k := range CacheMapSKU { if k[:len(shopID)] == shopID { delete(CacheMapSKU, k) } }
+	KhoaHeThong.Unlock()
 }
