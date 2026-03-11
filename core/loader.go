@@ -150,7 +150,7 @@ func NapCauHinhThuocTinh(masterID string) {
 	colToNganh := make(map[int]string) // Ánh xạ tọa độ cột -> ma_nganh
 
 	// Bước 1: Quét Dòng 1 (Header chứa JSON cấu hình ngành)
-	headerRow := raw[0]
+	headerRow := raw[DongBatDau_CauHinhThuocTinh-1]
 	for i := CotCHTT_StartNganh; i < len(headerRow); i++ {
 		jsonStr := LayString(headerRow, i)
 		if jsonStr == "" { continue }
@@ -164,9 +164,9 @@ func NapCauHinhThuocTinh(masterID string) {
 		}
 	}
 
-	// Bước 2: Quét các dòng dưới (Cấu hình từng thuộc tính)
+	// Bước 2: Quét các dòng dưới (Bắt đầu từ sau dòng Header)
 	for i, row := range raw {
-		if i < DongBatDau_CauHinhThuocTinh-1 { continue } 
+		if i < DongBatDau_CauHinhThuocTinh { continue } 
 		
 		maTT := LayString(row, CotCHTT_MaThuocTinh)
 		if maTT == "" { continue }
