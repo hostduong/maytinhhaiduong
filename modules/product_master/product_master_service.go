@@ -75,6 +75,10 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 		inputSP.UpdatedAt = now
 		inputSP.QuanLy.NguoiTao = spCu.QuanLy.NguoiTao
 		inputSP.QuanLy.NgayTao = spCu.QuanLy.NgayTao
+		
+		// BẮT BUỘC: Giữ lại tọa độ cũ để Smart Queue biết đường ghi đè lên Google Sheet
+		inputSP.SpreadsheetID = spCu.SpreadsheetID
+		inputSP.DongTrongSheet = spCu.DongTrongSheet
 	}
 	
 	inputSP.QuanLy.NguoiCapNhat = userID
@@ -89,9 +93,6 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 		}
 	}
 
-	// Đóng gói lại thành chuỗi JSON cuối cùng để lưu
-	finalJSONBytes, _ := json.Marshal(inputSP)
-	finalJSONString := string(finalJSONBytes)
 	spPtr := &inputSP
 
 	// 5. Thao tác RAM Siêu Tốc (Ghi đè O(1))
@@ -121,18 +122,14 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 
 	// 6. Gửi Tín hiệu "Note" vào Hàng chờ thông minh (Không gửi JSON)
 	if isUpdate {
-		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, "UPDATE", spPtr.MaSanPham)
+		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, core.ActionSmartSync, spPtr.MaSanPham)
 	} else {
-		// Tính số dòng dự kiến cho SP Mới
+		// Tính số dòng dự kiến cho SP Mới để gán vào RAM
 		spPtr.DongTrongSheet = core.DongBatDau_Product + len(core.CacheSanPham[adminShopID][maNganh]) - 1
-		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, "APPEND", spPtr.MaSanPham)
+		spPtr.SpreadsheetID = adminShopID
+		
+		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, core.ActionSmartSync, spPtr.MaSanPham)
 	}
-
-	return nil
-}
-
-	core.ThemVaoHangCho(adminShopID, cfgNganh.TenSheet, dongSheet, core.CotProd_MaSanPham, maSP)
-	core.ThemVaoHangCho(adminShopID, cfgNganh.TenSheet, dongSheet, core.CotProd_DataJSON, finalJSONString)
 
 	return nil
 }
