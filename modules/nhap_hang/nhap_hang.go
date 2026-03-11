@@ -12,9 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ============================================================================
-// 1. RENDER GIAO DIỆN HTML VÀ NẠP PHIẾU NHÁP
-// ============================================================================
 func TrangNhapHangMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -32,7 +29,14 @@ func TrangNhapHangMaster(c *gin.Context) {
 	}
 
 	danhSachNCC := core.LayDanhSachNhaCungCap(shopID)
-	danhSachSP := core.LayDanhSachSanPhamMayTinh(shopID)
+	
+	// [ĐÃ FIX] Lấy toàn bộ sản phẩm đa ngành nhồi vào dropdown nhập hàng
+	var danhSachSP []*core.ProductJSON
+	core.KhoaHeThong.RLock()
+	if nganhMap, exists := core.CacheSanPham[shopID]; exists {
+		for _, ds := range nganhMap { danhSachSP = append(danhSachSP, ds...) }
+	}
+	core.KhoaHeThong.RUnlock()
 
 	core.GetSheetLock(shopID, core.TenSheetPhieuNhap).RLock()
 	allPhieu := core.CachePhieuNhap[shopID]
@@ -53,9 +57,6 @@ func TrangNhapHangMaster(c *gin.Context) {
 	})
 }
 
-// ============================================================================
-// 2. CẤU TRÚC NHẬN JSON TỪ GIAO DIỆN (ĐÃ UPDATE VAT VÀ BẢO HÀNH)
-// ============================================================================
 type ChiTietInput struct {
 	MaSKU        string   `json:"ma_sku"`
 	SoLuong      int      `json:"so_luong"`
@@ -80,9 +81,6 @@ type PhieuNhapInput struct {
 	ChiTiet             []ChiTietInput `json:"chi_tiet"`
 }
 
-// ============================================================================
-// HÀM KIỂM TRA QUYỀN (HỖ TRỢ BYPASS CHO ADMIN)
-// ============================================================================
 func checkQuyenNhapHang(vaiTro string, userID string) bool {
 	if vaiTro == "quan_tri_he_thong" || vaiTro == "quan_tri_vien_he_thong" || 
 	   vaiTro == "quan_tri_cua_hang" || vaiTro == "quan_tri_vien_cua_hang" || 
@@ -92,9 +90,6 @@ func checkQuyenNhapHang(vaiTro string, userID string) bool {
 	return true 
 }
 
-// ============================================================================
-// 3. API XỬ LÝ LƯU PHIẾU NHẬP
-// ============================================================================
 func API_LuuPhieuNhap(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -125,7 +120,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		tenNguoiThaoTac = nguoiThaoTac.TenDangNhap
 	}
 
-	// Tính toán Kế toán (Bao gồm cả VAT)
 	var tongTienHang float64 = 0
 	var tongTienVat float64 = 0
 	
@@ -243,10 +237,12 @@ func API_LuuPhieuNhap(c *gin.Context) {
 		pn.ChiTiet = make([]*core.ChiTietPhieuNhap, 0) 
 		
 		for _, item := range input.ChiTiet {
-			spCache, ok := core.LayChiTietSKUMayTinh(shopID, item.MaSKU)
+			
+			// [ĐÃ FIX] Tìm SKU từ bộ nhớ NoSQL mới
+			skuCache, ok := core.CacheMapSKU[core.TaoCompositeKey(shopID, item.MaSKU)]
 			tenSP, donVi, maSP := "Sản phẩm không xác định", "Cái", ""
-			if ok && spCache != nil {
-				tenSP = spCache.TenSanPham; donVi = spCache.DonVi; maSP = spCache.MaSanPham
+			if ok && skuCache != nil {
+				tenSP = skuCache.TenSKU; donVi = skuCache.DonVi; maSP = skuCache.MaSanPham
 			}
 
 			// Khớp chuẩn 15 cột Sheet CHI_TIET_PHIEU_NHAP
@@ -309,9 +305,6 @@ func API_LuuPhieuNhap(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok", "msg": loai + " thành công!", "ma_phieu": pn.MaPhieuNhap})
 }
 
-// ============================================================================
-// 4. API ĐỔI TRẠNG THÁI PHIẾU (XÓA / KHÔI PHỤC)
-// ============================================================================
 func API_DoiTrangThaiPhieu(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
