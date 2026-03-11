@@ -230,6 +230,10 @@ func NapSanPhamGeneric(shopID string) {
 
 			var sp ProductJSON
 			if err := json.Unmarshal([]byte(dataJSON), &sp); err == nil {
+				// [BỔ SUNG] Gắn số dòng thực tế để Queue biết đường Update
+				sp.SpreadsheetID = shopID
+				sp.DongTrongSheet = i + 1
+				
 				spPtr := &sp
 				// Phân lô dữ liệu theo Mã Ngành
 				tempCacheSP[sp.MaNganh] = append(tempCacheSP[sp.MaNganh], spPtr)
