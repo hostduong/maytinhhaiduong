@@ -99,14 +99,18 @@ func KiemTraQuyen(shopID, role, maChucNang string) bool {
 // =======================================================
 // SẢN PHẨM & MASTER DATA (Khóa phân mảnh theo bảng)
 // =======================================================
-func TaoMaSPMayTinhMoi(shopID, prefix string) string {
-	lock := GetSheetLock(shopID, TenSheetMayTinh)
-	lock.RLock(); defer lock.RUnlock()
+
+// Hàm sinh ID động không cần phân biệt ngành
+func TaoMaSanPhamMoi(shopID, prefix string) string {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
 	if prefix == "" { prefix = "SP" }
 	max := 0
-	for _, sp := range CacheSanPhamMayTinh[shopID] {
-		if strings.HasPrefix(sp.MaSanPham, prefix) {
-			var num int; fmt.Sscanf(strings.TrimPrefix(sp.MaSanPham, prefix), "%d", &num)
+	for k := range CacheMapSanPham {
+		if strings.HasPrefix(k, shopID+"__"+prefix) {
+			idOnly := strings.TrimPrefix(k, shopID+"__")
+			var num int
+			fmt.Sscanf(strings.TrimPrefix(idOnly, prefix), "%d", &num)
 			if num > max { max = num }
 		}
 	}
@@ -124,19 +128,20 @@ func CapNhatSlotThuCong(shopID, dmMa string, slotMoi int) {
 	}
 }
 
-func LayDanhSachSanPhamMayTinh(shopID string) []*SanPhamMayTinh { lock := GetSheetLock(shopID, TenSheetMayTinh); lock.RLock(); defer lock.RUnlock(); return CacheSanPhamMayTinh[shopID] }
+// Lấy danh sách sản phẩm Generic theo từng ngành
+func LayDanhSachSanPham(shopID string, maNganh string) []*ProductJSON {
+	KhoaHeThong.RLock()
+	defer KhoaHeThong.RUnlock()
+	if list, ok := CacheSanPham[shopID][maNganh]; ok {
+		return list
+	}
+	return []*ProductJSON{}
+}
+
 func LayDanhSachDanhMuc(shopID string) []*DanhMuc { lock := GetSheetLock(shopID, TenSheetDanhMuc); lock.RLock(); defer lock.RUnlock(); return CacheDanhMuc[shopID] }
 func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { lock := GetSheetLock(shopID, TenSheetThuongHieu); lock.RLock(); defer lock.RUnlock(); return CacheThuongHieu[shopID] }
 func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { lock := GetSheetLock(shopID, TenSheetBienLoiNhuan); lock.RLock(); defer lock.RUnlock(); return CacheBienLoiNhuan[shopID] }
 func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { lock := GetSheetLock(shopID, TenSheetNhaCungCap); lock.RLock(); defer lock.RUnlock(); return CacheNhaCungCap[shopID] }
-
-func LayChiTietSKUMayTinh(shopID, id string) (*SanPhamMayTinh, bool) {
-	lock := GetSheetLock(shopID, TenSheetMayTinh)
-	lock.RLock(); defer lock.RUnlock()
-	sp, ok := CacheMapSKUMayTinh[TaoCompositeKey(shopID, id)]
-	if !ok { for _, s := range CacheSanPhamMayTinh[shopID] { if s.Slug == id && s.TrangThai == 1 { return s, true } } }
-	return sp, ok
-}
 
 // =======================================================
 // TIN NHẮN (Dùng khóa TenSheetTinNhanMaster)
