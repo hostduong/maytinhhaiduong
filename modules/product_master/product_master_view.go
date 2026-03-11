@@ -95,6 +95,11 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 		}
 	}
 
+	// Lấy Cấu hình Thuộc tính từ RAM (O(1))
+	core.KhoaHeThong.RLock()
+	thuocTinhData := core.CacheThuocTinh
+	core.KhoaHeThong.RUnlock()
+
 	c.HTML(http.StatusOK, "product_master", gin.H{
 		"TieuDe":         "Quản lý sản phẩm",
 		"NhanVien":       kh,
@@ -106,5 +111,9 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(adminShopID),    
 		"ListThuongHieu": core.LayDanhSachThuongHieu(adminShopID), 
 		"ListBLN":        core.LayDanhSachBienLoiNhuan(adminShopID), 
+		
+		// [BỔ SUNG 2 DÒNG NÀY LÀ XONG]
+		"CauHinhThuocTinh": thuocTinhData, 
+		"MaNganh":          maNganh,
 	})
 }
