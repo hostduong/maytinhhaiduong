@@ -33,8 +33,10 @@ func TrangTongQuanAdmin(c *gin.Context) {
 	soSanPhamHienTai := 0
 	if kh.DataSheets.SpreadsheetID != "" {
 		core.KhoaHeThong.RLock()
-		if ds, exists := core.CacheSanPhamMayTinh[kh.DataSheets.SpreadsheetID]; exists {
-			soSanPhamHienTai = len(ds)
+		if nganhMap, exists := core.CacheSanPham[kh.DataSheets.SpreadsheetID]; exists {
+			for _, ds := range nganhMap {
+				soSanPhamHienTai += len(ds)
+			}
 		}
 		core.KhoaHeThong.RUnlock()
 	}
@@ -45,7 +47,6 @@ func TrangTongQuanAdmin(c *gin.Context) {
 		if phanTramSP > 100 { phanTramSP = 100 }
 	}
 
-	// Gọi đúng tên Define HTML
 	c.HTML(http.StatusOK, "tong_quan_admin", gin.H{
 		"TieuDe":           "Dashboard Cửa Hàng",
 		"NhanVien":         kh,
