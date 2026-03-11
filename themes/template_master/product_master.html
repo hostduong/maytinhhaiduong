@@ -69,6 +69,10 @@
         
         /* Ô nhập liệu: Tự giãn bề ngang, không padding thừa */
         .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
+        
+        /* [THÊM MỚI] Class dùng để giấu kín các thuộc tính chưa được chọn */
+        .hidden-attr { display: none !important; }
+        
         /* Tinh chỉnh cho datalist mũi tên không đè chữ */
         input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
         input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
@@ -568,13 +572,13 @@
         }
 
         // =========================================================================
-        // ĐỘNG CƠ RENDER UNIFIED KẾT HỢP OBJECT KÍCH THƯỚC 3D
+        // ĐỘNG CƠ RENDER UNIFIED KẾT HỢP OBJECT KÍCH THƯỚC 3D VÀ NÚT THÊM
         // =========================================================================
         function renderDynamicAttributes(nganh, currentSKU) {
             const container = document.getElementById('unified_attributes_container'); 
             container.innerHTML = '';
             
-            // 1. TẠO 4 TRƯỜNG CỐ ĐỊNH NHƯ THUỘC TÍNH ĐỘNG
+            // 1. TẠO 4 TRƯỜNG CỐ ĐỊNH (Mặc định luôn hiển thị)
             let thName = "";
             if(currentSKU.ma_thuong_hieu) {
                 let parts = currentSKU.ma_thuong_hieu.split("|");
@@ -589,45 +593,34 @@
                 { ma_thuoc_tinh: 'core_bao_hanh', ten_thuoc_tinh: 'Bảo hành', kieu_nhap: 'number', val: bhVal, don_vi: 'Tháng', center: true }
             ];
 
-            coreAttributes.forEach(a => renderSingleAttribute(container, a, true));
+            coreAttributes.forEach(a => renderSingleAttribute(container, a, true, true));
 
-            // 2. KHỐI THIẾT KẾ ĐẶC BIỆT: KÍCH THƯỚC (OBJECT 3D)
-            let kt = currentSKU.thuoc_tinh ? currentSKU.thuoc_tinh['kich_thuoc'] : null;
-            let d="", r="", c="";
-            if(kt && typeof kt === 'object') { d = kt.dai||""; r = kt.rong||""; c = kt.cao||""; }
-            let isActiveKT = (d || r || c) ? "active" : "";
-
-            let htmlKT = `
-            <div class="smart-input-wrap ${isActiveKT}" id="wrap_attr_kich_thuoc">
-                <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_kich_thuoc').classList.add('active'); document.getElementById('attr_kt_dai').focus();">
-                    <span class="text-blue-500 font-black mr-1">+</span> KÍCH THƯỚC
-                </button>
-                <div class="smart-input-field px-2">
-                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1 whitespace-nowrap">K.THƯỚC:</span>
-                    <input type="text" id="attr_kt_dai" class="auto-expand-input text-center" placeholder="D" value="${d}" style="width: ${d.toString().length>0?d.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
-                    <span class="text-slate-300 mx-1">x</span>
-                    <input type="text" id="attr_kt_rong" class="auto-expand-input text-center" placeholder="R" value="${r}" style="width: ${r.toString().length>0?r.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
-                    <span class="text-slate-300 mx-1">x</span>
-                    <input type="text" id="attr_kt_cao" class="auto-expand-input text-center" placeholder="C" value="${c}" style="width: ${c.toString().length>0?c.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
-                    <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold ml-1">cm</span>
-                    <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_kt_dai').value=''; document.getElementById('attr_kt_rong').value=''; document.getElementById('attr_kt_cao').value=''; document.getElementById('wrap_attr_kich_thuoc').classList.remove('active'); isDirty = true;">✕</button>
-                </div>
-            </div>`;
-            container.innerHTML += htmlKT;
-
-            // 3. RENDER CÁC THUỘC TÍNH ĐỘNG CÒN LẠI (EAV)
+            // 2. RENDER CÁC THUỘC TÍNH ĐỘNG (ẨN ĐI NẾU KHÔNG CÓ DỮ LIỆU)
             const dynamicAttrs = G_ThuocTinhNganh[nganh] || [];
             dynamicAttrs.forEach(a => {
                 if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang' || a.ma_thuoc_tinh === 'kich_thuoc') return; 
                 a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh] || "";
                 if(a.don_vi) a.center = true;
-                renderSingleAttribute(container, a, false);
+                
+                let isVisible = a.val !== ""; // Chỉ hiện nếu đã từng lưu dữ liệu
+                renderSingleAttribute(container, a, false, isVisible);
             });
+
+            // 3. THÊM NÚT "+ THÊM THUỘC TÍNH" VÀO CUỐI
+            let addBtnHTML = `
+                <button type="button" onclick="openAttributeSelector()" class="h-[32px] px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 border-dashed hover:border-solid rounded-lg font-bold text-[12px] transition flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Thêm
+                </button>
+            `;
+            container.innerHTML += addBtnHTML;
         }
 
-        // HÀM TIỆN ÍCH VẼ Ô INPUT (ĐÃ FIX THUẬT TOÁN CO GIÃN CHỮ)
-        function renderSingleAttribute(container, a, isCore) {
+        // HÀM TIỆN ÍCH VẼ Ô INPUT (Đã hỗ trợ thuật toán Ẩn/Hiện)
+        function renderSingleAttribute(container, a, isCore, isVisible) {
             let isActive = a.val !== "" ? "active" : ""; 
+            let visibilityClass = isVisible ? "" : "hidden-attr"; 
+            
             let donViHtml = "";
             let inputAlign = a.center ? "text-center" : "text-left";
             
@@ -641,7 +634,7 @@
             let shortLabel = isCore ? (a.ten_thuoc_tinh.substring(0,1) + '.' + a.ten_thuoc_tinh.substring(a.ten_thuoc_tinh.indexOf(' ')+1)) : a.ten_thuoc_tinh; 
 
             let html = `
-            <div class="smart-input-wrap ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
+            <div class="smart-input-wrap ${isActive} ${visibilityClass}" id="wrap_attr_${a.ma_thuoc_tinh}">
                 <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
                     <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh}
                 </button>
@@ -657,11 +650,82 @@
                            style="width: ${initialWidth};"
                            oninput="let ext = this.hasAttribute('list') ? 5 : 2; this.style.width = (this.value.length > 0 ? this.value.length + ext : 4) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
                     ${donViHtml}
-                    <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
+                    <button type="button" class="btn-remove-attr" onclick="removeAttributeUI('${a.ma_thuoc_tinh}', ${isCore})">✕</button>
                 </div>
             </div>
             `;
             container.innerHTML += html;
+        }
+
+        // HÀM XÓA: Bấm nút X sẽ đóng ô. Nếu là thuộc tính phụ thì tàng hình luôn.
+        function removeAttributeUI(ma_thuoc_tinh, isCore) {
+            let wrap = document.getElementById('wrap_attr_' + ma_thuoc_tinh);
+            let input = document.getElementById('attr_' + ma_thuoc_tinh);
+            if(!wrap || !input) return;
+
+            input.value = ''; 
+            wrap.classList.remove('active'); 
+            
+            if (!isCore) { wrap.classList.add('hidden-attr'); }
+            isDirty = true;
+        }
+
+        // =========================================================================
+        // BẢNG ĐIỀU KHIỂN: CHỌN THUỘC TÍNH (POPUP)
+        // =========================================================================
+        async function openAttributeSelector() {
+            const dynamicAttrs = G_ThuocTinhNganh[CURRENT_NGANH] || [];
+            const availableAttrs = dynamicAttrs.filter(a => a.ma_thuoc_tinh !== 'bao_hanh' && a.ma_thuoc_tinh !== 'tinh_trang' && a.ma_thuoc_tinh !== 'kich_thuoc');
+
+            if (availableAttrs.length === 0) {
+                Swal.fire('Thông báo', 'Ngành hàng này không có thêm thuộc tính phụ nào!', 'info');
+                return;
+            }
+
+            // Vẽ bảng checkbox
+            let checkboxesHTML = availableAttrs.map(a => {
+                let wrap = document.getElementById('wrap_attr_' + a.ma_thuoc_tinh);
+                let isVisible = wrap && !wrap.classList.contains('hidden-attr'); // Đang hiện thì tích sẵn
+                
+                return `
+                <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-blue-50 transition ${isVisible ? 'bg-blue-50 border-blue-300' : 'bg-white border-slate-200'}">
+                    <input type="checkbox" class="attr-checkbox w-4 h-4 text-blue-600 rounded focus:ring-blue-500" value="${a.ma_thuoc_tinh}" ${isVisible ? 'checked' : ''}>
+                    <span class="text-[13px] font-bold text-slate-700">${a.ten_thuoc_tinh}</span>
+                </label>
+                `;
+            }).join('');
+
+            const { value: selectedVals } = await Swal.fire({
+                title: '<span class="text-xl font-black text-blue-800 uppercase tracking-wider">Danh Sách Thuộc Tính</span>',
+                html: `<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 text-left">${checkboxesHTML}</div>`,
+                showCancelButton: true, confirmButtonText: 'Đồng ý', cancelButtonText: 'Đóng lại',
+                customClass: {
+                    popup: 'swal-master-success rounded-3xl',
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-8 py-3 transition shadow-md shadow-blue-200',
+                    cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 mr-3 transition'
+                },
+                preConfirm: () => {
+                    const checkboxes = document.querySelectorAll('.attr-checkbox:checked');
+                    return Array.from(checkboxes).map(cb => cb.value);
+                }
+            });
+
+            // Nếu người dùng ấn Đồng Ý
+            if (selectedVals) {
+                availableAttrs.forEach(a => {
+                    let wrap = document.getElementById('wrap_attr_' + a.ma_thuoc_tinh);
+                    if (!wrap) return;
+                    
+                    if (selectedVals.includes(a.ma_thuoc_tinh)) {
+                        wrap.classList.remove('hidden-attr'); // Hiện ra
+                    } else {
+                        wrap.classList.add('hidden-attr'); // Cất đi
+                        wrap.classList.remove('active');   // Tắt trạng thái đang nhập
+                        document.getElementById('attr_' + a.ma_thuoc_tinh).value = ''; // Xóa sạch rác
+                    }
+                });
+                isDirty = true;
+            }
         }
 
         function renderTabs() {
