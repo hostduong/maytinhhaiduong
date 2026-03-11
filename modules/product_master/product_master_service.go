@@ -119,12 +119,17 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 		core.CacheMapSKU[core.TaoCompositeKey(adminShopID, inputSP.SKU[i].MaSKU)] = &inputSP.SKU[i]
 	}
 
-	// 6. Ra lệnh Hàng chờ (Queue) ghi đè lên Google Sheets
-	dongSheet := 0 // 0 để Queue tự append nếu là Tạo mới
+	// 6. Gửi Tín hiệu "Note" vào Hàng chờ thông minh (Không gửi JSON)
 	if isUpdate {
-		// FIXME: Cần viết hàm core tìm số dòng của spCu trong Sheet. Tạm gán -1 để Queue tìm.
-		dongSheet = -1 
+		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, "UPDATE", spPtr.MaSanPham)
+	} else {
+		// Tính số dòng dự kiến cho SP Mới
+		spPtr.DongTrongSheet = core.DongBatDau_Product + len(core.CacheSanPham[adminShopID][maNganh]) - 1
+		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, "APPEND", spPtr.MaSanPham)
 	}
+
+	return nil
+}
 
 	core.ThemVaoHangCho(adminShopID, cfgNganh.TenSheet, dongSheet, core.CotProd_MaSanPham, maSP)
 	core.ThemVaoHangCho(adminShopID, cfgNganh.TenSheet, dongSheet, core.CotProd_DataJSON, finalJSONString)
