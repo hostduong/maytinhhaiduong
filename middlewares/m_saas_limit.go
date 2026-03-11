@@ -15,10 +15,15 @@ func CheckSaaSLimit(resourceType string) gin.HandlerFunc {
 		if resourceType == "san_pham" {
 			maxSP := core.LayGioiHanSanPhamCuaShop(shopID)
 			if maxSP != -1 {
-				// Cần khóa RLock để đếm số lượng hiện tại một cách an toàn
-				lock := core.GetSheetLock(shopID, core.TenSheetMayTinh)
+				// Khóa bộ nhớ siêu tốc O(1) mới để đếm tổng sản phẩm
+				lock := core.GetSheetLock(shopID, "PRODUCTS_CACHE")
 				lock.RLock()
-				currentCount := len(core.CacheSanPhamMayTinh[shopID])
+				currentCount := 0
+				if nganhMap, exists := core.CacheSanPham[shopID]; exists {
+					for _, ds := range nganhMap {
+						currentCount += len(ds)
+					}
+				}
 				lock.RUnlock()
 
 				if currentCount >= maxSP {
