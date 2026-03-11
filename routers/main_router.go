@@ -21,7 +21,7 @@ import (
 	"app/modules/tong_quan_admin"
 	"app/modules/tong_quan_master"
 	"app/modules/cua_hang_master"
-	"app/modules/may_tinh_master"
+	"app/modules/product_master"
 
 	"github.com/gin-gonic/gin"
 )
@@ -128,7 +128,7 @@ func SetupRouter() *gin.Engine {
 		master.GET("/goi-dich-vu", goi_dich_vu_master.TrangGoiDichVuMaster)
 		master.GET("/ho-so", ho_so.TrangHoSoMaster)
 		master.GET("/nhap-hang", nhap_hang.TrangNhapHangMaster)
-		master.GET("/quan-ly-may-tinh", may_tinh_master.TrangQuanLyMayTinhMaster)
+		master.GET("/quan-ly-san-pham", product_master.TrangQuanLySanPhamMaster)
 		master.GET("/tin-nhan", tin_nhan_master.TrangTinNhanMaster)
 		master.GET("/quan-ly-cua-hang", cua_hang_master.TrangQuanLyCuaHangMaster)
 		
@@ -147,7 +147,7 @@ func SetupRouter() *gin.Engine {
             apiMaster.POST("/tin-nhan/send-chat", tin_nhan_master.API_GuiTinNhanChat)
 
 			// Gắn Middleware kiểm tra Permission từng nút bấm
-			apiMaster.POST("/may-tinh/save", middlewares.RequirePermission("product.edit"), may_tinh_master.API_LuuMayTinhMaster)
+			apiMaster.POST("/product/save", middlewares.RequirePermission("product.edit"), product_master.API_LuuSanPhamMaster)
 			apiMaster.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
 			apiMaster.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
 			apiMaster.POST("/nhap-hang/status", middlewares.RequirePermission("stock.import"), nhap_hang.API_DoiTrangThaiPhieu)
