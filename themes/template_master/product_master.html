@@ -1371,6 +1371,7 @@
             let productJSON = {
                 ma_san_pham: skus[0].ma_san_pham,
                 ma_nganh: CURRENT_NGANH,
+                trang_thai: skus.some(s => s.trang_thai !== -1) ? 1 : -1,
                 ma_danh_muc: skus[0].ma_danh_muc ? skus[0].ma_danh_muc.split("|").filter(x=>x) : [],
                 ma_thuong_hieu: skus[0].ma_thuong_hieu ? skus[0].ma_thuong_hieu.split("|").filter(x=>x).join(",") : "",
                 ten_san_pham: skus[0].ten_san_pham,
