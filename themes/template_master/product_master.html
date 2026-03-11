@@ -127,21 +127,9 @@
         </div>
         <div id="data_bln">{{ range .ListBLN }}<div class="bln-item" data-khung="{{ .KhungGiaNhap }}" data-loinhuan="{{ .BienLoiNhuan }}" data-trangthai="{{ .TrangThai }}"></div>{{ end }}</div>
         
-        <div id="data_sanpham">
+        <div id="data_sanpham" style="display:none;">
             {{ range .DanhSachFull }}
-            <div class="sp-data"
-                data-json="{{ if .DataJSON }}{{ .DataJSON }}{{ end }}"
-                data-masp="{{ .MaSanPham }}" data-tensp="{{ urlquery .TenSanPham }}" data-tenrutgon="{{ urlquery .TenRutGon }}" data-slug="{{ urlquery .Slug }}"
-                data-masku="{{ .MaSKU }}" data-tensku="{{ urlquery .TenSKU }}" data-skuchinh="{{ .SKUChinh }}" data-trangthai="{{ .TrangThai }}"
-                data-danhmuc="{{ urlquery .MaDanhMuc }}" data-thuonghieu="{{ urlquery .MaThuongHieu }}" data-donvi="{{ urlquery .DonVi }}" data-mausac="{{ urlquery .MauSac }}"
-                data-khoiluong="{{ .KhoiLuong }}" data-kichthuoc="{{ urlquery .KichThuoc }}" data-img="{{ .UrlHinhAnh }}" data-baohanh="{{ urlquery .BaoHanh }}"
-                data-tinhtrang="{{ urlquery .TinhTrang }}" data-gianhap="{{ printf "%.0f" .GiaNhap }}" data-ptlai="{{ .PhanTramLai }}" data-gianiemuyet="{{ printf "%.0f" .GiaNiemYet }}"
-                data-ptgiam="{{ printf "%.0f" .PhanTramGiam }}" data-tiengiam="{{ printf "%.0f" .SoTienGiam }}" data-giaban="{{ printf "%.0f" .GiaBan }}"
-                data-ngaycapnhat="{{ .NgayCapNhat }}" data-nguoicapnhat="{{ .NguoiCapNhat }}"
-                data-ghichu="{{ urlquery .GhiChu }}">
-                <textarea class="t-thongso">{{ .ThongSoHTML }}</textarea>
-                <textarea class="t-mota">{{ .MoTaHTML }}</textarea>
-            </div>
+            <div class="sp-data" data-json="{{ .DataJSON }}"></div>
             {{ end }}
         </div>
     </div>
