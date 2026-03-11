@@ -45,13 +45,13 @@
         input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; }
         .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; font-size: 15px; }
 
-        /* TAGIFY CUSTOM CHUNG (Chỉ dùng cho Danh Mục) */
+        /* TAGIFY CUSTOM CHUNG */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; }
         .tagify--focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         
         /* =========================================================
-           SMART INPUT CHUẨN MỰC (DÀNH CHO TẤT CẢ CÁC TRƯỜNG THUỘC TÍNH)
+           SMART INPUT CHUẨN MỰC
            ========================================================= */
         .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 32px; }
         
@@ -67,13 +67,11 @@
         .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; border-radius: 0 0.5rem 0.5rem 0;}
         .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
         
-        /* Ô nhập liệu: Tự giãn bề ngang, không padding thừa */
         .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
         
-        /* [THÊM MỚI] Class dùng để giấu kín các thuộc tính chưa được chọn */
+        /* Ẩn các thuộc tính chưa được chọn */
         .hidden-attr { display: none !important; }
         
-        /* Tinh chỉnh cho datalist mũi tên không đè chữ */
         input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
         input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
@@ -512,7 +510,9 @@
                 try {
                     let sp = JSON.parse(rawJSON);
                     if(!mapGroupSP[sp.ma_san_pham]) mapGroupSP[sp.ma_san_pham] = [];
-                    sp.sku.forEach(s => {
+                    let skusList = sp.sku && sp.sku.length > 0 ? sp.sku : [{ ma_san_pham: sp.ma_san_pham, ma_sku: sp.ma_san_pham + "-01", ten_sku: "Mặc định", trang_thai: 1 }];
+                    
+                    skusList.forEach(s => {
                         let isMain = sp.sku_chinh === s.ma_sku ? 1 : 0;
                         mapGroupSP[sp.ma_san_pham].push({
                             _is_saved: true, ma_san_pham: sp.ma_san_pham, ten_san_pham: s.ten_san_pham || sp.ten_san_pham, ten_rut_gon: sp.ten_rut_gon, slug: sp.slug,
@@ -572,13 +572,12 @@
         }
 
         // =========================================================================
-        // ĐỘNG CƠ RENDER UNIFIED KẾT HỢP OBJECT KÍCH THƯỚC 3D VÀ NÚT THÊM
+        // ĐỘNG CƠ RENDER UNIFIED VÀ NÚT THÊM
         // =========================================================================
         function renderDynamicAttributes(nganh, currentSKU) {
             const container = document.getElementById('unified_attributes_container'); 
             container.innerHTML = '';
             
-            // 1. TẠO 4 TRƯỜNG CỐ ĐỊNH (Mặc định luôn hiển thị)
             let thName = "";
             if(currentSKU.ma_thuong_hieu) {
                 let parts = currentSKU.ma_thuong_hieu.split("|");
@@ -595,18 +594,17 @@
 
             coreAttributes.forEach(a => renderSingleAttribute(container, a, true, true));
 
-            // 2. RENDER CÁC THUỘC TÍNH ĐỘNG (ẨN ĐI NẾU KHÔNG CÓ DỮ LIỆU)
+            // [ĐÃ FIX]: Không loại trừ 'kich_thuoc' nữa, để nó chạy như EAV bình thường
             const dynamicAttrs = G_ThuocTinhNganh[nganh] || [];
             dynamicAttrs.forEach(a => {
-                if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang' || a.ma_thuoc_tinh === 'kich_thuoc') return; 
+                if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang') return; 
                 a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh] || "";
                 if(a.don_vi) a.center = true;
                 
-                let isVisible = a.val !== ""; // Chỉ hiện nếu đã từng lưu dữ liệu
+                let isVisible = a.val !== ""; 
                 renderSingleAttribute(container, a, false, isVisible);
             });
 
-            // 3. THÊM NÚT "+ THÊM THUỘC TÍNH" VÀO CUỐI
             let addBtnHTML = `
                 <button type="button" onclick="openAttributeSelector()" class="h-[32px] px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 border-dashed hover:border-solid rounded-lg font-bold text-[12px] transition flex items-center gap-1.5 shadow-sm">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -616,7 +614,6 @@
             container.innerHTML += addBtnHTML;
         }
 
-        // HÀM TIỆN ÍCH VẼ Ô INPUT (Đã hỗ trợ thuật toán Ẩn/Hiện)
         function renderSingleAttribute(container, a, isCore, isVisible) {
             let isActive = a.val !== "" ? "active" : ""; 
             let visibilityClass = isVisible ? "" : "hidden-attr"; 
@@ -657,7 +654,6 @@
             container.innerHTML += html;
         }
 
-        // HÀM XÓA: Bấm nút X sẽ đóng ô. Nếu là thuộc tính phụ thì tàng hình luôn.
         function removeAttributeUI(ma_thuoc_tinh, isCore) {
             let wrap = document.getElementById('wrap_attr_' + ma_thuoc_tinh);
             let input = document.getElementById('attr_' + ma_thuoc_tinh);
@@ -670,22 +666,19 @@
             isDirty = true;
         }
 
-        // =========================================================================
-        // BẢNG ĐIỀU KHIỂN: CHỌN THUỘC TÍNH (POPUP)
-        // =========================================================================
         async function openAttributeSelector() {
             const dynamicAttrs = G_ThuocTinhNganh[CURRENT_NGANH] || [];
-            const availableAttrs = dynamicAttrs.filter(a => a.ma_thuoc_tinh !== 'bao_hanh' && a.ma_thuoc_tinh !== 'tinh_trang' && a.ma_thuoc_tinh !== 'kich_thuoc');
+            // [ĐÃ FIX]: Bỏ 'kich_thuoc' khỏi danh sách đen
+            const availableAttrs = dynamicAttrs.filter(a => a.ma_thuoc_tinh !== 'bao_hanh' && a.ma_thuoc_tinh !== 'tinh_trang');
 
             if (availableAttrs.length === 0) {
                 Swal.fire('Thông báo', 'Ngành hàng này không có thêm thuộc tính phụ nào!', 'info');
                 return;
             }
 
-            // Vẽ bảng checkbox
             let checkboxesHTML = availableAttrs.map(a => {
                 let wrap = document.getElementById('wrap_attr_' + a.ma_thuoc_tinh);
-                let isVisible = wrap && !wrap.classList.contains('hidden-attr'); // Đang hiện thì tích sẵn
+                let isVisible = wrap && !wrap.classList.contains('hidden-attr'); 
                 
                 return `
                 <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-blue-50 transition ${isVisible ? 'bg-blue-50 border-blue-300' : 'bg-white border-slate-200'}">
@@ -710,18 +703,17 @@
                 }
             });
 
-            // Nếu người dùng ấn Đồng Ý
             if (selectedVals) {
                 availableAttrs.forEach(a => {
                     let wrap = document.getElementById('wrap_attr_' + a.ma_thuoc_tinh);
                     if (!wrap) return;
                     
                     if (selectedVals.includes(a.ma_thuoc_tinh)) {
-                        wrap.classList.remove('hidden-attr'); // Hiện ra
+                        wrap.classList.remove('hidden-attr'); 
                     } else {
-                        wrap.classList.add('hidden-attr'); // Cất đi
-                        wrap.classList.remove('active');   // Tắt trạng thái đang nhập
-                        document.getElementById('attr_' + a.ma_thuoc_tinh).value = ''; // Xóa sạch rác
+                        wrap.classList.add('hidden-attr'); 
+                        wrap.classList.remove('active');   
+                        document.getElementById('attr_' + a.ma_thuoc_tinh).value = ''; 
                     }
                 });
                 isDirty = true;
@@ -817,9 +809,6 @@
             isDirty = true;
         }
 
-        // =========================================================================
-        // GOM DỮ LIỆU TỪ CẢ TRƯỜNG CỐ ĐỊNH, KÍCH THƯỚC VÀ TRƯỜNG ĐỘNG
-        // =========================================================================
         function saveCurrentTabToState() {
             if(currentSkus.length === 0 || activeTabIndex < 0) return;
             let sku = currentSkus[activeTabIndex];
@@ -835,7 +824,6 @@
             let arrTenDM = tagifyDM.value.map(v => v.value);
             sku.ma_danh_muc = arrTenDM.map(t => dicDanhMucByTen[t] ? dicDanhMucByTen[t].ma : t).join("|");
 
-            // Đọc 4 trường xương sống 
             let tenTH = document.getElementById('attr_core_thuong_hieu') ? document.getElementById('attr_core_thuong_hieu').value.trim() : "";
             sku.ma_thuong_hieu = dicThuongHieuByTen[tenTH] ? dicThuongHieuByTen[tenTH] : tenTH;
             
@@ -845,21 +833,11 @@
             let bhN = document.getElementById('attr_core_bao_hanh') ? document.getElementById('attr_core_bao_hanh').value.trim() : ""; 
             sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
 
-            // Lưu thuộc tính động
             sku.thuoc_tinh = {};
             document.querySelectorAll('.dynamic-attr').forEach(inp => { 
                 if(inp.value.trim() !== '') { sku.thuoc_tinh[inp.getAttribute('data-key')] = inp.value; } 
             });
 
-            // Lưu Object Kích thước 3D
-            let kd = document.getElementById('attr_kt_dai') ? parseFloat(document.getElementById('attr_kt_dai').value) || 0 : 0;
-            let kr = document.getElementById('attr_kt_rong') ? parseFloat(document.getElementById('attr_kt_rong').value) || 0 : 0;
-            let kc = document.getElementById('attr_kt_cao') ? parseFloat(document.getElementById('attr_kt_cao').value) || 0 : 0;
-            if(kd > 0 || kr > 0 || kc > 0) {
-                sku.thuoc_tinh['kich_thuoc'] = { dai: kd, rong: kr, cao: kc, don_vi: "cm" };
-            }
-
-            // Lưu SEO (Chỉ áp dụng nếu là bản đại diện)
             if (sku.sku_chinh === 1) {
                 sku.seo_title = document.getElementById('f_seo_title').value;
                 sku.seo_desc = document.getElementById('f_seo_desc').value;
@@ -880,6 +858,9 @@
             sku.ghi_chu = document.getElementById('f_ghi_chu').value;
         }
 
+        // =========================================================================
+        // ĐÃ XÓA SẠCH CÁC MÃ TÌM HTML CŨ GÂY SẬP JS TẠI ĐÂY
+        // =========================================================================
         function loadTabToForm(idx) {
             if(idx < 0 || idx >= currentSkus.length) return;
             isEditingMode = true; 
@@ -916,7 +897,6 @@
 
             tagifyDM.removeAllTags(); if(sp.ma_danh_muc) tagifyDM.addTags(sp.ma_danh_muc.split("|").map(m => dicDanhMucByMa[m] ? dicDanhMucByMa[m].ten : m));
             
-            // XỬ LÝ KHỐI SEO (Chỉ hiển thị cho bản đại diện)
             if (sp.sku_chinh === 1) {
                 document.getElementById('seo_section').style.display = 'block';
                 document.getElementById('f_seo_title').value = sp.seo_title || "";
@@ -1040,10 +1020,14 @@
             container.appendChild(div);
         }
 
+        // ĐÃ SỬA: XÓA CÁC ĐỊNH DẠNG ĐỘ RỘNG MẶC ĐỊNH CỦA DETAIL PANE ĐỂ TRÁNH LỖI PANEL KHÔNG MỞ LÊN ĐƯỢC
         function openModal() {
             document.getElementById('formSP').reset(); let newSku = createEmptySKU(); newSku.sku_chinh = 1; currentSkus = [newSku]; activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Thêm Sản Phẩm Mới`; renderTabs(); loadTabToForm(0);
+            
             document.getElementById('detailPaneUI').classList.add('is-open'); document.getElementById('dragResizerUI').classList.add('is-open');
+            document.getElementById('detailPaneUI').style.width = ''; document.getElementById('listPaneUI').style.width = ''; 
+            
             document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('!bg-blue-100', '!border-blue-500'));
             syncTopAlignment(); setTimeout(() => { isDirty = false; }, 400); 
         }
@@ -1061,7 +1045,10 @@
             currentSkus = JSON.parse(JSON.stringify(list)); activeTabIndex = currentSkus.findIndex(s => s.sku_chinh === 1 && s.trang_thai !== -1); if(activeTabIndex === -1) activeTabIndex = 0;
             document.getElementById('modalTitle').innerHTML = `Sửa: <span class="text-blue-600 ml-1 font-mono tracking-wider">${id}</span>`;
             renderTabs(); loadTabToForm(activeTabIndex);
+            
             document.getElementById('detailPaneUI').classList.add('is-open'); document.getElementById('dragResizerUI').classList.add('is-open');
+            document.getElementById('detailPaneUI').style.width = ''; document.getElementById('listPaneUI').style.width = ''; 
+            
             syncTopAlignment(); setTimeout(() => { isDirty = false; }, 400); 
         }
 
@@ -1074,11 +1061,8 @@
             });
             if (!result.isConfirmed) return; if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
             
-            const pinXacNhan = await askMasterPIN();
-            if (!pinXacNhan) return; 
-
             const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
-            skusToDelete.forEach(s => { s.trang_thai = -1; s._pin_delete_auth = pinXacNhan; });
+            skusToDelete.forEach(s => { s.trang_thai = -1; });
             await sendDataToBackend(skusToDelete);
         }
 
@@ -1105,7 +1089,7 @@
             let productJSON = {
                 ma_san_pham: skus[0].ma_san_pham, ma_nganh: CURRENT_NGANH, trang_thai: skus.some(s => s.trang_thai !== -1) ? 1 : -1,
                 ma_danh_muc: skus[0].ma_danh_muc ? skus[0].ma_danh_muc.split("|").filter(x=>x) : [], ma_thuong_hieu: skus[0].ma_thuong_hieu ? skus[0].ma_thuong_hieu.split("|").filter(x=>x).join(",") : "",
-                ten_san_pham: mainSku.ten_san_pham, // Trích Tên Gốc từ bản đại diện
+                ten_san_pham: mainSku.ten_san_pham, 
                 ten_rut_gon: skus[0].ten_rut_gon, slug: skus[0].slug, sku_chinh: mainSku.ma_sku || "",
                 seo: {
                     title: mainSku.seo_title || "",
@@ -1123,7 +1107,6 @@
             };
 
             const fd = new FormData(); fd.set('ma_nganh', CURRENT_NGANH); fd.set('ma_san_pham', productJSON.ma_san_pham || ""); fd.set('data_json', JSON.stringify(productJSON)); 
-            let pinAuth = ""; skus.forEach(s => { if(s._pin_delete_auth) pinAuth = s._pin_delete_auth; }); if (pinAuth) fd.set('pin_xac_nhan', pinAuth);
 
             try {
                 const res = await fetch('/master/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
