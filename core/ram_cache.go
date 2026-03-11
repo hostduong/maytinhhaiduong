@@ -80,10 +80,23 @@ var (
 	CacheNhaCungCap    = make(map[string][]*NhaCungCap) 
 	CacheMapNhaCungCap = make(map[string]*NhaCungCap)   
 
-	// --- SẢN PHẨM (NGÀNH MÁY TÍNH) ---
-	CacheSanPhamMayTinh      = make(map[string][]*SanPhamMayTinh)  
-	CacheMapSKUMayTinh       = make(map[string]*SanPhamMayTinh)    
-	CacheGroupSanPhamMayTinh = make(map[string][]*SanPhamMayTinh)  
+	// ==============================================================
+	// [MỚI] BỘ NHỚ SẢN PHẨM NOSQL & EAV META-DATA (DYNAMIC UI)
+	// ==============================================================
+	
+	// 1. Cấu hình Ngành hàng & Thuộc tính (Nạp từ Master)
+	CacheDanhSachNganh = make([]ConfigNganhHang, 0)
+	CacheMapNganh      = make(map[string]ConfigNganhHang)    // Key: ma_nganh
+	CacheThuocTinh     = make(map[string][]ThuocTinhNganh) // Key: ma_nganh -> ds thuộc tính
+
+	// 2. Tổng kho Sản Phẩm (Dùng chung vĩnh viễn)
+	// Mô hình: ShopID -> MaNganh -> Danh sách sản phẩm
+	CacheSanPham       = make(map[string]map[string][]*ProductJSON) 
+	
+	// Lookup O(1) đa ngành (Tìm nhanh không cần biết thuộc ngành nào)
+	CacheMapSanPham    = make(map[string]*ProductJSON) // Key: ShopID__MaSanPham
+	CacheMapSKU        = make(map[string]*ProductSKU)  // Key: ShopID__MaSKU
+	// ==============================================================
 
 	// --- KHO & PHIẾU NHẬP ---
 	CachePhieuNhap    = make(map[string][]*PhieuNhap)   
