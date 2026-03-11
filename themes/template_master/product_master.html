@@ -45,42 +45,44 @@
         input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; }
         .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; font-size: 15px; }
 
-        /* TAGIFY CUSTOM CHUNG */
+        /* =========================================================
+           TAGIFY CUSTOM CHUNG (Khử giới hạn, tự do co giãn)
+           ========================================================= */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; }
         .tagify--focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         
-        /* =========================================================
-           THUỘC TÍNH UNIFIED (KHÔNG GIỚI HẠN DÒNG, ÉP SÁT CHỮ, KHÔNG RỚT)
-           ========================================================= */
+        /* 1. Ghi đè Tagify (Dành riêng cho Thương Hiệu, Đơn Vị, Tình Trạng) */
+        .tagify-mini-wrap { display: inline-flex; align-items: center; }
+        .tagify-mini-wrap .tagify { border: none !important; padding: 0 !important; width: auto !important; display: inline-flex; flex-wrap: nowrap !important; align-items: center; min-height: unset; box-shadow: none !important; background: transparent; }
+        .tagify-mini-wrap .tagify__input { margin: 0 !important; padding: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; line-height: 1; min-width: 10px !important; width: auto !important; }
         
-        /* 1. Ghi đè Tagify ôm cứng chữ (Dành cho 3 trường Thương Hiệu, Đơn Vị, Tình Trạng) */
-        .tagify-mini-wrap .tagify { border: none !important; padding: 0 !important; width: auto; display: flex; flex-wrap: nowrap !important; align-items: center; min-height: unset; box-shadow: none !important; background: transparent; }
-        .tagify-mini-wrap .tagify__input { margin: 0 !important; padding: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; line-height: 1; min-width: 15px !important; }
-        /* padding-right: 18px để chừa chỗ cho cái Icon mũi tên "v" không đè lên chữ */
-        .tagify-mini-wrap .tagify__tag { margin: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; padding: 0 18px 0 0 !important; height: auto; border-radius: 4px; background: transparent; white-space: nowrap !important; }
+        /* CẤM RỚT DÒNG VÀ CHỪA CHỖ CHO MŨI TÊN "v" (padding-right: 16px) */
+        .tagify-mini-wrap .tagify__tag { margin: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; padding: 0 16px 0 0 !important; height: auto; border-radius: 0; background: transparent; white-space: nowrap !important; }
         .tagify-mini-wrap .tagify__tag>div { padding: 0 !important; white-space: nowrap !important; }
-        .tagify-mini-wrap .tagify__tag__removeBtn { display: none; }
+        .tagify-mini-wrap .tagify__tag__removeBtn { display: none !important; }
 
-        /* 2. Khối Smart Input chung (Cao 32px thon gọn) */
+        /* GIẢI CỨU MENU THẢ XUỐNG: Cấm bóp méo, tự mở rộng theo chữ bên trong */
+        .tagify__dropdown { min-width: max-content !important; width: auto !important; white-space: nowrap !important; }
+
+        /* =========================================================
+           2. SMART INPUT (BỌP GỌN, ÉP SÁT CHỮ, KHÔNG THỪA)
+           ========================================================= */
         .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 32px; }
         
-        /* Nút viền đứt nét */
-        .smart-input-btn { height: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 0.5rem; color: #64748b; font-size: 12px; font-weight: 700; transition: 0.2s; display: flex; align-items: center; padding: 0 12px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
+        .smart-input-btn { height: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 0.5rem; color: #64748b; font-size: 12px; font-weight: 700; transition: 0.2s; display: flex; align-items: center; padding: 0 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
         .smart-input-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #f8fafc; border-style: solid; }
         
-        /* Khối hiển thị khi nhập */
-        .smart-input-field { height: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; overflow: hidden; white-space: nowrap; }
+        .smart-input-field { height: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; overflow: hidden; white-space: nowrap; width: max-content; }
         .smart-input-field:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
         
         .smart-input-wrap.active .smart-input-btn { display: none; }
         .smart-input-wrap.active .smart-input-field { display: flex; }
 
-        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 6px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; }
         .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
         
-        /* Ô nhập liệu: Cấm có padding thừa, tự giãn bề ngang */
-        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
+        .auto-expand-input { min-width: 10px; max-width: 250px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
 
         /* Khác */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
@@ -246,25 +248,25 @@
                                 
                                 <div class="flex flex-wrap items-center gap-2 mb-4" id="unified_attributes_container">
                                     
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] pl-2 pr-1 focus-within:border-blue-500 transition shadow-sm whitespace-nowrap">
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
                                          <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">T.HIỆU:</span>
                                          <div class="tagify-mini-wrap"><input id="f_ma_thuong_hieu" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] pl-2 pr-1 focus-within:border-blue-500 transition shadow-sm whitespace-nowrap">
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
                                          <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">Đ.VỊ:</span>
                                          <div class="tagify-mini-wrap"><input id="f_don_vi" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] pl-2 pr-1 focus-within:border-blue-500 transition shadow-sm whitespace-nowrap">
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] px-2 focus-within:border-blue-500 transition shadow-sm w-max">
                                          <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">T.TRẠNG:</span>
                                          <div class="tagify-mini-wrap"><input id="f_tinh_trang" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] focus-within:border-blue-500 transition overflow-hidden shadow-sm whitespace-nowrap pl-2">
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[32px] focus-within:border-blue-500 transition overflow-hidden shadow-sm w-max pl-2">
                                          <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1">B.HÀNH:</span>
                                          <input type="text" id="f_bao_hanh_num" class="text-center font-bold text-slate-800 outline-none text-[13px] bg-transparent auto-expand-input" placeholder="12" style="width: 2ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length : 2) + 'ch'; this.value=this.value.replace(/[^0-9]/g, ''); isDirty = true;">
-                                         <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold">Tháng</span>
+                                         <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold ml-1">Tháng</span>
                                     </div>
                                     
                                     <div id="dynamic_standard_container" class="contents"></div>
@@ -582,7 +584,7 @@
             };
         }
 
-        // ĐỘNG CƠ RENDER THUỘC TÍNH (ĐỒNG BỘ 100% KIỂU DÁNG - ÉP SÁT CHỮ)
+        // ĐỘNG CƠ RENDER THUỘC TÍNH (FIX LỖI ÉP SIZE)
         function renderDynamicAttributes(nganh, thuocTinhData) {
             const container = document.getElementById('dynamic_standard_container'); 
             container.innerHTML = '';
@@ -595,28 +597,30 @@
                 let isActive = val !== "" ? "active" : ""; 
                 
                 let donViHtml = "";
+                let inputAlign = "text-left";
                 if (a.don_vi) {
-                    donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold whitespace-nowrap">${a.don_vi}</span>`;
+                    donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold whitespace-nowrap ml-1">${a.don_vi}</span>`;
+                    inputAlign = "text-center";
                 }
 
-                // Chiều rộng khởi tạo cực khít: tối thiểu 2 ký tự (VD: "L", "16")
-                let initialWidth = val.length > 0 ? (val.length + 0.5) + 'ch' : '2ch';
+                // Chiều rộng khởi tạo tự động, nếu rỗng thì 3 ký tự, nếu có dữ liệu thì nới rộng thêm 1 xíu cho dễ thở
+                let initialWidth = val.length > 0 ? (val.length + 1) + 'ch' : '3ch';
 
                 let html = `
                 <div class="smart-input-wrap ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
                     <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
                         <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh}
                     </button>
-                    <div class="smart-input-field">
+                    <div class="smart-input-field px-2">
                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1 whitespace-nowrap">${a.ten_thuoc_tinh}:</span>
                         <input type="${a.kieu_nhap === 'number' ? 'text' : 'text'}" 
                                id="attr_${a.ma_thuoc_tinh}" 
-                               class="auto-expand-input dynamic-attr" 
+                               class="auto-expand-input dynamic-attr ${inputAlign}" 
                                data-key="${a.ma_thuoc_tinh}" 
                                value="${val}" 
                                placeholder="..."
                                style="width: ${initialWidth};"
-                               oninput="this.style.width = (this.value.length > 0 ? this.value.length + 0.5 : 2) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                               oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 3) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
                         ${donViHtml}
                         <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
                     </div>
@@ -796,7 +800,7 @@
 
             if (sp.bao_hanh) document.getElementById('f_bao_hanh_num').value = sp.bao_hanh.split(" ")[0]; 
             else document.getElementById('f_bao_hanh_num').value = "";
-            document.getElementById('f_bao_hanh_num').dispatchEvent(new Event('input')); // Kích hoạt auto-expand
+            document.getElementById('f_bao_hanh_num').dispatchEvent(new Event('input')); 
 
             renderDynamicAttributes(CURRENT_NGANH, sp.thuoc_tinh || {});
 
@@ -945,7 +949,12 @@
                 buttonsStyling: false, showCancelButton: true, confirmButtonText: 'Xóa ngay', cancelButtonText: 'Hủy'
             });
             if (!result.isConfirmed) return; if (!mapGroupSP[id]) { Swal.fire('Lỗi', 'Không tìm thấy dữ liệu!', 'error'); return; }
-            const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id])); skusToDelete.forEach(s => s.trang_thai = -1);
+            
+            const pinXacNhan = await askMasterPIN();
+            if (!pinXacNhan) return; 
+
+            const skusToDelete = JSON.parse(JSON.stringify(mapGroupSP[id]));
+            skusToDelete.forEach(s => { s.trang_thai = -1; s._pin_delete_auth = pinXacNhan; });
             await sendDataToBackend(skusToDelete);
         }
 
@@ -980,7 +989,8 @@
             };
 
             const fd = new FormData(); fd.set('ma_nganh', CURRENT_NGANH); fd.set('ma_san_pham', productJSON.ma_san_pham || ""); fd.set('data_json', JSON.stringify(productJSON)); 
-            
+            let pinAuth = ""; skus.forEach(s => { if(s._pin_delete_auth) pinAuth = s._pin_delete_auth; }); if (pinAuth) fd.set('pin_xac_nhan', pinAuth);
+
             try {
                 const res = await fetch('/master/api/product/save', { method: 'POST', body: fd }); const data = await res.json();
                 if(data.status === 'ok') {
