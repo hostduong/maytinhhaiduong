@@ -44,34 +44,36 @@
         input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; }
         .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; font-size: 15px; }
 
-        /* TAGIFY CUSTOM CHO GIAO DIỆN MỚI */
+        /* TAGIFY CUSTOM CHO GIAO DIỆN MỚI (ĐỒNG BỘ FONT CHỮ) */
         .tagify { padding: 0 0.25rem; display: flex; align-items: center; cursor: text; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; }
         .tagify--focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; }
         .tagify[readonly] { background-color: #f1f5f9 !important; cursor: not-allowed !important; border-style: dashed !important; pointer-events: none; }
         
-        /* Ghi đè Tagify khi nằm trong Box Thuộc tính nhỏ (Mini Wrap) */
-        .tagify-mini-wrap .tagify { border: none !important; padding: 0 !important; width: 100%; display: flex; flex-wrap: nowrap; overflow: hidden; align-items: center; min-height: unset; box-shadow: none !important;}
-        .tagify-mini-wrap .tagify__input { margin: 0 !important; padding: 0 !important; font-size: 13px; font-weight: 700; color: #1e293b; line-height: 1; }
-        .tagify-mini-wrap .tagify__tag { margin: 0 2px 0 0 !important; font-size: 11px; padding: 2px 5px; height: auto; border-radius: 4px; background: #f1f5f9; }
+        /* Ghi đè Tagify khi nằm trong Box Thuộc tính (Đồng bộ tuyệt đối chữ to, màu đậm) */
+        .tagify-mini-wrap .tagify { border: none !important; padding: 0 !important; width: 100%; display: flex; flex-wrap: nowrap; overflow: hidden; align-items: center; min-height: unset; box-shadow: none !important; background: transparent;}
+        .tagify-mini-wrap .tagify__input { margin: 0 !important; padding: 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; line-height: 1; }
+        .tagify-mini-wrap .tagify__tag { margin: 0 2px 0 0 !important; font-size: 13px !important; font-weight: 700 !important; color: #1e293b !important; padding: 2px 6px; height: auto; border-radius: 4px; background: transparent; }
         .tagify-mini-wrap .tagify__tag>div { padding: 0; }
         .tagify-mini-wrap .tagify__tag__removeBtn { display: none; }
 
         /* =========================================================
-           SMART INPUT (UI CỰC XỊN DÀNH CHO THUỘC TÍNH)
+           SMART INPUT (DÀN HÀNG NGANG AUTO-FIT, KHÔNG DÙNG GRID CỐ ĐỊNH)
            ========================================================= */
-        .smart-input-wrap { height: 34px; width: 100%; position: relative; }
+        .smart-input-wrap { position: relative; display: inline-flex; align-items: center; height: 36px; }
         
-        .smart-input-btn { height: 100%; width: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 0.5rem; color: #64748b; font-size: 12px; font-weight: 700; transition: 0.2s; display: flex; align-items: center; padding: 0 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .smart-input-btn { height: 100%; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 0.5rem; color: #64748b; font-size: 13px; font-weight: 700; transition: 0.2s; display: flex; align-items: center; padding: 0 14px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
         .smart-input-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #f8fafc; border-style: solid; }
         
-        .smart-input-field { height: 100%; width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; position: relative;}
+        .smart-input-field { height: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; display: none; align-items: center; padding-left: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: border-color 0.2s; overflow: hidden; }
         .smart-input-field:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
         
         .smart-input-wrap.active .smart-input-btn { display: none; }
         .smart-input-wrap.active .smart-input-field { display: flex; }
 
-        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 8px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; border-radius: 0 0.5rem 0.5rem 0; }
+        .btn-remove-attr { background: transparent; border: none; color: #cbd5e1; height: 100%; padding: 0 10px; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
+        
+        .auto-expand-input { min-width: 40px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0 4px; background: transparent; transition: width 0.1s; }
 
         /* Khác */
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
@@ -232,30 +234,30 @@
                             <div class="form-section">
                                 <div class="section-title">
                                     <span>🏷️ Phân loại & Thuộc tính</span>
-                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'tinh_trang', 'bao_hanh', 'thuoc_tinh')" class="copy-btn btn-sync-main">Kéo từ Đại Diện</button>
+                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'tinh_trang', 'bao_hanh', 'thuoc_tinh')" class="copy-btn btn-sync-main bg-blue-50">Kéo từ Đại Diện</button>
                                 </div>
                                 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-4" id="unified_attributes_container">
+                                <div class="flex flex-wrap items-center gap-3 mb-4" id="unified_attributes_container">
                                     
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[34px] px-2 focus-within:border-blue-500 transition shadow-sm overflow-visible">
-                                         <span class="text-[10px] font-black text-slate-400 uppercase mr-2 whitespace-nowrap">T.HIỆU:</span>
-                                         <div class="flex-1 min-w-0 tagify-mini-wrap"><input id="f_ma_thuong_hieu" placeholder="..."></div>
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[36px] pl-3 pr-1 focus-within:border-blue-500 transition shadow-sm">
+                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2 whitespace-nowrap">T.HIỆU:</span>
+                                         <div class="tagify-mini-wrap min-w-[70px] max-w-[150px]"><input id="f_ma_thuong_hieu" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[34px] px-2 focus-within:border-blue-500 transition shadow-sm overflow-visible">
-                                         <span class="text-[10px] font-black text-slate-400 uppercase mr-2 whitespace-nowrap">Đ.VỊ:</span>
-                                         <div class="flex-1 min-w-0 tagify-mini-wrap"><input id="f_don_vi" placeholder="..."></div>
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[36px] pl-3 pr-1 focus-within:border-blue-500 transition shadow-sm">
+                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2 whitespace-nowrap">Đ.VỊ:</span>
+                                         <div class="tagify-mini-wrap min-w-[50px] max-w-[100px]"><input id="f_don_vi" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[34px] px-2 focus-within:border-blue-500 transition shadow-sm overflow-visible">
-                                         <span class="text-[10px] font-black text-slate-400 uppercase mr-2 whitespace-nowrap">T.TRẠNG:</span>
-                                         <div class="flex-1 min-w-0 tagify-mini-wrap"><input id="f_tinh_trang" placeholder="..."></div>
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[36px] pl-3 pr-1 focus-within:border-blue-500 transition shadow-sm">
+                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2 whitespace-nowrap">T.TRẠNG:</span>
+                                         <div class="tagify-mini-wrap min-w-[80px] max-w-[150px]"><input id="f_tinh_trang" placeholder="..."></div>
                                     </div>
 
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[34px] focus-within:border-blue-500 transition overflow-hidden shadow-sm">
-                                         <span class="text-[10px] font-black text-slate-400 uppercase ml-2 mr-2 whitespace-nowrap">B.HÀNH:</span>
-                                         <input type="number" id="f_bao_hanh_num" class="flex-1 w-full text-center font-bold text-blue-700 outline-none text-[13px] bg-transparent" placeholder="12" min="0">
-                                         <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold">Tháng</span>
+                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-[36px] focus-within:border-blue-500 transition overflow-hidden shadow-sm">
+                                         <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-3 mr-2 whitespace-nowrap">B.HÀNH:</span>
+                                         <input type="number" id="f_bao_hanh_num" class="w-[50px] h-full text-center font-bold text-slate-800 outline-none text-[13px] bg-transparent" placeholder="12" min="0">
+                                         <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
                                     </div>
                                     
                                     <div id="dynamic_standard_container" class="contents"></div>
@@ -573,7 +575,7 @@
             };
         }
 
-        // ĐỘNG CƠ RENDER THUỘC TÍNH (SMART GRID INLINE)
+        // ĐỘNG CƠ RENDER THUỘC TÍNH (ĐỒNG BỘ 100% KIỂU DÁNG)
         function renderDynamicAttributes(nganh, thuocTinhData) {
             const container = document.getElementById('dynamic_standard_container'); 
             container.innerHTML = '';
@@ -588,24 +590,28 @@
                 let donViHtml = "";
                 let inputAlign = "text-left";
                 if (a.don_vi) {
-                    donViHtml = `<span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold whitespace-nowrap">${a.don_vi}</span>`;
+                    donViHtml = `<span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold whitespace-nowrap">${a.don_vi}</span>`;
                     inputAlign = "text-center";
                 }
 
+                // Thuật toán đo chữ siêu thông minh (Tối thiểu 4 ký tự)
+                let initialWidth = val.length > 0 ? (val.length + 3) + 'ch' : '6ch';
+
                 let html = `
                 <div class="smart-input-wrap ${isActive}" id="wrap_attr_${a.ma_thuoc_tinh}">
-                    <button type="button" class="smart-input-btn w-full flex items-center justify-start gap-1" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
-                        <span class="text-blue-500 font-black">+</span> ${a.ten_thuoc_tinh}
+                    <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.add('active'); document.getElementById('attr_${a.ma_thuoc_tinh}').focus();">
+                        <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh}
                     </button>
-                    <div class="smart-input-field w-full">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1.5 whitespace-nowrap">${a.ten_thuoc_tinh}:</span>
+                    <div class="smart-input-field">
+                        <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2 whitespace-nowrap">${a.ten_thuoc_tinh}:</span>
                         <input type="${a.kieu_nhap === 'number' ? 'text' : 'text'}" 
                                id="attr_${a.ma_thuoc_tinh}" 
-                               class="flex-1 w-full bg-transparent border-none outline-none p-0 m-0 text-[13px] font-bold text-slate-800 dynamic-attr ${inputAlign}" 
+                               class="auto-expand-input dynamic-attr ${inputAlign}" 
                                data-key="${a.ma_thuoc_tinh}" 
                                value="${val}" 
                                placeholder="..."
-                               oninput="if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                               style="width: ${initialWidth};"
+                               oninput="this.style.width = (this.value.length > 0 ? this.value.length + 3 : 6) + 'ch'; if('${a.kieu_nhap}'==='number') this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
                         ${donViHtml}
                         <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_${a.ma_thuoc_tinh}').value=''; document.getElementById('wrap_attr_${a.ma_thuoc_tinh}').classList.remove('active'); isDirty = true;">✕</button>
                     </div>
