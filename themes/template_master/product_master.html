@@ -1,4 +1,4 @@
-{{ define "may_tinh_master" }}
+{{ define "product_master" }}
     {{ template "header_master" . }}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
@@ -72,7 +72,7 @@
             align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch;
         }
         @media (min-width: 1280px) { 
-            .saas-drag-bar.is-open { display: flex; margin-top: 58px; } 
+            .saas-drag-bar.is-open { display: flex; margin-top: 0; } 
         }
 
         /* CSS phụ trợ chung */
@@ -104,15 +104,7 @@
         .dm-tag-single { display: inline-flex; align-items: center; background-color: #e5e7eb; color: #374151; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; margin: 2px; white-space: nowrap; line-height: 1.5; border: 1px solid #e5e7eb; }
 
         /* Tùy chỉnh riêng cho các ô nhập Giá (Pricing) */
-        .price-input { font-weight: 700; text-align: right; padding-right: 25px !important; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
-
-        /* Khối Smart Input kế thừa từ nhap_hang.html */
-        .smart-input-wrap { position: relative; display: flex; align-items: center; height: 36px; }
-        .smart-input-btn { cursor: pointer; transition: 0.2s; border-style: dashed; height: 100%; border: 1px dashed #cbd5e1; }
-        .smart-input-btn:hover { border-style: solid; background-color: #f1f5f9; color: #2563eb; }
-        .smart-input-field { display: none; align-items: center; height: 100%; }
-        .smart-input-wrap.active .smart-input-btn { display: none !important; }
-        .smart-input-wrap.active .smart-input-field { display: flex !important; }
+        .price-input { font-weight: 700; text-align: right; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.05em; font-size: 15px; }
 
         .img-input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; animation: fadeIn 0.2s; }
         .btn-remove-img { background: #fff1f2; color: #e11d48; cursor: pointer; border-radius: 0.5rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid #ffe4e6; flex-shrink: 0; }
@@ -138,6 +130,7 @@
         <div id="data_sanpham">
             {{ range .DanhSachFull }}
             <div class="sp-data"
+                data-json="{{ if .DataJSON }}{{ .DataJSON }}{{ end }}"
                 data-masp="{{ .MaSanPham }}" data-tensp="{{ urlquery .TenSanPham }}" data-tenrutgon="{{ urlquery .TenRutGon }}" data-slug="{{ urlquery .Slug }}"
                 data-masku="{{ .MaSKU }}" data-tensku="{{ urlquery .TenSKU }}" data-skuchinh="{{ .SKUChinh }}" data-trangthai="{{ .TrangThai }}"
                 data-danhmuc="{{ urlquery .MaDanhMuc }}" data-thuonghieu="{{ urlquery .MaThuongHieu }}" data-donvi="{{ urlquery .DonVi }}" data-mausac="{{ urlquery .MauSac }}"
@@ -383,53 +376,20 @@
                             <div class="form-section">
                                 <div class="section-title">
                                     <span>🏷️ Phân loại & Thuộc tính</span>
-                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'mau_sac', 'khoi_luong', 'kich_thuoc', 'bao_hanh', 'tinh_trang')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
+                                    <button type="button" onclick="syncFromMain('ma_thuong_hieu', 'don_vi', 'thuoc_tinh')" class="copy-btn btn-sync-main"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg> Kéo từ Đại Diện</button>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                                     <div><label>Thương hiệu</label><input id="f_ma_thuong_hieu" class="input-premium" placeholder="Chọn thương hiệu..."></div>
                                     <div><label>Đơn vị</label><input id="f_don_vi" class="input-premium text-sm" placeholder="Cái..."></div>
-                                    <div><label>Màu sắc</label><input id="f_mau_sac" class="input-premium text-sm" placeholder="Đen..."></div>
-                                    <div><label>Tình trạng</label><input id="f_tinh_trang" class="input-premium text-sm" placeholder="Mới 100%..."></div>
                                 </div>
 
-                                <div class="flex flex-wrap items-center gap-3 sm:gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                                    
-                                    <div class="flex items-center shrink-0">
-                                        <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Bảo hành:</span>
-                                        <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
-                                            <input type="number" id="f_bao_hanh_num" class="w-[60px] h-full text-center font-bold text-blue-700 outline-none p-0 m-0 text-[14px]" placeholder="12" min="0">
-                                            <span class="bg-slate-100 h-full px-3 flex items-center border-l border-slate-200 text-slate-600 text-[12px] font-bold">Tháng</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="smart-input-wrap shrink-0" id="wrapKhoiLuong">
-                                        <button type="button" class="smart-input-btn bg-white border border-slate-300 text-slate-500 hover:text-blue-600 px-3 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition" onclick="document.getElementById('wrapKhoiLuong').classList.add('active'); document.getElementById('f_khoi_luong').focus();">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> Khối lượng
-                                        </button>
-                                        <div class="smart-input-field hidden items-center">
-                                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Trọng lượng:</span>
-                                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px]">
-                                                <input type="number" id="f_khoi_luong" class="w-[70px] h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="500">
-                                                <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">Gr</span>
-                                            </div>
-                                            <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_khoi_luong').value=''; document.getElementById('wrapKhoiLuong').classList.remove('active');">✕</button>
-                                        </div>
+                                <div id="dynamic_standard_container" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                                     </div>
 
-                                    <div class="smart-input-wrap shrink-0" id="wrapKichThuoc">
-                                        <button type="button" class="smart-input-btn bg-white border border-slate-300 text-slate-500 hover:text-blue-600 px-3 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition" onclick="document.getElementById('wrapKichThuoc').classList.add('active'); document.getElementById('f_kich_thuoc').focus();">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> Kích thước
-                                        </button>
-                                        <div class="smart-input-field hidden items-center">
-                                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">K.Thước:</span>
-                                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 transition h-[36px]">
-                                                <input type="text" id="f_kich_thuoc" class="w-[85px] h-full text-center font-mono text-slate-800 outline-none p-0 m-0 text-[13px]" placeholder="10x20x5">
-                                                <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">Cm</span>
-                                            </div>
-                                            <button type="button" class="text-slate-400 hover:text-red-500 p-1.5 ml-1 transition" onclick="document.getElementById('f_kich_thuoc').value=''; document.getElementById('wrapKichThuoc').classList.remove('active');">✕</button>
+                                <div class="flex flex-wrap items-center gap-3 sm:gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl" id="dynamic_smart_wrapper" style="display: none;">
+                                    <div id="dynamic_smart_container" class="flex flex-wrap items-center gap-3 sm:gap-4 w-full">
                                         </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -441,9 +401,9 @@
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 items-end">
                                     <div>
                                         <label>Giá Vốn <span class="hidden sm:inline">(Nhập)</span> <span class="text-red-500">*</span></label>
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <input type="text" id="f_gia_nhap" required class="input-premium price-input text-[15px] font-bold text-slate-800 pr-8" placeholder="0" onkeyup="formatCurrency(this); renderQuyTacGia(); calcPrices();">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">₫</span>
                                         </div>
                                     </div>
                                     <div>
@@ -452,16 +412,16 @@
                                     </div>
                                     <div>
                                         <label>Biên độ Lãi</label>
-                                        <div class="relative">
-                                            <input type="number" id="f_bien_do_phan_tram" class="input-premium text-center font-bold text-[15px] text-blue-700 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        <div class="relative w-full">
+                                            <input type="number" id="f_bien_do_phan_tram" class="input-premium percent-input font-bold text-[15px] text-blue-700 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label>Lãi VNĐ</label>
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <input type="text" id="f_lai_vnd" readonly class="input-premium price-input text-[15px] font-bold text-slate-500 cursor-not-allowed bg-slate-100 border-dashed pr-8" placeholder="0">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">₫</span>
                                         </div>
                                     </div>
                                 </div>
@@ -469,30 +429,30 @@
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end mt-4">
                                     <div>
                                         <label>Niêm Yết <span class="hidden sm:inline">(Gạch ngang)</span></label>
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <input type="text" id="f_gia_niem_yet" required class="input-premium price-input text-[15px] font-bold text-slate-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); autoCalcBackward()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">₫</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label>Giảm giá</label>
-                                        <div class="relative">
-                                            <input type="number" id="f_phan_tram_giam" class="input-premium text-center font-bold text-[15px] text-orange-600 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">%</span>
+                                        <div class="relative w-full">
+                                            <input type="number" id="f_phan_tram_giam" class="input-premium percent-input font-bold text-[15px] text-orange-600 pr-8" placeholder="0" step="any" onkeyup="calcPrices()">
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label>Hoặc Giảm VNĐ</label>
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <input type="text" id="f_so_tien_giam" class="input-premium price-input text-[15px] font-bold text-orange-600 pr-8" placeholder="0" onkeyup="formatCurrency(this); applyDiscountMoney()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[13px] pointer-events-none">₫</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 pointer-events-none">₫</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label class="text-emerald-700">Giá Bán Thực</label>
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <input type="text" id="f_gia_ban" class="input-premium price-input border-emerald-400 ring-2 ring-emerald-500/20 bg-emerald-50 text-[16px] font-black text-emerald-700 pr-8 shadow-sm" placeholder="0" onkeyup="formatCurrency(this); autoCalcFromGiaBan()">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-[15px] pointer-events-none">₫</span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-black text-emerald-600 pointer-events-none">₫</span>
                                         </div>
                                     </div>
                                 </div>
@@ -532,6 +492,21 @@
     </div>
 
     <script>
+        // MOCKUP Cấu hình thuộc tính ngành (Thực tế sẽ load từ file Cấu Hình Master)
+        const G_ThuocTinhNganh = {
+            "dien_tu": [
+                { ma_thuoc_tinh: "mau_sac", ten_thuoc_tinh: "Màu sắc", kieu_nhap: "text", don_vi: "" },
+                { ma_thuoc_tinh: "tinh_trang", ten_thuoc_tinh: "Tình trạng", kieu_nhap: "text", don_vi: "" },
+                { ma_thuoc_tinh: "cpu", ten_thuoc_tinh: "CPU", kieu_nhap: "text", don_vi: "" },
+                { ma_thuoc_tinh: "bao_hanh", ten_thuoc_tinh: "Bảo hành", kieu_nhap: "number", don_vi: "Tháng" },
+                { ma_thuoc_tinh: "khoi_luong", ten_thuoc_tinh: "Trọng lượng", kieu_nhap: "number", don_vi: "Gr" },
+                { ma_thuoc_tinh: "kich_thuoc", ten_thuoc_tinh: "Kích thước", kieu_nhap: "text", don_vi: "Cm" },
+                { ma_thuoc_tinh: "ram", ten_thuoc_tinh: "RAM", kieu_nhap: "number", don_vi: "GB" },
+                { ma_thuoc_tinh: "ssd", ten_thuoc_tinh: "SSD", kieu_nhap: "number", don_vi: "GB" }
+            ]
+        };
+        let CURRENT_NGANH = "dien_tu"; // Mặc định hiển thị Điện tử để test
+
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('detailPaneUI');
         const dragBar = document.getElementById('dragResizerUI');
@@ -552,17 +527,13 @@
             if (!isResizing) return;
             e.preventDefault(); 
             const containerRect = splitContainer.getBoundingClientRect();
-            
             let offsetLeft = e.clientX - containerRect.left;
             let percentage = (offsetLeft / containerRect.width) * 100;
-            
             if (percentage < 40) percentage = 40;
             if (percentage > 75) percentage = 75;
-
             listPane.style.width = percentage + '%';
             listPane.style.flex = 'none'; 
             if(searchBarWrapper) searchBarWrapper.style.width = percentage + '%';
-            
             detailPane.style.width = (100 - percentage) + '%';
         });
 
@@ -789,37 +760,57 @@
             }
         });
         
+        // ĐỌC DỮ LIỆU ĐA NGÀNH (NOSQL + TƯƠNG THÍCH NGƯỢC)
         const mapGroupSP = {}; 
         document.querySelectorAll('#data_sanpham .sp-data').forEach(el => { 
-            let id = el.getAttribute('data-masp'); 
-            if(id) { 
-                if(!mapGroupSP[id]) mapGroupSP[id] = [];
-                mapGroupSP[id].push({
-                    _is_saved: true,
-                    ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-tensp')), ten_rut_gon: decodeGo(el.getAttribute('data-tenrutgon')), slug: decodeGo(el.getAttribute('data-slug')),
-                    ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), 
-                    ma_danh_muc: decodeGo(el.getAttribute('data-danhmuc')), ma_thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')), mau_sac: decodeGo(el.getAttribute('data-mausac')),
-                    khoi_luong: parseFloat(el.getAttribute('data-khoiluong')) || 0, kich_thuoc: decodeGo(el.getAttribute('data-kichthuoc')), url_hinh_anh: el.getAttribute('data-img'), bao_hanh: decodeGo(el.getAttribute('data-baohanh')),
-                    tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, 
-                    phan_tram_lai: parseFloat(el.getAttribute('data-ptlai')) || 0, 
-                    gia_niem_yet: parseFloat(el.getAttribute('data-gianiemuyet')) || 0, phan_tram_giam: parseFloat(el.getAttribute('data-ptgiam')) || 0,
-                    so_tien_giam: parseFloat(el.getAttribute('data-tiengiam')) || 0, gia_ban: parseFloat(el.getAttribute('data-giaban')) || 0, 
-                    ngay_cap_nhat: el.getAttribute('data-ngaycapnhat'), 
-                    nguoi_cap_nhat: el.getAttribute('data-nguoicapnhat'), 
-                    ghi_chu: decodeGo(el.getAttribute('data-ghichu')), thong_so_html: el.querySelector('.t-thongso').value, mo_ta_html: el.querySelector('.t-mota').value
-                });
-            } 
+            let rawJSON = el.getAttribute('data-json');
+            if(rawJSON) {
+                try {
+                    let sp = JSON.parse(rawJSON);
+                    if(!mapGroupSP[sp.ma_san_pham]) mapGroupSP[sp.ma_san_pham] = [];
+                    sp.sku.forEach(s => {
+                        mapGroupSP[sp.ma_san_pham].push({
+                            _is_saved: true, ma_san_pham: sp.ma_san_pham, ten_san_pham: sp.ten_san_pham, ten_rut_gon: sp.ten_rut_gon, slug: sp.slug,
+                            ma_sku: s.ma_sku, ten_sku: s.ten_sku, sku_chinh: sp.sku_chinh === s.ma_sku ? 1 : 0, trang_thai: s.trang_thai, 
+                            ma_danh_muc: sp.ma_danh_muc ? sp.ma_danh_muc.join("|") : "", ma_thuong_hieu: sp.ma_thuong_hieu, don_vi: s.don_vi, 
+                            url_hinh_anh: s.hinh_anh ? s.hinh_anh.join("|") : "", ghi_chu: s.ghi_chu,
+                            gia_nhap: s.gia ? s.gia.gia_nhap : 0, phan_tram_lai: s.gia ? s.gia.phan_tram_lai : 0, gia_niem_yet: s.gia ? s.gia.gia_niem_yet : 0, gia_ban: s.gia ? s.gia.gia_ban : 0,
+                            so_tien_giam: s.gia ? (s.gia.gia_niem_yet - s.gia.gia_ban) : 0,
+                            mo_ta_html: s.mo_ta_html, thong_so_html: s.thong_so_html,
+                            thuoc_tinh: s.thuoc_tinh || {}
+                        });
+                    });
+                } catch(e) {}
+            } else {
+                // Tương thích ngược với hệ thống cũ
+                let id = el.getAttribute('data-masp'); 
+                if(id) { 
+                    if(!mapGroupSP[id]) mapGroupSP[id] = [];
+                    mapGroupSP[id].push({
+                        _is_saved: true, ma_san_pham: id, ten_san_pham: decodeGo(el.getAttribute('data-tensp')), ten_rut_gon: decodeGo(el.getAttribute('data-tenrutgon')), slug: decodeGo(el.getAttribute('data-slug')),
+                        ma_sku: el.getAttribute('data-masku'), ten_sku: decodeGo(el.getAttribute('data-tensku')), sku_chinh: parseInt(el.getAttribute('data-skuchinh')) || 0, trang_thai: parseInt(el.getAttribute('data-trangthai')), 
+                        ma_danh_muc: decodeGo(el.getAttribute('data-danhmuc')), ma_thuong_hieu: decodeGo(el.getAttribute('data-thuonghieu')), don_vi: decodeGo(el.getAttribute('data-donvi')),
+                        url_hinh_anh: el.getAttribute('data-img'), gia_nhap: parseFloat(el.getAttribute('data-gianhap')) || 0, phan_tram_lai: parseFloat(el.getAttribute('data-ptlai')) || 0, 
+                        gia_niem_yet: parseFloat(el.getAttribute('data-gianiemuyet')) || 0, so_tien_giam: parseFloat(el.getAttribute('data-tiengiam')) || 0, gia_ban: parseFloat(el.getAttribute('data-giaban')) || 0, 
+                        ghi_chu: decodeGo(el.getAttribute('data-ghichu')), thong_so_html: el.querySelector('.t-thongso').value, mo_ta_html: el.querySelector('.t-mota').value,
+                        thuoc_tinh: { 
+                            mau_sac: decodeGo(el.getAttribute('data-mausac')), 
+                            tinh_trang: decodeGo(el.getAttribute('data-tinhtrang')), 
+                            khoi_luong: parseFloat(el.getAttribute('data-khoiluong')) || 0, 
+                            kich_thuoc: decodeGo(el.getAttribute('data-kichthuoc')), 
+                            bao_hanh: decodeGo(el.getAttribute('data-baohanh')) 
+                        }
+                    });
+                } 
+            }
         });
         document.getElementById('data_island').remove();
 
         const tagifySelectConfig = { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true } };
         var tagifyDM = new Tagify(document.querySelector('#f_ma_danh_muc'), { whitelist: listDM, enforceWhitelist: true, dropdown: { maxItems: 50, classname: "tags-look", enabled: 0, closeOnSelect: false } });
         const tagifyTH = new Tagify(document.querySelector('#f_ma_thuong_hieu'), { ...tagifySelectConfig, whitelist: listTH });
-        const tagifyDonVi = new Tagify(document.querySelector('#f_don_vi'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Cái", "Bộ", "Hộp", "Chiếc", "Combo"] });
-        const tagifyTinhTrang = new Tagify(document.querySelector('#f_tinh_trang'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Mới 100%", "Like New", "Cũ", "Trưng bày", "Trả bảo hành"] });
-        const tagifyMauSac = new Tagify(document.querySelector('#f_mau_sac'), { mode: 'select', enforceWhitelist: true, dropdown: { maxItems: 20, classname: "tags-look", enabled: 0, closeOnSelect: true, highlightFirst: true }, whitelist: ["Đen", "Trắng", "Xám", "Đỏ", "Bạc", "Vàng", "Hồng", "Xanh"] });
-
-        [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => {
+        
+        [tagifyDM, tagifyTH].forEach(t => {
             t.on('add', function(e) { if(!isEditingMode) isDirty = true; });
             t.on('remove', function(e) { if(!isEditingMode) isDirty = true; });
         });
@@ -862,10 +853,61 @@
 
         function createEmptySKU() {
             return {
-                _is_saved: false,
-                ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản 1", sku_chinh: 0, trang_thai: 1, ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", mau_sac: "",
-                khoi_luong: 0, kich_thuoc: "", url_hinh_anh: "", bao_hanh: "", tinh_trang: "Mới 100%", gia_nhap: 0, phan_tram_lai: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", ngay_cap_nhat: "", nguoi_cap_nhat: "", thong_so_html: "", mo_ta_html: ""
+                _is_saved: false, ma_san_pham: "", ten_san_pham: "", ten_rut_gon: "", slug: "", ma_sku: "", ten_sku: "Phiên bản 1", sku_chinh: 0, trang_thai: 1, 
+                ma_danh_muc: "", ma_thuong_hieu: "", don_vi: "Cái", url_hinh_anh: "", gia_nhap: 0, phan_tram_lai: 0, gia_niem_yet: 0, phan_tram_giam: 0, so_tien_giam: 0, gia_ban: 0, ghi_chu: "", 
+                thong_so_html: "", mo_ta_html: "",
+                thuoc_tinh: {} // Nơi chứa dữ liệu động
             };
+        }
+
+        // ==============================================================
+        // HỆ THỐNG RENDER THUỘC TÍNH ĐỘNG (AUTO-RENDER UI EAV)
+        // ==============================================================
+        function renderDynamicAttributes(nganh, thuocTinhData) {
+            const standardContainer = document.getElementById('dynamic_standard_container');
+            const smartContainer = document.getElementById('dynamic_smart_container');
+            const smartWrapper = document.getElementById('dynamic_smart_wrapper');
+            
+            standardContainer.innerHTML = '';
+            smartContainer.innerHTML = '';
+            
+            const attrs = G_ThuocTinhNganh[nganh] || [];
+            let hasSmart = false;
+
+            attrs.forEach(a => {
+                let val = thuocTinhData[a.ma_thuoc_tinh] || "";
+                
+                if (!a.don_vi) {
+                    standardContainer.innerHTML += `
+                        <div>
+                            <label>${a.ten_thuoc_tinh}</label>
+                            <input type="${a.kieu_nhap}" class="input-premium text-sm dynamic-attr" data-key="${a.ma_thuoc_tinh}" value="${val}" placeholder="Nhập ${a.ten_thuoc_tinh.toLowerCase()}...">
+                        </div>
+                    `;
+                } else {
+                    hasSmart = true;
+                    // FIX 3: Căn chỉnh lại chiều rộng phù hợp để không bị dính lề
+                    let inputWidth = "w-[70px]";
+                    if(a.ma_thuoc_tinh === "bao_hanh") inputWidth = "w-[60px]";
+                    if(a.ma_thuoc_tinh === "kich_thuoc") inputWidth = "w-[100px]";
+                    
+                    smartContainer.innerHTML += `
+                        <div class="flex items-center shrink-0">
+                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">${a.ten_thuoc_tinh}:</span>
+                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition h-[36px]">
+                                <input type="${a.kieu_nhap}" class="${inputWidth} h-full text-center font-bold text-slate-800 outline-none p-0 m-0 text-[13px] dynamic-attr" data-key="${a.ma_thuoc_tinh}" value="${val}" placeholder="0">
+                                <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-500 text-[11px] font-bold">${a.don_vi}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (!hasSmart) {
+                smartWrapper.style.display = 'none';
+            } else {
+                smartWrapper.style.display = 'flex';
+            }
         }
 
         function renderTabs() {
@@ -908,7 +950,7 @@
             if(mainRef) {
                 newSku.ma_san_pham = mainRef.ma_san_pham; newSku.ten_san_pham = mainRef.ten_san_pham; 
                 newSku.ma_danh_muc = mainRef.ma_danh_muc; newSku.ma_thuong_hieu = mainRef.ma_thuong_hieu;
-                newSku.don_vi = mainRef.don_vi; newSku.bao_hanh = mainRef.bao_hanh; 
+                newSku.don_vi = mainRef.don_vi; newSku.thuoc_tinh.bao_hanh = mainRef.thuoc_tinh.bao_hanh; 
                 newSku.thong_so_html = mainRef.thong_so_html; newSku.mo_ta_html = mainRef.mo_ta_html;
                 if (mainRef.ma_san_pham) newSku.ma_sku = mainRef.ma_san_pham + "-" + String(currentSkus.length + 1).padStart(2, '0');
             }
@@ -987,12 +1029,12 @@
             if (mainIdx === activeTabIndex) {
                 let count = 0;
                 currentSkus.forEach((sku, idx) => {
-                    if (idx !== mainIdx && sku.trang_thai !== -1) { props.forEach(p => sku[p] = mainSku[p]); count++; }
+                    if (idx !== mainIdx && sku.trang_thai !== -1) { props.forEach(p => { if(p === 'thuoc_tinh') { sku.thuoc_tinh = JSON.parse(JSON.stringify(mainSku.thuoc_tinh)); } else { sku[p] = mainSku[p]; } }); count++; }
                 });
                 if (count > 0) Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã ép dữ liệu sang ${count} phiên bản khác!`, showConfirmButton: false, timer: 1500 });
                 else Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Không có phiên phụ nào để đồng bộ!`, showConfirmButton: false, timer: 1500 });
             } else {
-                props.forEach(p => currentSkus[activeTabIndex][p] = mainSku[p]);
+                props.forEach(p => { if(p === 'thuoc_tinh') { currentSkus[activeTabIndex].thuoc_tinh = JSON.parse(JSON.stringify(mainSku.thuoc_tinh)); } else { currentSkus[activeTabIndex][p] = mainSku[p]; } });
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Đã kéo dữ liệu từ Bản Đại Diện!`, showConfirmButton: false, timer: 1500 });
                 loadTabToForm(activeTabIndex); 
             }
@@ -1019,16 +1061,8 @@
             let arrMaTH = arrTenTH.map(t => dicThuongHieuByTen[t] ? dicThuongHieuByTen[t] : t);
             sku.ma_thuong_hieu = arrMaTH.join("|");
 
-            sku.don_vi = tagifyDonVi.value.map(v => v.value).join("|");
-            sku.mau_sac = tagifyMauSac.value.map(v => v.value).join("|");
-            sku.tinh_trang = tagifyTinhTrang.value.map(v => v.value).join("|");
+            sku.don_vi = document.getElementById('f_don_vi').value;
             
-            sku.khoi_luong = parseFloat(document.getElementById('f_khoi_luong').value) || 0;
-            sku.kich_thuoc = document.getElementById('f_kich_thuoc').value;
-            
-            let bhN = document.getElementById('f_bao_hanh_num').value;
-            sku.bao_hanh = bhN ? `${bhN} Tháng` : "";
-
             sku.gia_nhap = getNum(document.getElementById('f_gia_nhap').value);
             sku.phan_tram_lai = parseFloat(document.getElementById('f_bien_do_phan_tram').value) || 0; 
             sku.gia_niem_yet = getNum(document.getElementById('f_gia_niem_yet').value);
@@ -1042,6 +1076,12 @@
             sku.thong_so_html = document.getElementById('f_thong_so_html').value;
             sku.mo_ta_html = document.getElementById('f_mo_ta_html').value;
             sku.ghi_chu = document.getElementById('f_ghi_chu').value;
+            
+            // LƯU DỮ LIỆU ĐỘNG VÀO JSON
+            sku.thuoc_tinh = {};
+            document.querySelectorAll('.dynamic-attr').forEach(inp => {
+                sku.thuoc_tinh[inp.getAttribute('data-key')] = inp.value;
+            });
         }
 
         function loadTabToForm(idx) {
@@ -1057,13 +1097,13 @@
                 fieldset.disabled = true; 
                 warningBox.classList.remove('hidden');
                 syncBtns.forEach(b => b.classList.add('hidden'));
-                [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(true));
+                [tagifyDM, tagifyTH].forEach(t => t.setReadonly(true));
                 document.getElementById('btn_add_img').classList.add('hidden');
             } else {
                 fieldset.disabled = false; 
                 warningBox.classList.add('hidden');
                 syncBtns.forEach(b => b.classList.remove('hidden'));
-                [tagifyDM, tagifyTH, tagifyDonVi, tagifyMauSac, tagifyTinhTrang].forEach(t => t.setReadonly(false));
+                [tagifyDM, tagifyTH].forEach(t => t.setReadonly(false));
                 document.getElementById('btn_add_img').classList.remove('hidden');
             }
 
@@ -1109,22 +1149,10 @@
                 tagifyTH.addTags(arrTen);
             }
             
-            tagifyDonVi.removeAllTags(); if(sp.don_vi) tagifyDonVi.addTags(sp.don_vi.split("|"));
-            tagifyMauSac.removeAllTags(); if(sp.mau_sac) tagifyMauSac.addTags(sp.mau_sac.split("|"));
-            tagifyTinhTrang.removeAllTags(); if(sp.tinh_trang) tagifyTinhTrang.addTags(sp.tinh_trang.split("|"));
-
-            document.getElementById('f_khoi_luong').value = sp.khoi_luong > 0 ? sp.khoi_luong : "";
-            if (sp.khoi_luong > 0) document.getElementById('wrapKhoiLuong').classList.add('active');
-            else document.getElementById('wrapKhoiLuong').classList.remove('active');
-
-            document.getElementById('f_kich_thuoc').value = sp.kich_thuoc;
-            if (sp.kich_thuoc && sp.kich_thuoc.trim() !== "") document.getElementById('wrapKichThuoc').classList.add('active');
-            else document.getElementById('wrapKichThuoc').classList.remove('active');
+            document.getElementById('f_don_vi').value = sp.don_vi || "";
             
-            if (sp.bao_hanh) {
-                const parts = sp.bao_hanh.split(" ");
-                document.getElementById('f_bao_hanh_num').value = parts[0]; 
-            } else { document.getElementById('f_bao_hanh_num').value = ""; }
+            // RENDER THUỘC TÍNH ĐỘNG RA GIAO DIỆN
+            renderDynamicAttributes(CURRENT_NGANH, sp.thuoc_tinh || {});
 
             document.getElementById('f_gia_nhap').value = sp.gia_nhap > 0 ? formatNumber(sp.gia_nhap.toString()) : "";
             document.getElementById('f_bien_do_phan_tram').value = sp.phan_tram_lai > 0 ? sp.phan_tram_lai : ""; 
@@ -1372,16 +1400,48 @@
                 });
             }
             
+            // BUILD JSON CHUẨN NOSQL TRƯỚC KHI GỬI
+            let productJSON = {
+                ma_san_pham: skus[0].ma_san_pham,
+                ma_nganh: CURRENT_NGANH,
+                ma_danh_muc: skus[0].ma_danh_muc ? skus[0].ma_danh_muc.split("|").filter(x=>x) : [],
+                ma_thuong_hieu: skus[0].ma_thuong_hieu ? skus[0].ma_thuong_hieu.split("|").filter(x=>x).join(",") : "",
+                ten_san_pham: skus[0].ten_san_pham,
+                ten_rut_gon: skus[0].ten_rut_gon,
+                sku_chinh: skus.find(s=>s.sku_chinh===1)?.ma_sku || "",
+                sku: skus.map(s => ({
+                    ma_san_pham: s.ma_san_pham,
+                    ma_sku: s.ma_sku,
+                    trang_thai: s.trang_thai,
+                    ten_sku: s.ten_sku,
+                    don_vi: s.don_vi,
+                    ghi_chu: s.ghi_chu,
+                    anh_dai_dien: s.url_hinh_anh ? s.url_hinh_anh.split('|')[0] : "",
+                    hinh_anh: s.url_hinh_anh ? s.url_hinh_anh.split('|').filter(x=>x) : [],
+                    mo_ta_html: s.mo_ta_html,
+                    thong_so_html: s.thong_so_html,
+                    gia: {
+                        gia_nhap: s.gia_nhap,
+                        phan_tram_lai: s.phan_tram_lai,
+                        gia_niem_yet: s.gia_niem_yet,
+                        gia_ban: s.gia_ban
+                    },
+                    thuoc_tinh: s.thuoc_tinh || {}
+                }))
+            };
+
             const fd = new FormData();
-            fd.set('ma_san_pham', skus[0].ma_san_pham || ""); 
-            fd.set('data_skus', JSON.stringify(skus)); 
+            fd.set('ma_nganh', CURRENT_NGANH);
+            fd.set('ma_san_pham', productJSON.ma_san_pham || ""); 
+            fd.set('data_json', JSON.stringify(productJSON)); 
             
             let pinAuth = "";
             skus.forEach(s => { if(s._pin_delete_auth) pinAuth = s._pin_delete_auth; });
             if (pinAuth) fd.set('pin_xac_nhan', pinAuth);
 
             try {
-                const res = await fetch('/master/api/may-tinh/save', { method: 'POST', body: fd }); 
+                // ĐÃ FIX: Gọi về API One-for-all mới
+                const res = await fetch('/master/api/product/save', { method: 'POST', body: fd }); 
                 const data = await res.json();
                 
                 if(data.status === 'ok') {
@@ -1424,7 +1484,7 @@
                 });
                 return; 
             }
-            saveSP();
+            sendDataToBackend(currentSkus);
         }
     </script>
     {{ template "footer_master" . }}
