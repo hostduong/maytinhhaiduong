@@ -261,6 +261,8 @@ type ProductRow struct {
 
 // ProductJSON định nghĩa lõi dữ liệu sẽ được Serialize/Deserialize từ DataJSON (Cột B)
 type ProductJSON struct {
+	SpreadsheetID  string        `json:"-"`
+	DongTrongSheet int           `json:"-"`          // Lưu tọa độ dòng
 	MaSanPham    string        `json:"ma_san_pham"`
 	Version      int           `json:"version"`      // Quản lý migrate schema
 	CreatedAt    int64         `json:"created_at"`   // Unix timestamp
