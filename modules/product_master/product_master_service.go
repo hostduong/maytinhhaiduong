@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"regexp"
 
 	"app/core"
 )
@@ -71,12 +72,10 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 		// CẬP NHẬT
 		inputSP.MaSanPham = maSP
 		inputSP.CreatedAt = spCu.CreatedAt
-		inputSP.Version = spCu.Version + 1 // Tăng version migrate
+		inputSP.Version = spCu.Version + 1 
 		inputSP.UpdatedAt = now
 		inputSP.QuanLy.NguoiTao = spCu.QuanLy.NguoiTao
 		inputSP.QuanLy.NgayTao = spCu.QuanLy.NgayTao
-		
-		// BẮT BUỘC: Giữ lại tọa độ cũ để Smart Queue biết đường ghi đè lên Google Sheet
 		inputSP.SpreadsheetID = spCu.SpreadsheetID
 		inputSP.DongTrongSheet = spCu.DongTrongSheet
 	}
@@ -85,6 +84,32 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 	inputSP.QuanLy.NgayCapNhat = nowStr
 	inputSP.Slug = Repo_TaoSlugChuan(inputSP.TenSanPham)
 	inputSP.SearchText = Repo_BuildSearchText(&inputSP)
+
+	// [MỚI] HỆ THỐNG AUTO-SEO THÔNG MINH
+	if inputSP.SEO.Title == "" {
+		inputSP.SEO.Title = inputSP.TenSanPham
+	}
+	if inputSP.SEO.Description == "" {
+		for _, sku := range inputSP.SKU {
+			if sku.MaSKU == inputSP.SKUChinh {
+				// Xóa sạch thẻ HTML để lấy văn bản thuần
+				re := regexp.MustCompile(`<[^>]*>`)
+				desc := re.ReplaceAllString(sku.MoTaHTML, "")
+				runes := []rune(desc)
+				if len(runes) > 160 {
+					desc = string(runes[:157]) + "..."
+				}
+				inputSP.SEO.Description = desc
+				
+				if inputSP.SEO.OGImage == "" && len(sku.HinhAnh) > 0 {
+					inputSP.SEO.OGImage = sku.HinhAnh[0]
+				} else if inputSP.SEO.OGImage == "" && sku.AnhDaiDien != "" {
+					inputSP.SEO.OGImage = sku.AnhDaiDien
+				}
+				break
+			}
+		}
+	}
 
 	// Xử lý cấp Mã SKU tự động nếu trống
 	for i := range inputSP.SKU {
@@ -97,7 +122,6 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 
 	// 5. Thao tác RAM Siêu Tốc (Ghi đè O(1))
 	if isUpdate {
-		// Tìm vị trí trong Array để chèn đè
 		listSP := core.CacheSanPham[adminShopID][maNganh]
 		for i, v := range listSP {
 			if v.MaSanPham == maSP {
@@ -105,29 +129,24 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 				break
 			}
 		}
-		// Dọn rác SKU cũ
 		for _, oldSKU := range spCu.SKU {
 			delete(core.CacheMapSKU, core.TaoCompositeKey(adminShopID, oldSKU.MaSKU))
 		}
 	} else {
-		// Append mới tinh
 		core.CacheSanPham[adminShopID][maNganh] = append(core.CacheSanPham[adminShopID][maNganh], spPtr)
 	}
 
-	// Cập nhật Map O(1)
 	core.CacheMapSanPham[core.TaoCompositeKey(adminShopID, maSP)] = spPtr
 	for i := range inputSP.SKU {
 		core.CacheMapSKU[core.TaoCompositeKey(adminShopID, inputSP.SKU[i].MaSKU)] = &inputSP.SKU[i]
 	}
 
-	// 6. Gửi Tín hiệu "Note" vào Hàng chờ thông minh (Không gửi JSON)
+	// 6. Ra lệnh Hàng chờ Đồng bộ Google Sheets
 	if isUpdate {
 		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, core.ActionSmartSync, spPtr.MaSanPham)
 	} else {
-		// Tính số dòng dự kiến cho SP Mới để gán vào RAM
 		spPtr.DongTrongSheet = core.DongBatDau_Product + len(core.CacheSanPham[adminShopID][maNganh]) - 1
 		spPtr.SpreadsheetID = adminShopID
-		
 		core.GhiChuDongBo(adminShopID, cfgNganh.TenSheet, core.ActionSmartSync, spPtr.MaSanPham)
 	}
 
