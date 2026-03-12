@@ -16,12 +16,13 @@ import (
 	"app/modules/ho_so"
 	"app/modules/nhap_hang"
 	"app/modules/thanh_toan"
-	"app/modules/thanh_vien_master" // [S.O.P] Đã trỏ đúng thư mục Master
+	"app/modules/thanh_vien_master" 
 	"app/modules/tin_nhan_master"
 	"app/modules/tong_quan_admin"
 	"app/modules/tong_quan_master"
 	"app/modules/cua_hang_master"
 	"app/modules/product_master"
+	"app/modules/dang_ky_master" // [BỔ SUNG]: Gọi Module Sáng lập hệ thống
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +34,6 @@ func RequireAppMode(allowedMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		currentMode := c.GetString("APP_MODE")
 		if currentMode != allowedMode {
-			// Báo 404 để giấu luôn sự tồn tại của URL này với người ngoài
 			c.HTML(http.StatusNotFound, "404", nil)
 			c.Abort()
 			return
@@ -71,15 +71,29 @@ func SetupRouter() *gin.Engine {
 
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
-	// Auth (Xác thực)
+	// Auth (Xác thực cơ bản)
 	router.GET("/login", auth.TrangDangNhap)
-	router.GET("/register", auth.TrangDangKy)
 	router.GET("/forgot-password", auth.TrangQuenMatKhau)
 	router.GET("/verify", auth.TrangXacThucOTP)
 	router.GET("/logout", auth.API_Logout)
-
 	router.POST("/login", auth.API_Login)
-	router.POST("/register", auth.API_Register)
+
+	// [ĐÃ FIX]: RẼ NHÁNH ROUTER ĐĂNG KÝ
+	router.GET("/register", func(c *gin.Context) {
+		if c.GetString("APP_MODE") == "MASTER_CORE" {
+			dang_ky_master.TrangDangKyMaster(c) // Giao diện tím đen God Mode
+		} else {
+			auth.TrangDangKy(c) // Giao diện xanh lá User thường
+		}
+	})
+
+	router.POST("/register", func(c *gin.Context) {
+		if c.GetString("APP_MODE") == "MASTER_CORE" {
+			dang_ky_master.API_RegisterMaster(c) // Búa thần Thor
+		} else {
+			auth.API_Register(c) // Đăng ký bình thường
+		}
+	})
 
 	apiAuth := router.Group("/api/auth")
 	{
@@ -95,23 +109,15 @@ func SetupRouter() *gin.Engine {
 	admin.Use(RequireAppMode("TENANT_ADMIN")) 
 	admin.Use(middlewares.CheckAuth())
 	{
-		// Render Giao Diện
 		admin.GET("/tong-quan", tong_quan_admin.TrangTongQuanAdmin)
 		admin.GET("/database", database_admin.TrangThietLapDatabaseAdmin)
 		admin.GET("/bang-gia", bang_gia_admin.TrangBangGiaAdmin)
 		
-		// Render Giao Diện (Module dự kiến)
-		// admin.GET("/nha-cung-cap", nha_cung_cap_admin.TrangNhaCungCap)
-
-		// Xử lý Dữ liệu ngầm
 		apiAdmin := admin.Group("/api")
 		{
 			apiAdmin.POST("/database/setup", database_admin.API_ThietLapDatabase)
 			apiAdmin.POST("/thanh-toan/check-price", thanh_toan.API_CheckPrice)
 			apiAdmin.POST("/thanh-toan/mua-goi", thanh_toan.API_MuaGoi)
-			
-			// API (Module dự kiến)
-			// apiAdmin.POST("/nha-cung-cap/save", nha_cung_cap_admin.API_LuuNhaCungCap)
 		}
 	}
 
@@ -123,7 +129,6 @@ func SetupRouter() *gin.Engine {
 	master.Use(middlewares.CheckAuth())
 	master.Use(middlewares.RequireLevel(2))
 	{
-		// Render Giao Diện
 		master.GET("/tong-quan", tong_quan_master.TrangTongQuanMaster)
 		master.GET("/goi-dich-vu", goi_dich_vu_master.TrangGoiDichVuMaster)
 		master.GET("/ho-so", ho_so.TrangHoSoMaster)
@@ -131,13 +136,10 @@ func SetupRouter() *gin.Engine {
 		master.GET("/quan-ly-san-pham", product_master.TrangQuanLySanPhamMaster)
 		master.GET("/tin-nhan", tin_nhan_master.TrangTinNhanMaster)
 		master.GET("/quan-ly-cua-hang", cua_hang_master.TrangQuanLyCuaHangMaster)
-		
-		// (Các UI bọc thêm RequireLevel nếu cần, hiện tại master đã bọc sẵn Level 2)
 		master.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
 		master.GET("/thanh-vien", thanh_vien_master.TrangQuanLyThanhVienMaster) 
 		master.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
 
-		// Xử lý Dữ liệu ngầm
 		apiMaster := master.Group("/api")
 		{
 			apiMaster.POST("/ho-so", ho_so.API_LuuHoSoMaster)
@@ -146,7 +148,6 @@ func SetupRouter() *gin.Engine {
 			apiMaster.POST("/doc-tin-nhan", tin_nhan_master.API_DanhDauDaDocMaster)
             apiMaster.POST("/tin-nhan/send-chat", tin_nhan_master.API_GuiTinNhanChat)
 
-			// Gắn Middleware kiểm tra Permission từng nút bấm
 			apiMaster.POST("/product/save", middlewares.RequirePermission("product.edit"), product_master.API_LuuSanPhamMaster)
 			apiMaster.POST("/cai-dat-cau-hinh/nha-cung-cap/save", middlewares.RequirePermission("config.edit"), cau_hinh.API_LuuNhaCungCap)
 			apiMaster.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
@@ -161,7 +162,7 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// 4. GIỮ LẠI VIEW BẢNG GIÁ DỰ PHÒNG CHO WWW.99K.VN (Nếu cần)
+	// 4. GIỮ LẠI VIEW BẢNG GIÁ DỰ PHÒNG CHO WWW.99K.VN 
 	// =======================================================
 	portal := router.Group("/bang-gia")
 	portal.Use(middlewares.CheckAuth())
