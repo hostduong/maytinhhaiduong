@@ -33,7 +33,8 @@ func TimKhachHangTheoCookie(shopID, cookie string) (*KhachHang, bool) {
 	lock.RLock(); defer lock.RUnlock()
 	for _, kh := range CacheKhachHang[shopID] {
 		if info, ok := kh.RefreshTokens[cookie]; ok {
-			if time.Now().Unix() <= info.ExpiresAt { return kh, true }
+			// [ĐÃ FIX]: Đổi .ExpiresAt thành .Exp theo đúng chuẩn JSON NoSQL
+			if time.Now().Unix() <= info.Exp { return kh, true }
 		}
 	}
 	return nil, false
