@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"app/config"
-	"app/modules/auth_verify"
+	"app/auth/auth_verify"
 	"github.com/gin-gonic/gin"
 )
 
