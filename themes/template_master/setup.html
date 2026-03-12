@@ -1,81 +1,175 @@
 {{ define "setup" }}
-    {{ template "header" . }}
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khởi Tạo Lõi Hệ Thống | 99K.VN</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
         .iti { width: 100%; display: block; }
-        .input-premium { width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; outline: none; transition: all 0.3s; }
-        .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1); }
-        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
-        .input-success { border-color: #9333ea !important; background-color: #faf5ff !important; }
-        .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 500; margin-top: 0.35rem; display: none; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
+        input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
+
+        /* Tắt Autocomplete cứng đầu của Trình duyệt */
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #1e293b !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .input-premium {
+            width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; 
+            outline: none; transition: all 0.3s; background-color: #ffffff; color: #1e293b;
+        }
+        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c; }
+        .input-success { border-color: #8b5cf6 !important; background-color: #faf5ff !important; color: #6d28d9; font-weight: bold;}
+        .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 600; margin-top: 0.35rem; display: none; animation: fadeIn 0.3s; }
         .error-text.show { display: block; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HIỆU ỨNG VIỀN LED CHẠY MA MỊ */
+        .led-border-wrapper {
+            position: relative;
+            padding: 3px; /* Độ dày viền LED */
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
+        }
+        .led-border-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #c084fc, #6d28d9, transparent);
+            animation: spin 3s linear infinite;
+        }
+        .led-border-inner {
+            position: relative;
+            background: #f8fafc;
+            border-radius: calc(1.5rem - 3px);
+            z-index: 10;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Nền tím ma mị */
+        .mystic-bg {
+            background: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
+        }
     </style>
-
-    <div class="min-h-screen flex items-center justify-center bg-slate-900 py-12 px-4 relative overflow-hidden">
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/30 rounded-full blur-[100px]"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-[100px]"></div>
-
-        <div class="w-full max-w-2xl bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] shadow-2xl relative z-10 border border-white/20">
-            <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white mb-4 shadow-lg shadow-purple-500/30">
+</head>
+<body class="min-h-screen flex items-center justify-center mystic-bg p-4 overflow-x-hidden">
+    
+    <div class="w-full max-w-3xl led-border-wrapper">
+        <div class="led-border-inner p-8 sm:p-10 relative">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white mb-4 shadow-lg shadow-violet-500/40 border-4 border-white">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
                 </div>
-                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ .TieuDe }}</h2>
-                <p class="mt-2 text-sm text-slate-500 font-bold uppercase tracking-widest">Thiết lập dữ liệu Lõi</p>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Khởi Tạo Lõi Hệ Thống</h2>
+                <p class="mt-2 text-sm text-violet-600 font-bold uppercase tracking-widest">Thiết lập Dữ Liệu Tối Cao</p>
             </div>
 
-            {{ if .Loi }}
-            <script>document.addEventListener('DOMContentLoaded', () => { Swal.fire({ icon: 'error', title: 'Từ Chối', text: '{{ .Loi }}', confirmButtonColor: '#9333ea' }); });</script>
-            {{ end }}
-
-            <form id="formDangKy" action="/setup" method="POST" autocomplete="off" class="space-y-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Họ và tên</label>
-                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium font-bold text-slate-900" placeholder="Chủ Tịch A">
-                        <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự hợp lệ.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tên đăng nhập (ID)</label>
-                        <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium font-mono font-bold text-purple-700 bg-purple-50 focus:bg-white" placeholder="admin_core">
-                        <p id="err_ten_dang_nhap" class="error-text">6-30 ký tự (a-z, 0-9, -).</p>
-                    </div>
-                </div>
+            <form id="formSetup" autocomplete="off" spellcheck="false" class="space-y-5 relative z-10">
+                <input type="text" style="display:none">
+                <input type="password" style="display:none">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Quản Trị</label>
-                        <input id="email" name="email" type="email" class="input-premium font-bold text-slate-900">
-                        <p id="err_email" class="error-text">Email không hợp lệ.</p>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
+                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="Chủ Tịch A" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <p id="err_ho_ten" class="error-text">Không chứa số, ký tự đặc biệt (6-50 ký tự).</p>
                     </div>
+                    
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Điện thoại</label>
-                        <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium font-bold text-slate-900">
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tên đăng nhập (ID) <span class="text-red-500">*</span></label>
+                        <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium font-mono" placeholder="admin_core" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <p id="err_ten_dang_nhap" class="error-text">Viết liền không dấu (chữ, số, gạch ngang).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email Quản Trị <span class="text-red-500">*</span></label>
+                        <input id="email" name="email" type="email" class="input-premium" placeholder="admin@domain.com" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <p id="err_email" class="error-text">Email không đúng định dạng.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Điện thoại <span class="text-red-500">*</span></label>
+                        <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                         <p id="err_dien_thoai" class="error-text">SĐT không hợp lệ.</p>
                         <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mật khẩu Lõi</label>
-                        <input id="mat_khau" name="mat_khau" type="password" class="input-premium text-center tracking-[0.3em] font-black" placeholder="••••••••">
-                        <p id="err_mat_khau" class="error-text">8-30 ký tự an toàn.</p>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Ngày sinh</label>
+                        <input id="ngay_sinh" name="ngay_sinh" type="date" class="input-premium cursor-pointer" autocomplete="new-password">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mã PIN Giao Dịch (8 số)</label>
-                        <input id="ma_pin" name="ma_pin" type="password" maxlength="8" class="input-premium text-center tracking-[0.4em] font-black text-xl text-indigo-700 bg-indigo-50 focus:bg-white" placeholder="••••••••">
-                        <p id="err_ma_pin" class="error-text">PIN bắt buộc đúng 8 số.</p>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Giới tính</label>
+                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer" autocomplete="new-password">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mật khẩu Lõi <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="mat_khau" name="mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                            <button type="button" onclick="togglePass('mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                                <svg id="eye_slash_mat_khau" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg id="eye_open_mat_khau" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        <p id="err_mat_khau" class="error-text">8-30 ký tự (Chứa chữ Hoa, Số, Ký tự đặc biệt).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nhập lại Mật khẩu <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="re_mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                            <button type="button" onclick="togglePass('re_mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                                <svg id="eye_slash_re_mat_khau" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg id="eye_open_re_mat_khau" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        <p id="err_re_mat_khau" class="error-text">Mật khẩu nhập lại không khớp.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mã PIN Giao Dịch <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input id="ma_pin" name="ma_pin" type="password" maxlength="8" class="input-premium pr-10 font-mono tracking-[0.3em] text-center" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                            <button type="button" onclick="togglePass('ma_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                                <svg id="eye_slash_ma_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg id="eye_open_ma_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        <p id="err_ma_pin" class="error-text">Bắt buộc nhập đúng 8 chữ số.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Quyền Hạn Hệ Thống</label>
+                        <input type="text" class="input-premium font-bold text-violet-700 bg-violet-50 text-center" value="👑 Quản Trị Tối Cao" disabled>
                     </div>
                 </div>
 
                 <div class="pt-6">
-                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
+                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 active:translate-y-0 uppercase">
                         Khởi Động Nền Tảng
                     </button>
                 </div>
@@ -86,37 +180,131 @@
     <script>
         const inputPhone = document.querySelector("#dien_thoai");
         const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+        
+        // Regex siêu chặt chẽ
         const RULES = {
-            ho_ten: { regex: /^[\p{L}\s]{6,50}$/u }, email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/ },
-            ma_pin: { regex: /^\d{8}$/ }, ten_dang_nhap: { regex: /^[a-z0-9](?!.*--)[a-z0-9-]{4,28}[a-z0-9]$/ }, mat_khau: { regex: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ }
+            ho_ten: { regex: /^[\p{L}\s]{6,50}$/u }, 
+            email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/i },
+            ma_pin: { regex: /^\d{8}$/ }, 
+            ten_dang_nhap: { regex: /^[a-z0-9](?!.*--)[a-z0-9-]{4,28}[a-z0-9]$/ }, 
+            // Pass: Ít nhất 1 hoa, 1 số, 1 ký tự đặc biệt, 8-30 ký tự
+            mat_khau: { regex: /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+.,?]).{8,30}$/ }
         };
+
+        const CHAR_RULES = {
+            ho_ten: /[^\p{L}\s]/u, 
+            email: /[^a-zA-Z0-9._%+\-@]/, 
+            ma_pin: /[^0-9]/,
+            ten_dang_nhap: /[^a-z0-9\-]/, 
+            mat_khau: /[^a-zA-Z0-9!@#$%^&*()\-+_.,?]/
+        };
+
         function setState(id, state) {
             const el = document.getElementById(id); const err = document.getElementById('err_' + id);
             el.classList.remove('input-error', 'input-success'); if(err) err.classList.remove('show');
             if (state === 'error') { el.classList.add('input-error'); if(err) err.classList.add('show'); } 
-            else if (state === 'success') { el.classList.add('input-success'); } checkSubmit();
+            else if (state === 'success') { el.classList.add('input-success'); } 
+            checkSubmit();
         }
+
         Object.keys(RULES).forEach(id => {
             const el = document.getElementById(id);
             el.addEventListener('input', () => {
                 if(id==='email' || id==='ten_dang_nhap') el.value = el.value.toLowerCase();
-                if(el.value !== "" && RULES[id].regex.test(el.value)) setState(id, 'success'); else setState(id, 'normal');
+                const val = el.value;
+                if (val !== "" && CHAR_RULES[id] && CHAR_RULES[id].test(val)) { setState(id, 'error'); return; }
+                if (val !== "" && RULES[id].regex.test(val)) setState(id, 'success'); else setState(id, 'normal');
             });
-            el.addEventListener('blur', () => { if(el.value !== "" && !RULES[id].regex.test(el.value)) setState(id, 'error'); });
+            el.addEventListener('blur', () => { 
+                if(el.value !== "" && !RULES[id].regex.test(el.value)) setState(id, 'error'); 
+            });
         });
+
+        // Xử lý Repass
+        const pass = document.getElementById('mat_khau');
+        const repass = document.getElementById('re_mat_khau');
+        repass.addEventListener('input', () => {
+            if (CHAR_RULES.mat_khau.test(repass.value)) setState('re_mat_khau', 'error');
+            else if (repass.value !== "" && repass.value === pass.value) setState('re_mat_khau', 'success');
+            else setState('re_mat_khau', 'normal');
+        });
+        repass.addEventListener('blur', () => {
+            if (repass.value !== "" && repass.value !== pass.value) setState('re_mat_khau', 'error');
+        });
+
+        // Xử lý Ngày sinh & Giới tính
+        document.getElementById('ngay_sinh').addEventListener('change', function() { if(this.value) setState('ngay_sinh', 'success'); else setState('ngay_sinh', 'normal'); });
+        document.getElementById('gioi_tinh').addEventListener('change', function() { setState('gioi_tinh', 'success'); });
+        setState('gioi_tinh', 'success'); // Default
+
         inputPhone.addEventListener('blur', () => {
-            if(inputPhone.value.trim() !== "") { if(!iti.isValidNumber()) setState('dien_thoai', 'error'); else setState('dien_thoai', 'success'); } else setState('dien_thoai', 'normal');
+            if(inputPhone.value.trim() !== "") { 
+                if(!iti.isValidNumber()) setState('dien_thoai', 'error'); else setState('dien_thoai', 'success'); 
+            } else setState('dien_thoai', 'normal');
         });
+
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const eyeSlash = document.getElementById('eye_slash_' + id); const eyeOpen = document.getElementById('eye_open_' + id);
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        }
+
         function checkSubmit() {
-            const ids = ['ho_ten', 'email', 'ma_pin', 'ten_dang_nhap', 'mat_khau']; let ok = true;
+            const ids = ['ho_ten', 'email', 'ma_pin', 'ten_dang_nhap', 'mat_khau', 're_mat_khau', 'ngay_sinh']; let ok = true;
             ids.forEach(id => { if (!document.getElementById(id).classList.contains('input-success')) ok = false; });
             if (inputPhone.value.trim() === "" || !iti.isValidNumber()) ok = false;
             document.getElementById('btnSubmit').disabled = !ok;
         }
-        document.getElementById('formDangKy').addEventListener('submit', function(e) {
-            if (document.getElementById('btnSubmit').disabled) { e.preventDefault(); return; }
+
+        // FETCH AJAX GỬI DỮ LIỆU
+        document.getElementById('formSetup').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            if (btn.disabled) return;
+            
             document.getElementById("dien_thoai_full").value = iti.getNumber();
-            const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerHTML = `ĐANG KHỞI TẠO...`;
+            btn.disabled = true; 
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ĐANG KHỞI TẠO...`;
+
+            const fd = new FormData(this);
+            try {
+                const res = await fetch('/setup', { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    // THÀNH CÔNG -> Tab xanh -> Có nút VÀO TRANG QUẢN TRỊ
+                    Swal.fire({
+                        title: '<h2 class="text-2xl font-black text-emerald-600">Thành Công!</h2>',
+                        html: `<p class="font-medium text-slate-600">${data.msg}</p>`,
+                        icon: 'success',
+                        confirmButtonText: 'ĐĂNG NHẬP NGAY',
+                        confirmButtonColor: '#10b981',
+                        allowOutsideClick: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = data.redirect;
+                        }
+                    });
+                } else {
+                    // THẤT BẠI -> Tab màu cam báo lỗi
+                    btn.disabled = false;
+                    btn.innerHTML = `Khởi Động Nền Tảng`;
+                    Swal.fire({
+                        title: '<h2 class="text-2xl font-black text-orange-600">Lỗi Hệ Thống!</h2>',
+                        html: `<p class="font-medium text-orange-800">${data.msg}</p>`,
+                        icon: 'warning',
+                        confirmButtonText: 'Đã Hiểu',
+                        confirmButtonColor: '#f97316'
+                    });
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.innerHTML = `Khởi Động Nền Tảng`;
+                Swal.fire({ icon: 'error', title: 'Mất Kết Nối', text: 'Đường truyền bị gián đoạn.', confirmButtonColor: '#f97316' });
+            }
         });
     </script>
+</body>
+</html>
 {{ end }}
