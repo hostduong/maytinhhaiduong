@@ -1183,6 +1183,23 @@
             }
             sendDataToBackend(currentSkus);
         }
+
+        function syncTopAlignment() {
+            if(window.innerWidth >= 1280) { 
+                // [ĐÃ FIX]: Đo chính xác tọa độ Y của bảng Danh sách (bên trái) so với khung Container
+                const leftBox = document.querySelector('.animated-border-wrapper');
+                const splitContainer = document.getElementById('splitUIContainer');
+                const spacer = document.getElementById('formSpacer');
+                
+                if(leftBox && splitContainer && spacer) {
+                    const topOffset = leftBox.getBoundingClientRect().top - splitContainer.getBoundingClientRect().top;
+                    spacer.style.height = topOffset + 'px';
+                }
+            } else {
+                const spacer = document.getElementById('formSpacer');
+                if(spacer) spacer.style.height = '0px';
+            }
+        }
     </script>
     {{ template "footer_master" . }}
 {{ end }}
