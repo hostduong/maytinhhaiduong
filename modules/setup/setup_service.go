@@ -11,13 +11,12 @@ import (
 )
 
 func Service_ThucThiSetup(shopID, hoTen, user, email, pass, maPin, dienThoai, ngaySinh, gioiTinhStr, userAgent string) (string, string, error) {
-	// 1. Phải tải thành công Sheet mới cho đăng ký (Chống mất mạng sinh lỗi)
+	// 1. Phải tải thành công Sheet mới cho đăng ký
 	if err := core.EnsureKhachHangLoaded(shopID); err != nil { 
 		return "", "", errors.New("Không thể kết nối đến Database. Vui lòng thử lại sau!") 
 	}
 
-	// [CHỐT CHẶN 2 - CHỐNG SPAM TUYỆT ĐỐI]
-	// Khóa RAM lại để đảm bảo không có 2 luồng Spam lọt vào cùng lúc
+	// [CHỐT CHẶN CHỐNG SPAM] Khóa RAM để đảm bảo chỉ 1 người lọt vào
 	lock := core.GetSheetLock(shopID, core.TenSheetKhachHangMaster)
 	lock.Lock()
 	defer lock.Unlock()
@@ -27,13 +26,19 @@ func Service_ThucThiSetup(shopID, hoTen, user, email, pass, maPin, dienThoai, ng
 		return "", "", errors.New("Hệ thống đã được khởi tạo! Không thể đăng ký thêm tài khoản Sáng lập.")
 	}
 
+	// ==============================================================
+	// [ZERO-TRUST VALIDATION]: KIỂM TRA ĐẦU VÀO NGHIÊM NGẶT TẠI BACKEND
+	// ==============================================================
+	if dienThoai == "" { return "", "", errors.New("Số điện thoại không được để trống!") }
+	if !config.KiemTraHoTen(hoTen) { return "", "", errors.New("Họ tên chứa ký tự không hợp lệ hoặc quá ngắn!") }
+	if !config.KiemTraTenDangNhap(user) { return "", "", errors.New("Tên đăng nhập sai định dạng (Chỉ a-z, 0-9, dấu gạch ngang)!") }
+	if !config.KiemTraEmail(email) { return "", "", errors.New("Định dạng Email không hợp lệ!") }
+	if !config.KiemTraDinhDangMatKhau(pass) { return "", "", errors.New("Mật khẩu không đạt chuẩn an toàn (Cần chữ hoa, số, ký tự đặc biệt)!") }
+	if !config.KiemTraMaPin(maPin) { return "", "", errors.New("Mã PIN bắt buộc phải là 8 chữ số!") }
+
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
 
-	if dienThoai == "" || !config.KiemTraHoTen(hoTen) || !config.KiemTraTenDangNhap(user) || !config.KiemTraEmail(email) || !config.KiemTraMaPin(maPin) || !config.KiemTraDinhDangMatKhau(pass) {
-		return "", "", errors.New("Dữ liệu nhập vào không hợp lệ!")
-	}
-	
 	passHash, _ := config.HashMatKhau(pass)
 	pinHash, _ := config.HashMatKhau(maPin)
 	nowUnix := time.Now().Unix()
@@ -42,12 +47,12 @@ func Service_ThucThiSetup(shopID, hoTen, user, email, pass, maPin, dienThoai, ng
 	botKH := &core.KhachHang{
 		SpreadsheetID: shopID, DongTrongSheet: core.DongBatDau_KhachHang,
 		Version: 1, MaKhachHang: "0000000000000000000", TenDangNhap: "admin", Email: "bot@99k.vn",
-		BaoMat: core.TenantBaoMat{MatKhauHash: "", MaPinHash: ""}, // Không có pass/pin -> Khóa login
+		BaoMat: core.TenantBaoMat{MatKhauHash: "", MaPinHash: ""}, 
 		RefreshTokens: make(map[string]core.TenantDeviceToken),
 		VaiTroQuyenHan: "quan_tri_vien_he_thong", ChucVu: "Hệ thống", TrangThai: 1,
 		GoiDichVu: make([]core.TenantGoiDichVu, 0), Modules: make(map[string]bool),
 		CauHinh: core.TenantCauHinh{Theme: "light", Lang: "vi"},
-		ThongTin: core.TenantThongTin{NguonKhachHang: "system_bot", TenKhachHang: "Hệ thống", GioiTinh: 1}, // Nam
+		ThongTin: core.TenantThongTin{NguonKhachHang: "system_bot", TenKhachHang: "Hệ thống", GioiTinh: 1}, 
 		NganHang: core.TenantNganHang{}, MangXaHoi: make(map[string]string),
 		NgayTao: nowUnix, NguoiCapNhat: "system", NgayCapNhat: nowUnix, 
 	}
@@ -67,7 +72,7 @@ func Service_ThucThiSetup(shopID, hoTen, user, email, pass, maPin, dienThoai, ng
 		RefreshTokens: map[string]core.TenantDeviceToken{
 			sessionID: {DeviceID: sessionID, Dev: userAgent, Exp: time.Now().Add(config.ThoiGianHetHanCookie).Unix(), Created: nowUnix},
 		},
-		VaiTroQuyenHan: "quan_tri_he_thong", ChucVu: "Quản trị hệ thống", TrangThai: 1, // Quyền lực tuyệt đối
+		VaiTroQuyenHan: "quan_tri_he_thong", ChucVu: "Quản trị hệ thống", TrangThai: 1, 
 		GoiDichVu: make([]core.TenantGoiDichVu, 0), Modules: make(map[string]bool),
 		CauHinh: core.TenantCauHinh{Theme: "light", Lang: "vi"},
 		ThongTin: core.TenantThongTin{NguonKhachHang: "master_core_setup", TenKhachHang: hoTen, DienThoai: dienThoai, NgaySinh: ngaySinh, GioiTinh: gioiTinh},
@@ -80,7 +85,7 @@ func Service_ThucThiSetup(shopID, hoTen, user, email, pass, maPin, dienThoai, ng
 	bUser, _ := json.Marshal(newKH)
 	core.PushAppend(shopID, core.TenSheetKhachHangMaster, []interface{}{newKH.MaKhachHang, string(bUser)})
 
-	// 4. Gửi tin nhắn chào mừng (Chạy ngầm không cần khóa RAM)
+	// 4. Gửi tin nhắn chào mừng
 	go func() {
 		msgID := fmt.Sprintf("MSG_%d_000", time.Now().UnixNano())
 		core.ThemMoiTinNhan(shopID, &core.TinNhan{
