@@ -33,13 +33,11 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 
 	targetLevel := Repo_LayCapBac(dto.ShopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
 
-	// BẢO VỆ LÕI
 	if dto.MaKH == "0000000000000000001" && dto.AdminID != "0000000000000000001" { return errors.New("Không ai được chạm vào hồ sơ Sáng Lập!") }
 	if dto.VaiTro == "quan_tri_he_thong" && dto.MaKH != "0000000000000000001" { return errors.New("Chỉ có duy nhất 1 vị trí Quản trị hệ thống!") }
 	if dto.MaKH != "0000000000000000000" && dto.AdminID != dto.MaKH && myLevel >= targetLevel { return errors.New("Bạn không có quyền chỉnh sửa cấp trên!") }
 	if dto.MaKH == dto.AdminID && dto.TrangThai == "0" { return errors.New("Không thể tự khóa tài khoản chính mình!") }
 
-	// XỬ LÝ LƯU TRÊN RAM
 	core.KhoaHeThong.Lock()
 	if dto.VaiTro != "" {
 		kh.VaiTroQuyenHan = dto.VaiTro
@@ -52,7 +50,7 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 		}
 	}
 	
-	// Dữ liệu cá nhân đã được đẩy vào Box ThongTin
+	// Đẩy vào các Struct con
 	kh.ThongTin.TenKhachHang = dto.TenKhachHang
 	kh.ThongTin.DienThoai = dto.DienThoai
 	kh.ThongTin.NgaySinh = dto.NgaySinh
@@ -79,16 +77,15 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 		}
 	}
 	
-	kh.NgayCapNhat = time.Now().Unix() // Chuyển sang Unix Timestamp
+	kh.NgayCapNhat = time.Now().Unix() 
 	kh.NguoiCapNhat = admin.TenDangNhap
 
-	// ĐÓNG GÓI JSON SAU KHI SỬA
+	// Đóng gói JSON và nã đạn
 	b, _ := json.Marshal(kh)
 	jsonStr := string(b)
 	core.KhoaHeThong.Unlock()
 
-	// [ĐIỂM NHẤN]: CHỈ CẦN DUY NHẤT 1 LỆNH ĐỂ UPDATE TẤT CẢ THAY VÌ 20 LỆNH NHƯ TRƯỚC
-	Repo_GhiCapNhatXuongQueue(dto.ShopID, kh.DongTrongSheet, core.CotKH_DataJSON, jsonStr)
+	Repo_GhiCapNhatJSONXuongQueue(dto.ShopID, kh.DongTrongSheet, jsonStr)
 
 	return nil
 }
@@ -104,9 +101,27 @@ func Service_GuiTinNhan(shopID, adminID, adminRole, tieuDe, noiDung, jsonIDs, se
 	}
 
 	now := time.Now()
-	msgID := fmt.Sprintf("ALL_%d_%s", now.UnixNano(), senderID)
-	nowStr := now.In(time.FixedZone("ICT", 7*3600)).Format("2006-01-02 15:04:05")
+	msgID := fmt.Sprintf("MSG_%d_%s", now.UnixNano(), senderID)
 
-	Repo_ThemTinNhanMoi(shopID, &core.TinNhan{ MaTinNhan: msgID, LoaiTinNhan: "ALL", NguoiGuiID: senderID, NguoiNhanID: jsonIDs, TieuDe: tieuDe, NoiDung: noiDung, NgayTao: nowStr })
+	// Tạo struct Tin Nhắn chuẩn NoSQL
+	tn := &core.TinNhan{ 
+		MaTinNhan: msgID, 
+		LoaiTinNhan: "GROUP", // Chuyển thành GROUP vì danh sách nhận là mảng
+		NguoiGuiID: senderID, 
+		NguoiNhanID: listMaKH, 
+		TieuDe: tieuDe, 
+		NoiDung: noiDung, 
+		NgayTao: now.Unix(),
+		NguoiDoc: []string{}, // Khởi tạo mảng rỗng để hứng ID người seen
+		TrangThaiXoa: []string{},
+		DinhKem: []core.FileDinhKem{},
+		ThamChieuID: []string{},
+	}
+	
+	if len(listMaKH) == 1 && listMaKH[0] == "ALL" {
+		tn.LoaiTinNhan = "ALL"
+	}
+
+	Repo_ThemTinNhanMoi(shopID, tn)
 	return len(listMaKH), nil
 }
