@@ -4,7 +4,6 @@ package core
 // 1. ĐỊNH NGHĨA TÊN SHEET CHUẨN CHO 3 VŨ TRỤ (3-TIER ARCHITECTURE)
 // ==============================================================================
 
-// --- VŨ TRỤ 1: MASTER (sss.99k.vn) ---
 const (
 	TenSheetKhachHangMaster  = "KHACH_HANG_MASTER"
 	TenSheetPhanQuyenMaster  = "PHAN_QUYEN_MASTER"
@@ -13,13 +12,11 @@ const (
 	TenSheetCauHinhThuocTinh = "CAU_HINH_THUOC_TINH" 
 )
 
-// --- VŨ TRỤ 2: ADMIN (admin.99k.vn) ---
 const (
 	TenSheetKhachHangAdmin   = "KHACH_HANG_ADMIN"
 	TenSheetPhanQuyenAdmin   = "PHAN_QUYEN_ADMIN"
 )
 
-// --- VŨ TRỤ 3: CỬA HÀNG ([cuahang].99k.vn) ---
 const (
 	TenSheetKhachHang        = "KHACH_HANG"
 	TenSheetPhanQuyen        = "PHAN_QUYEN"
@@ -253,7 +250,7 @@ type TinNhan struct {
 }
 
 // ==============================================================================
-// CÁC CẤU TRÚC KHÁC GIỮ NGUYÊN (Không thay đổi)
+// CÁC CẤU TRÚC VẬN HÀNH KINH DOANH CHUNG
 // ==============================================================================
 
 const (
@@ -367,10 +364,6 @@ type ProductQuanLy struct {
 	NguoiCapNhat string `json:"nguoi_cap_nhat"`
 	NgayCapNhat  string `json:"ngay_cap_nhat"`
 }
-
-// ==============================================================================
-// 5. CÁC CẤU TRÚC VẬN HÀNH: TÀI CHÍNH & HÓA ĐƠN
-// ==============================================================================
 
 const (
 	DongBatDau_HoaDon = 11
@@ -548,10 +541,6 @@ type PhieuBaoHanh struct {
 	NgayCapNhat       string  `json:"ngay_cap_nhat"`
 }
 
-
-// ==============================================================================
-// CẤU TRÚC: NHÀ CUNG CẤP & MASTER DATA
-// ==============================================================================
 const (
 	DongBatDau_NhaCungCap = 11
 	CotNCC_MaNhaCungCap       = 0  
@@ -609,12 +598,8 @@ type NhaCungCap struct {
 	NgayCapNhat        string  `json:"ngay_cap_nhat"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: DANH MỤC
-// ==============================================================================
 const (
 	DongBatDau_DanhMuc = 11
-
 	CotDM_MaDanhMuc  = 0
 	CotDM_TenDanhMuc = 1
 	CotDM_DanhMucMe  = 2
@@ -636,9 +621,6 @@ type DanhMuc struct {
 	TrangThai      int    `json:"trang_thai"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: THƯƠNG HIỆU
-// ==============================================================================
 const (
 	DongBatDau_ThuongHieu = 11 
 	CotTH_MaThuongHieu  = 0
@@ -658,9 +640,6 @@ type ThuongHieu struct {
 	TrangThai      int    `json:"trang_thai"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: BIÊN LỢI NHUẬN
-// ==============================================================================
 const (
 	DongBatDau_BienLoiNhuan = 11
 	CotBLN_KhungGiaNhap = 0
@@ -677,55 +656,6 @@ type BienLoiNhuan struct {
 	TrangThai      int     `json:"trang_thai"`
 }
 
-// ==============================================================================
-// CẤU TRÚC: TIN NHẮN
-// ==============================================================================
-const (
-	DongBatDau_TinNhan = 11
-
-	CotTN_MaTinNhan    = 0  
-	CotTN_LoaiTinNhan  = 1  
-	CotTN_NguoiGuiID   = 2  
-	CotTN_NguoiNhanID  = 3  
-	CotTN_TieuDe       = 4  
-	CotTN_NoiDung      = 5  
-	CotTN_DinhKemJson  = 6  
-	CotTN_ThamChieuID  = 7  
-	CotTN_ReplyChoID   = 8  
-	CotTN_NgayTao      = 9  
-	CotTN_NguoiDocJson = 10 
-	CotTN_TrangThaiXoa = 11 
-)
-
-type FileDinhKem struct {
-	TenFile string `json:"name"`
-	URL     string `json:"url"`
-	Loai    string `json:"type"` 
-}
-
-type TinNhan struct {
-	SpreadsheetID  string `json:"-"`
-	DongTrongSheet int    `json:"-"`
-
-	MaTinNhan      string        `json:"ma_tin_nhan"`
-	LoaiTinNhan    string        `json:"loai_tin_nhan"`
-	NguoiGuiID     string        `json:"nguoi_gui_id"`
-	NguoiNhanID    string        `json:"nguoi_nhan_id"`
-	TieuDe         string        `json:"tieu_de"`
-	NoiDung        string        `json:"noi_dung"`
-	DinhKem        []FileDinhKem `json:"dinh_kem"`
-	ThamChieuID    string        `json:"tham_chieu_id"`
-	ReplyChoID     string        `json:"reply_cho_id"`
-	NgayTao        string        `json:"ngay_tao"`
-	NguoiDoc       []string      `json:"nguoi_doc"`
-	TrangThaiXoa   []string      `json:"trang_thai_xoa"`
-	
-	DaDoc          bool          `json:"da_doc"` 
-}
-
-// ==============================================================================
-// CẤU TRÚC: PHIẾU NHẬP KHÔNG GIAN (LƯU NHÁP JSON)
-// ==============================================================================
 const (
 	DongBatDau_PhieuNhap       = 11
 	CotPN_MaPhieuNhap          = 0  
@@ -769,28 +699,6 @@ const (
 	CotCTPN_GiaVonThucTe    = 12 
 	CotCTPN_BaoHanhThang    = 13 
 	CotCTPN_GhiChuDong      = 14 
-)
-
-const (
-	CotSR_SerialIMEI             = 0  
-	CotSR_MaSanPham              = 1  
-	CotSR_MaSKU                  = 2  
-	CotSR_MaNganhHang            = 3  
-	CotSR_MaNhaCungCap           = 4  
-	CotSR_MaPhieuNhap            = 5  
-	CotSR_MaPhieuXuat            = 6  
-	CotSR_TrangThai              = 7  
-	CotSR_BaoHanhNhaCungCap      = 8  
-	CotSR_HanBaoHanhNhaCungCap   = 9  
-	CotSR_MaKhachHangHienTai     = 10 
-	CotSR_NgayNhapKho            = 11 
-	CotSR_NgayXuatKho            = 12 
-	CotSR_GiaVonNhap             = 13 
-	CotSR_KichHoatBaoHanhKhach   = 14 
-	CotSR_HanBaoHanhKhach        = 15 
-	CotSR_MaKho                  = 16 
-	CotSR_GhiChu                 = 17 
-	CotSR_NgayCapNhat            = 18 
 )
 
 type PhieuNhap struct {
@@ -844,6 +752,28 @@ type ChiTietPhieuNhap struct {
 	BaoHanhThang   int     `json:"bao_hanh_thang"`
 	GhiChuDong     string  `json:"ghi_chu_dong"`
 }
+
+const (
+	CotSR_SerialIMEI             = 0  
+	CotSR_MaSanPham              = 1  
+	CotSR_MaSKU                  = 2  
+	CotSR_MaNganhHang            = 3  
+	CotSR_MaNhaCungCap           = 4  
+	CotSR_MaPhieuNhap            = 5  
+	CotSR_MaPhieuXuat            = 6  
+	CotSR_TrangThai              = 7  
+	CotSR_BaoHanhNhaCungCap      = 8  
+	CotSR_HanBaoHanhNhaCungCap   = 9  
+	CotSR_MaKhachHangHienTai     = 10 
+	CotSR_NgayNhapKho            = 11 
+	CotSR_NgayXuatKho            = 12 
+	CotSR_GiaVonNhap             = 13 
+	CotSR_KichHoatBaoHanhKhach   = 14 
+	CotSR_HanBaoHanhKhach        = 15 
+	CotSR_MaKho                  = 16 
+	CotSR_GhiChu                 = 17 
+	CotSR_NgayCapNhat            = 18 
+)
 
 type SerialSanPham struct {
 	SpreadsheetID  string `json:"-"`
