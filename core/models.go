@@ -62,107 +62,117 @@ type VaiTroInfo struct {
 }
 
 // ==============================================================================
-// 3. CẤU TRÚC KHÁCH HÀNG: MASTER & ADMIN (FULL 26 CỘT)
+// 3. CẤU TRÚC KHÁCH HÀNG CHỦ SHOP (SaaS TENANT) - NOSQL 2 CỘT
+// Áp dụng cho: KHACH_HANG_MASTER & KHACH_HANG_ADMIN
 // ==============================================================================
 const (
 	DongBatDau_KhachHang = 11
-	CotKH_MaKhachHang      = 0  // A
-	CotKH_TenDangNhap      = 1  // B
-	CotKH_Email            = 2  // C
-	CotKH_MatKhauHash      = 3  // D
-	CotKH_MaPinHash        = 4  // E
-	CotKH_RefreshTokenJson = 5  // F
-	CotKH_VaiTroQuyenHan   = 6  // G
-	CotKH_ChucVu           = 7  // H
-	CotKH_TrangThai        = 8  // I
-	CotKH_DataSheetsJson   = 9  // J
-	CotKH_GoiDichVuJson    = 10 // K
-	CotKH_CauHinhJson      = 11 // L
-	CotKH_NguonKhachHang   = 12 // M
-	CotKH_TenKhachHang     = 13 // N
-	CotKH_DienThoai        = 14 // O
-	CotKH_AnhDaiDien       = 15 // P
-	CotKH_MangXaHoiJson    = 16 // Q
-	CotKH_DiaChi           = 17 // R
-	CotKH_NgaySinh         = 18 // S
-	CotKH_GioiTinh         = 19 // T
-	CotKH_MaSoThue         = 20 // U
-	CotKH_ViTienJson       = 21 // V
-	CotKH_GhiChu           = 22 // W
-	CotKH_NgayTao          = 23 // X
-	CotKH_NguoiCapNhat     = 24 // Y
-	CotKH_NgayCapNhat      = 25 // Z
+	CotTenant_MaKhachHang = 0 // Cột A
+	CotTenant_DataJSON    = 1 // Cột B
 )
 
-type TokenInfo struct { DeviceName string `json:"dev"`; ExpiresAt int64 `json:"exp"` }
-type DataSheetInfo struct { SpreadsheetID string `json:"sheet_id"`; GoogleAuthJson string `json:"google_auth_json"`; FolderDriveID string `json:"folder_drive_id"` }
-type PlanInfo struct {
-	MaGoi          string `json:"ma_goi"`
-	TenGoi         string `json:"ten_goi"`
-	LoaiGoi        string `json:"loai_goi"`       
-	NgayHetHan     string `json:"ngay_het_han"`
-	TrangThai      string `json:"trang_thai"`     
-	MaxSanPham     int    `json:"max_san_pham"`   
-	MaxNhanVien    int    `json:"max_nhan_vien"`  
-	
-	// CÁC QUYỀN LỢI MỚI MỞ RỘNG CỦA GÓI CƯỚC
-	TinNhan        bool   `json:"tin_nhan"`       // true: Bật module Chat CSKH
-	TenMienFree    bool   `json:"ten_mien_free"`  // true: Được dùng Subdomain hệ thống
-	TenMienRieng   bool   `json:"ten_mien_rieng"` // true: Được trỏ Custom Domain
-}
-
-type UserConfig struct { 
-	Theme         string `json:"theme"` 
-	ChuyenNganh   string `json:"chuyen_nganh"` 
-	Language      string `json:"lang"` 
-	DarkMode      bool   `json:"dark_mode"` 
-	
-	// CẤU HÌNH TÊN MIỀN VÀ KHÔNG GIAN
-	CustomDomain  string `json:"custom_domain"`   // Ưu tiên 1 (VD: shopcuatoi.com)
-	Subdomain     string `json:"subdomain"`       // Ưu tiên 2 (VD: shopcuatoi.99k.vn)
-	Website       bool   `json:"website"`         // true: Có Web bán hàng / false: Chỉ dùng Admin Kế toán
-}
-type SocialInfo struct { Zalo string `json:"zalo"`; Facebook string `json:"fb"`; Tiktok string `json:"tiktok"` }
-type WalletInfo struct { SoDuHienTai float64 `json:"so_du"` }
-
-type KhachHang struct {
+type TenantJSON struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
 
+	Version        int    `json:"version"`
 	MaKhachHang    string `json:"ma_khach_hang"`
 	TenDangNhap    string `json:"ten_dang_nhap"`
 	Email          string `json:"email"`
-	MatKhauHash    string `json:"-"`
-	MaPinHash      string `json:"-"`
-	RefreshTokens  map[string]TokenInfo `json:"-"`
+
+	BaoMat         TenantBaoMat                 `json:"bao_mat"`
+	RefreshTokens  map[string]TenantDeviceToken `json:"refresh_tokens"`
 
 	VaiTroQuyenHan string `json:"vai_tro_quyen_han"`
 	ChucVu         string `json:"chuc_vu"`
 	TrangThai      int    `json:"trang_thai"`
 
-	DataSheets     DataSheetInfo `json:"data_sheets"`
-	GoiDichVu      []PlanInfo    `json:"goi_dich_vu"`
-	CauHinh        UserConfig    `json:"cau_hinh"`
-
-	NguonKhachHang string     `json:"nguon_khach_hang"`
-	TenKhachHang   string     `json:"ten_khach_hang"`
-	DienThoai      string     `json:"dien_thoai"`
-	AnhDaiDien     string     `json:"anh_dai_dien"`
-	MangXaHoi      SocialInfo `json:"mang_xa_hoi"`
-	DiaChi         string     `json:"dia_chi"`
-	NgaySinh       string     `json:"ngay_sinh"`
-	GioiTinh       int        `json:"gioi_tinh"`
-	MaSoThue       string     `json:"ma_so_thue"`
-	ViTien         WalletInfo `json:"vi_tien"`
-	
-	Inbox          []*TinNhan `json:"-"`
-	StyleLevel     int        `json:"-"`
-	StyleTheme     int        `json:"-"`
+	GoiDichVu      []TenantGoiDichVu            `json:"goi_dich_vu"`
+	Modules        map[string]bool              `json:"modules"`
+	Domain         TenantDomain                 `json:"domain"`
+	CauHinh        TenantCauHinh                `json:"cau_hinh"`
+	System         TenantSystem                 `json:"system"`
+	HoaDonConfig   TenantHoaDonConfig           `json:"hoa_don_config"`
+	ThongTin       TenantThongTin               `json:"thong_tin"`
+	MangXaHoi      map[string]string            `json:"mang_xa_hoi"`
+	ViTien         TenantViTien                 `json:"vi_tien"`
 
 	GhiChu         string `json:"ghi_chu"`
-	NgayTao        string `json:"ngay_tao"`
+	NguoiTao       string `json:"nguoi_tao"`
 	NguoiCapNhat   string `json:"nguoi_cap_nhat"`
-	NgayCapNhat    string `json:"ngay_cap_nhat"`
+	NgayTao        int64  `json:"ngay_tao"`
+	NgayCapNhat    int64  `json:"ngay_cap_nhat"`
+}
+
+// --- CÁC TRƯỜNG PHỤ TRỢ (Sub-structs) ---
+
+type TenantBaoMat struct {
+	MatKhauHash string `json:"mat_khau_hash"`
+	MaPinHash   string `json:"ma_pin_hash"`
+}
+
+type TenantDeviceToken struct {
+	DeviceID string `json:"device_id"`
+	Dev      string `json:"dev"`
+	Exp      int64  `json:"exp"`
+	Created  int64  `json:"created"`
+}
+
+type TenantGoiDichVu struct {
+	MaGoi       string   `json:"ma_goi"`
+	TenGoi      string   `json:"ten_goi"`
+	TrangThai   string   `json:"trang_thai"`
+	NgayHetHan  int64    `json:"ngay_het_han"`
+	MaxSanPham  int      `json:"max_san_pham"`
+	MaxNhanVien int      `json:"max_nhan_vien"`
+	Modules     []string `json:"modules"`
+}
+
+type TenantDomain struct {
+	CapTenMien   bool   `json:"cap_ten_mien"`
+	CustomDomain string `json:"custom_domain"`
+	Subdomain    string `json:"subdomain"`
+}
+
+type TenantCauHinh struct {
+	Theme       string `json:"theme"`
+	ChuyenNganh string `json:"chuyen_nganh"`
+	Lang        string `json:"lang"`
+	DarkMode    bool   `json:"dark_mode"`
+}
+
+type TenantSystem struct {
+	SheetID        string `json:"sheet_id"`
+	GoogleAuthJson string `json:"google_auth_json"`
+	FolderDriveID  string `json:"folder_drive_id"`
+}
+
+type TenantHoaDonConfig struct {
+	Enabled  bool   `json:"enabled"`
+	Provider string `json:"provider"`
+	Serial   string `json:"serial"`
+	MauSo    string `json:"mau_so"`
+	ChuKySo  bool   `json:"chu_ky_so"`
+	TokenAPI string `json:"token_api"`
+}
+
+type TenantThongTin struct {
+	NguonKhachHang string `json:"nguon_khach_hang"`
+	TenKhachHang   string `json:"ten_khach_hang"`
+	DienThoai      string `json:"dien_thoai"`
+	Zalo           string `json:"zalo"`
+	AnhDaiDien     string `json:"anh_dai_dien"`
+	DiaChi         string `json:"dia_chi"`
+	NgaySinh       string `json:"ngay_sinh"`
+	GioiTinh       int    `json:"gioi_tinh"`
+	DiemTichLuy    int    `json:"diem_tich_luy"`
+	MaSoThue       string `json:"ma_so_thue"`
+}
+
+type TenantViTien struct {
+	SoDu    float64 `json:"so_du"`
+	DaTieu  float64 `json:"da_tieu"`
+	TongNap float64 `json:"tong_nap"`
 }
 
 // ==============================================================================
