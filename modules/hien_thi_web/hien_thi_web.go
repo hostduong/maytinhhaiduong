@@ -36,7 +36,7 @@ func layThongTinNguoiDung(c *gin.Context) (bool, string, string) {
 	cookie, _ := c.Cookie("session_token") 
 	if cookie != "" {
 		if kh, ok := core.TimKhachHangTheoCookie(shopID, cookie); ok {
-			return true, kh.TenKhachHang, kh.VaiTroQuyenHan
+			return true, kh.ThongTin.TenKhachHang, kh.VaiTroQuyenHan
 		}
 	}
 	return false, "", ""
@@ -57,7 +57,6 @@ func TrangChu(c *gin.Context) {
 		return
 	}
 
-	// [ĐÃ FIX] Lấy toàn bộ sản phẩm các ngành gộp chung cho trang chủ
 	var danhSachSP []*core.ProductJSON
 	core.KhoaHeThong.RLock()
 	if nganhMap, exists := core.CacheSanPham[shopID]; exists {
@@ -68,7 +67,7 @@ func TrangChu(c *gin.Context) {
 	core.KhoaHeThong.RUnlock()
 	
 	tenantVal, exists := c.Get("TENANT_INFO")
-	var cauHinh core.UserConfig
+	var cauHinh core.TenantCauHinh
 	if exists {
 		chuShop := tenantVal.(*core.KhachHang)
 		cauHinh = chuShop.CauHinh
@@ -89,17 +88,14 @@ func ChiTietSanPham(c *gin.Context) {
 	theme := c.GetString("THEME") 
 	id := c.Param("id")
 	
-	// [ĐÃ FIX] Tìm SP bằng bộ nhớ Map siêu tốc mới 
 	var sp *core.ProductJSON
 	tonTai := false
 
 	core.KhoaHeThong.RLock()
-	// Ưu tiên tìm theo ID
 	if foundSp, ok := core.CacheMapSanPham[core.TaoCompositeKey(shopID, id)]; ok {
 		sp = foundSp
 		tonTai = true
 	} else {
-		// Nếu không thấy ID, dò bằng Slug trong Cache tổng
 		for _, nganhMap := range core.CacheSanPham[shopID] {
 			for _, item := range nganhMap {
 				if item.Slug == id && item.TrangThai == 1 {
@@ -117,7 +113,7 @@ func ChiTietSanPham(c *gin.Context) {
 	daLogin, tenUser, quyen := layThongTinNguoiDung(c)
 	
 	tenantVal, exists := c.Get("TENANT_INFO")
-	var cauHinh core.UserConfig
+	var cauHinh core.TenantCauHinh
 	if exists {
 		chuShop := tenantVal.(*core.KhachHang)
 		cauHinh = chuShop.CauHinh
