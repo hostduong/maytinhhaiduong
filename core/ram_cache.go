@@ -134,7 +134,8 @@ func LayGioiHanSanPhamCuaShop(shopID string) int {
 	defer lock.RUnlock()
 
 	for _, kh := range CacheKhachHang[adminID] {
-		if kh.DataSheets.SpreadsheetID == shopID {
+		// [ĐÃ FIX]: Sử dụng cấu trúc JSON mới (kh.System.SheetID)
+		if kh.System.SheetID == shopID {
 			maxSP := 0
 			hasActivePlan := false
 			
