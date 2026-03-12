@@ -42,12 +42,12 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
 	me, _ := core.LayKhachHang(masterShopID, userID)
 
-	if me.MaPinHash == "" {
+	if me.BaoMat.MaPinHash == "" {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Bạn chưa thiết lập mã PIN bảo mật trong phần Hồ sơ!"})
 		return
 	}
 
-	if !config.KiemTraMatKhau(pinXacNhan, me.MaPinHash) {
+	if !config.KiemTraMatKhau(pinXacNhan, me.BaoMat.MaPinHash) {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
 		return
 	}
