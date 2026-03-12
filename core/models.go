@@ -77,6 +77,7 @@ type TenantDeviceToken struct {
 type TenantGoiDichVu struct {
 	MaGoi       string   `json:"ma_goi"`
 	TenGoi      string   `json:"ten_goi"`
+	LoaiGoi     string   `json:"loai_goi"`
 	TrangThai   string   `json:"trang_thai"`
 	NgayHetHan  int64    `json:"ngay_het_han"`
 	MaxSanPham  int      `json:"max_san_pham"`
