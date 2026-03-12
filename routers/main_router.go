@@ -73,28 +73,32 @@ func SetupRouter() *gin.Engine {
 
 	// Auth (Xác thực cơ bản)
 	router.GET("/login", auth.TrangDangNhap)
+	router.GET("/register", auth.TrangDangKy) // Giờ chỉ dành cho www và Cửa hàng
 	router.GET("/forgot-password", auth.TrangQuenMatKhau)
 	router.GET("/verify", auth.TrangXacThucOTP)
 	router.GET("/logout", auth.API_Logout)
 	router.POST("/login", auth.API_Login)
+	router.POST("/register", auth.API_Register)
 
-	// [ĐÃ FIX]: RẼ NHÁNH ROUTER ĐĂNG KÝ
-	router.GET("/register", func(c *gin.Context) {
+	// =======================================================
+	// [MỚI] TRẠM KHỞI THỦY HỆ THỐNG (CHỈ DÀNH CHO SSS.99K.VN)
+	// =======================================================
+	router.GET("/setup", func(c *gin.Context) {
 		if c.GetString("APP_MODE") == "MASTER_CORE" {
-			dang_ky_master.TrangDangKyMaster(c) // Giao diện tím đen God Mode
+			dang_ky_master.TrangDangKyMaster(c) 
 		} else {
-			auth.TrangDangKy(c) // Giao diện xanh lá User thường
+			c.HTML(http.StatusNotFound, "404", nil) // Các web khác gõ /setup sẽ ăn lỗi 404 tàng hình
 		}
 	})
 
-	router.POST("/register", func(c *gin.Context) {
+	router.POST("/setup", func(c *gin.Context) {
 		if c.GetString("APP_MODE") == "MASTER_CORE" {
-			dang_ky_master.API_RegisterMaster(c) // Búa thần Thor
+			dang_ky_master.API_RegisterMaster(c)
 		} else {
-			auth.API_Register(c) // Đăng ký bình thường
+			c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Truy cập bị từ chối!"})
 		}
 	})
-
+	
 	apiAuth := router.Group("/api/auth")
 	{
 		apiAuth.POST("/send-otp", auth.API_SendOtp)
