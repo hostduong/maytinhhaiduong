@@ -2,7 +2,6 @@ package thanh_vien_master
 
 import "app/core"
 
-// Giao tiếp với RAM
 func Repo_LayKhachHang(shopID, userID string) (*core.KhachHang, bool) {
 	return core.LayKhachHang(shopID, userID)
 }
@@ -15,12 +14,11 @@ func Repo_LayCapBac(shopID, userID, role string) int {
 	return core.LayCapBacVaiTro(shopID, userID, role)
 }
 
-// Giao tiếp với Background Queue (Đẩy lệnh lưu sheet ngầm)
-func Repo_GhiCapNhatXuongQueue(shopID string, dong int, cot int, giatri interface{}) {
-	core.ThemVaoHangCho(shopID, core.TenSheetKhachHang, dong, cot, giatri)
+// Bắn thẳng 1 lệnh JSON xuống Queue (Tạm biệt 26 lệnh update cũ)
+func Repo_GhiCapNhatJSONXuongQueue(shopID string, dong int, jsonStr string) {
+	core.ThemVaoHangCho(shopID, core.TenSheetKhachHang, dong, core.CotKH_DataJSON, jsonStr)
 }
 
-// Giao tiếp tạo Tin nhắn
 func Repo_ThemTinNhanMoi(shopID string, tn *core.TinNhan) {
 	core.ThemMoiTinNhan(shopID, tn)
 }
