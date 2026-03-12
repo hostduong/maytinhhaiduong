@@ -31,7 +31,7 @@ func API_Login(c *gin.Context) {
 
 func API_Register(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
-	appMode := c.GetString("APP_MODE") // Lấy từ Middleware IdentifyTenant
+	appMode := c.GetString("APP_MODE") 
 	hoTen := strings.TrimSpace(c.PostForm("ho_ten"))
 	user := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
@@ -48,16 +48,16 @@ func API_Register(c *gin.Context) {
 
 	maxAge := int(config.ThoiGianHetHanCookie.Seconds())
 	
-	// [QUAN TRỌNG]: Cookie Domain là ".99k.vn" để đăng nhập thông suốt giữa www và admin
+	// Set Cookie thông suốt hệ sinh thái
 	c.SetCookie("session_token", sessionID, maxAge, "/", ".99k.vn", false, true)
 	c.SetCookie("session_sign", sign, maxAge, "/", ".99k.vn", false, true)
 
-	// ĐIỀU HƯỚNG CHUẨN MỰC THEO YÊU CẦU CỦA SẾP
-	if appMode == "TENANT_ADMIN" { 
-		// Đăng ký ở www.99k.vn -> Khách của sếp -> Bay thẳng vào Admin làm việc
+	// [CẬP NHẬT ĐIỀU HƯỚNG]
+	if appMode == "MASTER_CORE" {
+		c.Redirect(http.StatusFound, "/master/tong-quan") 
+	} else if appMode == "TENANT_ADMIN" { 
 		c.Redirect(http.StatusFound, "https://admin.99k.vn") 
 	} else { 
-		// Đăng ký ở cuahang.99k.vn -> Khách của cửa hàng -> Trả về trang chủ cửa hàng đó
 		c.Redirect(http.StatusFound, "/") 
 	}
 }
