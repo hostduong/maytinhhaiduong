@@ -5,7 +5,14 @@ import (
 	"strings"
 
 	"app/middlewares"
-	"app/modules/auth"
+	
+	// IMPORT HỆ THỐNG AUTH MỚI TỪ THƯ MỤC /auth/
+	"app/auth/auth_admin"
+	"app/auth/auth_master"
+	"app/auth/auth_store"
+	"app/auth/auth_verify"
+
+	// CÁC MODULE NGHIỆP VỤ BÌNH THƯỜNG
 	"app/modules/bang_gia"
 	"app/modules/bang_gia_admin"
 	"app/modules/cau_hinh"
@@ -32,8 +39,7 @@ import (
 // =======================================================
 func RequireAppMode(allowedMode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		currentMode := c.GetString("APP_MODE")
-		if currentMode != allowedMode {
+		if c.GetString("APP_MODE") != allowedMode {
 			c.HTML(http.StatusNotFound, "404", nil)
 			c.Abort()
 			return
@@ -59,7 +65,6 @@ func SetupRouter() *gin.Engine {
 			c.HTML(http.StatusNotFound, "404", nil) 
 		}
 	})
-
 	router.POST("/setup", func(c *gin.Context) {
 		if c.GetString("APP_MODE") == "MASTER_CORE" {
 			setup.API_Setup(c)
@@ -69,7 +74,7 @@ func SetupRouter() *gin.Engine {
 	})
 
 	// =======================================================
-	// 1. VÙNG MẶC ĐỊNH (PUBLIC): router.GET / router.POST
+	// 1. VÙNG MẶC ĐỊNH (PUBLIC)
 	// =======================================================
 	router.GET("/", func(c *gin.Context) {
 		mode := c.GetString("APP_MODE")
@@ -90,24 +95,87 @@ func SetupRouter() *gin.Engine {
 
 	router.GET("/san-pham/:id", hien_thi_web.ChiTietSanPham)
 
-	// Auth (Xác thực cơ bản)
-	router.GET("/login", auth.TrangDangNhap)
-	router.GET("/register", auth.TrangDangKy) // Giờ chỉ dành cho www và Cửa hàng
-	router.GET("/forgot-password", auth.TrangQuenMatKhau)
-	router.GET("/verify", auth.TrangXacThucOTP)
-	router.GET("/logout", auth.API_Logout)
-	router.POST("/login", auth.API_Login)
-	router.POST("/register", auth.API_Register)
+	// =======================================================
+	// BỘ ĐIỀU PHỐI XÁC THỰC ĐA VŨ TRỤ (MULTIVERSE SWITCHER)
+	// =======================================================
 	
+	// ĐĂNG NHẬP (Render View & Xử lý POST)
+	router.GET("/login", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": auth_master.TrangDangNhap(c)
+		case "TENANT_ADMIN": auth_admin.TrangDangNhap(c)
+		default: auth_store.TrangDangNhap(c)
+		}
+	})
+	router.POST("/login", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": auth_master.API_Login(c)
+		case "TENANT_ADMIN": auth_admin.API_Login(c)
+		default: auth_store.API_Login(c)
+		}
+	})
+
+	// ĐĂNG KÝ (Master không có tính năng Đăng ký)
+	router.GET("/register", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": c.HTML(http.StatusNotFound, "404", nil)
+		case "TENANT_ADMIN": auth_admin.TrangDangKy(c)
+		default: auth_store.TrangDangKy(c)
+		}
+	})
+	router.POST("/register", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Master không hỗ trợ đăng ký từ bên ngoài!"})
+		case "TENANT_ADMIN": auth_admin.API_Register(c)
+		default: auth_store.API_Register(c)
+		}
+	})
+
+	// QUÊN MẬT KHẨU
+	router.GET("/forgot-password", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": auth_master.TrangQuenMatKhau(c)
+		case "TENANT_ADMIN": auth_admin.TrangQuenMatKhau(c)
+		default: auth_store.TrangQuenMatKhau(c)
+		}
+	})
+
+	// ĐĂNG XUẤT
+	router.GET("/logout", func(c *gin.Context) {
+		switch c.GetString("APP_MODE") {
+		case "MASTER_CORE": auth_master.API_Logout(c)
+		case "TENANT_ADMIN": auth_admin.API_Logout(c)
+		default: auth_store.API_Logout(c)
+		}
+	})
+
+	// API BẢO MẬT & XÁC THỰC (OTP/PIN)
 	apiAuth := router.Group("/api/auth")
 	{
-		apiAuth.POST("/send-otp", auth.API_SendOtp)
-		apiAuth.POST("/reset-by-pin", auth.API_ResetByPin)
-		apiAuth.POST("/reset-by-otp", auth.API_ResetByOtp)
+		// Cụm gọi trực tiếp về Trạm kiểm soát chung (Verify)
+		apiAuth.POST("/send-otp", auth_verify.API_SendOtp)
+		apiAuth.POST("/check-otp", auth_verify.API_CheckOtp) 
+		apiAuth.POST("/check-pin", auth_verify.API_CheckPin) 
+
+		// Cụm đổi mật khẩu: Sau khi Verify xong, phân luồng về Module để đổi pass
+		apiAuth.POST("/reset-by-pin", func(c *gin.Context) {
+			switch c.GetString("APP_MODE") {
+			case "MASTER_CORE": auth_master.API_ResetByPin(c)
+			case "TENANT_ADMIN": auth_admin.API_ResetByPin(c)
+			default: auth_store.API_ResetByPin(c)
+			}
+		})
+		apiAuth.POST("/reset-by-otp", func(c *gin.Context) {
+			switch c.GetString("APP_MODE") {
+			case "MASTER_CORE": auth_master.API_ResetByOtp(c)
+			case "TENANT_ADMIN": auth_admin.API_ResetByOtp(c)
+			default: auth_store.API_ResetByOtp(c)
+			}
+		})
 	}
 
 	// =======================================================
-	// 2. VŨ TRỤ CHỦ SHOP (TENANT ADMIN): admin.GET / apiAdmin.POST
+	// 2. VŨ TRỤ CHỦ SHOP (TENANT ADMIN)
 	// =======================================================
 	admin := router.Group("")
 	admin.Use(RequireAppMode("TENANT_ADMIN")) 
@@ -126,7 +194,7 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// =======================================================
-	// 3. VŨ TRỤ SẾP (MASTER CORE): master.GET / apiMaster.POST
+	// 3. VŨ TRỤ SẾP (MASTER CORE)
 	// =======================================================
 	master := router.Group("/master")
 	master.Use(RequireAppMode("MASTER_CORE")) 
