@@ -13,14 +13,15 @@ func API_LuuGoiDichVuMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
-	// [CHỐT CHẶN BẢO MẬT]: Kiểm tra mã PIN của Sếp
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
 	me, _ := core.LayKhachHang(shopID, userID)
-	if me == nil || me.MaPinHash == "" {
+	
+	// [ĐÃ FIX]: Thêm .BaoMat. vào trước MaPinHash
+	if me == nil || me.BaoMat.MaPinHash == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN bảo mật!"})
 		return
 	}
-	if !config.KiemTraMatKhau(pinXacNhan, me.MaPinHash) {
+	if !config.KiemTraMatKhau(pinXacNhan, me.BaoMat.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN không chính xác!"})
 		return
 	}
