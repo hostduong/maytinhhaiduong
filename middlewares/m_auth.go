@@ -39,24 +39,22 @@ func IdentifyTenant() gin.HandlerFunc {
 			appMode = "STOREFRONT"
 			theme = "default"
 			
-			// Thuật toán tra cứu nhanh: Lấy SpreadsheetID từ RAM
 			core.KhoaHeThong.RLock() 
-			id, exists := core.CacheDomainToSheetID[domain] // TRẢ LẠI BIẾN domain NHƯ CŨ
+			id, exists := core.CacheDomainToSheetID[domain]
 			core.KhoaHeThong.RUnlock()
 
 			if exists {
 				shopID = id
 			} else {
-				TuChoiTruyCap(c, http.StatusNotFound, "Không tìm thấy Cửa hàng này trên hệ thống!") // Xóa bớt 1 biển cấm
+				TuChoiTruyCap(c, http.StatusNotFound, "Không tìm thấy Cửa hàng này trên hệ thống!")
 				return
 			}
 		}
 
-		// Gắn thẻ bài cho Request đi tiếp
 		c.Set("APP_MODE", appMode)
 		c.Set("THEME", theme)
 		c.Set("SHOP_ID", shopID)
-		// Đánh dấu thời gian truy cập cho Bác Lao Công biết
+
 		if appMode == "STOREFRONT" && shopID != "" {
 			core.DanhDauTruyCapShop(shopID)
 		}
@@ -71,7 +69,7 @@ func IdentifyTenant() gin.HandlerFunc {
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		shopID := c.GetString("SHOP_ID")
-		appMode := c.GetString("APP_MODE") // LẤY APP MODE RA
+		appMode := c.GetString("APP_MODE") 
 
 		cookie, err := c.Cookie("session_token")
 		if err != nil || cookie == "" {
@@ -79,7 +77,6 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
-		// [ĐÃ FIX LỖI LOCK MISMATCH]: Chọn đúng Tên Sheet Khách Hàng theo Vũ trụ
 		sheetKH := core.TenSheetKhachHang
 		sheetPQ := core.TenSheetPhanQuyen
 		if appMode == "MASTER_CORE" {
@@ -90,7 +87,6 @@ func CheckAuth() gin.HandlerFunc {
 			sheetPQ = core.TenSheetPhanQuyenAdmin
 		}
 
-		// [LOCK CHUẨN]: Sử dụng biến sheetKH thay vì hardcode
 		lockKH := core.GetSheetLock(shopID, sheetKH)
 		lockKH.RLock()
 		
@@ -98,7 +94,8 @@ func CheckAuth() gin.HandlerFunc {
 		danhSach := core.CacheKhachHang[shopID]
 		for _, kh := range danhSach {
 			if info, ok := kh.RefreshTokens[cookie]; ok {
-				if time.Now().Unix() <= info.ExpiresAt {
+				// [ĐÃ FIX]: Sử dụng .Exp thay cho .ExpiresAt theo chuẩn JSON NoSQL
+				if time.Now().Unix() <= info.Exp {
 					user = kh
 					break
 				}
@@ -116,7 +113,6 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
-		// [LOCK CHUẨN]: Sử dụng biến sheetPQ thay vì hardcode
 		lockPQ := core.GetSheetLock(shopID, sheetPQ)
 		lockPQ.RLock()
 		userLevel := 9
