@@ -3,7 +3,6 @@ package auth_store
 import (
 	"encoding/json"
 	"errors"
-	"strings"
 	"time"
 
 	"app/config"
