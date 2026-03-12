@@ -7,16 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Khởi tạo một lần duy nhất để giữ RAM cho OTP không bị mất
+// Đã đổi thành GlobalService để export cho các module khác gọi
 var repo = NewRepo()
-var service = NewService(repo)
+var GlobalService = NewService(repo) 
 
 func API_SendOtp(c *gin.Context) {
 	appMode := c.GetString("APP_MODE")
 	shopID := c.GetString("SHOP_ID")
 	dinhDanh := strings.TrimSpace(c.PostForm("dinh_danh"))
 
-	if err := service.SendOtp(appMode, shopID, dinhDanh); err != nil {
+	if err := GlobalService.SendOtp(appMode, shopID, dinhDanh); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
@@ -29,7 +29,7 @@ func API_CheckOtp(c *gin.Context) {
 	dinhDanh := strings.TrimSpace(c.PostForm("dinh_danh"))
 	otp := strings.TrimSpace(c.PostForm("otp"))
 
-	if err := service.VerifyOtp(appMode, shopID, dinhDanh, otp); err != nil {
+	if err := GlobalService.VerifyOtp(appMode, shopID, dinhDanh, otp); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
@@ -42,7 +42,7 @@ func API_CheckPin(c *gin.Context) {
 	dinhDanh := strings.TrimSpace(c.PostForm("dinh_danh"))
 	pin := strings.TrimSpace(c.PostForm("pin"))
 
-	if err := service.VerifyPin(appMode, shopID, dinhDanh, pin); err != nil {
+	if err := GlobalService.VerifyPin(appMode, shopID, dinhDanh, pin); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
