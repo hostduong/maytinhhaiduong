@@ -328,31 +328,6 @@ func NapGoiDichVuMaster(masterID string) {
 	for _, g := range list { CacheMapGoiDichVu[TaoCompositeKey(masterID, g.MaGoi)] = g }
 }
 
-func NapTinNhanMaster(masterID string) {
-	raw, err := LoadSheetData(masterID, TenSheetTinNhanMaster)
-	if err != nil || len(raw) == 0 { return }
-	
-	list := []*TinNhan{}
-	for i, r := range raw {
-		if i < DongBatDau_TinNhan-1 { continue }
-		maTN := LayString(r, CotTN_MaTinNhan)
-		if maTN == "" { continue }
-		tn := &TinNhan{
-			SpreadsheetID: masterID, DongTrongSheet: i + 1, MaTinNhan: maTN,
-			LoaiTinNhan: LayString(r, CotTN_LoaiTinNhan), NguoiGuiID: LayString(r, CotTN_NguoiGuiID),
-			NguoiNhanID: LayString(r, CotTN_NguoiNhanID), TieuDe: LayString(r, CotTN_TieuDe),
-			NoiDung: LayString(r, CotTN_NoiDung), ThamChieuID: LayString(r, CotTN_ThamChieuID),
-			ReplyChoID: LayString(r, CotTN_ReplyChoID), NgayTao: LayString(r, CotTN_NgayTao),
-		}
-		json.Unmarshal([]byte(LayString(r, CotTN_DinhKemJson)), &tn.DinhKem)
-		json.Unmarshal([]byte(LayString(r, CotTN_NguoiDocJson)), &tn.NguoiDoc)
-		json.Unmarshal([]byte(LayString(r, CotTN_TrangThaiXoa)), &tn.TrangThaiXoa)
-		list = append(list, tn)
-	}
-	lock := GetSheetLock(masterID, TenSheetTinNhanMaster)
-	lock.Lock(); defer lock.Unlock()
-	CacheTinNhan[masterID] = list
-}
 
 // ==============================================================================
 // 5. TẦNG ADMIN: NẠP TỔNG KHO CHỦ SHOP (CRM)
@@ -449,7 +424,40 @@ func xulyNhanDuLieuPhanQuyen(shopID string, sheetName string, raw [][]interface{
 	CacheDanhSachVaiTro[shopID] = danhSachVaiTroCuaShop
 }
 
-// Xử lý nạp Khách Hàng SaaS (Đã nâng cấp lên NoSQL 2 Cột)
+// TÌM VÀ THAY THẾ TOÀN BỘ HÀM `NapTinNhanMaster` VÀ `xulyNhanDuLieuKhachHang`
+
+// Nạp JSON Tin Nhắn NoSQL 2 Cột
+func NapTinNhanMaster(masterID string) {
+	raw, err := LoadSheetData(masterID, TenSheetTinNhanMaster)
+	if err != nil || len(raw) == 0 { return }
+	
+	list := []*TinNhan{}
+	for i, r := range raw {
+		if i < DongBatDau_TinNhan-1 { continue }
+		maTN := LayString(r, CotTN_MaTinNhan)
+		dataJSON := LayString(r, CotTN_DataJSON)
+		if maTN == "" { continue }
+		
+		var tn TinNhan
+		if dataJSON != "" {
+			if err := json.Unmarshal([]byte(dataJSON), &tn); err != nil {
+				log.Printf("⚠️ Lỗi parse JSON Tin Nhắn %s: %v", maTN, err)
+				continue
+			}
+		} else {
+			tn.MaTinNhan = maTN 
+		}
+		
+		tn.SpreadsheetID = masterID
+		tn.DongTrongSheet = i + 1
+		list = append(list, &tn)
+	}
+	lock := GetSheetLock(masterID, TenSheetTinNhanMaster)
+	lock.Lock(); defer lock.Unlock()
+	CacheTinNhan[masterID] = list
+}
+
+// Nạp Khách Hàng SaaS (NoSQL 2 Cột)
 func xulyNhanDuLieuKhachHang(shopID string, sheetName string, raw [][]interface{}) error {
 	list := []*KhachHang{}
 	
@@ -467,16 +475,15 @@ func xulyNhanDuLieuKhachHang(shopID string, sheetName string, raw [][]interface{
 				continue
 			}
 		} else {
-			// Fallback (Phòng hờ nếu đang migration dở)
 			kh.MaKhachHang = maKH
 		}
 
 		kh.SpreadsheetID = shopID
 		kh.DongTrongSheet = i + 1
 		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TenantDeviceToken) }
+		if kh.NganHang.TenNganHang == "" { kh.NganHang = TenantNganHang{} } // Đảm bảo khởi tạo
 		kh.Inbox = make([]*TinNhan, 0)
 		
-		// KẾT NỐI DB RIÊNG: Thay vì DataSheets, bây giờ nằm trong kh.System
 		if sheetName == TenSheetKhachHangAdmin && kh.System.GoogleAuthJson != "" && kh.System.SheetID != "" {
 			KetNoiGoogleSheetRieng(kh.System.SheetID, kh.System.GoogleAuthJson)
 		}
@@ -488,12 +495,10 @@ func xulyNhanDuLieuKhachHang(shopID string, sheetName string, raw [][]interface{
 	lock.Lock(); defer lock.Unlock()
 	CacheKhachHang[shopID] = list
 	
-	// Khóa Global để cập nhật Bản đồ Định tuyến Tên Miền
 	KhoaHeThong.Lock()
 	for _, kh := range list {
 		CacheMapKhachHang[TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
 		
-		// Map Subdomain định tuyến (Lấy từ kh.System và kh.Domain)
 		if sheetName == TenSheetKhachHangAdmin && kh.System.SheetID != "" {
 			if kh.TenDangNhap != "" {
 				CacheDomainToSheetID[kh.TenDangNhap+".99k.vn"] = kh.System.SheetID
