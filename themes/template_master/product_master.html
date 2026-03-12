@@ -68,9 +68,9 @@
         .btn-remove-attr:hover { color: #ef4444; background: #fef2f2; }
         
         /* Ô nhập liệu: Tự giãn bề ngang, không padding thừa */
-        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; }
+        .auto-expand-input { min-width: 10px; max-width: 300px; height: 100%; border: none; outline: none; font-size: 13px; font-weight: 700; color: #1e293b; padding: 0; background: transparent; text-align: center; }
         
-        /* [THÊM MỚI] Class dùng để giấu kín các thuộc tính chưa được chọn */
+        /* Ẩn các thuộc tính chưa được chọn */
         .hidden-attr { display: none !important; }
         
         /* Tinh chỉnh cho datalist mũi tên không đè chữ */
@@ -312,7 +312,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-section mb-0">
+                            <div class="form-section">
                                 <div class="section-title">
                                     <span>🖼️ Media & Mô tả</span>
                                     <button type="button" onclick="syncFromMain('url_hinh_anh', 'thong_so_html', 'mo_ta_html', 'ghi_chu')" class="copy-btn btn-sync-main">Kéo từ Đại Diện</button>
@@ -572,7 +572,7 @@
         }
 
         // =========================================================================
-        // ĐỘNG CƠ RENDER UNIFIED KẾT HỢP OBJECT KÍCH THƯỚC 3D VÀ NÚT THÊM
+        // ĐỘNG CƠ RENDER UNIFIED VÀ NÚT THÊM (ĐÃ VÁ LỖI TYPE ERROR)
         // =========================================================================
         function renderDynamicAttributes(nganh, currentSKU) {
             const container = document.getElementById('unified_attributes_container'); 
@@ -582,7 +582,7 @@
             let thName = "";
             if(currentSKU.ma_thuong_hieu) {
                 let parts = currentSKU.ma_thuong_hieu.split("|");
-                // [ĐÃ VÁ LỖI TYPE ERROR]: Trực tiếp lấy String từ dicThuongHieuByMa
+                // [ĐÃ VÁ LỖI]: dicThuongHieuByMa chỉ trả về String, không gọi .ten
                 thName = dicThuongHieuByMa[parts[0]] ? dicThuongHieuByMa[parts[0]] : parts[0]; 
             }
             let bhVal = currentSKU.bao_hanh ? currentSKU.bao_hanh.split(" ")[0] : "";
@@ -596,22 +596,49 @@
 
             coreAttributes.forEach(a => renderSingleAttribute(container, a, true, true));
 
-            // 2. RENDER CÁC THUỘC TÍNH ĐỘNG (ẨN ĐI NẾU KHÔNG CÓ DỮ LIỆU)
+            // 2. RENDER CÁC THUỘC TÍNH ĐỘNG (Bao gồm cả kich_thuoc 3D)
             const dynamicAttrs = G_ThuocTinhNganh[nganh] || [];
             dynamicAttrs.forEach(a => {
-                // [ĐÃ THÁO GÔNG KÍCH THƯỚC]: Trả lại tự do cho trường Kích thước hiển thị như EAV bình thường
                 if (a.ma_thuoc_tinh === 'bao_hanh' || a.ma_thuoc_tinh === 'tinh_trang') return; 
                 
+                // XỬ LÝ KHỐI KÍCH THƯỚC (D x R x C)
+                if (a.ma_thuoc_tinh === 'kich_thuoc') {
+                    let kt = (currentSKU.thuoc_tinh || {})['kich_thuoc'];
+                    let d="", r="", c="";
+                    if(kt && typeof kt === 'object') { d = kt.dai||""; r = kt.rong||""; c = kt.cao||""; }
+                    let isActive = (d || r || c) ? "active" : "";
+                    let visibilityClass = (d || r || c) ? "" : "hidden-attr";
+
+                    let htmlKT = `
+                    <div class="smart-input-wrap ${isActive} ${visibilityClass}" id="wrap_attr_kich_thuoc">
+                        <button type="button" class="smart-input-btn" onclick="document.getElementById('wrap_attr_kich_thuoc').classList.add('active'); document.getElementById('attr_kt_dai').focus();">
+                            <span class="text-blue-500 font-black mr-1">+</span> ${a.ten_thuoc_tinh.toUpperCase()}
+                        </button>
+                        <div class="smart-input-field px-2">
+                            <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-1 whitespace-nowrap">K.THƯỚC:</span>
+                            <input type="text" id="attr_kt_dai" class="auto-expand-input text-center" placeholder="D" value="${d}" style="width: ${d.toString().length>0?d.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                            <span class="text-slate-300 mx-0.5 text-[10px] font-bold">x</span>
+                            <input type="text" id="attr_kt_rong" class="auto-expand-input text-center" placeholder="R" value="${r}" style="width: ${r.toString().length>0?r.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                            <span class="text-slate-300 mx-0.5 text-[10px] font-bold">x</span>
+                            <input type="text" id="attr_kt_cao" class="auto-expand-input text-center" placeholder="C" value="${c}" style="width: ${c.toString().length>0?c.toString().length+1:2}ch;" oninput="this.style.width = (this.value.length > 0 ? this.value.length + 1 : 2) + 'ch'; this.value=this.value.replace(/[^0-9.]/g, ''); isDirty = true;">
+                            <span class="bg-slate-100 h-full px-2 flex items-center border-l border-slate-200 text-slate-600 text-[11px] font-bold ml-1">cm</span>
+                            <button type="button" class="btn-remove-attr" onclick="document.getElementById('attr_kt_dai').value=''; document.getElementById('attr_kt_rong').value=''; document.getElementById('attr_kt_cao').value=''; document.getElementById('wrap_attr_kich_thuoc').classList.remove('active'); document.getElementById('wrap_attr_kich_thuoc').classList.add('hidden-attr'); isDirty = true;">✕</button>
+                        </div>
+                    </div>`;
+                    container.innerHTML += htmlKT;
+                    return; // Chuyển sang thuộc tính tiếp theo
+                }
+
+                // CÁC THUỘC TÍNH CÒN LẠI
                 a.val = (currentSKU.thuoc_tinh || {})[a.ma_thuoc_tinh];
                 if (a.val === undefined || a.val === null) a.val = "";
-                
                 if(a.don_vi) a.center = true;
                 
-                let isVisible = a.val !== ""; // Chỉ hiện nếu đã từng lưu dữ liệu
+                let isVisible = a.val !== ""; 
                 renderSingleAttribute(container, a, false, isVisible);
             });
 
-            // 3. THÊM NÚT "+ THÊM THUỘC TÍNH" VÀO CUỐI
+            // 3. THÊM NÚT "+ THÊM THUỘC TÍNH"
             let addBtnHTML = `
                 <button type="button" onclick="openAttributeSelector()" class="h-[32px] px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 border-dashed hover:border-solid rounded-lg font-bold text-[12px] transition flex items-center gap-1.5 shadow-sm">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -621,9 +648,9 @@
             container.innerHTML += addBtnHTML;
         }
 
-        // HÀM TIỆN ÍCH VẼ Ô INPUT (Đã vá lỗi Type Error của Number.length)
+        // HÀM TIỆN ÍCH VẼ Ô INPUT (Đã hỗ trợ thuật toán Ẩn/Hiện và Fix Type Error Length)
         function renderSingleAttribute(container, a, isCore, isVisible) {
-            // Chuyển mọi thứ về String để đếm chữ an toàn tuyệt đối
+            // [ĐÃ VÁ LỖI]: Chuyển số về chuỗi để đo length an toàn
             let valStr = (a.val !== null && a.val !== undefined) ? a.val.toString() : "";
             let isActive = valStr !== "" ? "active" : ""; 
             let visibilityClass = isVisible ? "" : "hidden-attr"; 
@@ -667,9 +694,9 @@
         function removeAttributeUI(ma_thuoc_tinh, isCore) {
             let wrap = document.getElementById('wrap_attr_' + ma_thuoc_tinh);
             let input = document.getElementById('attr_' + ma_thuoc_tinh);
-            if(!wrap || !input) return;
+            if(!wrap) return;
 
-            input.value = ''; 
+            if(input) input.value = ''; 
             wrap.classList.remove('active'); 
             
             if (!isCore) { wrap.classList.add('hidden-attr'); }
@@ -678,7 +705,7 @@
 
         async function openAttributeSelector() {
             const dynamicAttrs = G_ThuocTinhNganh[CURRENT_NGANH] || [];
-            // Đã dọn dẹp lệnh chặn Kích thước ở đây
+            // [ĐÃ VÁ LỖI]: Bỏ lệnh chặn 'kich_thuoc' để nó hiện trong Popup chọn thuộc tính
             const availableAttrs = dynamicAttrs.filter(a => a.ma_thuoc_tinh !== 'bao_hanh' && a.ma_thuoc_tinh !== 'tinh_trang');
 
             if (availableAttrs.length === 0) {
@@ -723,7 +750,15 @@
                     } else {
                         wrap.classList.add('hidden-attr'); 
                         wrap.classList.remove('active');   
-                        document.getElementById('attr_' + a.ma_thuoc_tinh).value = ''; 
+                        // Xử lý dọn rác đặc biệt cho Kích thước
+                        if (a.ma_thuoc_tinh === 'kich_thuoc') {
+                            if(document.getElementById('attr_kt_dai')) document.getElementById('attr_kt_dai').value = '';
+                            if(document.getElementById('attr_kt_rong')) document.getElementById('attr_kt_rong').value = '';
+                            if(document.getElementById('attr_kt_cao')) document.getElementById('attr_kt_cao').value = '';
+                        } else {
+                            let inp = document.getElementById('attr_' + a.ma_thuoc_tinh);
+                            if (inp) inp.value = ''; 
+                        }
                     }
                 });
                 isDirty = true;
@@ -847,6 +882,19 @@
             document.querySelectorAll('.dynamic-attr').forEach(inp => { 
                 if(inp.value.trim() !== '') { sku.thuoc_tinh[inp.getAttribute('data-key')] = inp.value; } 
             });
+
+            // XỬ LÝ LƯU KÍCH THƯỚC VÀO OBJECT
+            let elDai = document.getElementById('attr_kt_dai');
+            let elRong = document.getElementById('attr_kt_rong');
+            let elCao = document.getElementById('attr_kt_cao');
+            if (elDai && elRong && elCao) {
+                let kd = parseFloat(elDai.value) || 0;
+                let kr = parseFloat(elRong.value) || 0;
+                let kc = parseFloat(elCao.value) || 0;
+                if(kd > 0 || kr > 0 || kc > 0) {
+                    sku.thuoc_tinh['kich_thuoc'] = { dai: kd, rong: kr, cao: kc, don_vi: "cm" };
+                }
+            }
 
             if (sku.sku_chinh === 1) {
                 sku.seo_title = document.getElementById('f_seo_title').value;
