@@ -60,7 +60,7 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 	if !isUpdate || maSP == "" {
 		// TẠO MỚI (Cấp phát Mã SP mới)
 		if maSP == "" {
-			maSP = fmt.Sprintf("SP%d", now) // TODO: Hàm sinh mã quy chuẩn
+			maSP = fmt.Sprintf("SP%d", now) // Fallback dự phòng
 		}
 		inputSP.MaSanPham = maSP
 		inputSP.CreatedAt = now
@@ -68,6 +68,18 @@ func Service_LuuSanPham(masterShopID, adminShopID, vaiTro, userID, maNganh, maSP
 		inputSP.Version = 1
 		inputSP.QuanLy.NguoiTao = userID
 		inputSP.QuanLy.NgayTao = nowStr
+
+		// [ĐÃ FIX]: TĂNG SLOT DANH MỤC VÀ GHI XUỐNG SHEET NGAY LẬP TỨC
+		if len(inputSP.MaDanhMuc) > 0 {
+			maDM := inputSP.MaDanhMuc[0] // Ưu tiên lấy danh mục đầu tiên làm gốc
+			if dm, ok := core.CacheMapDanhMuc[core.TaoCompositeKey(adminShopID, maDM)]; ok {
+				dm.Slot += 1 // Tăng biến RAM
+				
+				// Đẩy lệnh Update 1 Ô duy nhất (Cột F - Tức Slot) xuống Hàng chờ Cổ điển
+				core.PushUpdate(adminShopID, core.TenSheetDanhMuc, dm.DongTrongSheet, core.CotDM_Slot, dm.Slot)
+			}
+		}
+
 	} else {
 		// CẬP NHẬT
 		inputSP.MaSanPham = maSP
