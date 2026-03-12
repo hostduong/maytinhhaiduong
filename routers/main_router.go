@@ -50,6 +50,25 @@ func SetupRouter() *gin.Engine {
 	router.Use(middlewares.IdentifyTenant())
 
 	// =======================================================
+	// TRẠM KHỞI THỦY HỆ THỐNG (CHỈ DÀNH CHO SSS.99K.VN)
+	// =======================================================
+	router.GET("/setup", func(c *gin.Context) {
+		if c.GetString("APP_MODE") == "MASTER_CORE" {
+			setup.TrangSetup(c)
+		} else {
+			c.HTML(http.StatusNotFound, "404", nil) 
+		}
+	})
+
+	router.POST("/setup", func(c *gin.Context) {
+		if c.GetString("APP_MODE") == "MASTER_CORE" {
+			setup.API_Setup(c)
+		} else {
+			c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Truy cập bị từ chối!"})
+		}
+	})
+
+	// =======================================================
 	// 1. VÙNG MẶC ĐỊNH (PUBLIC): router.GET / router.POST
 	// =======================================================
 	router.GET("/", func(c *gin.Context) {
@@ -79,25 +98,6 @@ func SetupRouter() *gin.Engine {
 	router.GET("/logout", auth.API_Logout)
 	router.POST("/login", auth.API_Login)
 	router.POST("/register", auth.API_Register)
-
-	// =======================================================
-	// [MỚI] TRẠM KHỞI THỦY HỆ THỐNG (CHỈ DÀNH CHO SSS.99K.VN)
-	// =======================================================
-	router.GET("/setup", func(c *gin.Context) {
-		if c.GetString("APP_MODE") == "MASTER_CORE" {
-			dang_ky_master.TrangDangKyMaster(c) 
-		} else {
-			c.HTML(http.StatusNotFound, "404", nil) // Các web khác gõ /setup sẽ ăn lỗi 404 tàng hình
-		}
-	})
-
-	router.POST("/setup", func(c *gin.Context) {
-		if c.GetString("APP_MODE") == "MASTER_CORE" {
-			dang_ky_master.API_RegisterMaster(c)
-		} else {
-			c.JSON(http.StatusForbidden, gin.H{"status": "error", "msg": "Truy cập bị từ chối!"})
-		}
-	})
 	
 	apiAuth := router.Group("/api/auth")
 	{
