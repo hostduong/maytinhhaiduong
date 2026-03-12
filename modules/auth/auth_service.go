@@ -56,11 +56,12 @@ func (s *Service) Login(shopID, dinhDanh, pass, userAgent string, ghiNho bool) (
 }
 
 func (s *Service) Register(appMode, shopID, hoTen, user, email, pass, maPin, dienThoai, ngaySinh, gioiTinhStr, userAgent string) (string, string, string, error) {
-	// 1. TƯỜNG LỬA CHỐNG LỖI MẠNG (Đảm bảo RAM đồng bộ 100% với Sheet)
-	if err := core.EnsureKhachHangLoaded(shopID); err != nil { 
-		// Tải không thành công do lỗi mạng, lỗi server... => Khóa chặn không cho đăng ký để bảo vệ ID 001
-		return "", "", "", errors.New("Hệ thống đang bận hoặc gián đoạn kết nối dữ liệu gốc. Vui lòng thử lại sau!") 
+	// Khóa cổng, không tiếp đón Master ở đây
+	if appMode == "MASTER_CORE" { 
+		return "", "", "", errors.New("Truy cập bị từ chối! Vùng này không hỗ trợ.") 
 	}
+
+	if err := core.EnsureKhachHangLoaded(shopID); err != nil { return "", "", "", err }
 
 	gioiTinh := -1
 	if gioiTinhStr == "Nam" { gioiTinh = 1 } else if gioiTinhStr == "Nữ" { gioiTinh = 0 }
@@ -72,59 +73,21 @@ func (s *Service) Register(appMode, shopID, hoTen, user, email, pass, maPin, die
 	if _, ok := s.repo.FindByUserOrEmail(shopID, user); ok { return "", "", "", errors.New("Tên đăng nhập đã tồn tại!") }
 	if _, ok := s.repo.FindByUserOrEmail(shopID, email); ok { return "", "", "", errors.New("Email đã được sử dụng!") }
 
-	var maKH, vaiTro, chucVu, nguon string
-	isFirstMaster := false
-
-	// 2. ĐỊNH HƯỚNG QUYỀN LỰC CHUẨN MỰC
-	// Kiểm tra xem hệ thống đã có Chúa tể (001) chưa
-	_, hasGod := core.LayKhachHang(shopID, "0000000000000000001")
+	maKH := core.TaoMaKhachHangMoi(shopID)
+	var vaiTro, chucVu, nguon string
 	
-	if !hasGod {
-		// TRƯỜNG HỢP A: NGƯỜI ĐẦU TIÊN (Chỉ kích hoạt 1 lần duy nhất trong đời hệ thống)
-		maKH = "0000000000000000001"
-		vaiTro = "quan_tri_he_thong"
-		chucVu = "Quản trị hệ thống"
-		isFirstMaster = true 
-		if appMode == "MASTER_CORE" { nguon = "master_core_register" } else { nguon = "web_saas_register" }
-	} else {
-		// TRƯỜNG HỢP B: TỪ NGƯỜI THỨ 2 TRỞ ĐI CHẮC CHẮN LÀ KHÁCH HÀNG (An toàn tuyệt đối)
-		maKH = core.TaoMaKhachHangMoi(shopID)
+	if appMode == "TENANT_ADMIN" {
 		vaiTro = "khach_hang"
 		chucVu = "Khách hàng"
-		
-		if appMode == "MASTER_CORE" { 
-			nguon = "master_core_register" 
-		} else if appMode == "TENANT_ADMIN" { 
-			nguon = "web_saas_register" 
-		} else { 
-			nguon = "web_store_register" 
-		}
+		nguon = "web_saas_register"
+	} else {
+		vaiTro = "khach_le"
+		chucVu = "Khách Lẻ"
+		nguon = "web_store_register"
 	}
 
-	passHash, _ := config.HashMatKhau(pass)
-	pinHash, _ := config.HashMatKhau(maPin)
+	passHash, _ := config.HashMatKhau(pass); pinHash, _ := config.HashMatKhau(maPin)
 	nowUnix := time.Now().Unix()
-
-	// 3. ĐỒNG THỜI SINH BOT NẾU LÀ NGƯỜI ĐẦU TIÊN
-	if isFirstMaster {
-		soLuongBot := s.repo.CountUsers(shopID)
-		botKH := &core.KhachHang{
-			SpreadsheetID: shopID, DongTrongSheet: core.DongBatDau_KhachHang + soLuongBot,
-			Version: 1, MaKhachHang: "0000000000000000000", TenDangNhap: "admin", Email: "bot@99k.vn",
-			BaoMat: core.TenantBaoMat{MatKhauHash: "", MaPinHash: ""}, // Không có pass, pin => Cấm đăng nhập
-			RefreshTokens: make(map[string]core.TenantDeviceToken),
-			VaiTroQuyenHan: "quan_tri_vien_he_thong", ChucVu: "Hệ thống", TrangThai: 1,
-			GoiDichVu: make([]core.TenantGoiDichVu, 0), Modules: make(map[string]bool),
-			CauHinh: core.TenantCauHinh{Theme: "light", Lang: "vi"},
-			// Set giới tính là Nam (1) theo yêu cầu
-			ThongTin: core.TenantThongTin{NguonKhachHang: "system_bot", TenKhachHang: "Hệ thống", GioiTinh: 1},
-			NganHang: core.TenantNganHang{}, MangXaHoi: make(map[string]string),
-			NgayTao: nowUnix, NguoiCapNhat: "system", NgayCapNhat: nowUnix, 
-		}
-		s.repo.InsertUser(shopID, botKH)
-	}
-
-	// 4. LƯU TÀI KHOẢN NGƯỜI DÙNG THỰC TẾ
 	soLuongUser := s.repo.CountUsers(shopID)
 	
 	newKH := &core.KhachHang{
@@ -145,8 +108,7 @@ func (s *Service) Register(appMode, shopID, hoTen, user, email, pass, maPin, die
 	
 	s.repo.InsertUser(shopID, newKH)
 
-	// Nếu là Cửa hàng hoặc Master -> Gắn tin nhắn chào mừng
-	if appMode == "TENANT_ADMIN" || appMode == "MASTER_CORE" {
+	if appMode == "TENANT_ADMIN" {
 		s.repo.SendWelcomeMessage(shopID, &core.TinNhan{
 			MaTinNhan: fmt.Sprintf("MSG_%d_000", time.Now().UnixNano()), LoaiTinNhan: "AUTO",
 			NguoiGuiID: "0000000000000000000", NguoiNhanID: []string{maKH}, TieuDe: "Chào mừng bạn",
