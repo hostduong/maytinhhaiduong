@@ -18,7 +18,7 @@
         input::-ms-reveal, input::-ms-clear { display: none; }
         input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
 
-        /* Tắt Autocomplete cứng đầu của Trình duyệt */
+        /* Khóa cứng Autocomplete của Trình duyệt */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px white inset !important;
             -webkit-text-fill-color: #1e293b !important;
@@ -29,9 +29,13 @@
             width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; 
             outline: none; transition: all 0.3s; background-color: #ffffff; color: #1e293b;
         }
+        /* Focus Tím */
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
-        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c; }
-        .input-success { border-color: #8b5cf6 !important; background-color: #faf5ff !important; color: #6d28d9; font-weight: bold;}
+        /* Lỗi Cam/Đỏ */
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c !important; }
+        /* Chuẩn Tím 100% khi nhập đúng */
+        .input-success { border-color: #8b5cf6 !important; background-color: #faf5ff !important; color: #5b21b6 !important; font-weight: 700; }
+        
         .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 600; margin-top: 0.35rem; display: none; animation: fadeIn 0.3s; }
         .error-text.show { display: block; }
         button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
@@ -40,32 +44,26 @@
 
         /* HIỆU ỨNG VIỀN LED CHẠY MA MỊ */
         .led-border-wrapper {
-            position: relative;
-            padding: 3px; /* Độ dày viền LED */
-            border-radius: 1.5rem;
-            overflow: hidden;
+            position: relative; padding: 3px; border-radius: 1.5rem; overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
         }
         .led-border-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, transparent, #c084fc, #6d28d9, transparent);
-            animation: spin 3s linear infinite;
+            animation: spin 3s linear infinite; z-index: 0;
         }
-        .led-border-inner {
-            position: relative;
-            background: #f8fafc;
-            border-radius: calc(1.5rem - 3px);
-            z-index: 10;
-        }
+        .led-border-inner { position: relative; background: #f8fafc; border-radius: calc(1.5rem - 3px); z-index: 10; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Nền tím ma mị */
+        /* Nền tím khói */
         .mystic-bg {
             background: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
                         radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
         }
+
+        /* Gọt ruột SweetAlert2 để nhúng Viền LED */
+        .swal2-popup { padding: 0 !important; background: transparent !important; }
+        .swal2-container { padding: 1rem; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center mystic-bg p-4 overflow-x-hidden">
@@ -82,44 +80,44 @@
             </div>
 
             <form id="formSetup" autocomplete="off" spellcheck="false" class="space-y-5 relative z-10">
-                <input type="text" style="display:none">
-                <input type="password" style="display:none">
+                <input type="text" style="display:none" autocomplete="username">
+                <input type="password" style="display:none" autocomplete="current-password">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
                         <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="Chủ Tịch A" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                        <p id="err_ho_ten" class="error-text">Không chứa số, ký tự đặc biệt (6-50 ký tự).</p>
+                        <p id="err_ho_ten" class="error-text">Không chứa số, ký tự lạ (6-50 ký tự).</p>
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tên đăng nhập (ID) <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên đăng nhập (ID) <span class="text-red-500">*</span></label>
                         <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium font-mono" placeholder="admin_core" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                        <p id="err_ten_dang_nhap" class="error-text">Viết liền không dấu (chữ, số, gạch ngang).</p>
+                        <p id="err_ten_dang_nhap" class="error-text">Chỉ dùng a-z, 0-9, dấu gạch ngang.</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email Quản Trị <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Quản Trị <span class="text-red-500">*</span></label>
                         <input id="email" name="email" type="email" class="input-premium" placeholder="admin@domain.com" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                         <p id="err_email" class="error-text">Email không đúng định dạng.</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Điện thoại <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Điện thoại <span class="text-red-500">*</span></label>
                         <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                         <p id="err_dien_thoai" class="error-text">SĐT không hợp lệ.</p>
                         <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Ngày sinh</label>
-                        <input id="ngay_sinh" name="ngay_sinh" type="date" class="input-premium cursor-pointer" autocomplete="new-password">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ngày sinh</label>
+                        <input id="ngay_sinh" name="ngay_sinh" type="date" class="input-premium cursor-pointer text-slate-500 font-bold" autocomplete="new-password">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Giới tính</label>
-                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer" autocomplete="new-password">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Giới tính</label>
+                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer text-slate-500 font-bold" autocomplete="new-password">
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
                             <option value="Khác">Khác</option>
@@ -127,7 +125,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mật khẩu Lõi <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật khẩu Lõi <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="mat_khau" name="mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                             <button type="button" onclick="togglePass('mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
@@ -135,11 +133,11 @@
                                 <svg id="eye_open_mat_khau" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                         </div>
-                        <p id="err_mat_khau" class="error-text">8-30 ký tự (Chứa chữ Hoa, Số, Ký tự đặc biệt).</p>
+                        <p id="err_mat_khau" class="error-text">Phải chứa: chữ Hoa, Số, Ký tự đặc biệt (8-30 ký tự).</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nhập lại Mật khẩu <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nhập lại Mật khẩu <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="re_mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                             <button type="button" onclick="togglePass('re_mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
@@ -151,7 +149,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mã PIN Giao Dịch <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã PIN Giao Dịch <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="ma_pin" name="ma_pin" type="password" maxlength="8" class="input-premium pr-10 font-mono tracking-[0.3em] text-center" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                             <button type="button" onclick="togglePass('ma_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
@@ -163,13 +161,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Quyền Hạn Hệ Thống</label>
-                        <input type="text" class="input-premium font-bold text-violet-700 bg-violet-50 text-center" value="👑 Quản Trị Tối Cao" disabled>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Quyền Hạn Hệ Thống</label>
+                        <input type="text" class="input-premium font-bold text-violet-700 bg-violet-50 text-center pointer-events-none" value="👑 Quản Trị Tối Cao" tabindex="-1">
                     </div>
                 </div>
 
                 <div class="pt-6">
-                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 active:translate-y-0 uppercase">
+                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
                         Khởi Động Nền Tảng
                     </button>
                 </div>
@@ -187,7 +185,7 @@
             email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/i },
             ma_pin: { regex: /^\d{8}$/ }, 
             ten_dang_nhap: { regex: /^[a-z0-9](?!.*--)[a-z0-9-]{4,28}[a-z0-9]$/ }, 
-            // Pass: Ít nhất 1 hoa, 1 số, 1 ký tự đặc biệt, 8-30 ký tự
+            // Mật khẩu: Ít nhất 1 hoa, 1 số, 1 ký tự đặc biệt, 8-30 ký tự
             mat_khau: { regex: /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+.,?]).{8,30}$/ }
         };
 
@@ -220,7 +218,7 @@
             });
         });
 
-        // Xử lý Repass
+        // Xử lý Validate chéo Repass
         const pass = document.getElementById('mat_khau');
         const repass = document.getElementById('re_mat_khau');
         repass.addEventListener('input', () => {
@@ -232,10 +230,16 @@
             if (repass.value !== "" && repass.value !== pass.value) setState('re_mat_khau', 'error');
         });
 
-        // Xử lý Ngày sinh & Giới tính
-        document.getElementById('ngay_sinh').addEventListener('change', function() { if(this.value) setState('ngay_sinh', 'success'); else setState('ngay_sinh', 'normal'); });
-        document.getElementById('gioi_tinh').addEventListener('change', function() { setState('gioi_tinh', 'success'); });
-        setState('gioi_tinh', 'success'); // Default
+        // Xử lý Focus Màu Tím Đồng Bộ cho Ngày sinh & Giới tính
+        const dob = document.getElementById('ngay_sinh');
+        const gen = document.getElementById('gioi_tinh');
+        
+        dob.addEventListener('change', function() { if(this.value) { setState('ngay_sinh', 'success'); this.classList.add('text-violet-800'); } else setState('ngay_sinh', 'normal'); });
+        gen.addEventListener('change', function() { setState('gioi_tinh', 'success'); this.classList.add('text-violet-800'); });
+        
+        // Mặc định Giới tính đã có Value nên set Success luôn
+        setState('gioi_tinh', 'success'); 
+        gen.classList.add('text-violet-800');
 
         inputPhone.addEventListener('blur', () => {
             if(inputPhone.value.trim() !== "") { 
@@ -257,7 +261,7 @@
             document.getElementById('btnSubmit').disabled = !ok;
         }
 
-        // FETCH AJAX GỬI DỮ LIỆU
+        // FETCH AJAX KÈM HIỆU ỨNG POPUP TÍM/CAM
         document.getElementById('formSetup').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
@@ -273,34 +277,54 @@
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
-                    // THÀNH CÔNG -> Tab xanh -> Có nút VÀO TRANG QUẢN TRỊ
+                    // POPUP THÀNH CÔNG: VIỀN LED TÍM ĐỒNG BỘ
                     Swal.fire({
-                        title: '<h2 class="text-2xl font-black text-emerald-600">Thành Công!</h2>',
-                        html: `<p class="font-medium text-slate-600">${data.msg}</p>`,
-                        icon: 'success',
-                        confirmButtonText: 'ĐĂNG NHẬP NGAY',
-                        confirmButtonColor: '#10b981',
-                        allowOutsideClick: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = data.redirect;
-                        }
+                        background: 'transparent',
+                        backdrop: 'rgba(11, 15, 25, 0.85)',
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                        html: `
+                        <div class="led-border-wrapper mx-auto">
+                            <div class="led-border-inner p-10 relative flex flex-col items-center text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-5 shadow-lg shadow-violet-500/40 text-white border-4 border-white">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <h2 class="text-3xl font-black text-slate-800 tracking-tight mb-2">Thành Công!</h2>
+                                <p class="font-bold text-violet-600 mb-8">${data.msg}</p>
+                                <button onclick="window.location.href='${data.redirect}'" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
+                                    VÀO TRANG QUẢN TRỊ
+                                </button>
+                            </div>
+                        </div>
+                        `
                     });
                 } else {
-                    // THẤT BẠI -> Tab màu cam báo lỗi
+                    // POPUP THẤT BẠI: MÀU CAM THEO YÊU CẦU
                     btn.disabled = false;
-                    btn.innerHTML = `Khởi Động Nền Tảng`;
+                    btn.innerHTML = `KHỞI ĐỘNG NỀN TẢNG`;
                     Swal.fire({
-                        title: '<h2 class="text-2xl font-black text-orange-600">Lỗi Hệ Thống!</h2>',
-                        html: `<p class="font-medium text-orange-800">${data.msg}</p>`,
-                        icon: 'warning',
-                        confirmButtonText: 'Đã Hiểu',
-                        confirmButtonColor: '#f97316'
+                        background: 'transparent',
+                        backdrop: 'rgba(11, 15, 25, 0.85)',
+                        showConfirmButton: false,
+                        html: `
+                        <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30">
+                            <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
+                                <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                </div>
+                                <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
+                                <p class="font-bold text-orange-600 mb-8">${data.msg}</p>
+                                <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">
+                                    Đã Hiểu
+                                </button>
+                            </div>
+                        </div>
+                        `
                     });
                 }
             } catch (error) {
                 btn.disabled = false;
-                btn.innerHTML = `Khởi Động Nền Tảng`;
+                btn.innerHTML = `KHỞI ĐỘNG NỀN TẢNG`;
                 Swal.fire({ icon: 'error', title: 'Mất Kết Nối', text: 'Đường truyền bị gián đoạn.', confirmButtonColor: '#f97316' });
             }
         });
