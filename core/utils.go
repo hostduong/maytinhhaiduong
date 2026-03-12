@@ -143,17 +143,48 @@ func LayDanhSachThuongHieu(shopID string) []*ThuongHieu { lock := GetSheetLock(s
 func LayDanhSachBienLoiNhuan(shopID string) []*BienLoiNhuan { lock := GetSheetLock(shopID, TenSheetBienLoiNhuan); lock.RLock(); defer lock.RUnlock(); return CacheBienLoiNhuan[shopID] }
 func LayDanhSachNhaCungCap(shopID string) []*NhaCungCap { lock := GetSheetLock(shopID, TenSheetNhaCungCap); lock.RLock(); defer lock.RUnlock(); return CacheNhaCungCap[shopID] }
 
+// TÌM VÀ THAY THẾ KHỐI TIN NHẮN TRONG FILE UTILS.GO
+
 // =======================================================
-// TIN NHẮN (Dùng khóa TenSheetTinNhanMaster)
+// TIN NHẮN (NoSQL 2 Cột)
 // =======================================================
 func LayHopThuNguoiDung(shopID, userID, role string) []*TinNhan {
 	lock := GetSheetLock(shopID, TenSheetTinNhanMaster)
 	lock.RLock(); defer lock.RUnlock()
 	var rs []*TinNhan
+	
 	for _, tn := range CacheTinNhan[shopID] {
-		if tn.NguoiNhanID == userID || tn.NguoiGuiID == userID { rs = append(rs, tn); continue }
-		if tn.LoaiTinNhan == "ALL" { rs = append(rs, tn); continue }
-		if tn.LoaiTinNhan == "ROLE" && strings.Contains(tn.NguoiNhanID, role) { rs = append(rs, tn); continue }
+		// 1. Kiểm tra xem người này có lỡ ấn "Xóa tàng hình" tin nhắn này chưa?
+		isDeleted := false
+		for _, id := range tn.TrangThaiXoa {
+			if id == userID { isDeleted = true; break }
+		}
+		if isDeleted { continue }
+
+		// 2. Xác định xem mình có phải Người Nhận / Người Gửi không
+		isRecipient := false
+		if tn.NguoiGuiID == userID {
+			isRecipient = true
+		} else {
+			for _, nhanID := range tn.NguoiNhanID {
+				if nhanID == "ALL" || nhanID == userID {
+					isRecipient = true; break
+				}
+				if tn.LoaiTinNhan == "ROLE" && strings.Contains(nhanID, role) {
+					isRecipient = true; break
+				}
+			}
+		}
+		
+		// 3. Đóng gói cho lên UI
+		if isRecipient {
+			// Check xem ID đã chui vào rổ "Đã Seen" chưa
+			tn.DaDoc = false
+			for _, docID := range tn.NguoiDoc {
+				if docID == userID { tn.DaDoc = true; break }
+			}
+			rs = append(rs, tn)
+		}
 	}
 	return rs
 }
@@ -165,21 +196,32 @@ func ThemMoiTinNhan(shopID string, tn *TinNhan) {
 	CacheTinNhan[shopID] = append(CacheTinNhan[shopID], tn)
 	lock.Unlock()
 	
-	PushAppend(shopID, TenSheetTinNhanMaster, []interface{}{ tn.MaTinNhan, tn.LoaiTinNhan, tn.NguoiGuiID, tn.NguoiNhanID, tn.TieuDe, tn.NoiDung, "", tn.ThamChieuID, tn.ReplyChoID, tn.NgayTao, "[]", "" })
+	// Nã 1 phát duy nhất 2 cột xuống Google Sheet
+	b, _ := json.Marshal(tn)
+	PushAppend(shopID, TenSheetTinNhanMaster, []interface{}{ tn.MaTinNhan, string(b) })
 }
 
 func DanhDauDocTinNhan(shopID, userID, msgID string) {
 	lock := GetSheetLock(shopID, TenSheetTinNhanMaster)
 	lock.Lock(); defer lock.Unlock()
+	
 	for _, tn := range CacheTinNhan[shopID] {
 		if tn.MaTinNhan == msgID {
-			daDoc := false; for _, u := range tn.NguoiDoc { if u == userID { daDoc = true; break } }
-			if !daDoc { tn.NguoiDoc = append(tn.NguoiDoc, userID); b, _ := json.Marshal(tn.NguoiDoc); PushUpdate(shopID, TenSheetTinNhanMaster, tn.DongTrongSheet, CotTN_NguoiDocJson, string(b)) }
+			daDoc := false
+			for _, u := range tn.NguoiDoc { 
+				if u == userID { daDoc = true; break } 
+			}
+			
+			// Nếu chưa nằm trong rổ Seen thì nhét vào và update Sheet
+			if !daDoc { 
+				tn.NguoiDoc = append(tn.NguoiDoc, userID)
+				b, _ := json.Marshal(tn)
+				PushUpdate(shopID, TenSheetTinNhanMaster, tn.DongTrongSheet, CotTN_DataJSON, string(b)) 
+			}
 			break
 		}
 	}
 }
-
 func ToJSON(v interface{}) string { b, _ := json.Marshal(v); return string(b) }
 
 func LayIntStr(s string) int {
