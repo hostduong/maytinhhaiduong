@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DTO giả lập cấu trúc cũ để HTML không bị sụp đổ
 type ViewProductDTO struct {
 	DataJSON     string
 	MaSanPham    string
@@ -48,7 +47,6 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 		return
 	}
 
-	// Tạm thời fix cứng ngành Điện tử, sau này lấy từ URL (c.Query("nganh"))
 	maNganh := "dien_tu" 
 
 	rawList := core.LayDanhSachSanPham(adminShopID, maNganh)
@@ -68,7 +66,7 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 			if mainSKU == nil && len(sp.SKU) > 0 { mainSKU = &sp.SKU[0] }
 
 			dto := ViewProductDTO{
-				DataJSON: jsonStr, // Bí mật ném JSON cho HTML tự bung
+				DataJSON: jsonStr, 
 				MaSanPham: sp.MaSanPham,
 				TenSanPham: sp.TenSanPham,
 				TenRutGon: sp.TenRutGon,
@@ -95,7 +93,6 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 		}
 	}
 
-	// Lấy Cấu hình Thuộc tính từ RAM (O(1))
 	core.KhoaHeThong.RLock()
 	thuocTinhData := core.CacheThuocTinh
 	core.KhoaHeThong.RUnlock()
@@ -104,15 +101,13 @@ func TrangQuanLySanPhamMaster(c *gin.Context) {
 		"TieuDe":         "Quản lý sản phẩm",
 		"NhanVien":       kh,
 		"DaDangNhap":     true,
-		"TenNguoiDung":   kh.TenKhachHang,
+		"TenNguoiDung":   kh.ThongTin.TenKhachHang,
 		"QuyenHan":       kh.VaiTroQuyenHan,
 		"DanhSach":       cleanList, 
 		"DanhSachFull":   fullList,  
 		"ListDanhMuc":    core.LayDanhSachDanhMuc(adminShopID),    
 		"ListThuongHieu": core.LayDanhSachThuongHieu(adminShopID), 
 		"ListBLN":        core.LayDanhSachBienLoiNhuan(adminShopID), 
-		
-		// [BỔ SUNG 2 DÒNG NÀY LÀ XONG]
 		"CauHinhThuocTinh": thuocTinhData, 
 		"MaNganh":          maNganh,
 	})
