@@ -44,7 +44,11 @@ func TrangTinNhanMaster(c *gin.Context) {
 			var myBotInbox []*core.TinNhan
 			allMyMsgs := core.LayHopThuNguoiDung(masterShopID, userID, vaiTro)
 			for _, m := range allMyMsgs {
-				if m.NguoiGuiID == "0000000000000000000" || m.NguoiNhanID == "0000000000000000000" || m.LoaiTinNhan == "SYSTEM" || m.LoaiTinNhan == "ALL" {
+				isToSystem := false
+				for _, id := range m.NguoiNhanID {
+					if id == "0000000000000000000" { isToSystem = true; break }
+				}
+				if m.NguoiGuiID == "0000000000000000000" || isToSystem || m.LoaiTinNhan == "SYSTEM" || m.LoaiTinNhan == "ALL" {
 					myBotInbox = append(myBotInbox, m)
 				}
 			}
@@ -62,7 +66,6 @@ func TrangTinNhanMaster(c *gin.Context) {
 		listChat = append(listChat, &khCopy)
 	}
 
-	// [ĐÃ FIX]: Đổi tên View chuẩn với hệ thống
 	c.HTML(http.StatusOK, "tin_nhan_master", gin.H{
 		"TieuDe":   "Tin nhắn Hệ thống",
 		"NhanVien": me,
@@ -107,18 +110,20 @@ func API_GuiTinNhanChat(c *gin.Context) {
 		tieuDe = "" 
 	}
 
-	loc := time.FixedZone("ICT", 7*3600)
-	nowStr := time.Now().In(loc).Format("2006-01-02 15:04:05")
 	msgID := fmt.Sprintf("MSG_%d_%s", time.Now().UnixNano(), nguoiNhanID) 
 
 	newMsg := &core.TinNhan{
 		MaTinNhan:      msgID,
 		LoaiTinNhan:    msgType,
 		NguoiGuiID:     senderID,         
-		NguoiNhanID:    nguoiNhanID,           
+		NguoiNhanID:    []string{nguoiNhanID},           
 		TieuDe:         tieuDe,
 		NoiDung:        noiDung,
-		NgayTao:        nowStr,
+		NgayTao:        time.Now().Unix(),
+		NguoiDoc:       []string{},
+		TrangThaiXoa:   []string{},
+		DinhKem:        []core.FileDinhKem{},
+		ThamChieuID:    []string{},
 	}
 	core.ThemMoiTinNhan(shopID, newMsg)
 	
