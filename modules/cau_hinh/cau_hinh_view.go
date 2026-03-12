@@ -27,7 +27,7 @@ func TrangCaiDatCauHinhMaster(c *gin.Context) {
 		"TieuDe":       "Cấu Hình Hệ Thống",
 		"NhanVien":     kh,
 		"DaDangNhap":   true,
-		"TenNguoiDung": kh.TenKhachHang,
+		"TenNguoiDung": kh.ThongTin.TenKhachHang,
 		"QuyenHan":     kh.VaiTroQuyenHan,
 		"ListDanhMuc":    listDM,
 		"ListThuongHieu": listTH,
