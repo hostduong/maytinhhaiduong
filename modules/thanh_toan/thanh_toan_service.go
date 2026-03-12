@@ -18,7 +18,6 @@ type PaymentService struct{}
 
 var Svc = PaymentService{}
 
-// GetFinalPrice: Tính toán số tiền thực tế dựa trên Gói và Mã giảm giá
 func (s *PaymentService) GetFinalPrice(masterShopID, maGoi, maCode string) (float64, string, *core.GoiDichVu, error) {
 	core.KhoaHeThong.RLock()
 	defer core.KhoaHeThong.RUnlock()
@@ -48,7 +47,6 @@ func (s *PaymentService) GetFinalPrice(masterShopID, maGoi, maCode string) (floa
 	return giaCuoi, appliedCode, goi, nil
 }
 
-// KhoiTaoHaTangSubdomain: Chạy ngầm gọi API Google Cloud Run bằng ADC
 func (s *PaymentService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 	subdomain := fmt.Sprintf("%s.99k.vn", tenDangNhap)
 	
@@ -56,7 +54,7 @@ func (s *PaymentService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 		"apiVersion": "domains.cloudrun.com/v1",
 		"kind":       "DomainMapping",
 		"metadata": map[string]string{"name": subdomain},
-		"spec":     map[string]interface{}{"routeName": "maytinhhaiduong"}, // Đảm bảo đúng tên service Cloud Run
+		"spec":     map[string]interface{}{"routeName": "maytinhhaiduong"}, 
 	}
 	
 	body, _ := json.Marshal(payload)
@@ -97,7 +95,6 @@ func (s *PaymentService) KhoiTaoHaTangSubdomain(tenDangNhap string) {
 	}
 }
 
-// BuyStarterPackage: Kích hoạt gói cước và tạo hạ tầng
 func (s *PaymentService) BuyStarterPackage(masterShopID, userID, maGoi, maCode string) (string, error) {
 	finalPrice, _, goi, err := s.GetFinalPrice(masterShopID, maGoi, maCode)
 	if err != nil { return "", err }
@@ -114,26 +111,26 @@ func (s *PaymentService) BuyStarterPackage(masterShopID, userID, maGoi, maCode s
 	maxSP, _ := limits["max_san_pham"].(float64)
 	maxNV, _ := limits["max_nhan_vien"].(float64)
 
-	newPlan := core.PlanInfo{
+	newPlan := core.TenantGoiDichVu{
 		MaGoi:       goi.MaGoi,
 		TenGoi:      goi.TenGoi,
-		LoaiGoi:     goi.LoaiGoi, 
-		NgayHetHan:  time.Now().AddDate(0, 0, goi.ThoiHanNgay).Format("2006-01-02 15:04:05"),
+		NgayHetHan:  time.Now().AddDate(0, 0, goi.ThoiHanNgay).Unix(),
 		TrangThai:   "active",
 		MaxSanPham:  int(maxSP),
 		MaxNhanVien: int(maxNV),
+		Modules:     []string{},
 	}
 
 	lock := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
 	lock.Lock()
-	kh.GoiDichVu = []core.PlanInfo{newPlan}
-	jsonBytes, _ := json.Marshal(kh.GoiDichVu)
+	kh.GoiDichVu = []core.TenantGoiDichVu{newPlan}
+	b, _ := json.Marshal(kh)
+	jsonStr := string(b)
 	currentRow, tenDangNhap := kh.DongTrongSheet, kh.TenDangNhap
 	lock.Unlock()
 
-	core.PushUpdate(masterShopID, core.TenSheetKhachHang, currentRow, core.CotKH_GoiDichVuJson, string(jsonBytes))
+	core.PushUpdate(masterShopID, core.TenSheetKhachHang, currentRow, core.CotKH_DataJSON, jsonStr)
 
-	// Chạy Goroutine tạo Subdomain ngầm
 	go s.KhoiTaoHaTangSubdomain(tenDangNhap)
 
 	return "https://admin.99k.vn/database", nil
