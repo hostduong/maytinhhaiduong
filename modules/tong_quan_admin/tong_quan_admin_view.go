@@ -24,16 +24,14 @@ func TrangTongQuanAdmin(c *gin.Context) {
 		if p.TrangThai == "active" {
 			maxSanPham += p.MaxSanPham
 			maxNhanVien += p.MaxNhanVien
-			if p.LoaiGoi == "STARTER" {
-				tenGoiHienTai = p.TenGoi
-			}
+			tenGoiHienTai = p.TenGoi // Lấy tên gói hiện tại
 		}
 	}
 
 	soSanPhamHienTai := 0
-	if kh.DataSheets.SpreadsheetID != "" {
+	if kh.System.SheetID != "" {
 		core.KhoaHeThong.RLock()
-		if nganhMap, exists := core.CacheSanPham[kh.DataSheets.SpreadsheetID]; exists {
+		if nganhMap, exists := core.CacheSanPham[kh.System.SheetID]; exists {
 			for _, ds := range nganhMap {
 				soSanPhamHienTai += len(ds)
 			}
