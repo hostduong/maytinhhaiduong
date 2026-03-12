@@ -15,6 +15,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
         .iti { width: 100%; display: block; }
+        
+        /* Ẩn con mắt mặc định của trình duyệt để dùng icon custom */
         input::-ms-reveal, input::-ms-clear { display: none; }
         input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
 
@@ -25,16 +27,26 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
+        /* CHUẨN HÓA TYPOGRAPHY CHO Ô NHẬP LIỆU */
         .input-premium {
             width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; 
-            outline: none; transition: all 0.3s; background-color: #ffffff; color: #1e293b;
+            outline: none; transition: all 0.3s; background-color: #ffffff; 
+            color: #1e293b; 
+            font-weight: 700; /* CHỮ NHẬP VÀO: LUÔN IN ĐẬM */
         }
+        
+        .input-premium::placeholder {
+            font-weight: 500; /* CHỮ GỢI Ý: CHỮ THƯỜNG / MEDIUM */
+            color: #94a3b8; 
+            opacity: 1;
+        }
+
         /* Focus Tím */
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
         /* Lỗi Cam/Đỏ */
         .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #b91c1c !important; }
         /* Chuẩn Tím 100% khi nhập đúng */
-        .input-success { border-color: #8b5cf6 !important; background-color: #faf5ff !important; color: #5b21b6 !important; font-weight: 700; }
+        .input-success { border-color: #8b5cf6 !important; background-color: #faf5ff !important; color: #5b21b6 !important; }
         
         .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 600; margin-top: 0.35rem; display: none; animation: fadeIn 0.3s; }
         .error-text.show { display: block; }
@@ -87,7 +99,7 @@
                     
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Họ và tên <span class="text-red-500">*</span></label>
-                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="Chủ Tịch A" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="Phạm Văn A" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                         <p id="err_ho_ten" class="error-text">Không chứa số, ký tự lạ (6-50 ký tự).</p>
                     </div>
                     
@@ -105,19 +117,19 @@
 
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Điện thoại <span class="text-red-500">*</span></label>
-                        <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                        <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium" placeholder="Nhập số điện thoại..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                         <p id="err_dien_thoai" class="error-text">SĐT không hợp lệ.</p>
                         <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
                     </div>
 
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ngày sinh</label>
-                        <input id="ngay_sinh" name="ngay_sinh" type="date" class="input-premium cursor-pointer text-slate-500 font-bold" autocomplete="new-password">
+                        <input id="ngay_sinh" name="ngay_sinh" type="date" min="1900-01-01" max="2099-12-31" class="input-premium cursor-pointer text-slate-700" autocomplete="new-password">
                     </div>
 
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Giới tính</label>
-                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer text-slate-500 font-bold" autocomplete="new-password">
+                        <select id="gioi_tinh" name="gioi_tinh" class="input-premium cursor-pointer text-slate-700" autocomplete="new-password">
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
                             <option value="Khác">Khác</option>
@@ -125,10 +137,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật khẩu Lõi <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật khẩu <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="mat_khau" name="mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                            <button type="button" onclick="togglePass('mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                            <button type="button" onclick="togglePass('mat_khau')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
                                 <svg id="eye_slash_mat_khau" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 <svg id="eye_open_mat_khau" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
@@ -140,7 +152,7 @@
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nhập lại Mật khẩu <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="re_mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                            <button type="button" onclick="togglePass('re_mat_khau')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                            <button type="button" onclick="togglePass('re_mat_khau')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
                                 <svg id="eye_slash_re_mat_khau" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 <svg id="eye_open_re_mat_khau" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
@@ -149,10 +161,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã PIN Giao Dịch <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã PIN <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input id="ma_pin" name="ma_pin" type="password" maxlength="8" class="input-premium pr-10 font-mono tracking-[0.3em] text-center" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                            <button type="button" onclick="togglePass('ma_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
+                            <button type="button" onclick="togglePass('ma_pin')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600">
                                 <svg id="eye_slash_ma_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 <svg id="eye_open_ma_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
@@ -161,13 +173,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Quyền Hạn Hệ Thống</label>
-                        <input type="text" class="input-premium font-bold text-violet-700 bg-violet-50 text-center pointer-events-none" value="👑 Quản Trị Tối Cao" tabindex="-1">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Chức vụ</label>
+                        <input type="text" class="input-premium font-bold !text-violet-700 bg-violet-50 text-center pointer-events-none" value="👑 Quản Trị Hệ Thống" tabindex="-1">
                     </div>
                 </div>
 
                 <div class="pt-6">
-                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
+                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 active:translate-y-0 uppercase">
                         Khởi Động Nền Tảng
                     </button>
                 </div>
@@ -179,13 +191,11 @@
         const inputPhone = document.querySelector("#dien_thoai");
         const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
         
-        // Regex siêu chặt chẽ
         const RULES = {
             ho_ten: { regex: /^[\p{L}\s]{6,50}$/u }, 
             email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/i },
             ma_pin: { regex: /^\d{8}$/ }, 
             ten_dang_nhap: { regex: /^[a-z0-9](?!.*--)[a-z0-9-]{4,28}[a-z0-9]$/ }, 
-            // Mật khẩu: Ít nhất 1 hoa, 1 số, 1 ký tự đặc biệt, 8-30 ký tự
             mat_khau: { regex: /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+.,?]).{8,30}$/ }
         };
 
@@ -234,12 +244,10 @@
         const dob = document.getElementById('ngay_sinh');
         const gen = document.getElementById('gioi_tinh');
         
-        dob.addEventListener('change', function() { if(this.value) { setState('ngay_sinh', 'success'); this.classList.add('text-violet-800'); } else setState('ngay_sinh', 'normal'); });
-        gen.addEventListener('change', function() { setState('gioi_tinh', 'success'); this.classList.add('text-violet-800'); });
+        dob.addEventListener('change', function() { if(this.value) { setState('ngay_sinh', 'success'); } else setState('ngay_sinh', 'normal'); });
+        gen.addEventListener('change', function() { setState('gioi_tinh', 'success'); });
         
-        // Mặc định Giới tính đã có Value nên set Success luôn
-        setState('gioi_tinh', 'success'); 
-        gen.classList.add('text-violet-800');
+        setState('gioi_tinh', 'success'); // Default
 
         inputPhone.addEventListener('blur', () => {
             if(inputPhone.value.trim() !== "") { 
@@ -261,7 +269,6 @@
             document.getElementById('btnSubmit').disabled = !ok;
         }
 
-        // FETCH AJAX KÈM HIỆU ỨNG POPUP TÍM/CAM
         document.getElementById('formSetup').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
@@ -277,14 +284,13 @@
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
-                    // POPUP THÀNH CÔNG: VIỀN LED TÍM ĐỒNG BỘ
                     Swal.fire({
                         background: 'transparent',
                         backdrop: 'rgba(11, 15, 25, 0.85)',
                         showConfirmButton: false,
                         allowOutsideClick: false,
                         html: `
-                        <div class="led-border-wrapper mx-auto">
+                        <div class="led-border-wrapper mx-auto max-w-[400px]">
                             <div class="led-border-inner p-10 relative flex flex-col items-center text-center">
                                 <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-5 shadow-lg shadow-violet-500/40 text-white border-4 border-white">
                                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -299,7 +305,6 @@
                         `
                     });
                 } else {
-                    // POPUP THẤT BẠI: MÀU CAM THEO YÊU CẦU
                     btn.disabled = false;
                     btn.innerHTML = `KHỞI ĐỘNG NỀN TẢNG`;
                     Swal.fire({
@@ -307,7 +312,7 @@
                         backdrop: 'rgba(11, 15, 25, 0.85)',
                         showConfirmButton: false,
                         html: `
-                        <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30">
+                        <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
                             <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
                                 <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
