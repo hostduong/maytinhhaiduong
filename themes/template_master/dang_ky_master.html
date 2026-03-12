@@ -1,0 +1,122 @@
+{{ define "dang_ky_master" }}
+    {{ template "header" . }}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        .iti { width: 100%; display: block; }
+        .input-premium { width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; outline: none; transition: all 0.3s; }
+        .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.1); }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .input-success { border-color: #9333ea !important; background-color: #faf5ff !important; }
+        .error-text { color: #ef4444; font-size: 0.75rem; font-weight: 500; margin-top: 0.35rem; display: none; }
+        .error-text.show { display: block; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+
+    <div class="min-h-screen flex items-center justify-center bg-slate-900 py-12 px-4 relative overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/30 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-[100px]"></div>
+
+        <div class="w-full max-w-2xl bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] shadow-2xl relative z-10 border border-white/20">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white mb-4 shadow-lg shadow-purple-500/30">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
+                </div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ .TieuDe }}</h2>
+                <p class="mt-2 text-sm text-slate-500 font-bold uppercase tracking-widest">Khu Vực Tuyệt Mật</p>
+            </div>
+
+            {{ if .Loi }}
+            <script>document.addEventListener('DOMContentLoaded', () => { Swal.fire({ icon: 'error', title: 'Từ Chối', text: '{{ .Loi }}', confirmButtonColor: '#9333ea' }); });</script>
+            {{ end }}
+
+            <form id="formDangKy" action="/register" method="POST" autocomplete="off" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Họ và tên</label>
+                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium font-bold text-slate-900" placeholder="Chủ Tịch A">
+                        <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự hợp lệ.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tên đăng nhập (ID)</label>
+                        <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium font-mono font-bold text-purple-700 bg-purple-50 focus:bg-white" placeholder="admin_core">
+                        <p id="err_ten_dang_nhap" class="error-text">6-30 ký tự (a-z, 0-9, -).</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Quản Trị</label>
+                        <input id="email" name="email" type="email" class="input-premium font-bold text-slate-900">
+                        <p id="err_email" class="error-text">Email không hợp lệ.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Điện thoại</label>
+                        <input id="dien_thoai" name="dien_thoai" type="tel" class="input-premium font-bold text-slate-900">
+                        <p id="err_dien_thoai" class="error-text">SĐT không hợp lệ.</p>
+                        <input type="hidden" name="dien_thoai_full" id="dien_thoai_full">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mật khẩu Lõi</label>
+                        <input id="mat_khau" name="mat_khau" type="password" class="input-premium text-center tracking-[0.3em] font-black" placeholder="••••••••">
+                        <p id="err_mat_khau" class="error-text">8-30 ký tự an toàn.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mã PIN Giao Dịch (8 số)</label>
+                        <input id="ma_pin" name="ma_pin" type="password" maxlength="8" class="input-premium text-center tracking-[0.4em] font-black text-xl text-indigo-700 bg-indigo-50 focus:bg-white" placeholder="••••••••">
+                        <p id="err_ma_pin" class="error-text">PIN bắt buộc đúng 8 số.</p>
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-xl shadow-purple-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
+                        Khởi Động Nền Tảng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const inputPhone = document.querySelector("#dien_thoai");
+        const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+        const RULES = {
+            ho_ten: { regex: /^[\p{L}\s]{6,50}$/u }, email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/ },
+            ma_pin: { regex: /^\d{8}$/ }, ten_dang_nhap: { regex: /^[a-z0-9](?!.*--)[a-z0-9-]{4,28}[a-z0-9]$/ }, mat_khau: { regex: /^[a-zA-Z0-9!@#$%^&*()\-+_.,?]{8,30}$/ }
+        };
+        function setState(id, state) {
+            const el = document.getElementById(id); const err = document.getElementById('err_' + id);
+            el.classList.remove('input-error', 'input-success'); if(err) err.classList.remove('show');
+            if (state === 'error') { el.classList.add('input-error'); if(err) err.classList.add('show'); } 
+            else if (state === 'success') { el.classList.add('input-success'); } checkSubmit();
+        }
+        Object.keys(RULES).forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => {
+                if(id==='email' || id==='ten_dang_nhap') el.value = el.value.toLowerCase();
+                if(el.value !== "" && RULES[id].regex.test(el.value)) setState(id, 'success'); else setState(id, 'normal');
+            });
+            el.addEventListener('blur', () => { if(el.value !== "" && !RULES[id].regex.test(el.value)) setState(id, 'error'); });
+        });
+        inputPhone.addEventListener('blur', () => {
+            if(inputPhone.value.trim() !== "") { if(!iti.isValidNumber()) setState('dien_thoai', 'error'); else setState('dien_thoai', 'success'); } else setState('dien_thoai', 'normal');
+        });
+        function checkSubmit() {
+            const ids = ['ho_ten', 'email', 'ma_pin', 'ten_dang_nhap', 'mat_khau']; let ok = true;
+            ids.forEach(id => { if (!document.getElementById(id).classList.contains('input-success')) ok = false; });
+            if (inputPhone.value.trim() === "" || !iti.isValidNumber()) ok = false;
+            document.getElementById('btnSubmit').disabled = !ok;
+        }
+        document.getElementById('formDangKy').addEventListener('submit', function(e) {
+            if (document.getElementById('btnSubmit').disabled) { e.preventDefault(); return; }
+            document.getElementById("dien_thoai_full").value = iti.getNumber();
+            const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerHTML = `ĐANG KHỞI TẠO...`;
+        });
+    </script>
+{{ end }}
