@@ -62,49 +62,13 @@ type VaiTroInfo struct {
 }
 
 // ==============================================================================
-// 3. CẤU TRÚC KHÁCH HÀNG CHỦ SHOP (SaaS TENANT) - NOSQL 2 CỘT
-// Áp dụng cho: KHACH_HANG_MASTER & KHACH_HANG_ADMIN
+// 3. CẤU TRÚC KHÁCH HÀNG SAAS (MASTER & ADMIN) - KIẾN TRÚC NOSQL 2 CỘT
 // ==============================================================================
 const (
 	DongBatDau_KhachHang = 11
-	CotTenant_MaKhachHang = 0 // Cột A
-	CotTenant_DataJSON    = 1 // Cột B
+	CotKH_MaKhachHang    = 0 // Cột A
+	CotKH_DataJSON       = 1 // Cột B
 )
-
-type TenantJSON struct {
-	SpreadsheetID  string `json:"-"`
-	DongTrongSheet int    `json:"-"`
-
-	Version        int    `json:"version"`
-	MaKhachHang    string `json:"ma_khach_hang"`
-	TenDangNhap    string `json:"ten_dang_nhap"`
-	Email          string `json:"email"`
-
-	BaoMat         TenantBaoMat                 `json:"bao_mat"`
-	RefreshTokens  map[string]TenantDeviceToken `json:"refresh_tokens"`
-
-	VaiTroQuyenHan string `json:"vai_tro_quyen_han"`
-	ChucVu         string `json:"chuc_vu"`
-	TrangThai      int    `json:"trang_thai"`
-
-	GoiDichVu      []TenantGoiDichVu            `json:"goi_dich_vu"`
-	Modules        map[string]bool              `json:"modules"`
-	Domain         TenantDomain                 `json:"domain"`
-	CauHinh        TenantCauHinh                `json:"cau_hinh"`
-	System         TenantSystem                 `json:"system"`
-	HoaDonConfig   TenantHoaDonConfig           `json:"hoa_don_config"`
-	ThongTin       TenantThongTin               `json:"thong_tin"`
-	MangXaHoi      map[string]string            `json:"mang_xa_hoi"`
-	ViTien         TenantViTien                 `json:"vi_tien"`
-
-	GhiChu         string `json:"ghi_chu"`
-	NguoiTao       string `json:"nguoi_tao"`
-	NguoiCapNhat   string `json:"nguoi_cap_nhat"`
-	NgayTao        int64  `json:"ngay_tao"`
-	NgayCapNhat    int64  `json:"ngay_cap_nhat"`
-}
-
-// --- CÁC TRƯỜNG PHỤ TRỢ (Sub-structs) ---
 
 type TenantBaoMat struct {
 	MatKhauHash string `json:"mat_khau_hash"`
@@ -169,10 +133,57 @@ type TenantThongTin struct {
 	MaSoThue       string `json:"ma_so_thue"`
 }
 
+type TenantNganHang struct {
+	TenNganHang string `json:"ten_ngan_hang"`
+	SoTaiKhoan  string `json:"so_tai_khoan"`
+	ChuTaiKhoan string `json:"chu_tai_khoan"`
+}
+
 type TenantViTien struct {
 	SoDu    float64 `json:"so_du"`
 	DaTieu  float64 `json:"da_tieu"`
 	TongNap float64 `json:"tong_nap"`
+}
+
+// KHÁCH HÀNG: ROOT STRUCT ĐẠI DIỆN CHO JSON
+type KhachHang struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	Version        int    `json:"version"`
+	MaKhachHang    string `json:"ma_khach_hang"`
+	TenDangNhap    string `json:"ten_dang_nhap"`
+	Email          string `json:"email"`
+
+	BaoMat         TenantBaoMat                 `json:"bao_mat"`
+	RefreshTokens  map[string]TenantDeviceToken `json:"refresh_tokens"`
+
+	VaiTroQuyenHan string `json:"vai_tro_quyen_han"`
+	ChucVu         string `json:"chuc_vu"`
+	TrangThai      int    `json:"trang_thai"`
+
+	GoiDichVu      []TenantGoiDichVu            `json:"goi_dich_vu"`
+	Modules        map[string]bool              `json:"modules"`
+	Domain         TenantDomain                 `json:"domain"`
+	CauHinh        TenantCauHinh                `json:"cau_hinh"`
+	System         TenantSystem                 `json:"system"`
+	HoaDonConfig   TenantHoaDonConfig           `json:"hoa_don_config"`
+	ThongTin       TenantThongTin               `json:"thong_tin"`
+	NganHang       TenantNganHang               `json:"ngan_hang"`
+	MangXaHoi      map[string]string            `json:"mang_xa_hoi"`
+	ViTien         TenantViTien                 `json:"vi_tien"`
+	KetNoiDoiTac   map[string]interface{}       `json:"ket_noi_doi_tac"` // Nơi cắm API ViettelPost, Shopee...
+
+	GhiChu         string `json:"ghi_chu"`
+	NguoiTao       string `json:"nguoi_tao"`
+	NguoiCapNhat   string `json:"nguoi_cap_nhat"`
+	NgayTao        int64  `json:"ngay_tao"`
+	NgayCapNhat    int64  `json:"ngay_cap_nhat"`
+
+	// --- CÁC TRƯỜNG PHỤ CHỈ CHẠY TRÊN RAM (KHÔNG LƯU VÀO JSON) ---
+	Inbox          []*TinNhan `json:"-"`
+	StyleLevel     int        `json:"-"`
+	StyleTheme     int        `json:"-"`
 }
 
 // ==============================================================================
