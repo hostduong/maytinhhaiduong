@@ -14,7 +14,7 @@ func TrangSetup(c *gin.Context) {
 	// Đảm bảo dữ liệu đã được nạp hoàn chỉnh từ Sheet
 	_ = core.EnsureKhachHangLoaded(shopID)
 
-	// [CHỐT CHẶN 1]: Nếu đã tồn tại ID 001, tuyệt đối không hiển thị Form
+	// [CHỐT CHẶN]: Nếu đã tồn tại ID 001, tuyệt đối không hiển thị Form
 	_, hasGod := core.LayKhachHang(shopID, "0000000000000000001")
 	if hasGod {
 		c.Redirect(http.StatusFound, "/login")
