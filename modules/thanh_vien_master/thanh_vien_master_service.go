@@ -33,11 +33,23 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 
 	targetLevel := Repo_LayCapBac(dto.ShopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
 
-	if dto.MaKH == "0000000000000000001" && dto.AdminID != "0000000000000000001" { return errors.New("Không ai được chạm vào hồ sơ Sáng Lập!") }
-	if dto.VaiTro == "quan_tri_he_thong" && dto.MaKH != "0000000000000000001" { return errors.New("Chỉ có duy nhất 1 vị trí Quản trị hệ thống!") }
-	if dto.MaKH != "0000000000000000000" && dto.AdminID != dto.MaKH && myLevel >= targetLevel { return errors.New("Bạn không có quyền chỉnh sửa cấp trên!") }
-	if dto.MaKH == dto.AdminID && dto.TrangThai == "0" { return errors.New("Không thể tự khóa tài khoản chính mình!") }
-
+	// BẢO VỆ LÕI
+	if dto.MaKH == "0000000000000000001" && dto.AdminID != "0000000000000000001" { 
+		return errors.New("Không ai được chạm vào hồ sơ Sáng Lập Viên!") 
+	}
+	// [BỔ SUNG CHỐT CHẶN BẢO VỆ BOT]
+	if dto.MaKH == "0000000000000000000" && dto.AdminID != "0000000000000000001" { 
+		return errors.New("Chỉ Sáng Lập Viên (ID: 001) mới được quyền cấu hình BOT Hệ thống!") 
+	}
+	if dto.VaiTro == "quan_tri_he_thong" && dto.MaKH != "0000000000000000001" { 
+		return errors.New("Chỉ có duy nhất 1 vị trí Quản trị hệ thống!") 
+	}
+	if dto.MaKH != "0000000000000000000" && dto.AdminID != dto.MaKH && myLevel >= targetLevel { 
+		return errors.New("Bạn không có quyền chỉnh sửa cấp trên!") 
+	}
+	if dto.MaKH == dto.AdminID && dto.TrangThai == "0" { 
+		return errors.New("Không thể tự khóa tài khoản chính mình!") 
+	}
 	core.KhoaHeThong.Lock()
 	if dto.VaiTro != "" {
 		kh.VaiTroQuyenHan = dto.VaiTro
