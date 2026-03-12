@@ -449,88 +449,58 @@ func xulyNhanDuLieuPhanQuyen(shopID string, sheetName string, raw [][]interface{
 	CacheDanhSachVaiTro[shopID] = danhSachVaiTroCuaShop
 }
 
-// Xử lý nạp Khách Hàng (Tạo Định tuyến Subdomain luôn)
+// Xử lý nạp Khách Hàng SaaS (Đã nâng cấp lên NoSQL 2 Cột)
 func xulyNhanDuLieuKhachHang(shopID string, sheetName string, raw [][]interface{}) error {
 	list := []*KhachHang{}
 	
 	for i, r := range raw {
 		if i < DongBatDau_KhachHang-1 { continue }
 		maKH := LayString(r, CotKH_MaKhachHang)
+		dataJSON := LayString(r, CotKH_DataJSON)
+		
 		if maKH == "" { continue }
 
-		kh := &KhachHang{
-			SpreadsheetID:  shopID,
-			DongTrongSheet: i + 1,
-			MaKhachHang:    maKH,
-			TenDangNhap:    LayString(r, CotKH_TenDangNhap),
-			Email:          LayString(r, CotKH_Email),
-			MatKhauHash:    LayString(r, CotKH_MatKhauHash),
-			MaPinHash:      LayString(r, CotKH_MaPinHash),
-			VaiTroQuyenHan: strings.TrimSpace(LayString(r, CotKH_VaiTroQuyenHan)),
-			ChucVu:         strings.TrimSpace(LayString(r, CotKH_ChucVu)),
-			TrangThai:      LayInt(r, CotKH_TrangThai),
-			NguonKhachHang: LayString(r, CotKH_NguonKhachHang),
-			TenKhachHang:   LayString(r, CotKH_TenKhachHang),
-			DienThoai:      LayString(r, CotKH_DienThoai),
-			AnhDaiDien:     LayString(r, CotKH_AnhDaiDien),
-			DiaChi:         LayString(r, CotKH_DiaChi),
-			NgaySinh:       LayString(r, CotKH_NgaySinh),
-			GioiTinh:       LayInt(r, CotKH_GioiTinh),
-			MaSoThue:       LayString(r, CotKH_MaSoThue),
-			GhiChu:         LayString(r, CotKH_GhiChu),
-			NgayTao:        LayString(r, CotKH_NgayTao),
-			NguoiCapNhat:   LayString(r, CotKH_NguoiCapNhat),
-			NgayCapNhat:    LayString(r, CotKH_NgayCapNhat),
-			Inbox:          make([]*TinNhan, 0),
+		var kh KhachHang
+		if dataJSON != "" {
+			if err := json.Unmarshal([]byte(dataJSON), &kh); err != nil {
+				log.Printf("⚠️ Lỗi parse JSON Khách hàng %s: %v", maKH, err)
+				continue
+			}
+		} else {
+			// Fallback (Phòng hờ nếu đang migration dở)
+			kh.MaKhachHang = maKH
 		}
 
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_RefreshTokenJson)), &kh.RefreshTokens)
-		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TokenInfo) }
+		kh.SpreadsheetID = shopID
+		kh.DongTrongSheet = i + 1
+		if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]TenantDeviceToken) }
+		kh.Inbox = make([]*TinNhan, 0)
 		
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_DataSheetsJson)), &kh.DataSheets)
-		// Chỉ kết nối DB riêng nếu ở file Admin và Khách đã setup
-		if sheetName == TenSheetKhachHangAdmin && kh.DataSheets.GoogleAuthJson != "" && kh.DataSheets.SpreadsheetID != "" {
-			KetNoiGoogleSheetRieng(kh.DataSheets.SpreadsheetID, kh.DataSheets.GoogleAuthJson)
+		// KẾT NỐI DB RIÊNG: Thay vì DataSheets, bây giờ nằm trong kh.System
+		if sheetName == TenSheetKhachHangAdmin && kh.System.GoogleAuthJson != "" && kh.System.SheetID != "" {
+			KetNoiGoogleSheetRieng(kh.System.SheetID, kh.System.GoogleAuthJson)
 		}
 
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_GoiDichVuJson)), &kh.GoiDichVu)
-		if kh.GoiDichVu == nil { kh.GoiDichVu = make([]PlanInfo, 0) } 
-		
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_CauHinhJson)), &kh.CauHinh)
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_MangXaHoiJson)), &kh.MangXaHoi)
-		_ = json.Unmarshal([]byte(LayString(r, CotKH_ViTienJson)), &kh.ViTien)
-
-		list = append(list, kh)
+		list = append(list, &kh)
 	}
 
 	lock := GetSheetLock(shopID, sheetName)
 	lock.Lock(); defer lock.Unlock()
 	CacheKhachHang[shopID] = list
 	
-	// Khóa Global để cập nhật bản đồ Tên Miền an toàn
+	// Khóa Global để cập nhật Bản đồ Định tuyến Tên Miền
 	KhoaHeThong.Lock()
 	for _, kh := range list {
 		CacheMapKhachHang[TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
 		
-		// Map Subdomain (Chỉ áp dụng cho Chủ shop ở file Admin)
-		if sheetName == TenSheetKhachHangAdmin && kh.DataSheets.SpreadsheetID != "" {
-			
-			// 1. Tên đăng nhập mặc định (Mức ưu tiên 3)
+		// Map Subdomain định tuyến (Lấy từ kh.System và kh.Domain)
+		if sheetName == TenSheetKhachHangAdmin && kh.System.SheetID != "" {
 			if kh.TenDangNhap != "" {
-				subDefault := kh.TenDangNhap + ".99k.vn"
-				CacheDomainToSheetID[subDefault] = kh.DataSheets.SpreadsheetID
-				CacheDomainToSheetID[kh.TenDangNhap] = kh.DataSheets.SpreadsheetID
+				CacheDomainToSheetID[kh.TenDangNhap+".99k.vn"] = kh.System.SheetID
+				CacheDomainToSheetID[kh.TenDangNhap] = kh.System.SheetID
 			}
-
-			// 2. Subdomain cấp riêng (Mức ưu tiên 2 - Ghi đè ưu tiên 3)
-			if kh.CauHinh.Subdomain != "" {
-				CacheDomainToSheetID[kh.CauHinh.Subdomain] = kh.DataSheets.SpreadsheetID
-			}
-
-			// 3. Custom Domain chính chủ (Mức ưu tiên 1 - Lệnh tối cao)
-			if kh.CauHinh.CustomDomain != "" {
-				CacheDomainToSheetID[kh.CauHinh.CustomDomain] = kh.DataSheets.SpreadsheetID
-			}
+			if kh.Domain.Subdomain != "" { CacheDomainToSheetID[kh.Domain.Subdomain] = kh.System.SheetID }
+			if kh.Domain.CustomDomain != "" { CacheDomainToSheetID[kh.Domain.CustomDomain] = kh.System.SheetID }
 		}
 	}
 	KhoaHeThong.Unlock()
