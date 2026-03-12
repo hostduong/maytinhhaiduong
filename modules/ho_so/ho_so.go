@@ -1,6 +1,7 @@
 package ho_so
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -11,15 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ==========================================================
-// 1. TRANG HỒ SƠ MASTER
-// ==========================================================
 func TrangHoSoMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 	vaiTro := c.GetString("USER_ROLE")
 
-	// Lớp khiên bảo vệ chéo
 	if vaiTro != "quan_tri_he_thong" && vaiTro != "quan_tri_vien_he_thong" {
 		c.Redirect(http.StatusFound, "/")
 		return
@@ -31,7 +28,6 @@ func TrangHoSoMaster(c *gin.Context) {
 		return
 	}
 
-	// Đẩy ra View của Master
 	c.HTML(http.StatusOK, "master_ho_so", gin.H{
 		"TieuDe":   "Hồ sơ",
 		"NhanVien": kh,
@@ -39,9 +35,6 @@ func TrangHoSoMaster(c *gin.Context) {
 	})
 }
 
-// ==========================================================
-// 2. API CẬP NHẬT THÔNG TIN
-// ==========================================================
 func API_LuuHoSoMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -53,49 +46,33 @@ func API_LuuHoSoMaster(c *gin.Context) {
 	}
 
 	core.KhoaHeThong.Lock()
-	kh.TenKhachHang = strings.TrimSpace(c.PostForm("ho_ten"))
-	kh.DienThoai = strings.TrimSpace(c.PostForm("dien_thoai"))
-	kh.NgaySinh = strings.TrimSpace(c.PostForm("ngay_sinh"))
-	kh.DiaChi = strings.TrimSpace(c.PostForm("dia_chi"))
-	kh.MaSoThue = strings.TrimSpace(c.PostForm("ma_so_thue"))
+	kh.ThongTin.TenKhachHang = strings.TrimSpace(c.PostForm("ho_ten"))
+	kh.ThongTin.DienThoai = strings.TrimSpace(c.PostForm("dien_thoai"))
+	kh.ThongTin.NgaySinh = strings.TrimSpace(c.PostForm("ngay_sinh"))
+	kh.ThongTin.DiaChi = strings.TrimSpace(c.PostForm("dia_chi"))
+	kh.ThongTin.MaSoThue = strings.TrimSpace(c.PostForm("ma_so_thue"))
+	kh.ThongTin.AnhDaiDien = strings.TrimSpace(c.PostForm("anh_dai_dien"))
 	
-	// [MỚI] Bắt dữ liệu Ảnh Đại Diện từ Form
-	kh.AnhDaiDien = strings.TrimSpace(c.PostForm("anh_dai_dien"))
-	
-	kh.MangXaHoi.Zalo = strings.TrimSpace(c.PostForm("zalo"))
-	kh.MangXaHoi.Facebook = strings.TrimSpace(c.PostForm("url_fb"))
-	kh.MangXaHoi.Tiktok = strings.TrimSpace(c.PostForm("url_tiktok"))
+	if kh.MangXaHoi == nil { kh.MangXaHoi = make(map[string]string) }
+	kh.MangXaHoi["zalo"] = strings.TrimSpace(c.PostForm("zalo"))
+	kh.MangXaHoi["facebook"] = strings.TrimSpace(c.PostForm("url_fb"))
+	kh.MangXaHoi["tiktok"] = strings.TrimSpace(c.PostForm("url_tiktok"))
 	
 	gioiTinh := c.PostForm("gioi_tinh")
-	if gioiTinh == "Nam" { kh.GioiTinh = 1 } else if gioiTinh == "Nữ" { kh.GioiTinh = 0 } else { kh.GioiTinh = -1 }
+	if gioiTinh == "Nam" { kh.ThongTin.GioiTinh = 1 } else if gioiTinh == "Nữ" { kh.ThongTin.GioiTinh = 0 } else { kh.ThongTin.GioiTinh = -1 }
 	
-	loc := time.FixedZone("ICT", 7*3600)
-	kh.NgayCapNhat = time.Now().In(loc).Format("2006-01-02 15:04:05")
+	kh.NgayCapNhat = time.Now().Unix()
+
+	b, _ := json.Marshal(kh)
+	jsonStr := string(b)
+	r := kh.DongTrongSheet
 	core.KhoaHeThong.Unlock()
 
-	ghi := core.ThemVaoHangCho
-	r := kh.DongTrongSheet
-	sh := "KHACH_HANG"
-
-	ghi(shopID, sh, r, core.CotKH_TenKhachHang, kh.TenKhachHang)
-	ghi(shopID, sh, r, core.CotKH_DienThoai, kh.DienThoai)
-	ghi(shopID, sh, r, core.CotKH_NgaySinh, kh.NgaySinh)
-	ghi(shopID, sh, r, core.CotKH_GioiTinh, kh.GioiTinh)
-	ghi(shopID, sh, r, core.CotKH_DiaChi, kh.DiaChi)
-	ghi(shopID, sh, r, core.CotKH_MaSoThue, kh.MaSoThue)
-	ghi(shopID, sh, r, core.CotKH_MangXaHoiJson, core.ToJSON(kh.MangXaHoi))
-	
-	// [MỚI] Ghi dữ liệu Ảnh Đại Diện xuống Sheet
-	ghi(shopID, sh, r, core.CotKH_AnhDaiDien, kh.AnhDaiDien)
-	
-	ghi(shopID, sh, r, core.CotKH_NgayCapNhat, kh.NgayCapNhat)
+	core.ThemVaoHangCho(shopID, "KHACH_HANG", r, core.CotKH_DataJSON, jsonStr)
 
 	c.JSON(200, gin.H{"status": "ok", "msg": "Cập nhật hồ sơ thành công!"})
 }
 
-// ==========================================================
-// 3. API ĐỔI MẬT KHẨU
-// ==========================================================
 func API_DoiMatKhauMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -108,7 +85,7 @@ func API_DoiMatKhauMaster(c *gin.Context) {
 		return
 	}
 
-	if !config.KiemTraMatKhau(passCu, kh.MatKhauHash) {
+	if !config.KiemTraMatKhau(passCu, kh.BaoMat.MatKhauHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mật khẩu hiện tại không đúng!"})
 		return
 	}
@@ -119,16 +96,15 @@ func API_DoiMatKhauMaster(c *gin.Context) {
 
 	hash, _ := config.HashMatKhau(passMoi)
 	core.KhoaHeThong.Lock()
-	kh.MatKhauHash = hash
+	kh.BaoMat.MatKhauHash = hash
+	b, _ := json.Marshal(kh)
+	jsonStr := string(b)
 	core.KhoaHeThong.Unlock()
 
-	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MatKhauHash, hash)
+	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_DataJSON, jsonStr)
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mật khẩu thành công!"})
 }
 
-// ==========================================================
-// 4. API ĐỔI MÃ PIN
-// ==========================================================
 func API_DoiMaPinMaster(c *gin.Context) {
 	shopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
@@ -141,7 +117,7 @@ func API_DoiMaPinMaster(c *gin.Context) {
 		return
 	}
 
-	if !config.KiemTraMatKhau(pinCu, kh.MaPinHash) {
+	if !config.KiemTraMatKhau(pinCu, kh.BaoMat.MaPinHash) {
 		c.JSON(200, gin.H{"status": "error", "msg": "Mã PIN hiện tại không đúng!"})
 		return
 	}
@@ -152,9 +128,11 @@ func API_DoiMaPinMaster(c *gin.Context) {
 
 	hash, _ := config.HashMatKhau(pinMoi)
 	core.KhoaHeThong.Lock()
-	kh.MaPinHash = hash
+	kh.BaoMat.MaPinHash = hash
+	b, _ := json.Marshal(kh)
+	jsonStr := string(b)
 	core.KhoaHeThong.Unlock()
 
-	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_MaPinHash, hash)
+	core.ThemVaoHangCho(shopID, "KHACH_HANG", kh.DongTrongSheet, core.CotKH_DataJSON, jsonStr)
 	c.JSON(200, gin.H{"status": "ok", "msg": "Đổi mã PIN thành công!"})
 }
