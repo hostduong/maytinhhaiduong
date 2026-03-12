@@ -58,7 +58,7 @@ func (s *Service) SendOtp(appMode, shopID, identifier string) error {
 
 	kh, ok := s.repo.FindUser(appMode, shopID, identifier)
 	if !ok { return errors.New("Tài khoản không tồn tại trên hệ thống!") }
-	if kh.Email == "" || !core.KiemTraEmail(kh.Email) { 
+	if kh.Email == "" || !config.KiemTraEmail(kh.Email) { 
 		return errors.New("Tài khoản chưa có Email hợp lệ, vui lòng dùng Mã PIN.") 
 	}
 
