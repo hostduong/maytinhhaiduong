@@ -22,7 +22,7 @@ import (
 	"app/modules/tong_quan_master"
 	"app/modules/cua_hang_master"
 	"app/modules/product_master"
-	"app/modules/dang_ky_master" // [BỔ SUNG]: Gọi Module Sáng lập hệ thống
+	"app/modules/setup"
 
 	"github.com/gin-gonic/gin"
 )
