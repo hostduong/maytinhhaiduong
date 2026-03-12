@@ -10,7 +10,7 @@ const (
 	TenSheetPhanQuyenMaster  = "PHAN_QUYEN_MASTER"
 	TenSheetGoiDichVuMaster  = "GOI_DICH_VU_MASTER"
 	TenSheetTinNhanMaster    = "TIN_NHAN_MASTER"
-	TenSheetCauHinhThuocTinh = "CAU_HINH_THUOC_TINH" // Sheet cấu hình Meta-data (Dynamic UI)
+	TenSheetCauHinhThuocTinh = "CAU_HINH_THUOC_TINH" 
 )
 
 // --- VŨ TRỤ 2: ADMIN (admin.99k.vn) ---
@@ -23,20 +23,15 @@ const (
 const (
 	TenSheetKhachHang        = "KHACH_HANG"
 	TenSheetPhanQuyen        = "PHAN_QUYEN"
-	
-	// Dữ liệu Vận hành kinh doanh (Chỉ có ở Shop)
 	TenSheetDanhMuc          = "DANH_MUC"
 	TenSheetThuongHieu       = "THUONG_HIEU"
 	TenSheetBienLoiNhuan     = "BIEN_LOI_NHUAN"
 	TenSheetNhaCungCap       = "NHA_CUNG_CAP"
 	TenSheetSerial           = "SERIAL_SAN_PHAM"
-	
 	TenSheetPhieuNhap        = "PHIEU_NHAP"
 	TenSheetChiTietPhieuNhap = "CHI_TIET_PHIEU_NHAP"
 	TenSheetPhieuXuat        = "PHIEU_XUAT"
 	TenSheetChiTietPhieuXuat = "CHI_TIET_PHIEU_XUAT"
-
-	// Các Sheet mới cập nhật
 	TenSheetHoaDon           = "HOA_DON"
 	TenSheetHoaDonChiTiet    = "HOA_DON_CHI_TIET"
 	TenSheetPhieuThuChi      = "PHIEU_THU_CHI"
@@ -44,7 +39,7 @@ const (
 )
 
 // ==============================================================================
-// 2. CẤU TRÚC PHÂN QUYỀN (Dùng chung cho cả 3 vũ trụ, khác nhau ở Level Check)
+// 2. CẤU TRÚC PHÂN QUYỀN
 // ==============================================================================
 const (
 	DongBatDau_PhanQuyen = 11
@@ -57,12 +52,12 @@ const (
 type VaiTroInfo struct {
 	MaVaiTro   string `json:"ma_vai_tro"`
 	TenVaiTro  string `json:"ten_vai_tro"`
-	StyleLevel int    `json:"style_level"` // Cấp bậc: Master(0-9), Admin(3-9), Shop(4-9)
+	StyleLevel int    `json:"style_level"` 
 	StyleTheme int    `json:"style_theme"` 
 }
 
 // ==============================================================================
-// 3. CẤU TRÚC KHÁCH HÀNG SAAS (MASTER & ADMIN) - KIẾN TRÚC NOSQL 2 CỘT
+// 3. CẤU TRÚC KHÁCH HÀNG SAAS (MASTER & ADMIN) - NOSQL 2 CỘT
 // ==============================================================================
 const (
 	DongBatDau_KhachHang = 11
@@ -145,7 +140,6 @@ type TenantViTien struct {
 	TongNap float64 `json:"tong_nap"`
 }
 
-// KHÁCH HÀNG: ROOT STRUCT ĐẠI DIỆN CHO JSON
 type KhachHang struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
@@ -172,7 +166,7 @@ type KhachHang struct {
 	NganHang       TenantNganHang               `json:"ngan_hang"`
 	MangXaHoi      map[string]string            `json:"mang_xa_hoi"`
 	ViTien         TenantViTien                 `json:"vi_tien"`
-	KetNoiDoiTac   map[string]interface{}       `json:"ket_noi_doi_tac"` // Nơi cắm API ViettelPost, Shopee...
+	KetNoiDoiTac   map[string]interface{}       `json:"ket_noi_doi_tac"`
 
 	GhiChu         string `json:"ghi_chu"`
 	NguoiTao       string `json:"nguoi_tao"`
@@ -180,71 +174,95 @@ type KhachHang struct {
 	NgayTao        int64  `json:"ngay_tao"`
 	NgayCapNhat    int64  `json:"ngay_cap_nhat"`
 
-	// --- CÁC TRƯỜNG PHỤ CHỈ CHẠY TRÊN RAM (KHÔNG LƯU VÀO JSON) ---
-	Inbox          []*TinNhan `json:"-"`
-	StyleLevel     int        `json:"-"`
-	StyleTheme     int        `json:"-"`
+	// Trường phụ chạy RAM
+	Inbox      []*TinNhan `json:"-"`
+	StyleLevel int        `json:"-"`
+	StyleTheme int        `json:"-"`
 }
 
 // ==============================================================================
-// 4. CẤU TRÚC KHÁCH HÀNG: DÀNH RIÊNG CHO SHOP (17 CỘT - BẢN RÚT GỌN SIÊU NHẸ)
+// 4. CẤU TRÚC KHÁCH HÀNG TẦNG CỬA HÀNG (NOSQL 2 CỘT)
 // ==============================================================================
 const (
 	DongBatDau_KhachHangShop = 11
-	CotKHS_MaKhachHang    = 0  // A
-	CotKHS_TenDangNhap    = 1  // B
-	CotKHS_Email          = 2  // C
-	CotKHS_MatKhauHash    = 3  // D
-	CotKHS_MaPinHash      = 4  // E
-	CotKHS_RefreshToken   = 5  // F
-	CotKHS_VaiTro         = 6  // G
-	CotKHS_ChucVu         = 7  // H
-	CotKHS_TrangThai      = 8  // I
-	CotKHS_TenKhachHang   = 9  // J
-	CotKHS_DienThoai      = 10 // K
-	CotKHS_AnhDaiDien     = 11 // L
-	CotKHS_DiaChi         = 12 // M
-	CotKHS_NgaySinh       = 13 // N
-	CotKHS_GioiTinh       = 14 // O
-	CotKHS_GhiChu         = 15 // P
-	CotKHS_NgayTao        = 16 // Q
+	CotKHS_MaKhachHang    = 0 
+	CotKHS_DataJSON       = 1 
 )
 
 type KhachHangShop struct {
 	SpreadsheetID  string `json:"-"`
 	DongTrongSheet int    `json:"-"`
 
-	MaKhachHang   string `json:"ma_khach_hang"`
-	TenDangNhap   string `json:"ten_dang_nhap"`
-	Email         string `json:"email"`
-	MatKhauHash   string `json:"-"`
-	MaPinHash     string `json:"-"`
-	RefreshTokens map[string]TokenInfo `json:"-"`
-	
+	Version        int    `json:"version"`
+	MaKhachHang    string `json:"ma_khach_hang"`
+	TenDangNhap    string `json:"ten_dang_nhap"`
+	Email          string `json:"email"`
+
+	BaoMat         TenantBaoMat                 `json:"bao_mat"`
+	RefreshTokens  map[string]TenantDeviceToken `json:"refresh_tokens"`
+
 	VaiTroQuyenHan string `json:"vai_tro_quyen_han"`
 	ChucVu         string `json:"chuc_vu"`
 	TrangThai      int    `json:"trang_thai"`
-	
-	TenKhachHang  string `json:"ten_khach_hang"`
-	DienThoai     string `json:"dien_thoai"`
-	AnhDaiDien    string `json:"anh_dai_dien"`
-	DiaChi        string `json:"dia_chi"`
-	NgaySinh      string `json:"ngay_sinh"`
-	GioiTinh      int    `json:"gioi_tinh"`
-	GhiChu        string `json:"ghi_chu"`
-	NgayTao       string `json:"ngay_tao"`
+
+	ThongTin       TenantThongTin               `json:"thong_tin"`
+	NganHang       TenantNganHang               `json:"ngan_hang"`
+	MangXaHoi      map[string]string            `json:"mang_xa_hoi"`
+	ViTien         TenantViTien                 `json:"vi_tien"`
+
+	GhiChu         string `json:"ghi_chu"`
+	NguoiTao       string `json:"nguoi_tao"`
+	NguoiCapNhat   string `json:"nguoi_cap_nhat"`
+	NgayTao        int64  `json:"ngay_tao"`
+	NgayCapNhat    int64  `json:"ngay_cap_nhat"`
 }
 
 // ==============================================================================
-// CẤU TRÚC ĐỘNG: CẤU HÌNH THUỘC TÍNH (EAV META-DATA)
+// 5. CẤU TRÚC TIN NHẮN (NOSQL 2 CỘT)
 // ==============================================================================
 const (
+	DongBatDau_TinNhan = 11
+	CotTN_MaTinNhan    = 0 // Cột A
+	CotTN_DataJSON     = 1 // Cột B
+)
+
+type FileDinhKem struct {
+	TenFile string `json:"name"`
+	URL     string `json:"url"`
+	Loai    string `json:"type"` 
+}
+
+type TinNhan struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	MaTinNhan    string        `json:"ma_tin_nhan"`
+	LoaiTinNhan  string        `json:"loai_tin_nhan"`
+	NguoiGuiID   string        `json:"nguoi_gui_id"`
+	NguoiNhanID  []string      `json:"nguoi_nhan_id"` // Mảng ["ALL"] hoặc cụ thể
+	TieuDe       string        `json:"tieu_de"`
+	NoiDung      string        `json:"noi_dung"`
+	DinhKem      []FileDinhKem `json:"dinh_kem"`
+	ThamChieuID  []string      `json:"tham_chieu_id"`
+	ReplyChoID   string        `json:"reply_cho_id"`
+	NguoiDoc     []string      `json:"nguoi_doc"`
+	TrangThaiXoa []string      `json:"trang_thai_xoa"`
+	NgayTao      int64         `json:"ngay_tao"`
+
+	DaDoc bool `json:"-"` // Cờ logic trên RAM
+}
+
+// ==============================================================================
+// CÁC CẤU TRÚC KHÁC GIỮ NGUYÊN (Không thay đổi)
+// ==============================================================================
+
+const (
 	DongBatDau_CauHinhThuocTinh = 11
-	CotCHTT_MaThuocTinh  = 0 // A
-	CotCHTT_TenThuocTinh = 1 // B
-	CotCHTT_KieuNhap     = 2 // C
-	CotCHTT_DonVi        = 3 // D
-	CotCHTT_StartNganh   = 4 // E trở đi (Chứa JSON cấu hình)
+	CotCHTT_MaThuocTinh  = 0 
+	CotCHTT_TenThuocTinh = 1 
+	CotCHTT_KieuNhap     = 2 
+	CotCHTT_DonVi        = 3 
+	CotCHTT_StartNganh   = 4 
 )
 
 type ConfigNganhHang struct {
@@ -262,13 +280,10 @@ type ThuocTinhNganh struct {
 	DonVi        string `json:"don_vi"`
 }
 
-// ==============================================================================
-// CẤU TRÚC CHUẨN: SẢN PHẨM NOSQL (DÙNG CHUNG MỌI NGÀNH HÀNG)
-// ==============================================================================
 const (
 	DongBatDau_Product = 11
-	CotProd_MaSanPham  = 0 // Cột A
-	CotProd_DataJSON   = 1 // Cột B
+	CotProd_MaSanPham  = 0
+	CotProd_DataJSON   = 1
 )
 
 type ProductRow struct {
@@ -311,7 +326,7 @@ type ProductSKU struct {
 	MaSKU        string                 `json:"ma_sku"`
 	TrangThai    int                    `json:"trang_thai"`
 	TenSKU       string                 `json:"ten_sku"`
-	TenSanPham   string                 `json:"ten_san_pham"` // [BỔ SUNG] Tên hiển thị riêng biệt theo từng phiên bản
+	TenSanPham   string                 `json:"ten_san_pham"` 
 	Barcode      string                 `json:"barcode"`
 	TinhTrang    string                 `json:"tinh_trang"`
 	BaoHanh      string                 `json:"bao_hanh"`
