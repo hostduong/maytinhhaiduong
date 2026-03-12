@@ -1,4 +1,4 @@
-{{ define "dang_ky_master" }}
+{{ define "setup" }}
     {{ template "header" . }}
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
@@ -26,14 +26,14 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4h.002m0 0v.01"></path></svg>
                 </div>
                 <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ .TieuDe }}</h2>
-                <p class="mt-2 text-sm text-slate-500 font-bold uppercase tracking-widest">Khu Vực Tuyệt Mật</p>
+                <p class="mt-2 text-sm text-slate-500 font-bold uppercase tracking-widest">Thiết lập dữ liệu Lõi</p>
             </div>
 
             {{ if .Loi }}
             <script>document.addEventListener('DOMContentLoaded', () => { Swal.fire({ icon: 'error', title: 'Từ Chối', text: '{{ .Loi }}', confirmButtonColor: '#9333ea' }); });</script>
             {{ end }}
 
-            <form id="formDangKy" action="/register" method="POST" autocomplete="off" class="space-y-6">
+            <form id="formDangKy" action="/setup" method="POST" autocomplete="off" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Họ và tên</label>
