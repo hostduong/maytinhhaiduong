@@ -9,7 +9,7 @@ import (
 
 	"app/config"
 	"app/core"
-	"app/modules/auth_verify" // Tích hợp module xác thực dùng chung
+	"app/auth/auth_verify"
 )
 
 type Service struct { repo Repo }
