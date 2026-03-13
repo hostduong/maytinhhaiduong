@@ -116,7 +116,12 @@ function editMember(ma) {
     if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     
-    document.getElementById('f_ma').value = ma; document.getElementById('f_ten').value = data.ten;
+    // [CẬP NHẬT] Map thêm Mã Khách Hàng hiển thị và Username
+    document.getElementById('f_ma').value = ma; 
+    if (document.getElementById('f_ma_hien_thi')) document.getElementById('f_ma_hien_thi').value = ma;
+    if (document.getElementById('f_user')) document.getElementById('f_user').value = data.user || "";
+
+    document.getElementById('f_ten').value = data.ten;
     itiPhone.setNumber(data.sdt || ""); itiZalo.setNumber(data.zalo || ""); 
     document.getElementById('f_dob').value = data.dob; document.getElementById('f_gender').value = data.gender;
     document.getElementById('f_tax').value = data.tax; document.getElementById('f_address').value = data.address;
@@ -124,7 +129,7 @@ function editMember(ma) {
     document.getElementById('f_source').value = data.source; document.getElementById('f_fb').value = data.fb; 
     document.getElementById('f_tiktok').value = data.tiktok; document.getElementById('f_note').value = data.note; 
     
-    // Convert timestamp to readable date
+    // Format timestamp
     const formatDate = (ts) => {
         if (!ts || ts === "0") return "--";
         const date = new Date(parseInt(ts) * 1000);
@@ -143,14 +148,22 @@ function editMember(ma) {
     let statusSelect = document.getElementById('f_status');
 
     Array.from(roleSelect.options).forEach(opt => {
-        if (opt.value === "quan_tri_he_thong") { opt.disabled = (ma !== "0000000000000000001"); } else { opt.disabled = false; }
+        opt.disabled = false;
     });
 
     roleSelect.value = data.role; statusSelect.value = data.status;
     roleSelect.disabled = false; statusSelect.disabled = false;
 
-    if (ma === "0000000000000000001" && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
-    if (ma === currentUserID) { statusSelect.disabled = true; }
+    // [LUẬT THÉP UI]: KHÓA CHẶT 001, KHÔNG AI ĐƯỢC SỬA QUYỀN VÀ TRẠNG THÁI CỦA 001 (Kể cả chính họ)
+    if (ma === "0000000000000000001") { 
+        roleSelect.disabled = true; 
+        statusSelect.disabled = true; 
+    } 
+    
+    // KHÔNG THỂ TỰ KHÓA CHÍNH MÌNH (Nếu không phải 001)
+    if (ma === currentUserID) { 
+        statusSelect.disabled = true; 
+    }
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     document.getElementById('modalEdit').classList.remove('hidden');
@@ -228,6 +241,8 @@ async function saveMember() {
     fd.append('pin_xac_nhan', pinXacNhan);
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
+    
+    // [LUẬT BẢO VỆ] NẾU Ô BỊ KHÓA, TRUYỀN LẠI DỮ LIỆU CŨ LÊN SERVER ĐỂ KHÔNG BỊ TRỐNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
