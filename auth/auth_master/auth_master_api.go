@@ -18,7 +18,7 @@ func API_Login(c *gin.Context) {
 
 	sessionID, sign, err := service.Login(dinhDanh, pass, c.Request.UserAgent(), ghiNho)
 	if err != nil {
-		c.HTML(http.StatusOK, "dang_nhap", gin.H{"Loi": err.Error()})
+		c.HTML(http.StatusOK, "dang_nhap_master", gin.H{"Loi": err.Error()})
 		return
 	}
 
