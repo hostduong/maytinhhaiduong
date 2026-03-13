@@ -40,18 +40,32 @@
 .table-scroll::-webkit-scrollbar-thumb:hover { background-color: #a855f7; }
 
 /* ==============================================================
-   5. HIỆU ỨNG VIỀN LED CHẠY ANIMATION
+   5. HIỆU ỨNG VIỀN LED CHẠY ANIMATION (CHỐNG LÂY NHIỄM BUBBLING)
    ============================================================== */
 @keyframes spin-slow { 100% { transform: rotate(360deg); } }
 .animated-border-wrapper { position: relative; border-radius: 1.5rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
-.animated-border-wrapper:hover::before {
+
+/* 1. Mặc định LED ngủ đông (Opacity 0) */
+.animated-border-wrapper::before {
     content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
     animation: spin-slow 15s linear infinite; z-index: 0;
-    pointer-events: none; /* QUAN TRỌNG: Xuyên thấu click chuột, chống liệt nút & checkbox */
+    pointer-events: none; 
+    opacity: 0; transition: opacity 0.4s ease; 
 }
-.animated-border-inner { position: relative; background: #ffffff; border-radius: calc(1.5rem - 2px); z-index: 1; height: 100%; overflow: hidden; }
 
+/* 2. Rực sáng khi trỏ chuột vào */
+.animated-border-wrapper:hover::before {
+    opacity: 1;
+}
+
+/* 3. 👑 THUẬT TOÁN ĐỘC QUYỀN: CHỐNG LÂY NHIỄM HOVER
+   Nếu khối Cha đang chứa một khối Con (Khối Border khác hoặc Khối Warning) được Hover, 
+   thì Lập tức tắt LED của khối Cha đi! Đảm bảo chỉ 1 viền LED chạy tại 1 thời điểm. */
+.animated-border-wrapper:has(.animated-border-wrapper:hover)::before,
+.animated-border-wrapper:has(.animated-warning-wrapper:hover)::before {
+    opacity: 0 !important;
+}
 
 /* 6. HIỆU ỨNG HOVER DÒNG TRONG BẢNG (SOFT ROW) */
 .hover-soft-row { transition: all 0.2s ease; }
