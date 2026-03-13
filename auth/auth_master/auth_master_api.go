@@ -14,21 +14,22 @@ var service = Service{repo: Repo{}}
 func API_Login(c *gin.Context) {
 	dinhDanh := strings.ToLower(strings.TrimSpace(c.PostForm("input_dinh_danh")))
 	pass := strings.TrimSpace(c.PostForm("mat_khau"))
-	ghiNho := c.PostForm("ghi_nho") == "on"
+	ghiNho := c.PostForm("ghi_nho") == "on" || c.PostForm("ghi_nho") == "true" // Bắt thêm trường hợp JS gửi true
 
 	sessionID, sign, err := service.Login(dinhDanh, pass, c.Request.UserAgent(), ghiNho)
 	if err != nil {
-		c.HTML(http.StatusOK, "dang_nhap_master", gin.H{"Loi": err.Error()})
+		// [ĐÃ FIX LỖI] Trả về JSON thay vì render nhầm giao diện HTML
+		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
 
 	maxAge := int(config.ThoiGianHetHanCookie.Seconds())
 	if ghiNho { maxAge = 30 * 24 * 3600 }
-	// Cookie đặt cho tên miền sss.99k.vn để tăng tính bảo mật
 	c.SetCookie("session_token", sessionID, maxAge, "/", "", false, true)
 	c.SetCookie("session_sign", sign, maxAge, "/", "", false, true)
 	
-	c.Redirect(http.StatusFound, "/master/tong-quan")
+	// Thành công cũng trả về JSON để JS chuyển trang mượt mà
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "redirect": "/master/tong-quan"})
 }
 
 func API_Logout(c *gin.Context) {
@@ -37,13 +38,11 @@ func API_Logout(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/login")
 }
 
-// Sử dụng lại sức mạnh của Trạm xác thực trung tâm (auth_verify)
 func API_ResetByPin(c *gin.Context) {
 	dinhDanh := strings.TrimSpace(c.PostForm("dinh_danh"))
 	pin := strings.TrimSpace(c.PostForm("pin"))
 	passMoi := strings.TrimSpace(c.PostForm("pass_moi"))
 
-	// Ép cứng APP_MODE = "MASTER_CORE" khi gọi sang auth_verify
 	if err := auth_verify.GlobalService.VerifyPin("MASTER_CORE", config.BienCauHinh.IdFileSheetMaster, dinhDanh, pin); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()}); return
 	}
