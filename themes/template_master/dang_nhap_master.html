@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .TieuDe }} | 99K.VN Lõi</title>
+    <title>{{ .TieuDe }} | 99K.VN</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/99k-style.css"> 
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
@@ -35,11 +37,10 @@
         .led-border-wrapper::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, transparent, #c084fc, #6d28d9, transparent);
-            animation: spin 3s linear infinite; z-index: 0;
+            animation: spin-slow 3s linear infinite; z-index: 0;
         }
         .led-border-inner { position: relative; background: #f8fafc; border-radius: calc(1.5rem - 3px); z-index: 10; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
+        
         .mystic-bg {
             background: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
                         radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
@@ -47,9 +48,6 @@
         
         button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .checkbox-custom { accent-color: #8b5cf6; width: 1.25rem; height: 1.25rem; cursor: pointer; }
-        
-        /* Gọt form báo lỗi mặc định */
-        .swal2-popup { padding: 0 !important; background: transparent !important; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center mystic-bg p-4 overflow-x-hidden">
@@ -110,51 +108,45 @@
             else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
-        // HÀM HIỂN THỊ ALERT LỖI XỊN SÒ Y HỆT QUÊN MẬT KHẨU
+        // TẬN DỤNG TRỰC TIẾP CLASS CSS 99K-STYLE CHO LỖI
         function showError(msg) {
             Swal.fire({
-                background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false,
                 html: `
-                <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
-                    <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
-                        <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
-                        <p class="font-bold text-orange-600 mb-8">${msg}</p>
-                        <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">Đã Hiểu</button>
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                </div>`
+                    <span class="text-3xl font-black title-gradient-red uppercase tracking-widest mt-2">Thất Bại</span>
+                    <div class="text-[15px] text-orange-900 font-bold px-4 mb-2">${msg}</div>
+                </div>`,
+                customClass: { 
+                    popup: 'swal-master-error', 
+                    confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-12 py-3.5 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest mt-4'
+                },
+                buttonsStyling: false,
+                confirmButtonText: 'Đã Hiểu'
             });
         }
 
-        // BẮT SỰ KIỆN FORM VÀ GỬI QUA FETCH API ĐỂ KHÔNG BỊ F5 HỎI LẠI
         document.getElementById('formLogin').addEventListener('submit', async function(e) {
-            e.preventDefault(); // Chặn việc submit truyền thống đổi URL
-
+            e.preventDefault(); 
             const btn = document.getElementById('btnSubmit'); 
             btn.disabled = true;
             btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ĐANG KẾT NỐI...`;
 
             const fd = new FormData(this);
-            // Xử lý gửi giá trị boolean của checkbox
-            const ghiNho = document.getElementById('ghi_nho').checked;
-            fd.set('ghi_nho', ghiNho);
+            fd.set('ghi_nho', document.getElementById('ghi_nho').checked);
 
             try {
                 const res = await fetch('/login', { method: 'POST', body: fd });
                 const data = await res.json();
-
-                if (data.status === 'ok') {
-                    window.location.href = data.redirect;
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
-                    showError(data.msg); // GỌI POPUP XỊN SÒ TẠI ĐÂY
+                if (data.status === 'ok') { window.location.href = data.redirect; } 
+                else {
+                    btn.disabled = false; btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
+                    showError(data.msg); 
                 }
             } catch (error) {
-                btn.disabled = false;
-                btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
+                btn.disabled = false; btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
                 showError('Mất kết nối với Lõi Máy Chủ!');
             }
         });
