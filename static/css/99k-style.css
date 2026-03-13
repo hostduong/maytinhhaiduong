@@ -43,13 +43,21 @@
    5. HIỆU ỨNG VIỀN LED CHẠY ANIMATION (CHỐNG LÂY NHIỄM BUBBLING)
    ============================================================== */
 @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-.animated-border-wrapper { position: relative; border-radius: 1.5rem; padding: 2px; overflow: hidden; background: #f1f5f9; }
 
-/* 1. Mặc định LED ngủ đông (Opacity 0) */
+.animated-border-wrapper { 
+    position: relative; border-radius: 1.5rem; padding: 2px; 
+    overflow: hidden; background: #f1f5f9; 
+    /* [VŨ KHÍ MỚI]: Ép khối này thành một vũ trụ Z-index độc lập */
+    isolation: isolate; 
+}
+
+/* 1. Mặc định LED ngủ đông */
 .animated-border-wrapper::before {
     content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
-    animation: spin-slow 15s linear infinite; z-index: 0;
+    animation: spin-slow 15s linear infinite; 
+    /* [VŨ KHÍ MỚI]: Ép tia LED chui xuống đáy cùng của khối Isolate */
+    z-index: -1; 
     pointer-events: none; 
     opacity: 0; transition: opacity 0.4s ease; 
 }
@@ -59,19 +67,47 @@
     opacity: 1;
 }
 
-/* 3. 👑 THUẬT TOÁN ĐỘC QUYỀN: CHỐNG LÂY NHIỄM HOVER
-   Nếu khối Cha đang chứa một khối Con (Khối Border khác hoặc Khối Warning) được Hover, 
-   thì Lập tức tắt LED của khối Cha đi! Đảm bảo chỉ 1 viền LED chạy tại 1 thời điểm. */
+/* 3. Thuật toán chống lây nhiễm Hover ngược */
 .animated-border-wrapper:has(.animated-border-wrapper:hover)::before,
 .animated-border-wrapper:has(.animated-warning-wrapper:hover)::before {
     opacity: 0 !important;
 }
 
-/* 6. HIỆU ỨNG HOVER DÒNG TRONG BẢNG (SOFT ROW) */
+.animated-border-inner { 
+    position: relative; background: #ffffff; 
+    border-radius: calc(1.5rem - 2px); 
+    z-index: 1; height: 100%; overflow: hidden; 
+}
+
+/* ==============================================================
+   6. HIỆU ỨNG HOVER DÒNG TRONG BẢNG (SOFT ROW)
+   ============================================================== */
 .hover-soft-row { transition: all 0.2s ease; }
-.hover-soft-row:hover td {
-    background-color: #f3e8ff !important; 
-    border-color: #f3e8ff !important; 
+.hover-soft-row:hover td { background-color: #f3e8ff !important; border-color: #f3e8ff !important; }
+
+/* ==============================================================
+   7. HIỆU ỨNG VIỀN LED CẢNH BÁO (WARNING/NOTICE BOX)
+   ============================================================== */
+.animated-warning-wrapper {
+    position: relative; border-radius: 1.25rem; padding: 2px; 
+    overflow: hidden; background: #fffbeb; 
+    isolation: isolate; /* [VŨ KHÍ MỚI] */
+}
+.animated-warning-wrapper::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, transparent, transparent, #f59e0b, #ea580c, transparent);
+    animation: spin-slow 10s linear infinite; 
+    z-index: -1; /* [VŨ KHÍ MỚI] */
+    pointer-events: none;
+    opacity: 0; transition: opacity 0.4s ease; 
+}
+.animated-warning-wrapper:hover::before {
+    opacity: 1;
+}
+.animated-warning-inner {
+    position: relative; background: #ffffff; 
+    border-radius: calc(1.25rem - 2px); z-index: 1; 
+    height: 100%; overflow: hidden;
 }
 
 /* 7. HIỆU ỨNG VIỀN LED CẢNH BÁO (WARNING/NOTICE BOX) */
