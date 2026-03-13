@@ -115,13 +115,12 @@ func xoaShopKhoiRAM(shopID string) {
 	delete(CacheStatusKhachHang, shopID)
 	StatusMutex.Unlock()
 
-	delete(CacheKhachHang, shopID)
-	
-	// XÓA BỘ NHỚ SẢN PHẨM MỚI
+	// [BẢN VÁ TỐI THƯỢNG]: Khóa Toàn Cục khi động đến cấu trúc Map gốc
 	KhoaHeThong.Lock()
-	delete(CacheSanPham, shopID)
-	KhoaHeThong.Unlock()
+	defer KhoaHeThong.Unlock()
 
+	delete(CacheKhachHang, shopID)
+	delete(CacheSanPham, shopID)
 	delete(CachePhieuNhap, shopID)
 	delete(CachePhieuXuat, shopID)
 	delete(CacheSerialSanPham, shopID)
@@ -130,11 +129,7 @@ func xoaShopKhoiRAM(shopID string) {
 	delete(CacheThuongHieu, shopID)
 	
 	// Quét và xóa các Composite Key (shopID__xyz)
-	for k := range CacheMapKhachHang { if k[:len(shopID)] == shopID { delete(CacheMapKhachHang, k) } }
-	
-	// Quét dọn bộ nhớ O(1) mới của Sản Phẩm
-	KhoaHeThong.Lock()
-	for k := range CacheMapSanPham { if k[:len(shopID)] == shopID { delete(CacheMapSanPham, k) } }
-	for k := range CacheMapSKU { if k[:len(shopID)] == shopID { delete(CacheMapSKU, k) } }
-	KhoaHeThong.Unlock()
+	for k := range CacheMapKhachHang { if strings.HasPrefix(k, shopID+"__") { delete(CacheMapKhachHang, k) } }
+	for k := range CacheMapSanPham { if strings.HasPrefix(k, shopID+"__") { delete(CacheMapSanPham, k) } }
+	for k := range CacheMapSKU { if strings.HasPrefix(k, shopID+"__") { delete(CacheMapSKU, k) } }
 }
