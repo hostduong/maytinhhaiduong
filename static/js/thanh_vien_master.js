@@ -273,11 +273,14 @@ function openMessageModal() {
         return; 
     } 
 
-    // BÍ MẬT Ở ĐÂY: Dọn dẹp màn hình, đóng Form Sửa lại trước khi bật Form Gửi Tin
-    closeModal('modalEdit');
-
-    document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); 
-    document.getElementById('modalMsg').classList.remove('hidden'); 
+    // ĐÃ XÓA LỆNH ĐÓNG MODAL EDIT Ở ĐÂY - GIỮ NGUYÊN NỀN VÀ TAB SỬA BÊN DƯỚI
+    document.getElementById('msgTitle').value = ""; 
+    document.getElementById('msgContent').value = ""; 
+    updateCount(); 
+    
+    let modalMsg = document.getElementById('modalMsg');
+    modalMsg.style.zIndex = '9999'; // Đảm bảo đè lên tab sửa và mọi thứ
+    modalMsg.classList.remove('hidden'); 
 }
 
 async function saveMember() {
@@ -321,6 +324,8 @@ async function saveMember() {
     fd.append('pin_xac_nhan', pinXacNhan);
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
+    
+    // [LUẬT BẢO VỆ] NẾU Ô BỊ KHÓA, TRUYỀN LẠI DỮ LIỆU CŨ LÊN SERVER ĐỂ KHÔNG BỊ TRỐNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
