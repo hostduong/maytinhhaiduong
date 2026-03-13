@@ -40,19 +40,6 @@ if (dragBar) {
     });
 }
 
-function syncTopAlignment() {
-    if(window.innerWidth >= 1280) { 
-        const leftBox = document.querySelector('.animated-border-wrapper');
-        const spacer = document.getElementById('formSpacer');
-        if(leftBox && splitContainer && spacer) {
-            const topOffset = leftBox.getBoundingClientRect().top - splitContainer.getBoundingClientRect().top;
-            spacer.style.height = topOffset + 'px';
-        }
-    } else {
-        const spacer = document.getElementById('formSpacer');
-        if(spacer) spacer.style.height = '0px';
-    }
-}
 
 // ==========================================
 // NGHIỆP VỤ XỬ LÝ DỮ LIỆU
@@ -237,8 +224,6 @@ function editMember(ma) {
     
     let db = document.getElementById('dragResizerUI');
     if(db) db.classList.add('is-open');
-
-    syncTopAlignment();
 }
 
 window.toggleAllCheckboxes = function() { 
@@ -273,7 +258,6 @@ function openMessageModal() {
         return; 
     } 
 
-    // ĐÃ XÓA LỆNH ĐÓNG MODAL EDIT Ở ĐÂY - GIỮ NGUYÊN NỀN VÀ TAB SỬA BÊN DƯỚI
     document.getElementById('msgTitle').value = ""; 
     document.getElementById('msgContent').value = ""; 
     updateCount(); 
@@ -320,7 +304,7 @@ async function saveMember() {
     btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
     btn.innerHTML = '<div class="flex items-center justify-center gap-2.5"><div class="spinner-led-btn"></div> Đang xử lý...</div>';
     
-    const fd = new FormData(form);
+    const fd = new FormData(document.getElementById('formEdit'));
     fd.append('pin_xac_nhan', pinXacNhan);
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
@@ -341,7 +325,7 @@ async function saveMember() {
             }).then(() => location.reload());
         } else {
             Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
                 html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`,
                 customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
                 buttonsStyling: false, confirmButtonText: 'Đã hiểu'
