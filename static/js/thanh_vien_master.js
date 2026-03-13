@@ -7,7 +7,7 @@ let itiPhone, itiZalo;
 // CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
 // ==========================================
 const listPane = document.getElementById('listPaneUI');
-const detailPane = document.getElementById('modalEdit');
+const detailPane = document.getElementById('modalEdit'); 
 const dragBar = document.getElementById('dragResizerUI');
 const splitContainer = document.getElementById('splitUIContainer');
 let isResizing = false;
@@ -200,15 +200,47 @@ function editMember(ma) {
     const boxBaoMat = document.getElementById('box_cap_lai_bao_mat');
     if (isSystemBot) { boxBaoMat.classList.add('hidden'); } else { boxBaoMat.classList.remove('hidden'); }
 
+    // ============================================================
+    // THUẬT TOÁN PHÂN QUYỀN ĐỘNG DỰA THEO LEVEL CỦA SẾP
+    // ============================================================
     let roleSelect = document.getElementById('f_role');
     let statusSelect = document.getElementById('f_status');
 
-    Array.from(roleSelect.options).forEach(opt => { opt.disabled = false; });
-    roleSelect.value = data.role; statusSelect.value = data.status;
-    roleSelect.disabled = false; statusSelect.disabled = false;
+    Array.from(roleSelect.options).forEach(opt => {
+        let optLevel = parseInt(opt.getAttribute('data-level') || "9");
+        opt.disabled = false;
+        opt.style.display = ''; // Hiển thị lại tất cả trước
+        
+        // LUẬT: Nếu không phải Master (0), bạn chỉ được phong tước cho chức vụ thấp hơn mình (Tức là chỉ số Level phải lớn hơn)
+        if (myLevel > 0 && optLevel <= myLevel) {
+            opt.disabled = true;
+            opt.style.display = 'none'; // Ẩn luôn cho gọn UI
+        }
+    });
 
+    roleSelect.value = data.role; 
+    statusSelect.value = data.status;
+    roleSelect.disabled = false; 
+    statusSelect.disabled = false;
+
+    // Đảm bảo chức vụ hiện tại của họ vẫn được nhìn thấy (dù bị mờ nếu mình không có quyền đổi)
+    let currentOpt = roleSelect.querySelector(`option[value="${data.role}"]`);
+    if (currentOpt) { currentOpt.style.display = ''; }
+
+    // LUẬT: Level 5-9 (Nhân viên) bị khóa mõm hoàn toàn, không được thả/khóa acc, không đổi được quyền
+    if (myLevel >= 5) {
+        roleSelect.disabled = true;
+        // statusSelect.disabled = true; // Mở cmt nếu muốn cấm cả việc Khóa acc
+    }
+
+    // LUẬT: Chúa tể 001 là bất khả xâm phạm
     if (ma === "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
-    if (ma === currentUserID) { statusSelect.disabled = true; }
+    // LUẬT: Không thể tự đổi tước vị của chính mình
+    if (ma === currentUserID && currentUserID !== "0000000000000000001") { 
+        roleSelect.disabled = true; 
+        statusSelect.disabled = true; // Không tự sát
+    }
+    // ============================================================
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     
@@ -263,7 +295,7 @@ function openMessageModal() {
     updateCount(); 
     
     let modalMsg = document.getElementById('modalMsg');
-    modalMsg.style.zIndex = '9999'; // Đảm bảo đè lên tab sửa và mọi thứ
+    modalMsg.style.zIndex = '9999';
     modalMsg.classList.remove('hidden'); 
 }
 
@@ -309,7 +341,6 @@ async function saveMember() {
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
     
-    // [LUẬT BẢO VỆ] NẾU Ô BỊ KHÓA, TRUYỀN LẠI DỮ LIỆU CŨ LÊN SERVER ĐỂ KHÔNG BỊ TRỐNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
@@ -325,7 +356,7 @@ async function saveMember() {
             }).then(() => location.reload());
         } else {
             Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
+                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Từ Chối!</span></div>',
                 html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`,
                 customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
                 buttonsStyling: false, confirmButtonText: 'Đã hiểu'
