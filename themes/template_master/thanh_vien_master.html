@@ -55,8 +55,8 @@
                                         <div class="grid grid-cols-[auto_1fr] items-center sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
                                             <div class="flex flex-col items-center justify-center gap-2.5 shrink-0">
                                                 <div class="avatar-led-wrap w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
-                                                    {{ $avatar := .AnhDaiDien }}
-                                                    {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
+                                                    {{ $avatar := .ThongTin.AnhDaiDien }}
+                                                    {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .ThongTin.TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
                                                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
                                                 </div>
                                             </div>
@@ -64,7 +64,7 @@
                                             <div class="flex flex-col min-w-0 w-full justify-center">
                                                 <div class="relative inline-flex items-center mr-auto max-w-full">
                                                     <div class="badge-animated-wrap theme-{{ .StyleTheme }} {{ if lt .StyleLevel 4 }}tier-s{{ else if lt .StyleLevel 7 }}tier-a{{ else if eq .StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
-                                                        <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none search-target">{{ .TenKhachHang }}</div>
+                                                        <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none search-target">{{ .ThongTin.TenKhachHang }}</div>
                                                     </div>
                                                     <div class="floating-icon {{ if eq .StyleLevel 0 }}icon-lvl-0{{ else if gt .StyleLevel 7 }}icon-lvl-9{{ end }}">
                                                         {{ if eq .StyleLevel 0 }} 👑 {{ else if eq .StyleLevel 1 }} ⚡ {{ else if eq .StyleLevel 2 }} 🛡️ {{ else if eq .StyleLevel 3 }} ⭐ {{ else if eq .StyleLevel 4 }} 🎯 {{ else if eq .StyleLevel 5 }} 💼 {{ else if eq .StyleLevel 6 }} ⚖️ {{ else if eq .StyleLevel 7 }} 🚀 {{ else if eq .StyleLevel 8 }} 🤝 {{ else }} 👤 {{ end }}
@@ -83,16 +83,21 @@
                                                 </div>
                                                 
                                                 <div class="sm:hidden flex flex-col gap-1.5 mt-2.5 pt-2.5 border-t border-slate-200/60 w-full text-[11px]">
-                                                    {{ if .DienThoai }}<div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> <span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span></div>{{ end }}
+                                                    {{ if .ThongTin.DienThoai }}<div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> <span class="font-bold text-slate-700 search-target">{{ .ThongTin.DienThoai }}</span></div>{{ end }}
+                                                    {{ if .Email }}<div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" /></svg> <span class="font-bold text-slate-700 search-target truncate max-w-[180px]">{{ .Email }}</span></div>{{ end }}
+                                                    {{ if .MangXaHoi.zalo }}<div class="flex items-center gap-1.5">
+                                                        <div class="w-3.5 h-3.5 bg-[#0068ff] rounded-full flex items-center justify-center text-white font-bold text-[8px] shadow-sm shrink-0">Z</div>
+                                                        <span class="font-bold text-[#0068ff] search-target">{{ .MangXaHoi.zalo }}</span>
+                                                    </div>{{ end }}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
 
                                     <td class="hidden sm:table-cell px-4 py-4 text-[12.5px] space-y-2 whitespace-nowrap align-middle relative z-10">
-                                        {{ if .DienThoai }}<div class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> <span class="font-bold text-slate-700 search-target">{{ .DienThoai }}</span></div>{{ end }}
+                                        {{ if .ThongTin.DienThoai }}<div class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> <span class="font-bold text-slate-700 search-target">{{ .ThongTin.DienThoai }}</span></div>{{ end }}
                                         {{ if .Email }}<div class="flex items-center gap-2"><svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" /></svg> <span class="font-bold text-slate-700 search-target">{{ .Email }}</span></div>{{ end }}
-                                        {{ if .MangXaHoi.Zalo }}<div class="flex items-center gap-2"><div class="w-4 h-4 bg-[#0068ff] rounded-full flex items-center justify-center text-white font-bold text-[9px] shadow-sm shrink-0">Z</div><span class="font-bold text-[#0068ff] search-target">{{ .MangXaHoi.Zalo }}</span></div>{{ end }}
+                                        {{ if .MangXaHoi.zalo }}<div class="flex items-center gap-2"><div class="w-4 h-4 bg-[#0068ff] rounded-full flex items-center justify-center text-white font-bold text-[9px] shadow-sm shrink-0">Z</div><span class="font-bold text-[#0068ff] search-target">{{ .MangXaHoi.zalo }}</span></div>{{ end }}
                                     </td>
                                     
                                     <td class="hidden sm:table-cell px-4 py-4 text-center align-middle relative z-10">
@@ -239,19 +244,40 @@
     <div id="data_members" class="hidden">
         {{ range .DanhSach }}
         <div class="m-data" 
-            data-id="{{ .MaKhachHang }}" data-name="{{ .TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
+            data-id="{{ .MaKhachHang }}" data-name="{{ .ThongTin.TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
             data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
-            data-phone="{{ .DienThoai }}" data-dob="{{ .NgaySinh }}" data-gender="{{ .GioiTinh }}" 
-            data-address="{{ .DiaChi }}" data-tax="{{ .MaSoThue }}" data-status="{{ .TrangThai }}"
-            data-zalo="{{ .MangXaHoi.Zalo }}" data-fb="{{ .MangXaHoi.Facebook }}" data-tiktok="{{ .MangXaHoi.Tiktok }}"
-            data-note="{{ .GhiChu }}" data-avatar="{{ .AnhDaiDien }}" data-source="{{ .NguonKhachHang }}"
+            data-phone="{{ .ThongTin.DienThoai }}" data-dob="{{ .ThongTin.NgaySinh }}" data-gender="{{ .ThongTin.GioiTinh }}" 
+            data-address="{{ .ThongTin.DiaChi }}" data-tax="{{ .ThongTin.MaSoThue }}" data-status="{{ .TrangThai }}"
+            data-zalo="{{ .MangXaHoi.zalo }}" data-fb="{{ .MangXaHoi.facebook }}" data-tiktok="{{ .MangXaHoi.tiktok }}"
+            data-note="{{ .GhiChu }}" data-avatar="{{ .ThongTin.AnhDaiDien }}" data-source="{{ .ThongTin.NguonKhachHang }}"
             data-created="{{ .NgayTao }}" data-updater="{{ .NguoiCapNhat }}" data-updated="{{ .NgayCapNhat }}">
         </div>
         {{ end }}
     </div>
 
     <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[9999] backdrop-blur-sm p-4">
-        ... (Giữ nguyên cấu trúc popup thông báo) ...
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg transform transition-all overflow-hidden border border-white/20">
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-indigo-600">
+                <h3 class="text-xl font-black text-white flex items-center gap-2">📢 Gửi Thông Báo Hệ Thống</h3>
+                <button onclick="document.getElementById('modalMsg').classList.add('hidden')" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 sm:p-8 space-y-6">
+                <div class="bg-purple-50 text-purple-700 p-4 rounded-2xl text-sm font-bold border border-purple-100 flex items-center justify-between shadow-sm"><span>Chuẩn bị gửi đến:</span><span id="lblMsgCount" class="font-black text-purple-700 text-2xl bg-white px-4 py-1 rounded-xl shadow-sm border border-purple-200">0</span></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tiêu đề tin nhắn <span class="text-red-500">*</span></label><input type="text" id="msgTitle" class="input-premium font-bold text-slate-800" placeholder="VD: Thông báo cập nhật..." required autocomplete="off" spellcheck="false"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nội dung chi tiết <span class="text-red-500">*</span></label><textarea id="msgContent" rows="6" class="input-premium leading-relaxed" placeholder="Nhập nội dung chi tiết..." required autocomplete="off" spellcheck="false"></textarea></div>
+                
+                {{ if lt .NhanVien.StyleLevel 3 }}
+                <div class="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-purple-300 transition">
+                    <input type="checkbox" id="chkSendAsBot" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer" checked>
+                    <label for="chkSendAsBot" class="text-[13px] font-bold text-slate-700 cursor-pointer select-none">Gửi dưới danh nghĩa Trợ lý ảo (Hệ thống)</label>
+                </div>
+                {{ end }}
+            </div>
+            <div class="px-6 sm:px-8 py-4 sm:py-5 border-t bg-slate-50 flex flex-col sm:flex-row justify-end gap-3 rounded-b-[2rem]">
+                <button onclick="document.getElementById('modalMsg').classList.add('hidden')" class="w-full sm:w-auto px-6 py-3 text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl font-bold transition">Hủy</button>
+                <button onclick="sendMessages()" id="btnSendMsg" class="w-full sm:w-auto px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">Phát sóng</button>
+            </div>
+        </div>
     </div>
 
     <script src="/static/js/thanh_vien_master.js"></script>
