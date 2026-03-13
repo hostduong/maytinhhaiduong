@@ -35,16 +35,21 @@ func (r *Repo) CountUsers() int {
 // Bắn thẳng xuống Sheet KHACH_HANG_ADMIN
 func (r *Repo) InsertUser(kh *core.KhachHang) {
 	adminID := getAdminID()
+	
+	// 1. Khóa Phân Mảnh để cập nhật Mảng của Shop
 	lock := core.GetSheetLock(adminID, core.TenSheetKhachHangAdmin)
 	lock.Lock()
 	core.CacheKhachHang[adminID] = append(core.CacheKhachHang[adminID], kh)
-	core.CacheMapKhachHang[core.TaoCompositeKey(adminID, kh.MaKhachHang)] = kh
 	lock.Unlock()
+
+	// 2. [BẢN VÁ] Khóa Toàn Cục để nhét vào Map tìm kiếm O(1) chung
+	core.KhoaHeThong.Lock()
+	core.CacheMapKhachHang[core.TaoCompositeKey(adminID, kh.MaKhachHang)] = kh
+	core.KhoaHeThong.Unlock()
 
 	b, _ := json.Marshal(kh)
 	core.PushAppend(adminID, core.TenSheetKhachHangAdmin, []interface{}{kh.MaKhachHang, string(b)})
 }
-
 func (r *Repo) UpdateUserJSON(dong int, jsonStr string) {
 	core.PushUpdate(getAdminID(), core.TenSheetKhachHangAdmin, dong, core.CotKH_DataJSON, jsonStr)
 }
