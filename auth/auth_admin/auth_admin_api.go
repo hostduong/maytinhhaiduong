@@ -31,6 +31,7 @@ func API_Login(c *gin.Context) {
 }
 
 func API_Register(c *gin.Context) {
+	tenCuaHang := strings.TrimSpace(c.PostForm("ten_cua_hang"))
 	hoTen := strings.TrimSpace(c.PostForm("ho_ten"))
 	user := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
