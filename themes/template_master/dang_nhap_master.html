@@ -13,7 +13,6 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
         
-        /* Ẩn mắt mặc định, cấm Autocomplete */
         input::-ms-reveal, input::-ms-clear { display: none; }
         input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
@@ -22,7 +21,6 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* CHUẨN UI TỪ SETUP.HTML */
         .input-premium {
             width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; 
             outline: none; transition: all 0.3s; background-color: #ffffff; color: #1e293b; font-weight: 700;
@@ -30,7 +28,6 @@
         .input-premium::placeholder { font-weight: 500; color: #94a3b8; opacity: 1; }
         .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
         
-        /* VIỀN LED */
         .led-border-wrapper {
             position: relative; padding: 3px; border-radius: 1.5rem; overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
@@ -51,6 +48,7 @@
         button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .checkbox-custom { accent-color: #8b5cf6; width: 1.25rem; height: 1.25rem; cursor: pointer; }
         
+        /* Gọt form báo lỗi mặc định */
         .swal2-popup { padding: 0 !important; background: transparent !important; }
     </style>
 </head>
@@ -67,29 +65,7 @@
                 <p class="mt-2 text-xs text-violet-600 font-bold uppercase tracking-[0.2em]">Trạm Định Tuyến Tuyệt Mật</p>
             </div>
 
-            {{ if .Loi }}
-            <script>
-                document.addEventListener('DOMContentLoaded', () => { 
-                    const loiMsg = "{{ .Loi }}"; 
-                    Swal.fire({
-                        background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false,
-                        html: `
-                        <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
-                            <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
-                                <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                </div>
-                                <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
-                                <p class="font-bold text-orange-600 mb-8">${loiMsg}</p>
-                                <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">Đã Hiểu</button>
-                            </div>
-                        </div>`
-                    }); 
-                });
-            </script>
-            {{ end }}
-
-            <form id="formLogin" action="/login" method="POST" autocomplete="off" spellcheck="false" class="space-y-5 relative z-10">
+            <form id="formLogin" autocomplete="off" spellcheck="false" class="space-y-5 relative z-10">
                 <input type="text" style="display:none" autocomplete="username">
                 <input type="password" style="display:none" autocomplete="current-password">
 
@@ -134,9 +110,53 @@
             else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
         }
 
-        document.getElementById('formLogin').addEventListener('submit', function() {
-            const btn = document.getElementById('btnSubmit'); btn.disabled = true;
+        // HÀM HIỂN THỊ ALERT LỖI XỊN SÒ Y HỆT QUÊN MẬT KHẨU
+        function showError(msg) {
+            Swal.fire({
+                background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false,
+                html: `
+                <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
+                    <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
+                        <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
+                        <p class="font-bold text-orange-600 mb-8">${msg}</p>
+                        <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">Đã Hiểu</button>
+                    </div>
+                </div>`
+            });
+        }
+
+        // BẮT SỰ KIỆN FORM VÀ GỬI QUA FETCH API ĐỂ KHÔNG BỊ F5 HỎI LẠI
+        document.getElementById('formLogin').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Chặn việc submit truyền thống đổi URL
+
+            const btn = document.getElementById('btnSubmit'); 
+            btn.disabled = true;
             btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ĐANG KẾT NỐI...`;
+
+            const fd = new FormData(this);
+            // Xử lý gửi giá trị boolean của checkbox
+            const ghiNho = document.getElementById('ghi_nho').checked;
+            fd.set('ghi_nho', ghiNho);
+
+            try {
+                const res = await fetch('/login', { method: 'POST', body: fd });
+                const data = await res.json();
+
+                if (data.status === 'ok') {
+                    window.location.href = data.redirect;
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
+                    showError(data.msg); // GỌI POPUP XỊN SÒ TẠI ĐÂY
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.innerHTML = `KÍCH HOẠT PHIÊN LÕI`;
+                showError('Mất kết nối với Lõi Máy Chủ!');
+            }
         });
     </script>
 </body>
