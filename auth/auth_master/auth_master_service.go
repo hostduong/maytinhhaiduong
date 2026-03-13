@@ -31,15 +31,38 @@ func (s *Service) Login(dinhDanh, pass, userAgent string, ghiNho bool) (string, 
 	lock.Lock()
 	if kh.RefreshTokens == nil { kh.RefreshTokens = make(map[string]core.TenantDeviceToken) }
 	
+	// ==============================================================
+	// THUẬT TOÁN DỌN RÁC & GHI ĐÈ SESSION THÔNG MINH (Max: 20)
+	// ==============================================================
 	nowUnix := time.Now().Unix()
-	for key, info := range kh.RefreshTokens { if info.Exp < nowUnix { delete(kh.RefreshTokens, key) } }
-	if len(kh.RefreshTokens) >= 5 {
-		var oldestKey string; var oldestTime int64 = 1<<63 - 1
-		for key, info := range kh.RefreshTokens { if info.Exp < oldestTime { oldestTime = info.Exp; oldestKey = key } }
+	for key, info := range kh.RefreshTokens { 
+		// 1. Xóa phiên đã hết hạn
+		if info.Exp < nowUnix { 
+			delete(kh.RefreshTokens, key) 
+			continue
+		}
+		// 2. Xóa phiên cũ của CHÍNH THIẾT BỊ NÀY để nhường chỗ cho phiên mới
+		if info.Dev == userAgent {
+			delete(kh.RefreshTokens, key)
+		}
+	}
+	
+	// 3. Nếu số lượng thiết bị khác nhau vẫn >= 20, đá văng thiết bị cũ nhất
+	if len(kh.RefreshTokens) >= 20 {
+		var oldestKey string
+		var oldestTime int64 = 1<<63 - 1
+		for key, info := range kh.RefreshTokens { 
+			if info.Exp < oldestTime { 
+				oldestTime = info.Exp
+				oldestKey = key 
+			} 
+		}
 		if oldestKey != "" { delete(kh.RefreshTokens, oldestKey) }
 	}
 	
+	// 4. Lưu phiên mới tinh vào
 	kh.RefreshTokens[sessionID] = core.TenantDeviceToken{DeviceID: sessionID, Dev: userAgent, Exp: expTime, Created: nowUnix}
+	// ==============================================================
 	
 	b, _ := json.Marshal(kh)
 	jsonStr := string(b)
