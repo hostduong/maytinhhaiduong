@@ -15,7 +15,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		return
 	}
 	
-	// [FIX] Bọc an toàn, nếu chưa load kịp thì văng ra login, không để Panic trắng trang
 	me, ok := Repo_LayKhachHangMaster(masterShopID, userID)
 	if !ok || me == nil {
 		c.Redirect(http.StatusFound, "/login")
@@ -28,12 +27,12 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
 
+	// [NÂNG CẤP]: Đã xóa "quan_tri_cua_hang". Tầng Master chỉ dành cho Core Team!
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
-			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Quản trị hệ thống", StyleLevel: 0, StyleTheme: 9},
+			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Sáng Lập Viên", StyleLevel: 0, StyleTheme: 9},
 			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
 			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
-			{MaVaiTro: "quan_tri_cua_hang", TenVaiTro: "Quản trị cửa hàng", StyleLevel: 3, StyleTheme: 5},
 		}
 	}
 
@@ -46,7 +45,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		
-		// [FIX] Bơm sẵn Map rỗng nếu JSON chưa có để HTML Render không bị Crash
 		if khCopy.MangXaHoi == nil { khCopy.MangXaHoi = make(map[string]string) }
 
 		if khCopy.MaKhachHang == "0000000000000000000" || khCopy.MaKhachHang == "0000000000000000001" || khCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
