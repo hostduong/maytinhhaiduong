@@ -15,6 +15,7 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		return
 	}
 	
+	// [FIX CHỐNG SẬP]: Xác minh tuyệt đối con trỏ me
 	me, ok := Repo_LayKhachHangMaster(masterShopID, userID)
 	if !ok || me == nil {
 		c.Redirect(http.StatusFound, "/login")
@@ -27,7 +28,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
 
-	// [NÂNG CẤP]: Đã xóa "quan_tri_cua_hang". Tầng Master chỉ dành cho Core Team!
 	if len(listVaiTro) == 0 {
 		listVaiTro = []core.VaiTroInfo{
 			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Sáng Lập Viên", StyleLevel: 0, StyleTheme: 9},
@@ -45,21 +45,34 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		
+		// [CHỐT CHẶN TRẮNG TRANG]: Đảm bảo Map không bao giờ nil
 		if khCopy.MangXaHoi == nil { khCopy.MangXaHoi = make(map[string]string) }
 
 		if khCopy.MaKhachHang == "0000000000000000000" || khCopy.MaKhachHang == "0000000000000000001" || khCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
 			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
 		} else {
-			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok { khCopy.StyleLevel, khCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme } else { khCopy.StyleLevel, khCopy.StyleTheme = 9, 0 }
+			if vInfo, ok := mapStyle[khCopy.VaiTroQuyenHan]; ok { 
+				khCopy.StyleLevel, khCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme 
+			} else { 
+				khCopy.StyleLevel, khCopy.StyleTheme = 9, 0 
+			}
 		}
 		listView = append(listView, &khCopy)
 	}
 
 	meCopy := *me
+	// [CHỐT CHẶN TRẮNG TRANG]
 	if meCopy.MangXaHoi == nil { meCopy.MangXaHoi = make(map[string]string) }
 	
-	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok { meCopy.StyleLevel, meCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme } else { meCopy.StyleLevel, meCopy.StyleTheme = 9, 0 }
-	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { meCopy.StyleLevel, meCopy.StyleTheme = 0, 9 }
+	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok { 
+		meCopy.StyleLevel, meCopy.StyleTheme = vInfo.StyleLevel, meCopy.StyleTheme 
+	} else { 
+		meCopy.StyleLevel, meCopy.StyleTheme = 9, 0 
+	}
+	
+	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { 
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9 
+	}
 
 	c.HTML(http.StatusOK, "thanh_vien_master", gin.H{
 		"TieuDe": "Thành Viên",
