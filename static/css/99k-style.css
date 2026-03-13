@@ -687,3 +687,54 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 900;
     box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: inline-block;
 }
+
+/* ==============================================================
+   22. BỐ CỤC CHIA ĐÔI MÀN HÌNH & KÉO THẢ (SPLIT-PANE SAAS)
+   ============================================================== */
+.saas-split-wrapper { display: flex; flex-direction: column; width: 100%; max-width: 100%; padding: 0; gap: 1rem; align-items: flex-start; }
+@media (min-width: 1280px) { .saas-split-wrapper { flex-direction: row; } }
+.saas-list-pane { width: 100%; flex: 1; min-width: 0; transition: width 0.15s ease-out; }
+.saas-detail-pane { display: none; flex-direction: column; }
+
+/* Giao diện Mobile/Tablet: Vẫn là Popup nổi ở giữa */
+@media (max-width: 1279px) {
+    .saas-detail-pane.is-open { display: flex; position: fixed; inset: 0; z-index: 100; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem; }
+    .saas-detail-box { width: 100%; max-width: 900px; max-height: 95vh; }
+}
+
+/* Giao diện PC (Màn hình rộng): Neo bên phải màn hình */
+@media (min-width: 1280px) {
+    .saas-detail-pane.is-open { display: flex; position: relative; z-index: 60; margin-top: 0; width: 45%; min-width: 500px; max-width: 70vw; flex-shrink: 0; }
+    .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 0; }
+}
+
+.saas-detail-box { display: flex; flex-direction: column; background-color: #ffffff; border-radius: 1.5rem; z-index: 1; box-shadow: -10px 0 30px -10px rgba(147, 51, 234, 0.15); overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+/* Thanh kéo thả (Chỉ hiện trên PC) */
+.saas-drag-bar { display: none; width: 16px; cursor: col-resize; z-index: 70; flex-shrink: 0; margin: 0 -4px; align-items: flex-start; justify-content: center; position: relative; user-select: none; align-self: stretch; }
+@media (min-width: 1280px) { .saas-drag-bar.is-open { display: flex; margin-top: 58px; } }
+
+/* Dòng đang được chọn trong bảng sẽ sáng lên màu Tím */
+.row-active-purple { background-color: #f3e8ff !important; border-left: 4px solid #9333ea !important; }
+.sp-row { border-left: 4px solid transparent; }
+
+/* ==============================================================
+   23. CÔNG NGHỆ CONTAINER QUERIES (FORM TỰ ĐỘNG BIẾN HÌNH 1 CỘT <-> 2 CỘT)
+   ============================================================== */
+.edit-form-container {
+    container-type: inline-size;
+    container-name: formPanel;
+    width: 100%;
+}
+.responsive-grid-form {
+    display: grid;
+    grid-template-columns: 1fr; /* Mặc định luôn là 1 cột dọc (Khi Tab bị kéo nhỏ) */
+    gap: 1.5rem;
+}
+/* THẦN CHÚ: Nếu Panel bên phải kéo rộng hơn 800px -> Tự bung thành 2 cột (Trái 7 phần, Phải 5 phần) */
+@container formPanel (min-width: 800px) {
+    .responsive-grid-form {
+        grid-template-columns: 7fr 5fr; 
+    }
+}
