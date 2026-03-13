@@ -28,7 +28,7 @@ func IdentifyTenant() gin.HandlerFunc {
 			shopID = config.BienCauHinh.IdFileSheetMaster
 
 		// TẦNG 2: VÙNG QUẢN TRỊ SHOP (Admin & Marketing)
-		} else if domain == "admin.99k.vn" || domain == "www.99k.vn" || domain == "localhost" {
+		} else if domain == "shop.99k.vn" || domain == "www.99k.vn" || domain == "localhost" {
 			appMode = "TENANT_ADMIN"
 			theme = "template_admin"
 			if domain == "www.99k.vn" { theme = "default" } // www dùng giao diện public
