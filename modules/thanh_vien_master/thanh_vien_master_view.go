@@ -15,8 +15,14 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		return
 	}
 	
-	me, _ := Repo_LayKhachHang(masterShopID, userID)
-	listAll := Repo_LayDanhSach(masterShopID)
+	// [FIX] Bọc an toàn, nếu chưa load kịp thì văng ra login, không để Panic trắng trang
+	me, ok := Repo_LayKhachHangMaster(masterShopID, userID)
+	if !ok || me == nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+
+	listAll := Repo_LayDanhSachMaster(masterShopID)
 	
 	core.KhoaHeThong.RLock()
 	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
@@ -36,8 +42,13 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
+		if kh == nil { continue }
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
+		
+		// [FIX] Bơm sẵn Map rỗng nếu JSON chưa có để HTML Render không bị Crash
+		if khCopy.MangXaHoi == nil { khCopy.MangXaHoi = make(map[string]string) }
+
 		if khCopy.MaKhachHang == "0000000000000000000" || khCopy.MaKhachHang == "0000000000000000001" || khCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
 			khCopy.StyleLevel, khCopy.StyleTheme = 0, 9 
 		} else {
@@ -47,6 +58,8 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	meCopy := *me
+	if meCopy.MangXaHoi == nil { meCopy.MangXaHoi = make(map[string]string) }
+	
 	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok { meCopy.StyleLevel, meCopy.StyleTheme = vInfo.StyleLevel, vInfo.StyleTheme } else { meCopy.StyleLevel, meCopy.StyleTheme = 9, 0 }
 	if meCopy.MaKhachHang == "0000000000000000000" || meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" { meCopy.StyleLevel, meCopy.StyleTheme = 0, 9 }
 
