@@ -13,7 +13,7 @@ import (
 type DTO_UpdateThanhVien struct {
 	ShopID, AdminID, AdminRole, PinXacNhan string
 	MaKH, VaiTro, ChucVu, TrangThai        string
-	TenKhachHang, DienThoai, NgaySinh      string
+	TenCuaHang, TenKhachHang, DienThoai, NgaySinh      string
 	DiaChi, MaSoThue, GhiChu, AnhDaiDien   string
 	NguonKhachHang, Zalo, Facebook, Tiktok string
 	GioiTinh                               int
@@ -77,7 +77,8 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 			}
 		}
 	}
-	
+
+	kh.ThongTin.TenCuaHang = dto.TenCuaHang
 	kh.ThongTin.TenKhachHang = dto.TenKhachHang
 	kh.ThongTin.DienThoai = dto.DienThoai
 	kh.ThongTin.NgaySinh = dto.NgaySinh
