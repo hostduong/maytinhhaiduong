@@ -18,7 +18,6 @@ func API_Login(c *gin.Context) {
 
 	sessionID, sign, err := service.Login(dinhDanh, pass, c.Request.UserAgent(), ghiNho)
 	if err != nil {
-		// [ĐÃ VÁ LỖI]: Gọi đúng tên template giao diện Tím Premium
 		c.HTML(http.StatusOK, "dang_nhap_admin", gin.H{"Loi": err.Error()})
 		return
 	}
@@ -31,7 +30,8 @@ func API_Login(c *gin.Context) {
 }
 
 func API_Register(c *gin.Context) {
-	tenCuaHang := strings.TrimSpace(c.PostForm("ten_cua_hang"))
+	// 👉 [ĐÃ FIX]: Bắt biến và truyền ĐỦ 8 THAM SỐ vào service.Register
+	tenCuaHang := strings.TrimSpace(c.PostForm("ten_cua_hang")) 
 	hoTen := strings.TrimSpace(c.PostForm("ho_ten"))
 	user := strings.ToLower(strings.TrimSpace(c.PostForm("ten_dang_nhap")))
 	email := strings.ToLower(strings.TrimSpace(c.PostForm("email")))
@@ -43,10 +43,10 @@ func API_Register(c *gin.Context) {
 		dienThoai = strings.TrimSpace(c.PostForm("dien_thoai")) 
 	}
 
-	sessionID, sign, err := service.Register(hoTen, user, email, pass, maPin, dienThoai, c.Request.UserAgent())
+	// TRUYỀN ĐỦ 8 BIẾN VÀO ĐÂY NHÉ SẾP (Có thêm tenCuaHang ở đầu)
+	sessionID, sign, err := service.Register(tenCuaHang, hoTen, user, email, pass, maPin, dienThoai, c.Request.UserAgent())
 	
 	if err != nil {
-		// [ĐÃ VÁ LỖI]: Gọi đúng tên template giao diện Tím Premium
 		c.HTML(http.StatusOK, "dang_ky_admin", gin.H{"Loi": err.Error()})
 		return
 	}
@@ -63,21 +63,16 @@ func API_Logout(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/login")
 }
 
-// ===============================================================
-// QUÊN MẬT KHẨU - TÍCH HỢP TRẠM KIỂM SOÁT CHUNG AUTH_VERIFY
-// ===============================================================
 func API_ResetByPin(c *gin.Context) {
 	dinhDanh := strings.TrimSpace(c.PostForm("dinh_danh"))
 	pin := strings.TrimSpace(c.PostForm("pin"))
 	passMoi := strings.TrimSpace(c.PostForm("pass_moi"))
 
-	// 1. Gọi auth_verify để kiểm tra mã PIN với quyền TENANT_ADMIN
 	if err := auth_verify.GlobalService.VerifyPin("TENANT_ADMIN", config.BienCauHinh.IdFileSheetAdmin, dinhDanh, pin); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
 
-	// 2. Cập nhật mật khẩu mới
 	if err := service.ResetPassword(dinhDanh, passMoi); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
@@ -90,13 +85,11 @@ func API_ResetByOtp(c *gin.Context) {
 	otp := strings.TrimSpace(c.PostForm("otp"))
 	passMoi := strings.TrimSpace(c.PostForm("pass_moi"))
 
-	// 1. Gọi auth_verify để kiểm tra OTP với quyền TENANT_ADMIN
 	if err := auth_verify.GlobalService.VerifyOtp("TENANT_ADMIN", config.BienCauHinh.IdFileSheetAdmin, dinhDanh, otp); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
 
-	// 2. Cập nhật mật khẩu mới
 	if err := service.ResetPassword(dinhDanh, passMoi); err != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": err.Error()})
 		return
