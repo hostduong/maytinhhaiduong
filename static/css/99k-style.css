@@ -63,27 +63,27 @@
 /* 7. HIỆU ỨNG VIỀN LED CẢNH BÁO (WARNING/NOTICE BOX) */
 .animated-warning-wrapper {
     position: relative;
-    border-radius: 1.25rem; /* Bo góc 20px gọn gàng hơn */
+    border-radius: 1.25rem;
     padding: 2px;
     overflow: hidden;
-    background: #fffbeb; /* Nền dự phòng màu vàng nhạt */
+    background: #fffbeb; 
 }
 .animated-warning-wrapper::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    /* Dải LED xoay: Trong suốt kết hợp Vàng Amber & Cam đậm */
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background: conic-gradient(transparent, transparent, transparent, #f59e0b, #ea580c, transparent);
-    animation: spin-slow 10s linear infinite; /* Chạy nhanh hơn viền Tím 1 chút để thu hút sự chú ý */
-    z-index: 0;
+    animation: spin-slow 8s linear infinite; z-index: 0; pointer-events: none;
+    /* Ép LED ngủ đông mặc định */
+    opacity: 0; 
+    animation-play-state: paused; 
+    transition: opacity 0.4s ease; 
+}
+/* Chỉ thức dậy và phát sáng khi trỏ chuột vào */
+.animated-warning-wrapper:hover::before {
+    opacity: 1;
+    animation-play-state: running; 
 }
 .animated-warning-inner {
-    position: relative;
-    background: #ffffff;
-    border-radius: calc(1.25rem - 2px);
-    z-index: 1;
-    height: 100%;
-    overflow: hidden;
+    position: relative; background: #ffffff; border-radius: calc(1.25rem - 2px); z-index: 1; height: 100%; overflow: hidden;
 }
 
 /* ==============================================================
