@@ -76,7 +76,12 @@ func (s *Service) Register(hoTen, user, email, pass, maPin, dienThoai, userAgent
 		VaiTroQuyenHan: "khach_hang", ChucVu: "Chủ Cửa Hàng", TrangThai: 1,
 		GoiDichVu: make([]core.TenantGoiDichVu, 0), Modules: make(map[string]bool),
 		CauHinh: core.TenantCauHinh{Theme: "light", Lang: "vi"},
-		ThongTin: core.TenantThongTin{NguonKhachHang: "web_saas_register", TenKhachHang: hoTen, DienThoai: dienThoai},
+		ThongTin: core.TenantThongTin{
+			NguonKhachHang: "web_saas_register",
+			TenCuaHang: tenCuaHang,
+			TenKhachHang: hoTen,
+			DienThoai: dienThoai
+		},
 		NgayTao: nowUnix, NguoiCapNhat: user, NgayCapNhat: nowUnix, 
 	}
 
