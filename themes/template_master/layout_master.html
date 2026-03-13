@@ -20,7 +20,7 @@
 
         @media (min-width: 768px) { .desktop-sidebar-collapsed { margin-left: -280px !important; } }
 
-        /* --- 1. NÚT ASSISTIVE MOBILE --- */
+        /* --- 1. NÚT ASSISTIVE MOBILE (GIỮ NGUYÊN) --- */
         .led-menu-btn {
             position: relative; width: 48px; height: 48px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -57,13 +57,14 @@
         }
         .assistive-floating:active { cursor: grabbing; transform: scale(0.92); }
 
-        /* --- 2. LOGO PREMIUM 99K.VN --- */
+        /* --- 2. LOGO PREMIUM 99K.VN (ÁNH KIM LOẠI XỊN SÒ) --- */
         .logo-premium-icon {
             position: relative;
             background: linear-gradient(135deg, #9333ea, #6366f1);
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
             overflow: hidden;
         }
+        /* Vệt sáng trắng lướt qua logo (Glass shine) */
         .logo-premium-icon::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent);
@@ -72,6 +73,7 @@
         }
         @keyframes logo-sweep-shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
+        /* Chữ lấp lánh trên nền Tối (Sidebar) */
         .logo-premium-text-dark {
             background: linear-gradient(to right, #ffffff, #d8b4fe, #ffffff, #a855f7);
             background-size: 200% auto; color: #fff;
@@ -80,6 +82,7 @@
             filter: drop-shadow(0 2px 10px rgba(216, 180, 254, 0.2));
         }
 
+        /* Chữ lấp lánh trên nền Sáng (Header PC) */
         .logo-premium-text-light {
             background: linear-gradient(to right, #4c1d95, #9333ea, #4f46e5, #4c1d95);
             background-size: 200% auto;
@@ -141,8 +144,8 @@
         <nav class="flex-1 overflow-y-auto py-6 relative z-10 custom-scroll flex flex-col">
             <div class="px-4 space-y-1.5 flex-1">
                 <p class="text-[10px] font-black text-slate-500 px-3 mb-3 uppercase tracking-[0.2em]">Hệ Thống Lõi</p>
-                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng Quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan Master</a>
-                <a href="/master/quan-ly-cua-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Cửa Hàng SaaS"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS</a>
+                <a href="/master/tong-quan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Tổng quan Master"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📊</span> Tổng Quan Master</a>
+                <a href="/master/quan-ly-cua-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Quản lý Cửa Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">🏬</span> Cửa Hàng SaaS</a>
                 <a href="/master/goi-dich-vu" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Gói Dịch Vụ"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">💎</span> Gói Dịch Vụ</a>
                 <a href="/master/nhap-hang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{if eq .TieuDe "Nhập Hàng"}}bg-purple-600 text-white font-bold shadow-md shadow-purple-900/20{{else}}hover:bg-slate-800 hover:text-white font-medium{{end}}"><span class="text-lg w-6 text-center">📥</span> Nhập Hàng Tồn Kho</a>
                 
@@ -165,7 +168,7 @@
                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-bold text-white truncate">{{ .NhanVien.ThongTin.TenKhachHang }}</p>
-                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
+                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ThongTin.ChucVu }}</p>
                     </div>
                 </div>
                 {{ end }}
@@ -183,7 +186,7 @@
                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-white truncate">{{ .NhanVien.ThongTin.TenKhachHang }}</p>
-                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
+                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ThongTin.ChucVu }}</p>
                 </div>
             </div>
             {{ end }}
@@ -272,22 +275,25 @@
                 const t1 = document.getElementById('titleState1'); 
                 const logo2 = document.getElementById('logoState2');
                 const t2 = document.getElementById('titleState2');
-                const pcIcon = document.getElementById('pcMenuIcon');
+                const pcIcon = document.getElementById('pcMenuIcon'); // Icon PC
 
                 if (isClosed) {
                     t1.classList.add('hidden'); 
                     logo2.classList.remove('hidden'); logo2.classList.add('flex'); 
                     t2.classList.remove('hidden'); t2.classList.add('flex');
+                    // [ĐÃ NÂNG CẤP]: Xoay icon << thành >>
                     if(pcIcon) pcIcon.style.transform = 'rotate(180deg)';
                 } else {
                     logo2.classList.add('hidden'); logo2.classList.remove('flex'); 
                     t2.classList.add('hidden'); t2.classList.remove('flex'); 
                     t1.classList.remove('hidden'); 
+                    // [ĐÃ NÂNG CẤP]: Trả icon >> về <<
                     if(pcIcon) pcIcon.style.transform = 'rotate(0deg)';
                 }
             }
         }
 
+        // --- CƠ CHẾ KÉO THẢ DÀNH RIÊNG CHO MOBILE ---
         let currentDraggingFab = null;
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
 
@@ -366,6 +372,7 @@
                 }
             });
             
+            // Xử lý tự động đóng/mở icon PC khi resize màn hình
             if (window.innerWidth >= 768) {
                 const sidebar = document.getElementById('masterSidebar');
                 const pcIcon = document.getElementById('pcMenuIcon');
