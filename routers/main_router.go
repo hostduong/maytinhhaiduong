@@ -83,7 +83,7 @@ func SetupRouter() *gin.Engine {
 		if mode == "MASTER_CORE" {
 			c.Redirect(http.StatusFound, "/master/tong-quan") 
 		} else if mode == "TENANT_ADMIN" {
-			if strings.HasPrefix(host, "admin.") {
+			if strings.HasPrefix(host, "shop.") {
 				c.Redirect(http.StatusFound, "/tong-quan") 
 			} else {
 				hien_thi_web.TrangChu(c) // www.99k.vn
