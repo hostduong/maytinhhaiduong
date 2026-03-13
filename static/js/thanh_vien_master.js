@@ -3,6 +3,9 @@ const isMeRoot = (currentUserID === "0000000000000000001");
 const myLevel = window.MasterConfig.myLevel;
 let itiPhone, itiZalo;
 
+// ==========================================
+// CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
+// ==========================================
 const listPane = document.getElementById('listPaneUI');
 const detailPane = document.getElementById('modalEdit'); 
 const dragBar = document.getElementById('dragResizerUI');
@@ -35,6 +38,9 @@ if (dragBar) {
     });
 }
 
+// ==========================================
+// NGHIỆP VỤ XỬ LÝ DỮ LIỆU
+// ==========================================
 function checkInputState(input) {
     if(input.value.trim() !== "") input.classList.add('has-data');
     else input.classList.remove('has-data');
@@ -163,7 +169,7 @@ function editMember(ma) {
     if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     
     let titleEl = document.getElementById('modalTitle');
-    if (titleEl) { titleEl.innerHTML = `Sửa: <span class="text-purple-600 ml-1 font-mono tracking-wider">${data.ten}</span>`; }
+    if (titleEl) { titleEl.innerHTML = `Sửa: <span class="text-purple-600 ml-1.5 font-mono tracking-wider">${data.ten}</span>`; }
 
     document.getElementById('f_ma').value = ma; 
     if (document.getElementById('f_ma_hien_thi')) document.getElementById('f_ma_hien_thi').value = ma;
@@ -189,22 +195,16 @@ function editMember(ma) {
     const boxBaoMat = document.getElementById('box_cap_lai_bao_mat');
     if (isSystemBot) { boxBaoMat.classList.add('hidden'); } else { boxBaoMat.classList.remove('hidden'); }
 
-    // ==========================================================
-    // THUẬT TOÁN ĐIỀU KHIỂN SELECT OPTION (Quyền & Trạng Thái)
-    // ==========================================================
     let roleSelect = document.getElementById('f_role');
     let statusSelect = document.getElementById('f_status');
 
-    // 1. Dọn dẹp Option ảo của lần click trước
     Array.from(roleSelect.options).forEach(opt => {
         if (opt.classList.contains('temp-opt')) opt.remove();
         opt.disabled = false;
     });
 
-    // 2. Vì Backend đã chặn gửi xuống HTML các Quyền cao, ta cần kiểm tra xem chức vụ của người này có nằm trong Select không
     let currentOpt = roleSelect.querySelector(`option[value="${data.role}"]`);
     if (!currentOpt) {
-        // Tự tạo một Option ảo để hiển thị cho Sếp biết nó là chức vụ gì
         let newOpt = document.createElement('option');
         newOpt.value = data.role;
         newOpt.text = data.title || data.role; 
@@ -217,25 +217,10 @@ function editMember(ma) {
     roleSelect.disabled = false; 
     statusSelect.disabled = false;
 
-    // LUẬT 1: Level 5-9 (Nhân viên) bị tước quyền phân trang hoàn toàn
-    if (myLevel >= 5) {
-        roleSelect.disabled = true;
-    }
-
-    // LUẬT 2: Nếu sửa một người không có Option trong danh sách (người này cấp cao hơn hoặc bằng mình) -> KHÓA
-    if (!currentOpt && ma !== "0000000000000000001") {
-        roleSelect.disabled = true;
-    }
-
-    // LUẬT 3: Chúa tể 001 là bất khả xâm phạm
+    if (myLevel >= 5) { roleSelect.disabled = true; }
+    if (!currentOpt && ma !== "0000000000000000001") { roleSelect.disabled = true; }
     if (ma === "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
-    
-    // LUẬT 4: Không thể tự đổi tước vị của chính mình
-    if (ma === currentUserID && currentUserID !== "0000000000000000001") { 
-        roleSelect.disabled = true; 
-        statusSelect.disabled = true;
-    }
-    // ==========================================================
+    if (ma === currentUserID && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; }
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     
@@ -284,11 +269,7 @@ function openMessageModal() {
         });
         return; 
     } 
-
-    document.getElementById('msgTitle').value = ""; 
-    document.getElementById('msgContent').value = ""; 
-    updateCount(); 
-    
+    document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); 
     let modalMsg = document.getElementById('modalMsg');
     modalMsg.style.zIndex = '9999';
     modalMsg.classList.remove('hidden'); 
@@ -336,7 +317,6 @@ async function saveMember() {
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
     
-    // NẾU Ô BỊ KHÓA, BẮT BUỘC TRUYỀN LẠI DỮ LIỆU CŨ ĐỂ SERVER KHÔNG LƯU RỖNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
