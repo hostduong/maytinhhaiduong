@@ -213,9 +213,9 @@
                                                 <div class="space-y-5 relative z-10">
                                                     <div>
                                                         <label class="block text-[10px] font-bold text-purple-900 uppercase tracking-wider mb-1.5">Vai trò / Phân quyền <span class="text-red-500">*</span></label>
-                                                        <select name="vai_tro" id="f_role" class="input-premium bg-purple-50 border-purple-200 text-purple-900 font-bold focus:ring-purple-600 cursor-pointer shadow-sm" required>
-                                                            {{ range .DanhSachVaiTro }}<option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>{{ end }}
-                                                        </select>
+                                                        <select name="vai_tro" id="f_role" class="input-premium bg-purple-50/50 border-purple-200 text-purple-900 font-bold focus:ring-purple-600 cursor-pointer shadow-sm" required>
+                                                           {{ range .DanhSachVaiTro }}<option value="{{ .MaVaiTro }}" data-level="{{ .StyleLevel }}">{{ .TenVaiTro }}</option>{{ end }}
+                                                         </select>
                                                     </div>
                                                     <div><label class="block text-[10px] font-bold text-purple-900 uppercase tracking-wider mb-1.5">Chức vụ hiển thị (Tùy chỉnh)</label><input type="text" name="chuc_vu" id="f_title" class="input-premium bg-white border-purple-100" placeholder="Để trống sẽ lấy theo Vai trò..."></div>
                                                     <div>
