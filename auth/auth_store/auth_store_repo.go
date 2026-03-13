@@ -33,16 +33,20 @@ func (r *Repo) CountUsers(shopID string) int {
 
 // Bơm dữ liệu JSON thẳng xuống RAM và File của đúng cửa hàng đó
 func (r *Repo) InsertUser(shopID string, kh *core.KhachHang) {
+	// 1. Khóa Phân Mảnh
 	lock := core.GetSheetLock(shopID, core.TenSheetKhachHang)
 	lock.Lock()
 	core.CacheKhachHang[shopID] = append(core.CacheKhachHang[shopID], kh)
-	core.CacheMapKhachHang[core.TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
 	lock.Unlock()
+
+	// 2. [BẢN VÁ] Khóa Toàn Cục
+	core.KhoaHeThong.Lock()
+	core.CacheMapKhachHang[core.TaoCompositeKey(shopID, kh.MaKhachHang)] = kh
+	core.KhoaHeThong.Unlock()
 
 	b, _ := json.Marshal(kh)
 	core.PushAppend(shopID, core.TenSheetKhachHang, []interface{}{kh.MaKhachHang, string(b)})
 }
-
 func (r *Repo) UpdateUserJSON(shopID string, dong int, jsonStr string) {
 	core.PushUpdate(shopID, core.TenSheetKhachHang, dong, core.CotKH_DataJSON, jsonStr)
 }
