@@ -158,8 +158,130 @@
         {{ end }}
     </div>
 
-    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6">
+    <div id="modalEdit" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden">
+            
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <h3 class="text-lg sm:text-xl font-black text-slate-800 tracking-tight flex items-center gap-3 relative z-10">
+                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shadow-inner"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
+                    Cập Nhật Hồ Sơ
+                </h3>
+                <button onclick="closeModal('modalEdit')" class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition relative z-10"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scroll flex-1">
+                <form id="formEdit" class="space-y-6">
+                    <input type="hidden" name="ma_khach_hang" id="f_ma">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-slate-400 border-b border-slate-200 pb-2">Thông tin cá nhân</h4>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Họ và tên</label><input id="f_ten" name="ten_khach_hang" class="input-premium"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Điện thoại</label><input id="f_sdt_fake" class="input-premium"></div>
+                                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ngày sinh</label><input type="date" id="f_dob" name="ngay_sinh" class="input-premium"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Giới tính</label>
+                                    <select id="f_gender" name="gioi_tinh" class="input-premium"><option value="-1">Khác</option><option value="1">Nam</option><option value="0">Nữ</option></select>
+                                </div>
+                                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mã số thuế</label><input id="f_tax" name="ma_so_thue" class="input-premium"></div>
+                            </div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Địa chỉ</label><input id="f_address" name="dia_chi" class="input-premium"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nguồn khách hàng</label><input id="f_source" name="nguon_khach_hang" class="input-premium bg-slate-50" readonly tabindex="-1"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Link Ảnh Đại Diện</label><input id="f_avatar" name="anh_dai_dien" class="input-premium"></div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-purple-500 border-b border-purple-100 pb-2">Phân quyền & Trạng thái</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vai trò</label>
+                                    <select id="f_role" name="vai_tro" class="input-premium">
+                                        {{ range .DanhSachVaiTro }}<option value="{{ .MaVaiTro }}">{{ .TenVaiTro }}</option>{{ end }}
+                                    </select>
+                                </div>
+                                <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Chức danh</label><input id="f_title" name="chuc_vu" class="input-premium"></div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Trạng thái hoạt động</label>
+                                <select id="f_status" name="trang_thai" class="input-premium font-bold">
+                                    <option value="1" class="text-emerald-600">Hoạt động (Bình thường)</option>
+                                    <option value="0" class="text-amber-600">Tạm Khóa (Đóng băng)</option>
+                                    <option value="-1" class="text-red-600">Đợi Xóa (Xóa mềm)</option>
+                                </select>
+                            </div>
+                            
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-blue-500 border-b border-blue-100 pb-2 mt-6">Mạng xã hội</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Zalo</label><input id="f_zalo_fake" class="input-premium px-2 text-sm text-center"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Facebook</label><input id="f_fb" name="facebook" class="input-premium px-2 text-sm text-center"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tiktok</label><input id="f_tiktok" name="tiktok" class="input-premium px-2 text-sm text-center"></div>
+                            </div>
+                            
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-red-500 border-b border-red-100 pb-2 mt-6">Reset Khóa Bảo Mật</h4>
+                            <div id="box_cap_lai_bao_mat" class="grid grid-cols-2 gap-4 bg-red-50 p-3 rounded-xl border border-red-100">
+                                <div class="relative"><label class="block text-[11px] font-bold text-red-500 uppercase tracking-wider mb-1">Mật khẩu mới</label><input type="password" id="f_pass" name="mat_khau_moi" class="input-premium border-red-200" placeholder="Bỏ trống = Giữ nguyên"><button type="button" onclick="togglePass('f_pass')" tabindex="-1" class="absolute right-2 top-8 text-slate-400">👁</button></div>
+                                <div class="relative"><label class="block text-[11px] font-bold text-red-500 uppercase tracking-wider mb-1">Mã PIN mới</label><input type="password" id="f_pin" name="pin_moi" class="input-premium border-red-200 text-center tracking-[0.2em]" placeholder="8 số" maxlength="8"><button type="button" onclick="togglePass('f_pin')" tabindex="-1" class="absolute right-2 top-8 text-slate-400">👁</button></div>
+                            </div>
+                            
+                            <div><label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ghi chú nội bộ</label><textarea id="f_note" name="ghi_chu" class="input-premium resize-none" rows="2"></textarea></div>
+                        </div>
+                    </div>
+                </form>
+                <div class="text-[10px] text-slate-400 mt-6 text-center border-t border-slate-100 pt-4">Tạo: <span id="f_log_created" class="font-bold"></span> | Sửa: <span id="f_log_updated" class="font-bold"></span> bởi <span id="f_log_updater" class="font-bold"></span></div>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
+                <button type="button" onclick="closeModal('modalEdit')" class="px-6 py-2.5 rounded-xl font-bold text-slate-500 bg-white border border-slate-200 hover:bg-slate-100 transition active:scale-95">Hủy</button>
+                <button type="button" id="btnSaveMem" onclick="saveMember()" class="px-8 py-2.5 rounded-xl font-black text-white bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg shadow-purple-200 hover:from-purple-700 hover:to-indigo-700 transition active:scale-95 uppercase tracking-widest">
+                    LƯU THAY ĐỔI
+                </button>
+            </div>
         </div>
+    </div>
+
+    <div id="modalMsg" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 backdrop-blur-md p-4 sm:p-6 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <h3 class="text-lg sm:text-xl font-black text-slate-800 tracking-tight flex items-center gap-3 relative z-10">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg></div>
+                    Phát Sóng Thông Báo
+                </h3>
+                <button onclick="closeModal('modalMsg')" class="text-slate-400 hover:text-red-500 p-2 rounded-xl transition relative z-10"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto">
+                <form id="formMessage" class="space-y-5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 flex justify-between">
+                            Người nhận <span class="text-blue-600">Đã chọn: <span id="lblMsgCount" class="font-black text-sm">0</span></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tiêu đề thông báo</label>
+                        <input type="text" id="msgTitle" class="input-premium font-bold border-blue-200 focus:border-blue-500" required placeholder="Nhập tiêu đề...">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nội dung chi tiết</label>
+                        <textarea id="msgContent" rows="4" class="input-premium resize-none border-blue-200 focus:border-blue-500" required placeholder="Nhập nội dung chi tiết..."></textarea>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                        <input type="checkbox" id="chkSendAsBot" value="1" class="w-4 h-4 text-blue-600 rounded border-blue-300 focus:ring-blue-500 cursor-pointer" checked>
+                        <label for="chkSendAsBot" class="text-[13px] font-bold text-blue-900 cursor-pointer select-none">Gửi dưới danh nghĩa BOT Hệ thống (ID 000)</label>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
+                <button type="button" onclick="closeModal('modalMsg')" class="px-6 py-2.5 rounded-xl font-bold text-slate-500 bg-white border border-slate-200 hover:bg-slate-100 transition active:scale-95">Hủy</button>
+                <button type="button" id="btnSendMsg" onclick="sendMessages()" class="px-8 py-2.5 rounded-xl font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-200 hover:from-blue-700 hover:to-indigo-700 transition active:scale-95 uppercase tracking-widest">PHÁT SÓNG</button>
+            </div>
+        </div>
+    </div>
     
     <script src="/static/js/thanh_vien_master.js"></script>
 
