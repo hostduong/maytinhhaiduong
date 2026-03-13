@@ -45,21 +45,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Tên Cửa Hàng <span class="text-red-500">*</span></label>
-                    <input id="ten_cua_hang" name="ten_cua_hang" type="text" class="input-premium" placeholder="VD: 99K Store">
+                    <input id="ten_cua_hang" name="ten_cua_hang" type="text" class="input-premium" placeholder="VD: Máy tính Hải Dương">
                     <p id="err_ten_cua_hang" class="error-text">Tên cửa hàng 3-50 ký tự.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Định danh (Subdomain) <span class="text-red-500">*</span></label>
                     <div class="flex items-stretch group">
-                        <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium !rounded-r-none z-10 focus:z-20 border-r-0" placeholder="shopcuaban">
+                        <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium !rounded-r-none z-10 focus:z-20 border-r-0" placeholder="maytinhhaiduong">
                         <span id="domain_tail" class="domain-span bg-slate-50 border border-slate-300 border-l-0 px-4 py-3 text-slate-500 rounded-r-lg font-mono text-sm flex items-center group-focus-within:border-purple-500 transition-colors duration-200">.99k.vn</span>
                     </div>
                     <p id="err_ten_dang_nhap" class="error-text">6-30 ký tự chữ, số và gạch ngang.</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="sm:col-span-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Họ và tên Chủ sở hữu <span class="text-red-500">*</span></label>
                     <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="VD: Nguyễn Văn A">
                     <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự, không chứa số.</p>
@@ -96,7 +96,7 @@
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1.5">Mã PIN (8 số bảo mật 2 lớp) <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input id="ma_pin" name="ma_pin" type="password" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium tracking-[0.3em] font-mono text-lg pr-10" placeholder="••••••••">
+                        <input id="ma_pin" name="ma_pin" type="password" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" class="input-premium tracking-[0.3em] font-mono pr-10" placeholder="••••••••">
                         <button type="button" onclick="togglePass('ma_pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 focus:outline-none">
                             <svg id="eye_slash_ma_pin" class="w-5 h-5 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
                             <svg id="eye_open_ma_pin" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -156,7 +156,7 @@
         const iti = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
 
         const RULES = {
-            ten_cua_hang: { regex: /^[\p{L}\s0-9&.\-]{3,50}$/u }, // Bổ sung Tên cửa hàng
+            ten_cua_hang: { regex: /^[\p{L}\s0-9&.\-]{3,50}$/u },
             ho_ten: { regex: /^[\p{L}\s]{6,50}$/u },
             email: { regex: /^[a-z0-9._%+\-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/ },
             ma_pin: { regex: /^\d{8}$/ },
@@ -165,7 +165,7 @@
         };
 
         const CHAR_RULES = { 
-            ten_cua_hang: /[^\p{L}\s0-9&.\-]/u, // Ký tự cấm cho tên cửa hàng
+            ten_cua_hang: /[^\p{L}\s0-9&.\-]/u,
             ho_ten: /[^\p{L}\s]/u, 
             email: /[^a-z0-9._%+\-@]/, 
             ma_pin: /[^0-9]/, 
@@ -254,7 +254,6 @@
         document.getElementById('terms').addEventListener('change', checkSubmitButton);
 
         function checkSubmitButton() {
-            // [BỔ SUNG] Yêu cầu cả 'ten_cua_hang' phải có màu xanh (success) thì nút bấm mới sáng
             const ids = ['ten_cua_hang', 'ho_ten', 'email', 'ma_pin', 'ten_dang_nhap', 'mat_khau', 're_mat_khau'];
             let allOk = true;
             ids.forEach(id => { if (!document.getElementById(id).classList.contains('input-success')) allOk = false; });
