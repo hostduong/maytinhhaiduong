@@ -33,13 +33,31 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 
 	targetLevel := Repo_LayCapBac(dto.ShopID, kh.MaKhachHang, kh.VaiTroQuyenHan)
 
-	if dto.MaKH == "0000000000000000001" && dto.AdminID != "0000000000000000001" { return errors.New("Không ai được chạm vào hồ sơ Sáng Lập Viên!") }
-	if dto.MaKH == "0000000000000000000" && dto.AdminID != "0000000000000000001" { return errors.New("Chỉ Sáng Lập Viên mới được cấu hình BOT!") }
-	if dto.VaiTro == "quan_tri_he_thong" && dto.MaKH != "0000000000000000001" { return errors.New("Chỉ có duy nhất 1 vị trí Quản trị hệ thống!") }
-	if dto.MaKH != "0000000000000000000" && dto.AdminID != dto.MaKH && myLevel >= targetLevel { return errors.New("Bạn không có quyền chỉnh sửa cấp trên!") }
+	// [LUẬT THÉP 1]: BẢO VỆ TUYỆT ĐỐI SÁNG LẬP VIÊN
+	if kh.MaKhachHang == "0000000000000000001" || kh.VaiTroQuyenHan == "quan_tri_he_thong" {
+		if dto.AdminID != "0000000000000000001" {
+			return errors.New("Bất khả xâm phạm: Không ai được phép chạm vào thông tin của Sáng Lập Viên!")
+		}
+	}
+
+	// [LUẬT THÉP 2]: ĐỘC QUYỀN VƯƠNG MIỆN
+	if dto.VaiTro == "quan_tri_he_thong" && dto.MaKH != "0000000000000000001" { 
+		return errors.New("Quyền Sáng Lập Viên là duy nhất, không thể cấp cho người khác!") 
+	}
+
+	// [LUẬT THÉP 3]: MASTER SỬA CẢ THIÊN HẠ, KẺ KHÁC PHẢI TUÂN THEO CẤP BẬC
+	// (Nếu không phải là 001 đang thao tác, thì tiến hành chặn theo Level)
+	if dto.AdminID != "0000000000000000001" {
+		if dto.MaKH == "0000000000000000000" { 
+			return errors.New("Chỉ Sáng Lập Viên mới được phép cấu hình BOT!") 
+		}
+		if dto.AdminID != dto.MaKH && myLevel >= targetLevel { 
+			return errors.New("Thao tác bị từ chối: Bạn không có quyền chỉnh sửa tài khoản cấp trên hoặc ngang quyền!") 
+		}
+	}
+
 	if dto.MaKH == dto.AdminID && dto.TrangThai == "0" { return errors.New("Không thể tự khóa tài khoản chính mình!") }
 	
-	// [FIX NGHIÊM TRỌNG]: Khóa đúng Cụm RAM của Master, không dùng KhoaHeThong chung chung
 	lockMaster := core.GetSheetLock(dto.ShopID, core.TenSheetKhachHangMaster)
 	lockMaster.Lock()
 	
@@ -81,7 +99,7 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 
 	b, _ := json.Marshal(kh)
 	jsonStr := string(b)
-	lockMaster.Unlock() // Nhớ mở khóa ngay sau khi nén JSON
+	lockMaster.Unlock() 
 
 	Repo_GhiCapNhatJSONXuongQueue(dto.ShopID, kh.DongTrongSheet, jsonStr)
 
