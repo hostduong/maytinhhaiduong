@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .TieuDe }} | 99K.VN Lõi</title>
+    <title>{{ .TieuDe }} | 99K.VN</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/99k-style.css"> 
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
@@ -35,18 +37,15 @@
         .led-border-wrapper::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, transparent, #c084fc, #6d28d9, transparent);
-            animation: spin 3s linear infinite; z-index: 0;
+            animation: spin-slow 3s linear infinite; z-index: 0;
         }
         .led-border-inner { position: relative; background: #f8fafc; border-radius: calc(1.5rem - 3px); z-index: 10; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
+        
         .mystic-bg {
             background: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
                         radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
         }
         button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        
-        .swal2-popup { padding: 0 !important; background: transparent !important; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center mystic-bg p-4 overflow-x-hidden">
@@ -124,41 +123,46 @@
             catch(e) { return {status:'error',msg:'Mất kết nối với Lõi Máy Chủ!'}; }
         }
 
-        // HÀM HIỂN THỊ ALERT LỖI XỊN SÒ (TRẮNG SÁNG, NÚT CAM ĐỎ)
+        // TẬN DỤNG TRỰC TIẾP CLASS SWAL-MASTER-ERROR
         function showError(msg) {
             Swal.fire({
-                background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false,
                 html: `
-                <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
-                    <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
-                        <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
-                        <p class="font-bold text-orange-600 mb-8">${msg}</p>
-                        <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">Đã Hiểu</button>
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                </div>`
+                    <span class="text-3xl font-black title-gradient-red uppercase tracking-widest mt-2">Thất Bại</span>
+                    <div class="text-[15px] text-orange-900 font-bold px-4 mb-2">${msg}</div>
+                </div>`,
+                customClass: { 
+                    popup: 'swal-master-error', 
+                    confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-12 py-3.5 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest mt-4'
+                },
+                buttonsStyling: false,
+                confirmButtonText: 'Đã Hiểu'
             });
         }
 
-        // HÀM HIỂN THỊ ALERT THÀNH CÔNG XỊN SÒ (CÓ VIỀN LED)
-        function showSuccess(msg) {
+        // TẬN DỤNG TRỰC TIẾP CLASS SWAL-MASTER-SUCCESS
+        function showSuccess(title, msg, btnText, redirectUrl) {
             Swal.fire({
-                background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false, allowOutsideClick: false,
                 html: `
-                <div class="led-border-wrapper mx-auto max-w-[400px]">
-                    <div class="led-border-inner p-10 relative flex flex-col items-center text-center">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-5 shadow-lg shadow-violet-500/40 text-white border-4 border-white">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <h2 class="text-3xl font-black text-slate-800 tracking-tight mb-2">Thành Công!</h2>
-                        <p class="font-bold text-violet-600 mb-8">${msg}</p>
-                        <button onclick="window.location.href='/login'" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
-                            VỀ CỔNG ĐĂNG NHẬP
-                        </button>
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-inner border border-emerald-200">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                </div>`
+                    <span class="text-3xl font-black title-gradient-purple uppercase tracking-widest mt-2">${title}</span>
+                    <div class="text-[15px] text-slate-600 font-bold px-4 mb-2">${msg}</div>
+                </div>`,
+                customClass: { 
+                    popup: 'swal-master-success', 
+                    confirmButton: 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl px-12 py-3.5 shadow-lg shadow-violet-200 transition transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest mt-4'
+                },
+                buttonsStyling: false,
+                confirmButtonText: btnText,
+                allowOutsideClick: false
+            }).then(() => {
+                if(redirectUrl) window.location.href = redirectUrl;
             });
         }
 
@@ -172,11 +176,9 @@
             
             if(r.status === 'ok') {
                 document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden');
-                Swal.fire({
-                    background: '#ffffff', color: '#8b5cf6', iconColor: '#8b5cf6', icon: 'info', 
-                    title: 'Đã phát tín hiệu', text: 'Mã giải cứu đã được gửi đến email đăng ký.', 
-                    toast: true, position: 'top-end', timer: 4000, showConfirmButton: false, customClass: {popup: 'border border-slate-200 rounded-xl shadow-lg'}
-                });
+                
+                // HIỂN THỊ HỘP THÔNG BÁO XÁC NHẬN ĐÃ GỬI THÀNH CÔNG (Không redirect)
+                showSuccess('Tín Hiệu Đã Gửi', 'Mã xác thực OTP đã được gửi đến hòm thư của bạn.', 'Tiếp Tục', null);
             } else { showError(r.msg); }
         }
 
@@ -192,8 +194,10 @@
             const r = await postData('/api/auth/reset-by-otp', {dinh_danh: userVal, otp: otpVal, pass_moi: passVal});
             btn.disabled = false; btn.innerText = 'GHI ĐÈ & KHÔI PHỤC';
             
-            if(r.status === 'ok') { showSuccess('Khóa bảo mật lõi đã được cập nhật!'); } 
-            else { showError(r.msg); }
+            if(r.status === 'ok') { 
+                // HIỂN THỊ THÀNH CÔNG VÀ CHUYỂN VỀ LOGIN
+                showSuccess('Đã Khôi Phục', 'Khóa bảo mật lõi đã được ghi đè thành công!', 'Về Cổng Đăng Nhập', '/login'); 
+            } else { showError(r.msg); }
         }
     </script>
 </body>
