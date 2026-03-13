@@ -51,7 +51,8 @@ func (s *Service) Login(dinhDanh, pass, userAgent string, ghiNho bool) (string, 
 	return sessionID, signature, nil
 }
 
-func (s *Service) Register(hoTen, user, email, pass, maPin, dienThoai, userAgent string) (string, string, error) {
+// Đã bổ sung tham số tenCuaHang vào hàm Register
+func (s *Service) Register(tenCuaHang, hoTen, user, email, pass, maPin, dienThoai, userAgent string) (string, string, error) {
 	adminID := config.BienCauHinh.IdFileSheetAdmin
 	if err := core.EnsureKhachHangLoaded(adminID); err != nil { return "", "", err }
 
@@ -76,11 +77,13 @@ func (s *Service) Register(hoTen, user, email, pass, maPin, dienThoai, userAgent
 		VaiTroQuyenHan: "khach_hang", ChucVu: "Chủ Cửa Hàng", TrangThai: 1,
 		GoiDichVu: make([]core.TenantGoiDichVu, 0), Modules: make(map[string]bool),
 		CauHinh: core.TenantCauHinh{Theme: "light", Lang: "vi"},
+		
+		// Khối Thông Tin đã được kiểm tra kỹ dấu phẩy
 		ThongTin: core.TenantThongTin{
-			NguonKhachHang: "web_saas_register",
-			TenCuaHang: tenCuaHang,
-			TenKhachHang: hoTen,
-			DienThoai: dienThoai
+			NguonKhachHang: "web_saas_register", 
+			TenCuaHang: tenCuaHang, 
+			TenKhachHang: hoTen, 
+			DienThoai: dienThoai,
 		},
 		NgayTao: nowUnix, NguoiCapNhat: user, NgayCapNhat: nowUnix, 
 	}
@@ -101,7 +104,6 @@ func (s *Service) Register(hoTen, user, email, pass, maPin, dienThoai, userAgent
 	return sessionID, signature, nil
 }
 
-// Hàm đổi mật khẩu mới (Sử dụng sau khi đã Verify PIN/OTP thành công)
 func (s *Service) ResetPassword(dinhDanh, passMoi string) error {
 	adminID := config.BienCauHinh.IdFileSheetAdmin
 	kh, ok := s.repo.FindByUserOrEmail(dinhDanh)
