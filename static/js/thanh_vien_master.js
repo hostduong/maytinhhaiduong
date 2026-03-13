@@ -3,9 +3,6 @@ const isMeRoot = (currentUserID === "0000000000000000001");
 const myLevel = window.MasterConfig.myLevel;
 let itiPhone, itiZalo;
 
-// ==========================================
-// CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
-// ==========================================
 const listPane = document.getElementById('listPaneUI');
 const detailPane = document.getElementById('modalEdit'); 
 const dragBar = document.getElementById('dragResizerUI');
@@ -18,7 +15,6 @@ if (dragBar) {
         document.body.classList.add('cursor-col-resize', 'select-none');
         listPane.style.transition = 'none'; 
     });
-
     document.addEventListener('mousemove', function(e) {
         if (!isResizing) return;
         e.preventDefault(); 
@@ -30,7 +26,6 @@ if (dragBar) {
         listPane.style.flex = 'none'; 
         detailPane.style.width = (100 - percentage) + '%';
     });
-
     document.addEventListener('mouseup', function(e) {
         if (isResizing) {
             isResizing = false;
@@ -40,10 +35,6 @@ if (dragBar) {
     });
 }
 
-
-// ==========================================
-// NGHIỆP VỤ XỬ LÝ DỮ LIỆU
-// ==========================================
 function checkInputState(input) {
     if(input.value.trim() !== "") input.classList.add('has-data');
     else input.classList.remove('has-data');
@@ -83,10 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fbInput = document.getElementById('f_fb');
     if (fbInput) { fbInput.addEventListener('blur', function() { this.value = formatSocialLink(this.value, 'facebook'); checkInputState(this); }); }
-    
     const tiktokInput = document.getElementById('f_tiktok');
     if (tiktokInput) { tiktokInput.addEventListener('blur', function() { this.value = formatSocialLink(this.value, 'tiktok'); checkInputState(this); }); }
-    
     const avatarInput = document.getElementById('f_avatar');
     if (avatarInput) {
         avatarInput.addEventListener('blur', function() {
@@ -200,47 +189,53 @@ function editMember(ma) {
     const boxBaoMat = document.getElementById('box_cap_lai_bao_mat');
     if (isSystemBot) { boxBaoMat.classList.add('hidden'); } else { boxBaoMat.classList.remove('hidden'); }
 
-    // ============================================================
-    // THUẬT TOÁN PHÂN QUYỀN ĐỘNG DỰA THEO LEVEL CỦA SẾP
-    // ============================================================
+    // ==========================================================
+    // THUẬT TOÁN ĐIỀU KHIỂN SELECT OPTION (Quyền & Trạng Thái)
+    // ==========================================================
     let roleSelect = document.getElementById('f_role');
     let statusSelect = document.getElementById('f_status');
 
+    // 1. Dọn dẹp Option ảo của lần click trước
     Array.from(roleSelect.options).forEach(opt => {
-        let optLevel = parseInt(opt.getAttribute('data-level') || "9");
+        if (opt.classList.contains('temp-opt')) opt.remove();
         opt.disabled = false;
-        opt.style.display = ''; // Hiển thị lại tất cả trước
-        
-        // LUẬT: Nếu không phải Master (0), bạn chỉ được phong tước cho chức vụ thấp hơn mình (Tức là chỉ số Level phải lớn hơn)
-        if (myLevel > 0 && optLevel <= myLevel) {
-            opt.disabled = true;
-            opt.style.display = 'none'; // Ẩn luôn cho gọn UI
-        }
     });
+
+    // 2. Vì Backend đã chặn gửi xuống HTML các Quyền cao, ta cần kiểm tra xem chức vụ của người này có nằm trong Select không
+    let currentOpt = roleSelect.querySelector(`option[value="${data.role}"]`);
+    if (!currentOpt) {
+        // Tự tạo một Option ảo để hiển thị cho Sếp biết nó là chức vụ gì
+        let newOpt = document.createElement('option');
+        newOpt.value = data.role;
+        newOpt.text = data.title || data.role; 
+        newOpt.classList.add('temp-opt');
+        roleSelect.add(newOpt);
+    }
 
     roleSelect.value = data.role; 
     statusSelect.value = data.status;
     roleSelect.disabled = false; 
     statusSelect.disabled = false;
 
-    // Đảm bảo chức vụ hiện tại của họ vẫn được nhìn thấy (dù bị mờ nếu mình không có quyền đổi)
-    let currentOpt = roleSelect.querySelector(`option[value="${data.role}"]`);
-    if (currentOpt) { currentOpt.style.display = ''; }
-
-    // LUẬT: Level 5-9 (Nhân viên) bị khóa mõm hoàn toàn, không được thả/khóa acc, không đổi được quyền
+    // LUẬT 1: Level 5-9 (Nhân viên) bị tước quyền phân trang hoàn toàn
     if (myLevel >= 5) {
         roleSelect.disabled = true;
-        // statusSelect.disabled = true; // Mở cmt nếu muốn cấm cả việc Khóa acc
     }
 
-    // LUẬT: Chúa tể 001 là bất khả xâm phạm
+    // LUẬT 2: Nếu sửa một người không có Option trong danh sách (người này cấp cao hơn hoặc bằng mình) -> KHÓA
+    if (!currentOpt && ma !== "0000000000000000001") {
+        roleSelect.disabled = true;
+    }
+
+    // LUẬT 3: Chúa tể 001 là bất khả xâm phạm
     if (ma === "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
-    // LUẬT: Không thể tự đổi tước vị của chính mình
+    
+    // LUẬT 4: Không thể tự đổi tước vị của chính mình
     if (ma === currentUserID && currentUserID !== "0000000000000000001") { 
         roleSelect.disabled = true; 
-        statusSelect.disabled = true; // Không tự sát
+        statusSelect.disabled = true;
     }
-    // ============================================================
+    // ==========================================================
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     
@@ -341,6 +336,7 @@ async function saveMember() {
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
     
+    // NẾU Ô BỊ KHÓA, BẮT BUỘC TRUYỀN LẠI DỮ LIỆU CŨ ĐỂ SERVER KHÔNG LƯU RỖNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
