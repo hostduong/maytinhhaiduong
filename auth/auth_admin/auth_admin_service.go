@@ -48,7 +48,7 @@ func (s *Service) Login(dinhDanh, pass, userAgent string, ghiNho bool) (string, 
 		}
 	}
 	
-	// 3. Nếu số lượng thiết bị khác nhau vẫn >= 5, đá văng thiết bị cũ nhất
+	// 3. Nếu số lượng thiết bị khác nhau vẫn >= 20, đá văng thiết bị cũ nhất
 	if len(kh.RefreshTokens) >= 20 {
 		var oldestKey string; var oldestTime int64 = 1<<63 - 1
 		for key, info := range kh.RefreshTokens { 
