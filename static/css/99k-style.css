@@ -779,3 +779,74 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 .edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
 .responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
 @container formPanel (min-width: 800px) { .responsive-grid-form { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
+
+
+/* ==============================================================
+   23. NỀN TẢNG ĐỒNG BỘ DARK MODE (GLOBAL OVERRIDES)
+   ============================================================== */
+:root {
+    --transition-theme: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+/* KHI THẺ HTML CÓ THUỘC TÍNH [data-theme="dark"] -> LẬP TỨC ĐẢO MÀU TOÀN BỘ HỆ THỐNG */
+[data-theme="dark"] {
+    --bg-base: #0f172a;        /* Nền tổng: Slate 900 */
+    --bg-panel: #1e293b;       /* Nền khối: Slate 800 */
+    --bg-input: #0f172a;       /* Nền ô gõ: Slate 900 */
+    
+    --text-main: #f8fafc;      /* Chữ chính: Trắng Slate 50 */
+    --text-muted: #94a3b8;     /* Chữ phụ: Xám Slate 400 */
+    
+    --border-light: #334155;   /* Viền: Slate 700 */
+}
+
+/* --- ÉP THAY ĐỔI CÁC CLASS TAILWIND MẶC ĐỊNH MÀ KHÔNG CẦN SỬA HTML --- */
+[data-theme="dark"] body { 
+    background-color: var(--bg-base) !important; 
+    color: var(--text-main) !important; 
+    transition: var(--transition-theme);
+}
+
+/* Biến nền trắng thành nền Tối */
+[data-theme="dark"] .bg-white, 
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-f8fafc { 
+    background-color: var(--bg-panel) !important; 
+    transition: var(--transition-theme);
+}
+
+/* Đảo ngược màu chữ text-slate-800 -> Trắng */
+[data-theme="dark"] .text-slate-800, 
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-700 { 
+    color: var(--text-main) !important; 
+}
+
+/* Đảo ngược viền border-slate-200 -> Xám tối */
+[data-theme="dark"] .border-slate-200, 
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-300 { 
+    border-color: var(--border-light) !important; 
+}
+
+/* Đồng bộ Input Premium vào Dark Mode */
+[data-theme="dark"] .input-premium {
+    background-color: var(--bg-input) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-light) !important;
+}
+[data-theme="dark"] .input-premium:focus {
+    border-color: #a855f7 !important; /* Vẫn giữ viền Tím khi Focus */
+}
+[data-theme="dark"] .input-premium.has-data {
+    background-color: #1e1b4b !important; /* Tím than cực tối */
+    border-color: #6d28d9 !important;
+    color: #e9d5ff !important;
+}
+
+/* Đảo màu Khối Cảnh báo (Warning Box) */
+[data-theme="dark"] .animated-warning-inner {
+    background-color: #451a03 !important; /* Nền cam tối */
+}
+[data-theme="dark"] .animated-warning-inner .text-orange-950 { color: #fdba74 !important; }
+[data-theme="dark"] .animated-warning-inner .text-orange-900 { color: #fb923c !important; }
