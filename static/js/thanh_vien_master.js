@@ -108,6 +108,7 @@ function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 function editMember(ma) {
     let data = mapData[ma]; if(!data) return;
+    
     document.getElementById('formEdit').reset();
     document.getElementById('f_pass').setAttribute('readonly', 'true'); document.getElementById('f_pin').setAttribute('readonly', 'true');
     
@@ -122,7 +123,17 @@ function editMember(ma) {
     document.getElementById('f_title').value = data.title; document.getElementById('f_avatar').value = data.avatar; 
     document.getElementById('f_source').value = data.source; document.getElementById('f_fb').value = data.fb; 
     document.getElementById('f_tiktok').value = data.tiktok; document.getElementById('f_note').value = data.note; 
-    document.getElementById('f_log_created').innerText = data.created || "--"; document.getElementById('f_log_updated').innerText = data.updated || "--"; document.getElementById('f_log_updater').innerText = data.updater || "Hệ Thống";
+    
+    // Convert timestamp to readable date
+    const formatDate = (ts) => {
+        if (!ts || ts === "0") return "--";
+        const date = new Date(parseInt(ts) * 1000);
+        return date.toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    };
+    
+    document.getElementById('f_log_created').innerText = formatDate(data.created); 
+    document.getElementById('f_log_updated').innerText = formatDate(data.updated); 
+    document.getElementById('f_log_updater').innerText = data.updater || "Hệ Thống";
 
     const isSystemBot = (ma === "0000000000000000000");
     const boxBaoMat = document.getElementById('box_cap_lai_bao_mat');
