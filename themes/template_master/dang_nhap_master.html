@@ -4,51 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .TieuDe }} | 99K.VN</title>
+    <title>{{ .TieuDe }} | 99K.VN Lõi</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; }
         
-        /* CHỐNG AUTOFILL TRÌNH DUYỆT TUYỆT ĐỐI */
+        /* Ẩn mắt mặc định, cấm Autocomplete */
         input::-ms-reveal, input::-ms-clear { display: none; }
         input[type="password"]::-webkit-reveal, input[type="password"]::-webkit-clear { display: none; }
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
-            -webkit-text-fill-color: #f8fafc !important;
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #1e293b !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
+        /* CHUẨN UI TỪ SETUP.HTML */
         .input-premium {
-            width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); 
-            outline: none; transition: all 0.3s; background: rgba(255,255,255,0.05); color: #f8fafc; font-weight: 700;
+            width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; 
+            outline: none; transition: all 0.3s; background-color: #ffffff; color: #1e293b; font-weight: 700;
         }
-        .input-premium::placeholder { font-weight: 500; color: #64748b; opacity: 1; }
-        .input-premium:focus { border-color: #9333ea; box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2); background: rgba(255,255,255,0.1); }
+        .input-premium::placeholder { font-weight: 500; color: #94a3b8; opacity: 1; }
+        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
         
+        /* VIỀN LED */
         .led-border-wrapper {
-            position: relative; padding: 2px; border-radius: 1.5rem; overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(147, 51, 234, 0.3);
+            position: relative; padding: 3px; border-radius: 1.5rem; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
         }
         .led-border-wrapper::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(transparent, transparent, transparent, #c084fc, #7e22ce, transparent);
+            background: conic-gradient(transparent, transparent, transparent, #c084fc, #6d28d9, transparent);
             animation: spin 3s linear infinite; z-index: 0;
         }
-        .led-border-inner { position: relative; background: #0f172a; border-radius: calc(1.5rem - 2px); z-index: 10; border: 1px solid #1e293b; }
+        .led-border-inner { position: relative; background: #f8fafc; border-radius: calc(1.5rem - 3px); z-index: 10; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .mystic-bg {
-            background: radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
+            background: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.15) 0%, transparent 40%);
         }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        .checkbox-custom { accent-color: #9333ea; }
         
-        /* Gọt form SweetAlert2 */
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .checkbox-custom { accent-color: #8b5cf6; width: 1.25rem; height: 1.25rem; cursor: pointer; }
+        
         .swal2-popup { padding: 0 !important; background: transparent !important; }
     </style>
 </head>
@@ -58,67 +60,66 @@
         <div class="led-border-inner p-8 sm:p-10 relative">
             
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white mb-4 shadow-lg shadow-violet-900/50 border border-violet-400/30">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white mb-4 shadow-lg shadow-violet-500/40 border-4 border-white">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <h2 class="text-3xl font-black text-white tracking-widest uppercase">Xác Thực Lõi</h2>
-                <p class="mt-2 text-xs text-violet-400 font-bold uppercase tracking-[0.2em]">Trạm Định Tuyến Tuyệt Mật</p>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Xác Thực Lõi</h2>
+                <p class="mt-2 text-xs text-violet-600 font-bold uppercase tracking-[0.2em]">Trạm Định Tuyến Tuyệt Mật</p>
             </div>
 
             {{ if .Loi }}
             <script>
                 document.addEventListener('DOMContentLoaded', () => { 
-                    // Tách biến Go ra thành biến JS an toàn bằng nháy kép
                     const loiMsg = "{{ .Loi }}"; 
-                    
                     Swal.fire({
-                        background: 'transparent', backdrop: 'rgba(2, 6, 23, 0.85)', showConfirmButton: false,
+                        background: 'transparent', backdrop: 'rgba(11, 15, 25, 0.85)', showConfirmButton: false,
                         html: `
-                        <div class="relative p-[2px] rounded-[1.5rem] bg-gradient-to-r from-red-500 to-orange-500 shadow-2xl shadow-red-500/20 max-w-[400px] mx-auto">
-                            <div class="bg-slate-900 rounded-[1.4rem] p-8 flex flex-col items-center text-center border border-slate-800">
-                                <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4 text-red-500 border border-red-500/20">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <div class="relative p-[3px] rounded-[1.5rem] bg-gradient-to-r from-orange-400 to-red-500 shadow-2xl shadow-orange-500/30 max-w-[400px] mx-auto">
+                            <div class="bg-white rounded-[1.4rem] p-8 flex flex-col items-center text-center">
+                                <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-orange-500">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 </div>
-                                <h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wider">Từ Chối Truy Cập</h2>
-                                <p class="font-medium text-slate-400 mb-8">${loiMsg}</p>
-                                <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 font-black shadow-lg active:scale-95 uppercase tracking-widest transition">Đã Hiểu</button>
+                                <h2 class="text-2xl font-black text-slate-800 mb-2">Thất Bại!</h2>
+                                <p class="font-bold text-orange-600 mb-8">${loiMsg}</p>
+                                <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-black shadow-lg transition active:scale-95 uppercase tracking-widest">Đã Hiểu</button>
                             </div>
                         </div>`
                     }); 
                 });
             </script>
             {{ end }}
-            <form id="formLogin" action="/login" method="POST" autocomplete="off" class="space-y-6 relative z-10">
+
+            <form id="formLogin" action="/login" method="POST" autocomplete="off" spellcheck="false" class="space-y-5 relative z-10">
                 <input type="text" style="display:none" autocomplete="username">
                 <input type="password" style="display:none" autocomplete="current-password">
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Định danh Sáng Lập Viên</label>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Định danh Sáng Lập Viên</label>
                     <input type="text" name="input_dinh_danh" class="input-premium" placeholder="Nhập ID, Email hoặc Username..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khóa Bảo Mật</label>
-                        <a href="/forgot-password" class="text-[11px] text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wider transition">Quên khóa?</a>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Khóa Bảo Mật</label>
+                        <a href="/forgot-password" class="text-[11px] text-violet-600 hover:text-violet-800 font-bold uppercase tracking-wider transition">Quên khóa?</a>
                     </div>
                     <div class="relative">
                         <input id="mat_khau" name="mat_khau" type="password" class="input-premium pr-10 font-mono tracking-[0.2em]" placeholder="••••••••" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
-                        <button type="button" onclick="togglePass('mat_khau')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-violet-400 transition">
+                        <button type="button" onclick="togglePass('mat_khau')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600 transition">
                             <svg id="eye_slash_mat_khau" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             <svg id="eye_open_mat_khau" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex items-center mt-2">
-                    <input id="ghi_nho" name="ghi_nho" type="checkbox" class="w-4 h-4 rounded border-slate-700 bg-slate-800 checkbox-custom cursor-pointer">
-                    <label for="ghi_nho" class="ml-2 text-sm font-semibold text-slate-400 cursor-pointer select-none">Duy trì kết nối vĩnh viễn</label>
+                <div class="flex items-center pt-2">
+                    <input id="ghi_nho" name="ghi_nho" type="checkbox" class="checkbox-custom rounded border-slate-300">
+                    <label for="ghi_nho" class="ml-2 text-sm font-bold text-slate-600 cursor-pointer select-none">Duy trì kết nối vĩnh viễn</label>
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" id="btnSubmit" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-xl shadow-violet-900/50 transition transform hover:-translate-y-1 active:scale-95 uppercase">
-                        Xâm Nhập Hệ Thống
+                    <button type="submit" id="btnSubmit" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent text-sm font-black tracking-[0.2em] rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-1 active:scale-95 uppercase">
+                        Kích Hoạt Phiên Lõi
                     </button>
                 </div>
             </form>
