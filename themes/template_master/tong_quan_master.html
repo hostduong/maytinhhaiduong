@@ -9,7 +9,7 @@
 
             <div class="relative z-10">
                 <h1 class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
-                    Chào Sếp <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">{{ .NhanVien.TenKhachHang }}</span>,
+                    Chào Sếp <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">{{ .NhanVien.ThongTin.TenKhachHang }}</span>,
                 </h1>
                 <p class="text-indigo-200 font-medium text-lg max-w-2xl leading-relaxed">
                     Hệ thống lõi <strong class="text-white">99K.VN V4.2</strong> đang vận hành trơn tru. Hãy cùng nhìn lại những thành tựu mà đế chế SaaS của chúng ta đã đạt được trong hôm nay!
@@ -25,8 +25,8 @@
             <div class="relative z-10 shrink-0">
                 <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/30 animate-[spin-slow_6s_linear_infinite]">
                     <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center animate-[spin-slow_6s_linear_reverse_infinite]">
-                        {{ $avatar := .NhanVien.AnhDaiDien }}
-                        {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.TenKhachHang "&background=1e1b4b&color=ffffff&size=200&bold=true" }}{{ end }}
+                        {{ $avatar := .NhanVien.ThongTin.AnhDaiDien }}
+                        {{ if not $avatar }}{{ $avatar = print "https://ui-avatars.com/api/?name=" .NhanVien.ThongTin.TenKhachHang "&background=1e1b4b&color=ffffff&size=200&bold=true" }}{{ end }}
                         <img src="{{ $avatar }}" class="w-full h-full rounded-full object-cover border-4 border-slate-900">
                     </div>
                 </div>
