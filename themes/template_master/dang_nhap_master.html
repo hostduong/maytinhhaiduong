@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .TieuDe }} | 99K.VN Lõi</title>
+    <title>{{ .TieuDe }} | 99K.VN</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -68,6 +68,9 @@
             {{ if .Loi }}
             <script>
                 document.addEventListener('DOMContentLoaded', () => { 
+                    // Tách biến Go ra thành biến JS an toàn bằng nháy kép
+                    const loiMsg = "{{ .Loi }}"; 
+                    
                     Swal.fire({
                         background: 'transparent', backdrop: 'rgba(2, 6, 23, 0.85)', showConfirmButton: false,
                         html: `
@@ -77,7 +80,7 @@
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 </div>
                                 <h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wider">Từ Chối Truy Cập</h2>
-                                <p class="font-medium text-slate-400 mb-8">{{ .Loi }}</p>
+                                <p class="font-medium text-slate-400 mb-8">${loiMsg}</p>
                                 <button onclick="Swal.close()" class="w-full py-3 px-4 rounded-xl text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 font-black shadow-lg active:scale-95 uppercase tracking-widest transition">Đã Hiểu</button>
                             </div>
                         </div>`
@@ -85,7 +88,6 @@
                 });
             </script>
             {{ end }}
-
             <form id="formLogin" action="/login" method="POST" autocomplete="off" class="space-y-6 relative z-10">
                 <input type="text" style="display:none" autocomplete="username">
                 <input type="password" style="display:none" autocomplete="current-password">
