@@ -186,7 +186,6 @@ function editMember(ma) {
     if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     
-    // Đổ động Tên thành viên lên thay cho chữ "Hồ Sơ & Phân Quyền"
     let titleEl = document.getElementById('modalTitle');
     if (titleEl) { titleEl.innerHTML = `Sửa: <span class="text-purple-600 ml-1 font-mono tracking-wider">${data.ten}</span>`; }
 
@@ -226,12 +225,10 @@ function editMember(ma) {
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     
-    // Đổi màu dòng đang chọn
     document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('row-active-purple'));
     const activeRow = document.querySelector(`.sp-row[data-id="${ma}"]`);
     if(activeRow) activeRow.classList.add('row-active-purple');
 
-    // Mở Pane bẻ đôi màn hình
     let modal = document.getElementById('modalEdit');
     if (modal) {
         modal.classList.remove('hidden');
@@ -275,7 +272,12 @@ function openMessageModal() {
         });
         return; 
     } 
-    document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); document.getElementById('modalMsg').classList.remove('hidden'); 
+
+    // BÍ MẬT Ở ĐÂY: Dọn dẹp màn hình, đóng Form Sửa lại trước khi bật Form Gửi Tin
+    closeModal('modalEdit');
+
+    document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); 
+    document.getElementById('modalMsg').classList.remove('hidden'); 
 }
 
 async function saveMember() {
@@ -319,8 +321,6 @@ async function saveMember() {
     fd.append('pin_xac_nhan', pinXacNhan);
     if (itiPhone) fd.set('dien_thoai', itiPhone.getNumber());
     if (itiZalo) fd.set('zalo', itiZalo.getNumber());
-    
-    // [LUẬT BẢO VỆ] NẾU Ô BỊ KHÓA, TRUYỀN LẠI DỮ LIỆU CŨ LÊN SERVER ĐỂ KHÔNG BỊ TRỐNG
     if(document.getElementById('f_role').disabled) { fd.append('vai_tro', mapData[document.getElementById('f_ma').value].role); }
     if(document.getElementById('f_status').disabled) { fd.append('trang_thai', mapData[document.getElementById('f_ma').value].status); }
 
