@@ -699,7 +699,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 /* Giao diện Mobile/Tablet: Vẫn là Popup nổi ở giữa */
 @media (max-width: 1279px) {
     .saas-detail-pane.is-open { display: flex; position: fixed; inset: 0; z-index: 100; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem; }
-    .saas-detail-box { width: 100%; max-width: 900px; max-height: 95vh; }
+    .saas-detail-box { width: 100%; max-width: 1152px; max-height: 95vh; }
 }
 
 /* Giao diện PC (Màn hình rộng): Neo bên phải màn hình */
@@ -708,7 +708,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     .saas-detail-box { width: 100%; height: calc(100vh - 120px); position: sticky; top: 0; }
 }
 
-.saas-detail-box { display: flex; flex-direction: column; background-color: #ffffff; border-radius: 1.5rem; z-index: 1; box-shadow: -10px 0 30px -10px rgba(147, 51, 234, 0.15); overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
+.saas-detail-box { display: flex; flex-direction: column; z-index: 1; overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 
 /* Thanh kéo thả (Chỉ hiện trên PC) */
@@ -732,7 +732,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     grid-template-columns: 1fr; /* Mặc định luôn là 1 cột dọc (Khi Tab bị kéo nhỏ) */
     gap: 1.5rem;
 }
-/* THẦN CHÚ: Nếu Panel bên phải kéo rộng hơn 800px -> Tự bung thành 2 cột (Trái 7 phần, Phải 5 phần) */
+/* THẦN CHÚ: Nếu Panel bên phải kéo rộng hơn 800px -> Tự bung thành 2 cột */
 @container formPanel (min-width: 800px) {
     .responsive-grid-form {
         grid-template-columns: 7fr 5fr; 
