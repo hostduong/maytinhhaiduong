@@ -741,13 +741,18 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 /* ==============================================================
    22. HỆ THỐNG MASTER UI: SPLIT-PANE & ĐỘNG CƠ BẺ CỘT
    ============================================================== */
-/* [ĐÃ FIX GỢI Ý 2]: Đổi gap thành 1.5rem (24px) để bằng với khoảng trống bên trong form */
 .saas-split-wrapper { display: flex; flex-direction: column; width: 100%; padding: 0; gap: 1.5rem; align-items: flex-start; }
 .saas-list-pane { width: 100%; flex: 1; min-width: 0; transition: width 0.15s ease-out; }
 .saas-detail-pane { display: none; flex-direction: column; min-width: 0; } 
 
 @media (min-width: 1280px) { 
-    .saas-split-wrapper { flex-direction: row; } 
+    .saas-split-wrapper { 
+        flex-direction: row; 
+        /* [VÁ LỖI GAP]: Set gap 0.75rem x2 = 1.5rem (24px) để bằng với khoảng trống bên trong Form */
+        gap: 0.75rem; 
+        /* [VÁ LỖI LỀ PHẢI]: Bù padding bên phải 24px để cân bằng với lề trái của Sidebar */
+        padding-right: 1.5rem; 
+    } 
 }
 
 /* --- B. LOGIC MOBILE / TABLET --- */
@@ -768,7 +773,6 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     .saas-detail-pane.is-open { 
         display: flex; position: relative; z-index: 60; margin-top: 0; 
         width: 45%; min-width: 400px; max-width: 70vw; flex-shrink: 0; 
-        /* [ĐÃ FIX GỢI Ý 2]: Lột bỏ padding-left để mượn khoảng trống chuẩn 1.5rem của Split-wrapper */
     }
     .saas-detail-box { 
         width: 100%; height: calc(100vh - 100px); 
@@ -788,7 +792,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 /* Thanh kéo thả */
 .saas-drag-bar { 
     display: none; width: 16px; cursor: col-resize; z-index: 70; flex-shrink: 0; 
-    /* [ĐÃ FIX GỢI Ý 2]: Ép margin âm hai bên để thanh kéo nằm đè lên khoảng trống, không chiếm thêm diện tích */
+    /* Ép margin âm -8px hai bên để thanh kéo nằm đè lên khoảng trống, không phình thêm diện tích */
     margin: 0 -8px; 
     align-items: flex-start; justify-content: center; 
     position: relative; user-select: none; align-self: stretch; 
@@ -800,14 +804,8 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 
 /* ĐỘNG CƠ CONTAINER QUERIES */
 .edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
+/* [Khoảng trống 2 cột bên trong = 1.5rem = 24px] */
 .responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
 @container formPanel (min-width: 800px) { 
     .responsive-grid-form { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } 
 }
-// Thanh kéo thả
-.saas-drag-bar > div::after {
-    content: '⋮'; /* Dấu 3 chấm dọc */
-    color: #94a3b8; font-weight: bold; font-size: 14px;
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-}
-.saas-drag-bar:hover > div::after { color: white; }
