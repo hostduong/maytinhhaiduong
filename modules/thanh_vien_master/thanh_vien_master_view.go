@@ -9,13 +9,16 @@ import (
 func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	masterShopID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
+	myRole := c.GetString("USER_ROLE")
 	
-	if Repo_LayCapBac(masterShopID, userID, c.GetString("USER_ROLE")) > 2 {
+	// Lấy cấp bậc (Level) của người đang đăng nhập
+	myLevel := Repo_LayCapBac(masterShopID, userID, myRole)
+
+	if myLevel > 2 {
 		c.Redirect(http.StatusFound, "/")
 		return
 	}
 	
-	// [FIX CHỐNG SẬP]: Xác minh tuyệt đối con trỏ me
 	me, ok := Repo_LayKhachHangMaster(masterShopID, userID)
 	if !ok || me == nil {
 		c.Redirect(http.StatusFound, "/login")
@@ -25,11 +28,11 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listAll := Repo_LayDanhSachMaster(masterShopID)
 	
 	core.KhoaHeThong.RLock()
-	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
+	listVaiTroRaw := core.CacheDanhSachVaiTro[masterShopID]
 	core.KhoaHeThong.RUnlock()
 
-	if len(listVaiTro) == 0 {
-		listVaiTro = []core.VaiTroInfo{
+	if len(listVaiTroRaw) == 0 {
+		listVaiTroRaw = []core.VaiTroInfo{
 			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Sáng Lập Viên", StyleLevel: 0, StyleTheme: 9},
 			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
 			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
@@ -37,7 +40,21 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	mapStyle := make(map[string]core.VaiTroInfo)
-	for _, v := range listVaiTro { mapStyle[v.MaVaiTro] = v }
+	for _, v := range listVaiTroRaw { mapStyle[v.MaVaiTro] = v }
+
+	// ========================================================
+	// ĐỘNG CƠ LỌC QUYỀN TỪ SERVER (BẢO MẬT BACKEND)
+	// ========================================================
+	var listVaiTroFiltered []core.VaiTroInfo
+	for _, v := range listVaiTroRaw {
+		if myLevel == 0 {
+			// Sáng Lập Viên (Level 0) thấy được mọi quyền
+			listVaiTroFiltered = append(listVaiTroFiltered, v)
+		} else if v.StyleLevel > myLevel {
+			// Các quản lý khác chỉ thấy được quyền THẤP HƠN mình (Level số to hơn)
+			listVaiTroFiltered = append(listVaiTroFiltered, v)
+		}
+	}
 
 	var listView []*core.KhachHang
 	for _, kh := range listAll {
@@ -45,7 +62,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		khCopy := *kh 
 		khCopy.Inbox = core.LayHopThuNguoiDung(masterShopID, khCopy.MaKhachHang, khCopy.VaiTroQuyenHan)
 		
-		// [CHỐT CHẶN TRẮNG TRANG]: Đảm bảo Map không bao giờ nil
 		if khCopy.MangXaHoi == nil { khCopy.MangXaHoi = make(map[string]string) }
 
 		if khCopy.MaKhachHang == "0000000000000000000" || khCopy.MaKhachHang == "0000000000000000001" || khCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
@@ -61,7 +77,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 
 	meCopy := *me
-	// [CHỐT CHẶN TRẮNG TRANG]
 	if meCopy.MangXaHoi == nil { meCopy.MangXaHoi = make(map[string]string) }
 	
 	if vInfo, ok := mapStyle[meCopy.VaiTroQuyenHan]; ok { 
@@ -78,6 +93,6 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 		"TieuDe": "Thành Viên",
 		"NhanVien": &meCopy, 
 		"DanhSach": listView, 
-		"DanhSachVaiTro": listVaiTro, 
+		"DanhSachVaiTro": listVaiTroFiltered, // CHỈ BƠM DANH SÁCH ĐÃ LỌC
 	})
 }
