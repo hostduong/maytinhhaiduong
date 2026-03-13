@@ -115,6 +115,7 @@ type TenantHoaDonConfig struct {
 
 type TenantThongTin struct {
 	NguonKhachHang string `json:"nguon_khach_hang"`
+	TenCuaHang     string `json:"ten_cua_hang"`
 	TenKhachHang   string `json:"ten_khach_hang"`
 	DienThoai      string `json:"dien_thoai"`
 	Zalo           string `json:"zalo"`
