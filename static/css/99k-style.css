@@ -817,3 +817,10 @@ input::-ms-reveal, input::-ms-clear { display: none; }
         grid-template-columns: 7fr 5fr; 
     }
 }
+// Thanh kéo thả
+.saas-drag-bar > div::after {
+    content: '⋮'; /* Dấu 3 chấm dọc */
+    color: #94a3b8; font-weight: bold; font-size: 14px;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.saas-drag-bar:hover > div::after { color: white; }
