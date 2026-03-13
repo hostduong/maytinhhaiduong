@@ -25,9 +25,12 @@ if (dragBar) {
         let percentage = (offsetLeft / splitContainer.getBoundingClientRect().width) * 100;
         if (percentage < 30) percentage = 30; 
         if (percentage > 70) percentage = 70; 
+        
         listPane.style.width = percentage + '%';
         listPane.style.flex = 'none'; 
         detailPane.style.width = (100 - percentage) + '%';
+        // [VÁ LỖI]: Bắt buộc phải có dòng này để Tab Sửa chịu co nhỏ lại khi kéo chuột
+        detailPane.style.flex = 'none'; 
     });
     document.addEventListener('mouseup', function(e) {
         if (isResizing) {
@@ -38,9 +41,6 @@ if (dragBar) {
     });
 }
 
-// ==========================================
-// NGHIỆP VỤ XỬ LÝ DỮ LIỆU
-// ==========================================
 function checkInputState(input) {
     if(input.value.trim() !== "") input.classList.add('has-data');
     else input.classList.remove('has-data');
@@ -168,8 +168,7 @@ function editMember(ma) {
     if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     
-    let titleEl = document.getElementById('modalTitle');
-    if (titleEl) { titleEl.innerHTML = `Sửa: <span class="text-purple-600 ml-1.5 font-mono tracking-wider">${data.ten}</span>`; }
+    // Đã xóa hàm cập nhật Tiêu đề "Sửa: Tên" ở đây theo ý Sếp
 
     document.getElementById('f_ma').value = ma; 
     if (document.getElementById('f_ma_hien_thi')) document.getElementById('f_ma_hien_thi').value = ma;
@@ -269,7 +268,11 @@ function openMessageModal() {
         });
         return; 
     } 
-    document.getElementById('msgTitle').value = ""; document.getElementById('msgContent').value = ""; updateCount(); 
+
+    document.getElementById('msgTitle').value = ""; 
+    document.getElementById('msgContent').value = ""; 
+    updateCount(); 
+    
     let modalMsg = document.getElementById('modalMsg');
     modalMsg.style.zIndex = '9999';
     modalMsg.classList.remove('hidden'); 
