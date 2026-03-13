@@ -27,7 +27,7 @@ func API_Login(c *gin.Context) {
 	if ghiNho { maxAge = 30 * 24 * 3600 }
 	c.SetCookie("session_token", sessionID, maxAge, "/", ".99k.vn", false, true)
 	c.SetCookie("session_sign", sign, maxAge, "/", ".99k.vn", false, true)
-	c.Redirect(http.StatusFound, "https://admin.99k.vn/tong-quan")
+	c.Redirect(http.StatusFound, "https://shop.99k.vn/tong-quan")
 }
 
 func API_Register(c *gin.Context) {
@@ -53,7 +53,7 @@ func API_Register(c *gin.Context) {
 	maxAge := int(config.ThoiGianHetHanCookie.Seconds())
 	c.SetCookie("session_token", sessionID, maxAge, "/", ".99k.vn", false, true)
 	c.SetCookie("session_sign", sign, maxAge, "/", ".99k.vn", false, true)
-	c.Redirect(http.StatusFound, "https://admin.99k.vn/tong-quan") 
+	c.Redirect(http.StatusFound, "https://shop.99k.vn/tong-quan") 
 }
 
 func API_Logout(c *gin.Context) {
