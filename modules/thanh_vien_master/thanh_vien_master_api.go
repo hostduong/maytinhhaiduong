@@ -19,6 +19,7 @@ func API_LuuThanhVienMaster(c *gin.Context) {
 		VaiTro:         c.PostForm("vai_tro"),
 		ChucVu:         strings.TrimSpace(c.PostForm("chuc_vu")),
 		TrangThai:      c.PostForm("trang_thai"),
+		TenCuaHang:     strings.TrimSpace(c.PostForm("ten_cua_hang")),
 		TenKhachHang:   strings.TrimSpace(c.PostForm("ten_khach_hang")),
 		DienThoai:      strings.TrimSpace(c.PostForm("dien_thoai")),
 		NgaySinh:       strings.TrimSpace(c.PostForm("ngay_sinh")),
