@@ -38,6 +38,9 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 		if dto.AdminID != "0000000000000000001" {
 			return errors.New("Bất khả xâm phạm: Không ai được phép chạm vào thông tin của Sáng Lập Viên!")
 		}
+		// [CHỐT CHẶN BACKEND ZERO-TRUST]: Đánh chặn mọi API Fake giả mạo hạ bệ Sếp
+		dto.VaiTro = "quan_tri_he_thong"
+		dto.TrangThai = "1"
 	}
 
 	// [LUẬT THÉP 2]: ĐỘC QUYỀN VƯƠNG MIỆN
@@ -56,7 +59,10 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 		}
 	}
 
-	if dto.MaKH == dto.AdminID && dto.TrangThai == "0" { return errors.New("Không thể tự khóa tài khoản chính mình!") }
+	// [CHỐT CHẶN BACKEND]: Không thể tự khóa hoặc xóa chính mình (Chặn cả API Fake)
+	if dto.MaKH == dto.AdminID && (dto.TrangThai == "0" || dto.TrangThai == "-1") { 
+		return errors.New("Thao tác bị từ chối: Không thể tự khóa hoặc xóa tài khoản của chính mình!") 
+	}
 	
 	lockMaster := core.GetSheetLock(dto.ShopID, core.TenSheetKhachHangMaster)
 	lockMaster.Lock()
