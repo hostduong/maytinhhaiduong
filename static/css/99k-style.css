@@ -743,44 +743,40 @@ input::-ms-reveal, input::-ms-clear { display: none; }
    ============================================================== */
 .saas-split-wrapper { display: flex; flex-direction: column; width: 100%; padding: 0; gap: 1rem; align-items: flex-start; }
 .saas-list-pane { width: 100%; flex: 1; min-width: 0; transition: width 0.15s ease-out; }
-.saas-detail-pane { display: none; flex-direction: column; }
+.saas-detail-pane { display: none; flex-direction: column; min-width: 0; } /* [Vá lỗi] Ép cho phép thu nhỏ */
 
 @media (min-width: 1280px) { 
     .saas-split-wrapper { flex-direction: row; } 
 }
 
-/* --- B. LOGIC MOBILE / TABLET (Popup nổi nền trắng) --- */
+/* --- B. LOGIC MOBILE / TABLET --- */
 @media (max-width: 1279px) {
     .saas-detail-pane.is-open { 
         display: flex; position: fixed; inset: 0; z-index: 100; 
         background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); 
-        align-items: flex-end; /* Đẩy form xuống đáy như Bottom Sheet */
-        justify-content: center; padding: 0; 
+        align-items: flex-end; justify-content: center; padding: 0; 
     }
     .saas-detail-box { 
         width: 100%; max-width: 100vw; max-height: 90vh; 
-        background-color: #f8fafc; /* Nền xám nhạt cho Mobile */
-        border-radius: 1.5rem 1.5rem 0 0; padding: 1.25rem;
+        background-color: #f8fafc; border-radius: 1.5rem 1.5rem 0 0; padding: 1.25rem;
     }
 }
 
-/* --- C. LOGIC PC (Không gian phẳng, trong suốt) --- */
+/* --- C. LOGIC PC --- */
 @media (min-width: 1280px) {
     .saas-detail-pane.is-open { 
         display: flex; position: relative; z-index: 60; margin-top: 0; 
-        width: 45%; min-width: 500px; max-width: 70vw; flex-shrink: 0; 
-        padding-left: 1.5rem; /* Khoảng cách với thanh kéo */
+        width: 45%; min-width: 400px; max-width: 70vw; flex-shrink: 0; 
+        padding-left: 1.5rem; 
     }
     .saas-detail-box { 
         width: 100%; height: calc(100vh - 100px); 
-        position: sticky; top: 0; 
-        background: transparent; /* Lột bỏ vỏ bọc nền */
-        padding: 0;
+        position: sticky; top: 0; background: transparent; padding: 0;
     }
 }
 
 .saas-detail-box { 
-    display: flex; flex-direction: column; z-index: 1; 
+    display: flex; flex-direction: column; z-index: 1; min-width: 0; /* [Vá lỗi] */
     animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
 }
 @keyframes slideInRight { 
@@ -788,7 +784,6 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     to { opacity: 1; transform: translateX(0); } 
 }
 
-/* Thanh kéo thả */
 .saas-drag-bar { 
     display: none; width: 16px; cursor: col-resize; z-index: 70; flex-shrink: 0; 
     margin: 0 -4px; align-items: flex-start; justify-content: center; 
@@ -796,15 +791,16 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 @media (min-width: 1280px) { .saas-drag-bar.is-open { display: flex; margin-top: 58px; } }
 
-/* Dòng đang chọn */
 .sp-row { border-left: 4px solid transparent; transition: all 0.2s ease; }
 .row-active-purple { background-color: #f3e8ff !important; border-left-color: #9333ea !important; }
 
-/* ĐỘNG CƠ CONTAINER QUERIES */
-.edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; }
-.responsive-grid-form { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-@container formPanel (min-width: 800px) { .responsive-grid-form { grid-template-columns: 7fr 5fr; } }
-
+/* --- ĐỘNG CƠ CONTAINER QUERIES (FIX LỖI RESIZE) --- */
+.edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
+/* [Vá lỗi]: Dùng minmax(0, 1fr) ép các cột phải cho phép bóp méo khi kéo chuột */
+.responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
+@container formPanel (min-width: 800px) { 
+    .responsive-grid-form { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } 
+}
 // Thanh kéo thả
 .saas-drag-bar > div::after {
     content: '⋮'; /* Dấu 3 chấm dọc */
