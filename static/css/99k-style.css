@@ -741,9 +741,10 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 /* ==============================================================
    22. HỆ THỐNG MASTER UI: SPLIT-PANE & ĐỘNG CƠ BẺ CỘT
    ============================================================== */
-.saas-split-wrapper { display: flex; flex-direction: column; width: 100%; padding: 0; gap: 1rem; align-items: flex-start; }
+/* [ĐÃ FIX GỢI Ý 2]: Đổi gap thành 1.5rem (24px) để bằng với khoảng trống bên trong form */
+.saas-split-wrapper { display: flex; flex-direction: column; width: 100%; padding: 0; gap: 1.5rem; align-items: flex-start; }
 .saas-list-pane { width: 100%; flex: 1; min-width: 0; transition: width 0.15s ease-out; }
-.saas-detail-pane { display: none; flex-direction: column; min-width: 0; } /* [Vá lỗi] Ép cho phép thu nhỏ */
+.saas-detail-pane { display: none; flex-direction: column; min-width: 0; } 
 
 @media (min-width: 1280px) { 
     .saas-split-wrapper { flex-direction: row; } 
@@ -767,7 +768,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     .saas-detail-pane.is-open { 
         display: flex; position: relative; z-index: 60; margin-top: 0; 
         width: 45%; min-width: 400px; max-width: 70vw; flex-shrink: 0; 
-        padding-left: 1.5rem; 
+        /* [ĐÃ FIX GỢI Ý 2]: Lột bỏ padding-left để mượn khoảng trống chuẩn 1.5rem của Split-wrapper */
     }
     .saas-detail-box { 
         width: 100%; height: calc(100vh - 100px); 
@@ -776,7 +777,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 
 .saas-detail-box { 
-    display: flex; flex-direction: column; z-index: 1; min-width: 0; /* [Vá lỗi] */
+    display: flex; flex-direction: column; z-index: 1; min-width: 0; 
     animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
 }
 @keyframes slideInRight { 
@@ -784,9 +785,12 @@ input::-ms-reveal, input::-ms-clear { display: none; }
     to { opacity: 1; transform: translateX(0); } 
 }
 
+/* Thanh kéo thả */
 .saas-drag-bar { 
     display: none; width: 16px; cursor: col-resize; z-index: 70; flex-shrink: 0; 
-    margin: 0 -4px; align-items: flex-start; justify-content: center; 
+    /* [ĐÃ FIX GỢI Ý 2]: Ép margin âm hai bên để thanh kéo nằm đè lên khoảng trống, không chiếm thêm diện tích */
+    margin: 0 -8px; 
+    align-items: flex-start; justify-content: center; 
     position: relative; user-select: none; align-self: stretch; 
 }
 @media (min-width: 1280px) { .saas-drag-bar.is-open { display: flex; margin-top: 58px; } }
@@ -794,9 +798,8 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 .sp-row { border-left: 4px solid transparent; transition: all 0.2s ease; }
 .row-active-purple { background-color: #f3e8ff !important; border-left-color: #9333ea !important; }
 
-/* --- ĐỘNG CƠ CONTAINER QUERIES (FIX LỖI RESIZE) --- */
+/* ĐỘNG CƠ CONTAINER QUERIES */
 .edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
-/* [Vá lỗi]: Dùng minmax(0, 1fr) ép các cột phải cho phép bóp méo khi kéo chuột */
 .responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
 @container formPanel (min-width: 800px) { 
     .responsive-grid-form { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } 
