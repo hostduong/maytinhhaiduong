@@ -20,11 +20,27 @@ func TrangDongBoSheetsMaster(c *gin.Context) {
 		return
 	}
 
-	me, _ := core.LayKhachHang(masterShopID, userID)
+	// [FIX LỖI TRẮNG TRANG]: Bọc an toàn, nếu mất Session thì đá ra Login
+	me, ok := core.LayKhachHang(masterShopID, userID)
+	if !ok || me == nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+
+	// Tạo bản sao (Deep Copy) để Render HTML không bao giờ bị Crash
+	meCopy := *me
+	if meCopy.MangXaHoi == nil { meCopy.MangXaHoi = make(map[string]string) }
+
+	// Bơm chỉ số giao diện (Level/Theme) để Layout render Sidebar chuẩn màu
+	if meCopy.MaKhachHang == "0000000000000000001" || meCopy.VaiTroQuyenHan == "quan_tri_he_thong" {
+		meCopy.StyleLevel, meCopy.StyleTheme = 0, 9
+	} else {
+		meCopy.StyleLevel, meCopy.StyleTheme = 1, 4
+	}
 
 	c.HTML(http.StatusOK, "master_dong_bo_sheets", gin.H{
 		"TieuDe":   "Đồng Bộ Sheets",
-		"NhanVien": me,
+		"NhanVien": &meCopy, // Truyền bản Copy an toàn xuống Giao diện
 		"QuyenHan": vaiTro,
 	})
 }
@@ -40,7 +56,13 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 	}
 
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
-	me, _ := core.LayKhachHang(masterShopID, userID)
+	
+	// [FIX LỖI]: Bọc an toàn cả luồng gọi API
+	me, ok := core.LayKhachHang(masterShopID, userID)
+	if !ok || me == nil {
+		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Phiên đăng nhập lỗi!"})
+		return
+	}
 
 	if me.BaoMat.MaPinHash == "" {
 		c.JSON(http.StatusOK, gin.H{"status": "error", "msg": "Bạn chưa thiết lập mã PIN bảo mật trong phần Hồ sơ!"})
@@ -53,7 +75,6 @@ func API_NapLaiDuLieuMasterCoPIN(c *gin.Context) {
 	}
 
 	go func() {
-		// Tái kích hoạt Động cơ Nạp Master và Admin
 		core.KhoiDongHeThongNapDuLieu()
 	}()
 
