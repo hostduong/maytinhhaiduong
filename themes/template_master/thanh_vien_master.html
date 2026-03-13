@@ -45,7 +45,6 @@
                             </thead>
                             <tbody id="tbodyMembers" class="divide-y divide-slate-100/80 bg-white/50 backdrop-blur-sm">
                                 {{ range .DanhSach }}
-                                
                                 <tr class="hover-soft-row cursor-pointer transition-colors relative sp-row {{ if eq .TrangThai 0 }}row-locked{{ else if eq .TrangThai -1 }}row-deleted{{ end }}" data-id="{{ .MaKhachHang }}" onclick="editMember('{{ .MaKhachHang }}')">
                                     
                                     <td class="px-2 sm:px-5 py-3 sm:py-4 text-center align-middle cursor-pointer" onclick="event.stopPropagation(); if(event.target.tagName !== 'INPUT') { let cb = this.querySelector('.chk-member'); cb.checked = !cb.checked; updateCount(); }">
@@ -53,41 +52,17 @@
                                     </td>
                                     
                                     <td class="px-2 sm:px-4 py-3 sm:py-4 w-full sm:w-auto align-middle relative">
-
                                         <div class="grid grid-cols-[auto_1fr] items-center sm:flex sm:items-center gap-x-3 gap-y-2 sm:gap-4 relative z-10 w-full">
-                                            
                                             <div class="flex flex-col items-center justify-center gap-2.5 shrink-0">
-                                                
                                                 <div class="avatar-led-wrap w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-all duration-300 {{ if eq .TrangThai 1 }}led-active{{ else if eq .TrangThai 0 }}led-locked{{ else }}led-deleted{{ end }}">
                                                     {{ $avatar := .ThongTin.AnhDaiDien }}
                                                     {{ if not $avatar }} {{ $avatar = print "https://ui-avatars.com/api/?name=" .ThongTin.TenKhachHang "&background=ffffff&color=7e22ce&bold=true" }} {{ end }}
                                                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=ffffff&color=7e22ce'" class="w-full h-full object-cover {{ if ne .TrangThai 1 }}grayscale opacity-50{{ end }}">
-                                                    
-                                                    {{ if eq .TrangThai 0 }}
-                                                    <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                        <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
-                                                            <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-amber-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Tạm<br>Khóa</span>
-                                                        </div>
-                                                    </div>
-                                                    {{ end }}
-                                                    
-                                                    {{ if eq .TrangThai -1 }}
-                                                    <div class="absolute inset-[2.5px] rounded-full bg-slate-900/50 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                                        <div class="w-full h-full flex items-center justify-center -rotate-[15deg]">
-                                                            <span class="text-[6px] sm:text-[7px] md:text-[8px] font-black text-red-400 uppercase text-center leading-[1.1] tracking-tighter drop-shadow-md">Đợi<br>Xóa</span>
-                                                        </div>
-                                                    </div>
-                                                    {{ end }}
                                                 </div>
-
-                                                <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="sm:hidden w-full flex items-center justify-center gap-1 bg-white text-purple-600 border border-purple-200 px-2 py-1.5 rounded-lg text-[9px] font-bold shadow-sm active:scale-95">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                    Sửa
-                                                </button>
+                                                <button onclick="event.stopPropagation(); editMember('{{ .MaKhachHang }}')" class="sm:hidden w-full flex items-center justify-center gap-1 bg-white text-purple-600 border border-purple-200 px-2 py-1.5 rounded-lg text-[9px] font-bold shadow-sm active:scale-95">Sửa</button>
                                             </div>
                                             
                                             <div class="flex flex-col min-w-0 w-full justify-center">
-                                                
                                                 <div class="relative inline-flex items-center mr-auto max-w-full">
                                                     <div class="badge-animated-wrap theme-{{ .StyleTheme }} {{ if lt .StyleLevel 4 }}tier-s{{ else if lt .StyleLevel 7 }}tier-a{{ else if eq .StyleLevel 7 }}tier-b{{ else }}tier-c{{ end }} !mt-0 !mr-0 max-w-full">
                                                         <div class="badge-inner shadow-sm truncate max-w-[150px] sm:max-w-none search-target">{{ .ThongTin.TenKhachHang }}</div>
@@ -117,7 +92,6 @@
                                                     </div>{{ end }}
                                                 </div>
                                             </div>
-
                                         </div>
                                     </td>
 
@@ -149,9 +123,8 @@
 
         <div id="modalEdit" class="saas-detail-pane hidden">
             <div class="absolute inset-0 z-0 xl:hidden bg-slate-900/70 backdrop-blur-md" onclick="closeModal('modalEdit')"></div>
-            <div id="formSpacer" class="hidden xl:block shrink-0 w-full transition-none pointer-events-none"></div>
 
-            <div class="saas-detail-box bg-slate-50 rounded-[2rem] shadow-2xl w-full xl:max-w-none transform transition-all flex flex-col max-h-[95vh] xl:max-h-none border border-white/20 relative z-10">
+            <div class="saas-detail-box bg-slate-50 rounded-[2rem] shadow-2xl w-full transform transition-all flex flex-col border border-white/20 relative z-10">
                 
                 <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-[2rem] shrink-0">
                     <div class="flex items-center gap-3">
@@ -163,7 +136,7 @@
                     <button onclick="closeModal('modalEdit')" class="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 transition text-lg font-bold">&times;</button>
                 </div>
                 
-                <div class="p-5 overflow-y-auto custom-scroll relative flex-1">
+                <div class="p-5 overflow-y-auto custom-scroll relative flex-1 min-h-0">
                     <form id="formEdit" class="space-y-5" autocomplete="off" spellcheck="false">
                         <input type="hidden" name="ma_khach_hang" id="f_ma">
                         
