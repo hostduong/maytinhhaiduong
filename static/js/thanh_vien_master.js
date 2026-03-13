@@ -7,7 +7,7 @@ let itiPhone, itiZalo;
 // CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
 // ==========================================
 const listPane = document.getElementById('listPaneUI');
-const detailPane = document.getElementById('detailPaneUI');
+const detailPane = document.getElementById('modalEdit'); // Panel bên phải
 const dragBar = document.getElementById('dragResizerUI');
 const splitContainer = document.getElementById('splitUIContainer');
 let isResizing = false;
@@ -24,8 +24,8 @@ if (dragBar) {
         e.preventDefault(); 
         let offsetLeft = e.clientX - splitContainer.getBoundingClientRect().left;
         let percentage = (offsetLeft / splitContainer.getBoundingClientRect().width) * 100;
-        if (percentage < 30) percentage = 30; // Min list width
-        if (percentage > 70) percentage = 70; // Max list width
+        if (percentage < 30) percentage = 30; 
+        if (percentage > 70) percentage = 70; 
         listPane.style.width = percentage + '%';
         listPane.style.flex = 'none'; 
         detailPane.style.width = (100 - percentage) + '%';
@@ -157,11 +157,23 @@ function filterTable(inputId, tbodyId) {
 }
 
 function closeModal(id) { 
-    document.getElementById(id).classList.remove('is-open'); 
-    if(dragBar) dragBar.classList.remove('is-open');
-    if(listPane) listPane.style.width = '100%';
-    if(detailPane) detailPane.style.width = '';
-    document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('row-active-purple'));
+    let modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('is-open');
+    }
+    if (id === 'modalEdit') {
+        let db = document.getElementById('dragResizerUI');
+        if(db) db.classList.remove('is-open');
+        
+        let lp = document.getElementById('listPaneUI');
+        if(lp) lp.style.width = '100%';
+        
+        let dp = document.getElementById('modalEdit');
+        if(dp) dp.style.width = '';
+        
+        document.querySelectorAll('.sp-row').forEach(r => r.classList.remove('row-active-purple'));
+    }
 }
 
 function editMember(ma) {
@@ -216,8 +228,15 @@ function editMember(ma) {
     if(activeRow) activeRow.classList.add('row-active-purple');
 
     // Mở Pane bẻ đôi màn hình
-    document.getElementById('detailPaneUI').classList.add('is-open');
-    if(dragBar) dragBar.classList.add('is-open');
+    let modal = document.getElementById('modalEdit');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('is-open');
+    }
+    
+    let db = document.getElementById('dragResizerUI');
+    if(db) db.classList.add('is-open');
+
     syncTopAlignment();
 }
 
