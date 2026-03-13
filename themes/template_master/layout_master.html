@@ -168,7 +168,7 @@
                     <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-bold text-white truncate">{{ .NhanVien.ThongTin.TenKhachHang }}</p>
-                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ThongTin.ChucVu }}</p>
+                        <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
                     </div>
                 </div>
                 {{ end }}
@@ -186,7 +186,7 @@
                 <img src="{{ $avatar }}" onerror="this.src='https://ui-avatars.com/api/?name=99K&background=6b21a8&color=ffffff'" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 object-cover"> 
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-white truncate">{{ .NhanVien.ThongTin.TenKhachHang }}</p>
-                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ThongTin.ChucVu }}</p>
+                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest truncate">{{ .NhanVien.ChucVu }}</p>
                 </div>
             </div>
             {{ end }}
@@ -275,19 +275,17 @@
                 const t1 = document.getElementById('titleState1'); 
                 const logo2 = document.getElementById('logoState2');
                 const t2 = document.getElementById('titleState2');
-                const pcIcon = document.getElementById('pcMenuIcon'); // Icon PC
+                const pcIcon = document.getElementById('pcMenuIcon');
 
                 if (isClosed) {
                     t1.classList.add('hidden'); 
                     logo2.classList.remove('hidden'); logo2.classList.add('flex'); 
                     t2.classList.remove('hidden'); t2.classList.add('flex');
-                    // [ĐÃ NÂNG CẤP]: Xoay icon << thành >>
                     if(pcIcon) pcIcon.style.transform = 'rotate(180deg)';
                 } else {
                     logo2.classList.add('hidden'); logo2.classList.remove('flex'); 
                     t2.classList.add('hidden'); t2.classList.remove('flex'); 
                     t1.classList.remove('hidden'); 
-                    // [ĐÃ NÂNG CẤP]: Trả icon >> về <<
                     if(pcIcon) pcIcon.style.transform = 'rotate(0deg)';
                 }
             }
@@ -372,7 +370,6 @@
                 }
             });
             
-            // Xử lý tự động đóng/mở icon PC khi resize màn hình
             if (window.innerWidth >= 768) {
                 const sidebar = document.getElementById('masterSidebar');
                 const pcIcon = document.getElementById('pcMenuIcon');
