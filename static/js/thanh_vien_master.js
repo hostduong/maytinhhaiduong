@@ -3,9 +3,6 @@ const isMeRoot = (currentUserID === "0000000000000000001");
 const myLevel = window.MasterConfig.myLevel;
 let itiPhone, itiZalo;
 
-// ==========================================
-// CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
-// ==========================================
 const listPane = document.getElementById('listPaneUI');
 const detailPane = document.getElementById('modalEdit'); 
 const dragBar = document.getElementById('dragResizerUI');
@@ -29,7 +26,6 @@ if (dragBar) {
         listPane.style.width = percentage + '%';
         listPane.style.flex = 'none'; 
         detailPane.style.width = (100 - percentage) + '%';
-        // [VÁ LỖI]: Bắt buộc phải có dòng này để Tab Sửa chịu co nhỏ lại khi kéo chuột
         detailPane.style.flex = 'none'; 
     });
     document.addEventListener('mouseup', function(e) {
@@ -158,6 +154,16 @@ function closeModal(id) {
     }
 }
 
+// [THUẬT TOÁN ĐỔ MỰC TÍM KHI KHÓA FORM]
+function applyLockStyle(element, isLocked) {
+    element.disabled = isLocked;
+    if (isLocked) {
+        element.classList.add('!opacity-100', '!bg-purple-50', '!border-purple-300', '!text-purple-900', 'cursor-not-allowed');
+    } else {
+        element.classList.remove('!opacity-100', '!bg-purple-50', '!border-purple-300', '!text-purple-900', 'cursor-not-allowed');
+    }
+}
+
 function editMember(ma) {
     let data = mapData[ma]; if(!data) return;
     
@@ -168,8 +174,6 @@ function editMember(ma) {
     if (!itiPhone) itiPhone = window.intlTelInput(inputPhone, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     if (!itiZalo) itiZalo = window.intlTelInput(inputZalo, { initialCountry: "vn", separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
     
-    // Đã xóa hàm cập nhật Tiêu đề "Sửa: Tên" ở đây theo ý Sếp
-
     document.getElementById('f_ma').value = ma; 
     if (document.getElementById('f_ma_hien_thi')) document.getElementById('f_ma_hien_thi').value = ma;
     if (document.getElementById('f_user')) document.getElementById('f_user').value = data.user || "";
@@ -189,6 +193,8 @@ function editMember(ma) {
     };
     document.getElementById('f_log_created').innerText = formatDate(data.created); 
     document.getElementById('f_log_updated').innerText = formatDate(data.updated); 
+    // [ĐÃ KHÔI PHỤC NGƯỜI CẬP NHẬT]
+    document.getElementById('f_log_updater').innerText = data.updater || "Hệ Thống";
 
     const isSystemBot = (ma === "0000000000000000000");
     const boxBaoMat = document.getElementById('box_cap_lai_bao_mat');
@@ -199,7 +205,6 @@ function editMember(ma) {
 
     Array.from(roleSelect.options).forEach(opt => {
         if (opt.classList.contains('temp-opt')) opt.remove();
-        opt.disabled = false;
     });
 
     let currentOpt = roleSelect.querySelector(`option[value="${data.role}"]`);
@@ -213,13 +218,20 @@ function editMember(ma) {
 
     roleSelect.value = data.role; 
     statusSelect.value = data.status;
-    roleSelect.disabled = false; 
-    statusSelect.disabled = false;
 
-    if (myLevel >= 5) { roleSelect.disabled = true; }
-    if (!currentOpt && ma !== "0000000000000000001") { roleSelect.disabled = true; }
-    if (ma === "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; } 
-    if (ma === currentUserID && currentUserID !== "0000000000000000001") { roleSelect.disabled = true; statusSelect.disabled = true; }
+    // Reset lại trạng thái ban đầu
+    let isRoleLocked = false;
+    let isStatusLocked = false;
+
+    // Xét duyệt các Luật Khóa
+    if (myLevel >= 5) { isRoleLocked = true; }
+    if (!currentOpt && ma !== "0000000000000000001") { isRoleLocked = true; }
+    if (ma === "0000000000000000001") { isRoleLocked = true; isStatusLocked = true; } 
+    if (ma === currentUserID && currentUserID !== "0000000000000000001") { isRoleLocked = true; isStatusLocked = true; }
+
+    // Thực thi khóa và đổ viền Tím
+    applyLockStyle(roleSelect, isRoleLocked);
+    applyLockStyle(statusSelect, isStatusLocked);
 
     document.querySelectorAll('.input-premium').forEach(input => checkInputState(input));
     
@@ -340,56 +352,6 @@ async function saveMember() {
                 customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
                 buttonsStyling: false, confirmButtonText: 'Đã hiểu'
             }); 
-        }
-    } catch(e) { 
-        Swal.fire({
-            title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Kết Nối</span></div>',
-            html: `<div class="text-[15px] text-orange-900 font-medium px-4">Đường truyền đến máy chủ bị gián đoạn!</div>`,
-            customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-            buttonsStyling: false, confirmButtonText: 'Đóng lại'
-        }); 
-    } 
-    finally { btn.disabled = false; btn.innerHTML = old; btn.classList.remove('opacity-80', 'cursor-not-allowed'); }
-}
-
-async function sendMessages() {
-    let title = document.getElementById('msgTitle').value.trim(); let content = document.getElementById('msgContent').value.trim(); let ids = getSelectedIDs();
-    let chkBot = document.getElementById('chkSendAsBot'); let sendAsBot = (chkBot && chkBot.checked) ? "1" : "0";
-    
-    if (!title || !content) { 
-        Swal.fire({
-            title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Thiếu Thông Tin</span></div>',
-            html: `<div class="text-[15px] text-orange-900 font-medium px-4">Tiêu đề và nội dung không được bỏ trống!</div>`,
-            customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-            buttonsStyling: false, confirmButtonText: 'Nhập lại'
-        });
-        return; 
-    }
-    
-    const btn = document.getElementById('btnSendMsg'); const old = btn.innerHTML; 
-    btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
-    btn.innerHTML = '<div class="flex items-center justify-center gap-2.5"><div class="spinner-led-btn"></div> Đang phát sóng...</div>';
-    
-    const fd = new FormData(); fd.append('tieu_de', title); fd.append('noi_dung', content); fd.append('danh_sach_id', JSON.stringify(ids)); fd.append('send_as_bot', sendAsBot);
-
-    try {
-        const res = await fetch('/master/api/thanh-vien/send-msg', { method: 'POST', body: fd });
-        const data = await res.json();
-        if(data.status === 'ok') { 
-            Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Đã Phát Sóng</span></div>',
-                html: `<div class="text-[15px] text-slate-600 font-medium px-4">${data.msg}</div>`,
-                customClass: { popup: 'swal-master-success' },
-                showConfirmButton: false, timer: 2000
-            }).then(() => location.reload()); 
-        } 
-        else {
-            Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Hệ Thống</span></div>',
-                html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`,
-                customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' },
-                buttonsStyling: false, confirmButtonText: 'Đóng lại'
-            });
         }
     } catch(e) { 
         Swal.fire({
