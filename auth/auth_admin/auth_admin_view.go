@@ -25,13 +25,13 @@ func checkLogin(c *gin.Context) bool {
 }
 
 func TrangDangNhap(c *gin.Context) {
-	if checkLogin(c) { c.Redirect(http.StatusFound, "https://admin.99k.vn/tong-quan"); return }
+	if checkLogin(c) { c.Redirect(http.StatusFound, "https://shop.99k.vn/tong-quan"); return }
 	// Render file /themes/template_admin/dang_nhap_admin.html
 	c.HTML(http.StatusOK, "dang_nhap_admin", gin.H{"TieuDe": "Đăng Nhập Quản Trị Hệ Thống"})
 }
 
 func TrangDangKy(c *gin.Context) {
-	if checkLogin(c) { c.Redirect(http.StatusFound, "https://admin.99k.vn/tong-quan"); return }
+	if checkLogin(c) { c.Redirect(http.StatusFound, "https://shop.99k.vn/tong-quan"); return }
 	// Render file /themes/template_admin/dang_ky_admin.html
 	c.HTML(http.StatusOK, "dang_ky_admin", gin.H{"TieuDe": "Mở Cửa Hàng Mới"})
 }
