@@ -107,7 +107,7 @@ const mapData = {};
 document.querySelectorAll('.m-data').forEach(el => {
     let id = el.getAttribute('data-id');
     mapData[id] = {
-        id: id, ten: el.getAttribute('data-name'), user: el.getAttribute('data-user'), email: el.getAttribute('data-email'),
+        id: id, storename: el.getAttribute('data-storename'), ten: el.getAttribute('data-name'), user: el.getAttribute('data-user'), email: el.getAttribute('data-email'),
         role: el.getAttribute('data-role'), title: el.getAttribute('data-title'), 
         sdt: el.getAttribute('data-phone'), dob: el.getAttribute('data-dob'), gender: el.getAttribute('data-gender'), 
         address: el.getAttribute('data-address'), tax: el.getAttribute('data-tax'), status: el.getAttribute('data-status'),
@@ -177,6 +177,7 @@ function editMember(ma) {
     document.getElementById('f_ma').value = ma; 
     if (document.getElementById('f_ma_hien_thi')) document.getElementById('f_ma_hien_thi').value = ma;
     if (document.getElementById('f_user')) document.getElementById('f_user').value = data.user || "";
+    if (document.getElementById('f_ten_cua_hang')) document.getElementById('f_ten_cua_hang').value = data.storename || "";
 
     document.getElementById('f_ten').value = data.ten;
     itiPhone.setNumber(data.sdt || ""); itiZalo.setNumber(data.zalo || ""); 
