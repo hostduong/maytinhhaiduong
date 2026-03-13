@@ -169,7 +169,8 @@
                                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên đăng nhập</label><input type="text" id="f_user" class="input-premium font-bold !opacity-100 !bg-purple-50 !border-purple-300 !text-purple-900 cursor-not-allowed" readonly tabindex="-1"></div>
                                             </div>
 
-                                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Họ và tên <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
+                                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Cửa Hàng</label><input type="text" name="ten_cua_hang" id="f_ten_cua_hang" class="input-premium font-bold text-blue-700" placeholder="VD: 99K Store..."></div>
+                                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Họ và tên chủ <span class="text-red-500">*</span></label><input type="text" name="ten_khach_hang" id="f_ten" class="input-premium font-bold text-slate-900" required></div>
                                             <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Link Ảnh đại diện</label><input type="text" name="anh_dai_dien" id="f_avatar" class="input-premium font-mono text-[12px] text-blue-600" placeholder="https://..."></div>
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                                 <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Điện thoại</label><input type="tel" id="f_sdt_fake" class="input-premium"></div>
@@ -248,7 +249,7 @@
     <div id="data_members" class="hidden">
         {{ range .DanhSach }}
         <div class="m-data" 
-            data-id="{{ .MaKhachHang }}" data-name="{{ .ThongTin.TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
+            data-id="{{ .MaKhachHang }}" data-storename="{{ .ThongTin.TenCuaHang }}" data-name="{{ .ThongTin.TenKhachHang }}" data-user="{{ .TenDangNhap }}" data-email="{{ .Email }}"
             data-role="{{ .VaiTroQuyenHan }}" data-title="{{ .ChucVu }}" 
             data-phone="{{ .ThongTin.DienThoai }}" data-dob="{{ .ThongTin.NgaySinh }}" data-gender="{{ .ThongTin.GioiTinh }}" 
             data-address="{{ .ThongTin.DiaChi }}" data-tax="{{ .ThongTin.MaSoThue }}" data-status="{{ .TrangThai }}"
