@@ -7,7 +7,7 @@ let itiPhone, itiZalo;
 // CƠ CHẾ KÉO THẢ (DRAG TO RESIZE SPLIT PANE)
 // ==========================================
 const listPane = document.getElementById('listPaneUI');
-const detailPane = document.getElementById('modalEdit'); // Panel bên phải
+const detailPane = document.getElementById('modalEdit');
 const dragBar = document.getElementById('dragResizerUI');
 const splitContainer = document.getElementById('splitUIContainer');
 let isResizing = false;
