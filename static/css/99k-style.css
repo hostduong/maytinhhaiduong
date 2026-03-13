@@ -781,27 +781,29 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 @container formPanel (min-width: 800px) { .responsive-grid-form { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
 
 /* ==============================================================
-   RESPONSIVE MOBILE: GHI NÚT GỬI THÔNG BÁO XUỐNG ĐÁY
+   FIX RESPONSIVE MOBILE: GHI NÚT GỬI THÔNG BÁO XUỐNG ĐÁY
    ============================================================== */
 @media (max-width: 767px) { /* Chỉ áp dụng cho màn hình điện thoại */
     .mobile-bottom-fixed {
         position: fixed !important;
-        bottom: 1.5rem !important; /* Cách đáy 24px */
-        left: 1.5rem !important;   /* Cách trái 24px */
-        right: 1.5rem !important;  /* Cách phải 24px */
+        bottom: 1.5rem !important; 
+        left: 1.5rem !important;   
+        right: 1.5rem !important;  
         width: auto !important;
-        z-index: 90 !important;    /* Nổi lên trên danh sách */
-        box-shadow: 0 10px 25px rgba(147, 51, 234, 0.4) !important; /* Bóng đổ Tím rực rỡ để nổi bật */
+        
+        /* 🚨 VŨ KHÍ TIÊU DIỆT QUÁI VẬT: Ép cứng chiều cao 50px, cấm giãn nở 100% màn hình */
+        height: 50px !important; 
+        
+        z-index: 90 !important;    
+        box-shadow: 0 10px 25px rgba(147, 51, 234, 0.4) !important; 
         border-radius: 1rem !important;
     }
     
-    /* Bù khoảng trống ở dưới cùng bảng danh sách để khi cuộn đến cuối, 
-       nút không che lấp phần tử cuối cùng */
+    /* Bù khoảng trống ở dưới cùng bảng danh sách để cuộn không bị che */
     .saas-list-pane {
-        padding-bottom: 5rem !important; 
+        padding-bottom: 6rem !important; 
     }
 }
-
 /* ==============================================================
    23. NỀN TẢNG ĐỒNG BỘ DARK MODE (GLOBAL OVERRIDES)
    ============================================================== */
