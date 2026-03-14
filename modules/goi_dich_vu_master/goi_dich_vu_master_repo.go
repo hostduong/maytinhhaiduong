@@ -14,7 +14,7 @@ func Repo_FindByCode(shopID, maGoi string) (*core.GoiDichVu, bool) {
 }
 
 func Repo_Insert(masterID string, gdv *core.GoiDichVu) {
-	lock := core.GetSheetLock(masterID, core.TenSheetCauHinh)
+	lock := core.GetSheetLock(masterID, core.TenSheetCauHinhMaster)
 	lock.Lock()
 	
 	core.CacheDongHienTaiCauHinh[masterID]++
@@ -25,7 +25,7 @@ func Repo_Insert(masterID string, gdv *core.GoiDichVu) {
 	lock.Unlock()
 
 	b, _ := json.Marshal(gdv)
-	core.PushAppend(masterID, core.TenSheetCauHinh, []interface{}{
+	core.PushAppend(masterID, core.TenSheetCauHinhMaster, []interface{}{
 		core.PreGoiDichVu + gdv.MaGoi, 
 		string(b),
 	})
