@@ -142,5 +142,5 @@ func (s *PaymentService) BuyStarterPackage(masterShopID, userID, maGoi, maCode s
 
 	go s.KhoiTaoHaTangSubdomain(tenDangNhap)
 
-	return "https://admin.99k.vn/database", nil
+	return "https://shop.99k.vn/database", nil
 }
