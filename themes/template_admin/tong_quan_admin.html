@@ -11,9 +11,11 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
                     {{ .TenGoiHienTai }}
                 </div>
+                
                 <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">
-                    Chào mừng trở lại, <span class="text-gradient-animated">{{ .NhanVien.TenKhachHang }}</span>!
+                    Chào mừng trở lại, <span class="text-gradient-animated">{{ if .NhanVien }}{{ .NhanVien.TenKhachHang }}{{ else }}Chủ Cửa Hàng{{ end }}</span>!
                 </h1>
+                
                 <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
                     Hôm nay là một ngày tuyệt vời để bứt phá doanh thu. Hãy kiểm tra các chỉ số cửa hàng và chuẩn bị cho những đơn hàng mới nhé.
                 </p>
@@ -31,12 +33,12 @@
                 <div class="mb-4">
                     <div class="flex justify-between text-xs font-bold mb-1">
                         <span class="text-slate-600">Sản phẩm lưu trữ</span>
-                        <span class="{{ if ge .PhanTramSP 90 }}text-red-500{{ else }}text-purple-600{{ end }}">{{ .SoSanPhamHienTai }} / {{ .MaxSanPham }}</span>
+                        <span class="{{ if ge .PhanTramSP 90.0 }}text-red-500{{ else }}text-purple-600{{ end }}">{{ .SoSanPhamHienTai }} / {{ .MaxSanPham }}</span>
                     </div>
                     <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                        <div class="h-2.5 rounded-full transition-all duration-1000 {{ if ge .PhanTramSP 90 }}bg-red-500{{ else if ge .PhanTramSP 75 }}bg-orange-500{{ else }}bg-gradient-to-r from-purple-500 to-indigo-500{{ end }}" style="width: {{ .PhanTramSP }}%"></div>
+                        <div class="h-2.5 rounded-full transition-all duration-1000 {{ if ge .PhanTramSP 90.0 }}bg-red-500{{ else if ge .PhanTramSP 75.0 }}bg-orange-500{{ else }}bg-gradient-to-r from-purple-500 to-indigo-500{{ end }}" style="width: {{ .PhanTramSP }}%"></div>
                     </div>
-                    {{ if ge .PhanTramSP 90 }}
+                    {{ if ge .PhanTramSP 90.0 }}
                     <p class="text-[10px] text-red-500 mt-1 font-bold">⚠️ Sắp hết dung lượng! <a href="/" class="underline">Nâng cấp ngay</a></p>
                     {{ end }}
                 </div>
