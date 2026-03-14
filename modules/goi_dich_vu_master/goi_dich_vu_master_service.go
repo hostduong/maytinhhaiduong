@@ -22,7 +22,7 @@ func Service_XuLyLuu(shopID string, isNew bool, input *core.GoiDichVu) error {
 		old, ok := Repo_FindByCode(shopID, input.MaGoi)
 		if !ok { return errors.New("Không tìm thấy gói cước để cập nhật") }
 
-		lock := core.GetSheetLock(shopID, core.TenSheetCauHinh)
+		lock := core.GetSheetLock(shopID, core.TenSheetCauHinhMaster)
 		lock.Lock()
 		
 		// Kế thừa dữ liệu hệ thống
