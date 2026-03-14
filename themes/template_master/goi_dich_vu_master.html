@@ -3,36 +3,26 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Tùy chỉnh thanh cuộn cho cột phải */
+        /* Tùy chỉnh thanh cuộn cho form */
         .custom-scroll-modal::-webkit-scrollbar { width: 6px; }
         .custom-scroll-modal::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* CSS cho nút gạt Module siêu nhỏ gọn */
-        .module-toggle {
+        /* CSS Nút gạt Module (Giao diện Sáng - Light Theme) */
+        .module-toggle-light {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px;
-            cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px; background: #f8fafc; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s; border: 1px solid #e2e8f0;
         }
-        .module-toggle:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-        .module-toggle.active { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+        .module-toggle-light:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .module-toggle-light.active { background: #faf5ff; border-color: #d8b4fe; box-shadow: inset 0 0 0 1px #f3e8ff; }
+        .module-toggle-light .txt-label { color: #64748b; font-weight: 700; font-size: 11px; transition: 0.2s; }
+        .module-toggle-light.active .txt-label { color: #7e22ce; }
 
-        /* Hiệu ứng chọn Gói cước (Bọc viền Tím) */
-        .gdv-card { border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .gdv-card.card-active-purple { 
-            border-color: #9333ea !important; 
-            transform: scale(0.97); 
-            box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.15) !important; 
-        }
-
-        /* Grid co giãn tự động cho danh sách Card */
-        .gdv-grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            align-items: start;
-        }
+        /* Hiệu ứng khi Chọn Thẻ Gói Cước (Active State) */
+        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
+        .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; box-shadow: inset 0 0 0 2px #d8b4fe; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -69,29 +59,29 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 gdv-grid-container" id="listGDVContainer">
+            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 grid grid-cols-1 md:grid-cols-2 gap-5 items-start content-start" id="listGDVContainer">
                 {{ range .ListGoi }}
-                <div class="gdv-card relative feature-card-premium group !p-0 overflow-hidden flex flex-col pricing-card-led glow-shadow-purple cursor-pointer {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }}" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
-                    
-                    {{ if eq .GiaBan 0.0 }}<div class="corner-ribbon-wrap"><div class="corner-ribbon">Miễn Phí</div></div>{{ end }}
-                    
-                    <div class="pricing-card-led-inner p-6 flex flex-col bg-white h-full pointer-events-none">
-                        <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
-                            <div>
-                                {{ if .NhanHienThi }}<span class="badge-animated-wrap theme-5 tier-s mb-2"><span class="badge-inner text-[9px] px-3 py-1">{{ .NhanHienThi }}</span></span>{{ end }}
-                                <h3 class="text-xl font-black text-gradient-animated tracking-tight gdv-search-target leading-tight">{{ .TenGoi }}</h3>
-                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest gdv-search-target">{{ .MaGoi }}</p>
-                            </div>
-                            <div class="text-right shrink-0 ml-2">
-                                {{ if gt .GiaNiemYet .GiaBan }}<div class="text-[11px] font-black text-slate-300 line-through decoration-slate-300 decoration-2">{{ format_money .GiaNiemYet }}₫</div>{{ end }}
-                                <div class="text-2xl font-black text-purple-600 tracking-tighter drop-shadow-sm leading-none">{{ format_money .GiaBan }}₫</div>
-                                <div class="text-slate-400 font-bold text-[10px] mt-1">/{{ .ThoiHanHienThi }}</div>
+                <div class="animated-border-wrapper gdv-card-wrap cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }}" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
+                    <div class="animated-border-inner gdv-card-inner p-6 flex flex-col h-full transition-colors duration-300">
+                        {{ if eq .GiaBan 0.0 }}<div class="corner-ribbon-wrap"><div class="corner-ribbon">Miễn Phí</div></div>{{ end }}
+                        
+                        <div class="flex flex-col mb-4 border-b border-slate-100 pb-4 relative z-10">
+                            {{ if .NhanHienThi }}<div class="mb-3"><span class="badge-animated-wrap theme-5 tier-s !m-0"><span class="badge-inner text-[9px] px-3 py-1">{{ .NhanHienThi }}</span></span></div>{{ end }}
+                            <h3 class="text-xl font-black text-gradient-animated tracking-tight gdv-search-target leading-tight">{{ .TenGoi }}</h3>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest gdv-search-target">{{ .MaGoi }}</p>
+                            
+                            <div class="mt-4">
+                                {{ if gt .GiaNiemYet .GiaBan }}<div class="text-[11px] font-black text-slate-300 line-through decoration-slate-300 decoration-2 mb-0.5">{{ format_money .GiaNiemYet }}₫</div>{{ end }}
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-black text-purple-600 tracking-tighter drop-shadow-sm leading-none">{{ format_money .GiaBan }}₫</span>
+                                    <span class="text-slate-400 font-bold text-[10px]">/{{ .ThoiHanHienThi }}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex-1 space-y-3 mb-2">
+                        <div class="flex-1 space-y-2 relative z-10">
                             {{ range split .MoTa "|" }}
-                            <div class="flex items-center gap-2.5 text-[12px] font-bold text-slate-600">
+                            <div class="flex items-center gap-2 text-[11px] font-bold text-slate-600">
                                 <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                 <span class="truncate">{{ . }}</span>
                             </div>
@@ -122,7 +112,7 @@
                         <h3 class="text-[15px] font-black tracking-widest text-slate-800 uppercase" id="modalTitle">Thông Số Gói Cước</h3>
                     </div>
                     <button onclick="saveGDV()" id="btnSaveGDV" class="h-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 rounded-xl font-bold shadow-lg shadow-purple-500/30 transition transform hover:-translate-y-0.5 active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center gap-1.5 shrink-0 border border-purple-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Lưu Hệ Thống
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> LƯU HỆ THỐNG
                     </button>
                 </div>
                 
@@ -132,19 +122,6 @@
                         <input type="hidden" name="gioi_han_json" id="g_limit_json">
                         <input type="hidden" name="codes_json" id="g_codes_json">
                         
-                        <div class="animated-warning-wrapper shadow-sm shadow-orange-100/50 w-full mb-2">
-                            <div class="animated-warning-inner p-4 flex items-start gap-4 bg-orange-50/40 backdrop-blur-sm relative">
-                                <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none z-0"></div>
-                                <div class="bg-gradient-to-br from-amber-100 to-orange-200 p-2 rounded-full text-orange-600 shrink-0 shadow-inner border border-orange-300/50 relative z-10">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                </div>
-                                <div class="relative z-10">
-                                    <h4 class="text-[13px] font-black text-orange-950 mb-0.5">Lưu ý hệ thống</h4>
-                                    <p class="text-[12px] text-orange-900/80 leading-relaxed font-medium">Thay đổi giới hạn và Module sẽ <b class="text-orange-700">áp dụng ngay lập tức</b> cho toàn bộ các Cửa hàng đang sử dụng gói cước này.</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="edit-form-container w-full">
                             <div class="responsive-grid-form">
                                 
@@ -165,7 +142,11 @@
                                                     <div>
                                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Loại Gói <span class="text-red-500">*</span></label>
                                                         <select name="loai_goi" id="g_loai" class="input-premium font-bold text-indigo-700 cursor-pointer bg-slate-50">
-                                                            <option value="STARTER">Gói Nền Tảng</option><option value="USER">Thêm Nhân Viên</option><option value="STORAGE">Thêm Dung Lượng</option>
+                                                            <option value="STARTER">STARTER</option>
+                                                            <option value="USER">USER</option>
+                                                            <option value="STORAGE">STORAGE</option>
+                                                            <option value="DURATION">DURATION</option>
+                                                            <option value="DOMAIN">DOMAIN</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -182,7 +163,7 @@
                                                 
                                                 <div class="grid grid-cols-2 gap-4">
                                                     <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Thời hạn (Ngày)</label><input type="number" name="thoi_han_ngay" id="g_han" class="input-premium font-black text-center text-slate-800" value="30"></div>
-                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hiển thị (UI)</label><input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="input-premium font-black text-center text-slate-800" placeholder="VD: /tháng"></div>
+                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hiển thị (UI)</label><input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="input-premium font-black text-center text-slate-800" placeholder="VD: 01 tháng"></div>
                                                 </div>
 
                                                 <div class="pt-4 mt-2 border-t border-purple-50">
@@ -199,51 +180,51 @@
                                 </div>
 
                                 <div class="flex flex-col gap-6 h-full">
-                                    <div class="bg-[#1e1b4b] p-5 sm:p-6 rounded-3xl shadow-xl border border-indigo-900/50 relative overflow-hidden h-full flex flex-col">
-                                        <div class="absolute top-[-20%] right-[-20%] w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[80px] pointer-events-none z-0"></div>
-                                        
-                                        <div class="flex items-center gap-3 mb-5 relative z-10">
-                                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg></div>
-                                            <div>
-                                                <h4 class="font-black text-white uppercase tracking-widest text-[12px]">2. Giới Hạn Phân Hệ</h4>
+                                    <div class="animated-border-wrapper shadow-md shadow-purple-100/50 h-full">
+                                        <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col h-full">
+                                            <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
+                                            
+                                            <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg> 2. Giới Hạn Phân Hệ
+                                            </h4>
+                                            
+                                            <div class="grid grid-cols-2 gap-4 mb-6 relative z-10">
+                                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col items-center justify-center shadow-inner">
+                                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Sản Phẩm Tối Đa</label>
+                                                    <input type="number" id="g_max_sp" class="w-full bg-transparent text-center text-3xl font-black text-slate-800 outline-none focus:text-purple-600 transition-colors" value="100">
+                                                </div>
+                                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col items-center justify-center shadow-inner">
+                                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Tài Khoản Nhân Viên</label>
+                                                    <input type="number" id="g_max_nv" class="w-full bg-transparent text-center text-3xl font-black text-slate-800 outline-none focus:text-purple-600 transition-colors" value="1">
+                                                </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-2 gap-3 mb-5 relative z-10">
-                                            <div class="bg-black/20 border border-white/10 p-3 rounded-2xl flex flex-col items-center justify-center">
-                                                <label class="block text-[9px] font-black text-white/50 uppercase tracking-widest mb-1.5">Sản Phẩm Tối Đa</label>
-                                                <input type="number" id="g_max_sp" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none" value="100">
-                                            </div>
-                                            <div class="bg-black/20 border border-white/10 p-3 rounded-2xl flex flex-col items-center justify-center">
-                                                <label class="block text-[9px] font-black text-white/50 uppercase tracking-widest mb-1.5">Tài Khoản Nhân Viên</label>
-                                                <input type="number" id="g_max_nv" class="w-full bg-transparent text-center text-2xl font-black text-white outline-none" value="1">
-                                            </div>
-                                        </div>
 
-                                        <div class="flex-1 overflow-y-auto custom-scroll-modal pr-2 relative z-10 space-y-4 pb-2">
-                                            <div>
-                                                <h5 class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 border-b border-indigo-500/30 pb-1">Bán Hàng & POS</h5>
-                                                <div class="grid grid-cols-2 gap-2">
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Bán Hàng (Omni)</span><input type="checkbox" class="sr-only module-checkbox" value="ban_hang"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Quản lý Đơn Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="don_hang"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">POS Bán Tại Quầy</span><input type="checkbox" class="sr-only module-checkbox" value="pos"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Website Cửa Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="web_ban_hang"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
+                                            <div class="flex-1 overflow-y-auto custom-scroll-modal pr-2 relative z-10 space-y-5 pb-2">
+                                                <div>
+                                                    <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1.5">Bán Hàng & POS</h5>
+                                                    <div class="grid grid-cols-2 gap-2.5">
+                                                        <label class="module-toggle-light group"><span class="txt-label">Bán Hàng (Omni)</span><input type="checkbox" class="sr-only module-checkbox" value="ban_hang"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Quản lý Sản Phẩm</span><input type="checkbox" class="sr-only module-checkbox" value="san_pham"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Quản lý Đơn Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="don_hang"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">POS Bán Tại Quầy</span><input type="checkbox" class="sr-only module-checkbox" value="pos"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Website Cửa Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="web_ban_hang"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 border-b border-indigo-500/30 pb-1">Vận Hành & Khách Hàng</h5>
-                                                <div class="grid grid-cols-2 gap-2">
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Quản lý Kho Bãi</span><input type="checkbox" class="sr-only module-checkbox" value="kho"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">CRM Khách Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="khach_hang"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Hệ Thống Báo Cáo</span><input type="checkbox" class="sr-only module-checkbox" value="bao_cao"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Hóa Đơn Điện Tử</span><input type="checkbox" class="sr-only module-checkbox" value="hoa_don_dien_tu"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
+                                                <div>
+                                                    <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1.5">Vận Hành & Khách Hàng</h5>
+                                                    <div class="grid grid-cols-2 gap-2.5">
+                                                        <label class="module-toggle-light group"><span class="txt-label">Quản lý Kho Bãi</span><input type="checkbox" class="sr-only module-checkbox" value="kho"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">CRM Khách Hàng</span><input type="checkbox" class="sr-only module-checkbox" value="khach_hang"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Hệ Thống Báo Cáo</span><input type="checkbox" class="sr-only module-checkbox" value="bao_cao"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Hóa Đơn Điện Tử</span><input type="checkbox" class="sr-only module-checkbox" value="hoa_don_dien_tu"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 border-b border-indigo-500/30 pb-1">Hệ Thống Mở Rộng</h5>
-                                                <div class="grid grid-cols-2 gap-2">
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Kết nối API Riêng</span><input type="checkbox" class="sr-only module-checkbox" value="api"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
-                                                    <label class="module-toggle group"><span class="text-[10px] font-bold text-white group-hover:text-emerald-400">Cấp Subdomain</span><input type="checkbox" class="sr-only module-checkbox" value="ten_mien_free"><div class="w-6 h-3.5 bg-white/20 rounded-full relative"><div class="absolute left-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-transform"></div></div></label>
+                                                <div>
+                                                    <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1.5">Hệ Thống Mở Rộng</h5>
+                                                    <div class="grid grid-cols-2 gap-2.5">
+                                                        <label class="module-toggle-light group"><span class="txt-label">Kết nối API Riêng</span><input type="checkbox" class="sr-only module-checkbox" value="api"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                        <label class="module-toggle-light group"><span class="txt-label">Cấp Subdomain</span><input type="checkbox" class="sr-only module-checkbox" value="ten_mien_free"><div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors"><div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform shadow-sm"></div></div></label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -253,24 +234,24 @@
                                         <div class="animated-border-inner p-5 sm:p-6 relative">
                                             <div class="flex items-center justify-between mb-4 border-b border-purple-50 pb-3 relative z-10">
                                                 <h4 class="font-black text-purple-600 uppercase tracking-widest text-[11px]">3. Quản Trị Phân Phối</h4>
-                                                <button type="button" onclick="addCodeRow()" class="bg-[#1e293b] text-white px-3 py-1 rounded-lg font-black text-[9px] hover:bg-slate-800 transition active:scale-95 flex items-center gap-1">+ THÊM CODE</button>
+                                                <button type="button" onclick="addCodeRow()" class="bg-[#1e293b] text-white px-3 py-1.5 rounded-lg font-black text-[9px] hover:bg-slate-800 transition active:scale-95 flex items-center gap-1">+ THÊM MÃ GIẢM GIÁ</button>
                                             </div>
                                             
                                             <div class="space-y-4 relative z-10">
-                                                <div id="codeHub" class="space-y-2 max-h-[100px] overflow-y-auto custom-scroll pr-1"></div>
+                                                <div id="codeHub" class="space-y-2 max-h-[120px] overflow-y-auto custom-scroll pr-1"></div>
                                                 
-                                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
-                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                <div class="bg-purple-50 p-3.5 rounded-xl border border-purple-100 flex items-center justify-between">
+                                                    <label class="flex items-center gap-2 cursor-pointer group">
                                                         <div class="relative">
                                                             <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
-                                                            <div class="w-8 h-4 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition"></div>
-                                                            <div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
+                                                            <div class="w-10 h-5 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition duration-300"></div>
+                                                            <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                                         </div>
-                                                        <span class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Cho Phép Bán</span>
+                                                        <span class="text-[12px] font-black text-purple-900 uppercase tracking-widest group-hover:text-purple-700 transition">Cho Phép Bán</span>
                                                     </label>
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tồn Kho:</span>
-                                                        <input type="number" name="so_luong_con_lai" id="g_conlai" class="w-16 bg-white border border-slate-200 rounded-md px-1 py-1 text-center text-xs font-black text-slate-800 outline-none focus:border-purple-400" value="999">
+                                                        <input type="number" name="so_luong_con_lai" id="g_conlai" class="w-16 bg-white border border-slate-200 rounded-md px-1 py-1.5 text-center text-sm font-black text-slate-800 outline-none focus:border-purple-400 shadow-sm" value="999">
                                                     </div>
                                                 </div>
                                             </div>
@@ -336,27 +317,27 @@
             const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             const queryClean = removeAccents(query);
 
-            document.querySelectorAll('#listGDVContainer .gdv-card').forEach(card => {
+            document.querySelectorAll('#listGDVContainer .gdv-card-wrap').forEach(card => {
                 let text = "";
                 card.querySelectorAll('.gdv-search-target').forEach(el => text += el.innerText + " ");
                 if (removeAccents(text.toLowerCase()).includes(queryClean)) { card.style.display = ''; } else { card.style.display = 'none'; }
             });
         }
 
+        // Logic UI cho Nút Gạt Module (Sáng màu)
         document.querySelectorAll('.module-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
-                const label = this.closest('label.module-toggle');
+                const label = this.closest('label.module-toggle-light');
+                const track = label.querySelector('.bg-slate-200, .bg-purple-500');
                 const dot = label.querySelector('.absolute');
                 if(this.checked) {
                     label.classList.add('active');
-                    label.querySelector('.bg-white\\/20').classList.add('bg-emerald-500');
-                    label.querySelector('.bg-white\\/20').classList.remove('bg-white/20');
-                    dot.classList.add('translate-x-2.5');
+                    track.classList.remove('bg-slate-200'); track.classList.add('bg-purple-500');
+                    dot.classList.add('translate-x-5');
                 } else {
                     label.classList.remove('active');
-                    label.querySelector('.bg-emerald-500').classList.add('bg-white/20');
-                    label.querySelector('.bg-emerald-500').classList.remove('bg-emerald-500');
-                    dot.classList.remove('translate-x-2.5');
+                    track.classList.remove('bg-purple-500'); track.classList.add('bg-slate-200');
+                    dot.classList.remove('translate-x-5');
                 }
             });
         });
@@ -364,12 +345,12 @@
         function addCodeRow(code = "", giam = 0, sl = -1) {
             const container = document.getElementById('codeHub');
             const div = document.createElement('div');
-            div.className = "flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-100 shadow-sm";
+            div.className = "flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-sm";
             div.innerHTML = `
-                <div class="flex-1"><input type="text" class="c-code w-full bg-slate-50 border border-slate-100 rounded text-[10px] p-1 font-black uppercase outline-none focus:border-purple-400" placeholder="MÃ" value="${code}"></div>
-                <div class="w-16"><input type="text" class="c-giam w-full bg-slate-50 border border-slate-100 rounded text-[10px] p-1 font-black text-right text-pink-600 outline-none focus:border-pink-400" placeholder="Giảm ₫" value="${formatNum(giam)}" onkeyup="formatCurrency(this)"></div>
-                <div class="w-12"><input type="number" class="c-sl w-full bg-slate-50 border border-slate-100 rounded text-[10px] p-1 font-black text-center outline-none focus:border-purple-400" placeholder="Lượt" value="${sl}"></div>
-                <button type="button" onclick="this.parentElement.remove()" class="w-5 h-5 rounded bg-slate-100 text-slate-400 hover:text-red-500 flex items-center justify-center font-bold text-xs">&times;</button>
+                <div class="flex-1"><input type="text" class="c-code w-full bg-white border border-slate-200 rounded text-[10px] p-1.5 font-black uppercase outline-none focus:border-purple-400" placeholder="MÃ" value="${code}"></div>
+                <div class="w-20"><input type="text" class="c-giam w-full bg-white border border-slate-200 rounded text-[10px] p-1.5 font-black text-right text-pink-600 outline-none focus:border-pink-400" placeholder="Giảm ₫" value="${formatNum(giam)}" onkeyup="formatCurrency(this)"></div>
+                <div class="w-14"><input type="number" class="c-sl w-full bg-white border border-slate-200 rounded text-[10px] p-1.5 font-black text-center outline-none focus:border-purple-400" placeholder="Lượt" value="${sl}"></div>
+                <button type="button" onclick="this.parentElement.remove()" class="w-6 h-6 rounded bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center font-bold text-sm transition">&times;</button>
             `;
             container.appendChild(div);
         }
@@ -385,6 +366,12 @@
             return JSON.stringify(rs);
         }
 
+        function clearActiveCards() {
+            document.querySelectorAll('.gdv-card-wrap').forEach(r => {
+                r.classList.remove('card-active-purple');
+            });
+        }
+
         function openNewGDV() { 
             document.getElementById('formGDV').reset(); 
             document.getElementById('codeHub').innerHTML = "";
@@ -395,7 +382,7 @@
                 cb.checked = false; cb.dispatchEvent(new Event('change'));
             });
 
-            document.querySelectorAll('.gdv-card').forEach(r => r.classList.remove('card-active-purple'));
+            clearActiveCards();
             
             document.getElementById('modalEdit').classList.remove('hidden');
             document.getElementById('modalEdit').classList.add('is-open');
@@ -442,9 +429,11 @@
                 } catch(e) {}
             }
 
-            document.querySelectorAll('.gdv-card').forEach(r => r.classList.remove('card-active-purple'));
-            const activeRow = document.querySelector(`.gdv-card[data-id="${ma}"]`);
-            if(activeRow) activeRow.classList.add('card-active-purple');
+            clearActiveCards();
+            const activeRow = document.querySelector(`.gdv-card-wrap[data-id="${ma}"]`);
+            if(activeRow) {
+                activeRow.classList.add('card-active-purple');
+            }
 
             document.getElementById('modalEdit').classList.remove('hidden');
             document.getElementById('modalEdit').classList.add('is-open');
@@ -457,7 +446,7 @@
             document.getElementById('dragResizerUI').classList.remove('is-open');
             document.getElementById('listPaneUI').style.width = '100%';
             document.getElementById('modalEdit').style.width = '';
-            document.querySelectorAll('.gdv-card').forEach(r => r.classList.remove('card-active-purple'));
+            clearActiveCards();
         }
 
         window.toggleSwalPin = function() {
