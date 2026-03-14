@@ -286,48 +286,48 @@ func NapKhachHangMaster(masterID string) error {
 	return xulyNhanDuLieuKhachHang(masterID, TenSheetKhachHangMaster, raw)
 }
 
+
 func NapGoiDichVuMaster(masterID string) {
-	raw, err := LoadSheetData(masterID, TenSheetGoiDichVuMaster)
+	raw, err := LoadSheetData(masterID, TenSheetCauHinhMaster)
 	if err != nil || len(raw) == 0 { return }
+	
+	lock := GetSheetLock(masterID, TenSheetCauHinhMaster)
+	lock.Lock()
+	defer lock.Unlock()
+
+	CacheDongHienTaiCauHinh[masterID] = len(raw) 
 	
 	list := []*GoiDichVu{}
 	for i, r := range raw {
-		if i < DongBatDau_GoiDichVu-1 { continue }
-		maGoi := LayString(r, CotGDV_MaGoi)
-		if maGoi == "" { continue }
+		if i < DongBatDau_CauHinh-1 { continue }
 		
-		gdv := &GoiDichVu{
-			SpreadsheetID:      masterID, 
-			DongTrongSheet:     i + 1, 
-			MaGoi:              maGoi,
-			TenGoi:             LayString(r, CotGDV_TenGoi),
-			LoaiGoi:            LayString(r, CotGDV_LoaiGoi),
-			ThoiHanNgay:        LayIntStr(LayString(r, CotGDV_ThoiHanNgay)),
-			ThoiHanHienThi:     LayString(r, CotGDV_ThoiHanHienThi), 
-			NhanHienThi:        LayString(r, CotGDV_NhanHienThi),     
-			GiaNiemYet:         LayFloat(r, CotGDV_GiaNiemYet),       
-			GiaBan:             LayFloat(r, CotGDV_GiaBan),           
-			MaCodeKichHoatJson: LayString(r, CotGDV_MaCodeKichHoatJson), 
-			GioiHanJson:        LayString(r, CotGDV_GioiHanJson),     
-			MoTa:               LayString(r, CotGDV_MoTa),            
-			NgayBatDau:         LayString(r, CotGDV_NgayBatDau),      
-			NgayKetThuc:        LayString(r, CotGDV_NgayKetThuc),     
-			SoLuongConLai:      -1, 
-			TrangThai:          LayInt(r, CotGDV_TrangThai),          
-			DanhSachCode:       make([]CodeKichHoat, 0),
+		maCH := LayString(r, CotCH_MaCauHinh)
+		dataJSON := LayString(r, CotCH_DataJSON)
+		
+		if !strings.HasPrefix(maCH, PreGoiDichVu) { continue }
+		if dataJSON == "" { continue }
+		
+		var gdv GoiDichVu
+		if err := json.Unmarshal([]byte(dataJSON), &gdv); err == nil {
+			gdv.SpreadsheetID = masterID
+			gdv.DongTrongSheet = i + 1
+			list = append(list, &gdv)
+		} else {
+			log.Printf("⚠️ [LOADER] Lỗi Unmarshal JSON Gói %s: %v", maCH, err)
 		}
-		slStr := LayString(r, CotGDV_SoLuongConLai)
-		if slStr != "" { gdv.SoLuongConLai = LayIntStr(slStr) }
-		if gdv.MaCodeKichHoatJson != "" { _ = json.Unmarshal([]byte(gdv.MaCodeKichHoatJson), &gdv.DanhSachCode) }
-		list = append(list, gdv)
 	}
 
-	lock := GetSheetLock(masterID, TenSheetGoiDichVuMaster)
-	lock.Lock(); defer lock.Unlock()
-	CacheGoiDichVu[masterID] = list
-	for _, g := range list { CacheMapGoiDichVu[TaoCompositeKey(masterID, g.MaGoi)] = g }
-}
+	// [MỚI] Sắp xếp tự động theo trường XepHang
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].XepHang < list[j].XepHang
+	})
 
+	CacheGoiDichVu[masterID] = list
+	for _, g := range list { 
+		CacheMapGoiDichVu[TaoCompositeKey(masterID, g.MaGoi)] = g 
+	}
+	log.Println("✅ [LOADER] Đã nạp & sắp xếp Gói dịch vụ từ Két Sắt NoSQL.")
+}
 
 // ==============================================================================
 // 5. TẦNG ADMIN: NẠP TỔNG KHO CHỦ SHOP (CRM)
