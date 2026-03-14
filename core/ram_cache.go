@@ -75,6 +75,7 @@ var (
 	// --- GÓI DỊCH VỤ SAAS ---
 	CacheGoiDichVu    = make(map[string][]*GoiDichVu)
 	CacheMapGoiDichVu = make(map[string]*GoiDichVu)
+	CacheDongHienTaiCauHinh = make(map[string]int)
 
 	// --- ĐỐI TÁC ---
 	CacheNhaCungCap    = make(map[string][]*NhaCungCap) 
