@@ -27,11 +27,13 @@ func (s *PaymentService) GetFinalPrice(masterShopID, maGoi, maCode string) (floa
 		return 0, "", nil, errors.New("Gói dịch vụ không khả dụng")
 	}
 
-	giaCuoi := goi.GiaBan
+	// ĐÃ ĐỔI THÀNH GỌI TỪ OBJECT GIA
+	giaCuoi := goi.Gia.GiaBan
 	appliedCode := ""
 
 	if maCode != "" {
-		for _, c := range goi.DanhSachCode {
+		// ĐÃ ĐỔI TÊN THÀNH CodeKichHoat
+		for _, c := range goi.CodeKichHoat {
 			if c.Code == maCode {
 				if c.SoLuong != -1 && c.SoLuong <= 0 {
 					return giaCuoi, "", goi, errors.New("Mã giảm giá đã hết lượt dùng")
@@ -106,19 +108,26 @@ func (s *PaymentService) BuyStarterPackage(masterShopID, userID, maGoi, maCode s
 	kh, ok := core.LayKhachHang(masterShopID, userID)
 	if !ok { return "", errors.New("Không tìm thấy thông tin tài khoản") }
 
-	var limits map[string]interface{}
-	_ = json.Unmarshal([]byte(goi.GioiHanJson), &limits)
-	maxSP, _ := limits["max_san_pham"].(float64)
-	maxNV, _ := limits["max_nhan_vien"].(float64)
+	// LỘT XÁC: Lấy thẳng giới hạn từ Struct (Không cần Unmarshal json nữa!)
+	maxSP := goi.GioiHan.MaxSanPham
+	maxNV := goi.GioiHan.MaxNhanVien
+
+	// CHUYỂN ĐỔI MAP MODULES THÀNH ARRAY ĐỂ LƯU XUỐNG KHACH HANG
+	var activeModules []string
+	for modCode, isActive := range goi.Modules {
+		if isActive {
+			activeModules = append(activeModules, modCode)
+		}
+	}
 
 	newPlan := core.TenantGoiDichVu{
 		MaGoi:       goi.MaGoi,
 		TenGoi:      goi.TenGoi,
 		NgayHetHan:  time.Now().AddDate(0, 0, goi.ThoiHanNgay).Unix(),
 		TrangThai:   "active",
-		MaxSanPham:  int(maxSP),
-		MaxNhanVien: int(maxNV),
-		Modules:     []string{},
+		MaxSanPham:  maxSP,
+		MaxNhanVien: maxNV,
+		Modules:     activeModules,
 	}
 
 	lock := core.GetSheetLock(masterShopID, core.TenSheetKhachHang)
