@@ -9,24 +9,24 @@ import (
 )
 
 func TrangGoiDichVuMaster(c *gin.Context) {
-	shopID := c.GetString("SHOP_ID")
+	masterID := c.GetString("SHOP_ID")
 	userID := c.GetString("USER_ID")
 
 	core.KhoaHeThong.RLock()
-	kh := core.CacheMapKhachHang[shopID+"__"+userID]
-	listGoi := core.CacheGoiDichVu[shopID]
+	kh := core.CacheMapKhachHang[core.TaoCompositeKey(masterID, userID)]
+	listGoi := core.CacheGoiDichVu[masterID]
 	core.KhoaHeThong.RUnlock()
 
 	if kh == nil { c.Redirect(http.StatusFound, "/login"); return }
 
-	// Chuyển List thành chuỗi JSON để truyền ra Javascript cực gọn
+	// Chuyển List thành chuỗi JSON để truyền ra Javascript
 	jsonBytes, _ := json.Marshal(listGoi)
 
 	c.HTML(http.StatusOK, "goi_dich_vu_master", gin.H{
 		"TieuDe":       "Quản Lý Gói Dịch Vụ SaaS",
 		"NhanVien":     kh,
 		"DaDangNhap":   true,
-		"ListGoi":      listGoi, // Để build HTML Card
-		"ListGoiJson":  string(jsonBytes), // Để fill Form Edit JS
+		"ListGoi":      listGoi,
+		"ListGoiJson":  string(jsonBytes), 
 	})
 }
