@@ -20,6 +20,15 @@
 
         .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
         .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; box-shadow: inset 0 0 0 2px #d8b4fe; }
+
+        /* ĐÃ FIX: Lưới co giãn tự động lấp đầy màn hình lớn */
+        .gdv-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+            align-items: start;
+            align-content: start;
+        }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -51,7 +60,7 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 grid grid-cols-1 xl:grid-cols-2 gap-5 items-start content-start" id="listGDVContainer">
+            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 gdv-grid-container" id="listGDVContainer">
                 {{ range .ListGoi }}
                 <div class="animated-border-wrapper gdv-card-wrap cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }}" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
                     <div class="animated-border-inner gdv-card-inner p-6 md:p-8 flex flex-col h-full transition-colors duration-300 bg-white pointer-events-none">
@@ -235,15 +244,12 @@
                                             <div class="space-y-4 relative z-10">
                                                 <div id="codeHub" class="space-y-2 max-h-[120px] overflow-y-auto custom-scroll pr-1"></div>
                                                 
-                                                <div class="grid grid-cols-2 gap-4">
+                                                <div class="grid grid-cols-2 gap-4 pt-1">
                                                     <div class="flex flex-col justify-center">
-                                                        <label class="flex items-center gap-3 cursor-pointer group mt-2">
-                                                            <div class="relative">
-                                                                <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
-                                                                <div class="w-10 h-5 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition duration-300"></div>
-                                                                <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5 shadow-sm"></div>
-                                                            </div>
-                                                            <span class="text-[12px] font-black text-purple-900 uppercase tracking-widest group-hover:text-purple-700 transition">Cho Phép Bán</span>
+                                                        <label class="relative inline-flex items-center cursor-pointer mt-2">
+                                                            <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
+                                                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                                            <span class="ml-3 text-[11px] font-black text-purple-900 uppercase tracking-widest transition">Cho Phép Bán</span>
                                                         </label>
                                                     </div>
                                                     <div>
