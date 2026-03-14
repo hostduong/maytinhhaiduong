@@ -1,48 +1,50 @@
 {{ define "quen_mat_khau_admin" }}
     {{ template "header_default_admin" . }}
     
-    <div class="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] shadow-2xl shadow-purple-900/5 border border-white mt-4 relative">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-black title-gradient-purple tracking-tight">Khôi Phục Mật Khẩu</h2>
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Bảo Mật Bằng Email (OTP)</p>
-        </div>
-
-        <div id="formEmail" class="space-y-6">
-            <input type="text" style="display:none" autocomplete="username">
-            <input type="password" style="display:none" autocomplete="new-password">
-
-            <div id="step1" class="space-y-5">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Shopcuaban / Email</label>
-                    <input type="text" id="otpUser" placeholder="Shopcuaban hoặc Email..." class="input-premium font-bold text-purple-900" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                </div>
-                <button id="btnSendOtp" onclick="sendOtp()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-black tracking-widest uppercase hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-500/30 transition active:scale-95">PHÁT TÍN HIỆU CẤP MÃ</button>
+    <div class="w-full max-w-md led-border-wrapper">
+        <div class="led-border-inner p-8 sm:p-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black title-gradient-purple tracking-tight">Khôi Phục Mật Khẩu</h2>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Bảo Mật Bằng Email (OTP)</p>
             </div>
-            
-            <div id="step2" class="hidden space-y-5">
-                <div>
-                    <label class="block text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5">Nhập Mã OTP (6 số)</label>
-                    <input type="text" id="otpInput" maxlength="6" placeholder="••••••" class="input-premium !border-emerald-300 font-mono tracking-[0.4em] font-bold text-emerald-700 text-center focus:!border-emerald-500 focus:!ring-emerald-500/20" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật Khẩu Mới</label>
-                    <div class="relative">
-                        <input type="password" id="otpNewPass" placeholder="Nhập mật khẩu mới..." class="input-premium font-mono tracking-[0.2em] font-bold text-slate-800 pr-10" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                        <button type="button" onclick="togglePass('otpNewPass')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-purple-600 transition">
-                            <svg id="eye_slash_otpNewPass" class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M3 3l18 18"/></svg>
-                            <svg id="eye_open_otpNewPass" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"/></svg>
-                        </button>
+
+            <div id="formEmail" class="space-y-6">
+                <input type="text" style="display:none" autocomplete="username">
+                <input type="password" style="display:none" autocomplete="new-password">
+
+                <div id="step1" class="space-y-5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Định Danh / Email Cửa Hàng</label>
+                        <input type="text" id="otpUser" placeholder="Shopcuaban hoặc Email..." class="input-premium font-bold text-violet-900" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                     </div>
+                    <button id="btnSendOtp" onclick="sendOtp()" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4 rounded-xl font-black tracking-[0.1em] uppercase hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/30 transition active:scale-95">PHÁT TÍN HIỆU CẤP MÃ</button>
                 </div>
-                <button id="btnResetByOtp" onclick="resetByOtp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-xl font-black tracking-widest uppercase hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/30 transition active:scale-95">XÁC NHẬN & GHI ĐÈ</button>
+                
+                <div id="step2" class="hidden space-y-5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5">Nhập Mã OTP (6 số)</label>
+                        <input type="text" id="otpInput" maxlength="6" placeholder="••••••" class="input-premium !border-emerald-300 font-mono tracking-[0.4em] font-bold text-emerald-700 text-center focus:!border-emerald-500 focus:!ring-emerald-500/20" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mật Khẩu Mới</label>
+                        <div class="relative">
+                            <input type="password" id="otpNewPass" placeholder="Nhập mật khẩu mới..." class="input-premium font-mono tracking-[0.2em] font-bold text-slate-800 pr-10" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                            <button type="button" onclick="togglePass('otpNewPass')" tabindex="-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-violet-600 transition">
+                                <svg id="eye_slash_otpNewPass" class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.661-4.136m2.536-2.036A10.04 10.04 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-2.661 4.136M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/></svg>
+                                <svg id="eye_open_otpNewPass" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="btnResetByOtp" onclick="resetByOtp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-xl font-black tracking-[0.1em] uppercase hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/30 transition active:scale-95">XÁC NHẬN & GHI ĐÈ</button>
+                </div>
             </div>
-        </div>
 
-        <div class="mt-8 pt-6 text-center border-t border-slate-100">
-            <a href="/login" class="text-[13px] font-bold text-slate-500 hover:text-purple-600 uppercase tracking-widest transition flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Quay Về Đăng Nhập
-            </a>
+            <div class="mt-8 pt-6 text-center border-t border-slate-100">
+                <a href="/login" class="text-[12px] font-bold text-slate-500 hover:text-violet-600 uppercase tracking-widest transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Quay Về Đăng Nhập
+                </a>
+            </div>
         </div>
     </div>
 
@@ -54,24 +56,6 @@
 
         async function postData(url, d) { const fd=new FormData(); for(const k in d) fd.append(k,d[k]); try{ const r=await fetch(url,{method:'POST',body:fd}); return await r.json(); }catch(e){return {status:'error',msg:'Lỗi mạng'};} }
 
-        function showError(msg) {
-            Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Thất Bại</span></div>',
-                html: `<div class="text-[15px] text-orange-900 font-medium px-4">${msg}</div>`,
-                customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl px-8 py-3 shadow-lg active:scale-95' },
-                buttonsStyling: false, showConfirmButton: true, confirmButtonText: "Đã Hiểu"
-            });
-        }
-
-        function showSuccess(msg) {
-            Swal.fire({
-                title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Thành Công</span></div>',
-                html: `<div class="text-[15px] text-slate-600 font-medium px-4">${msg}</div>`,
-                customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg active:scale-95' },
-                buttonsStyling: false, showConfirmButton: true, confirmButtonText: "Về Đăng Nhập", allowOutsideClick: false
-            }).then(() => { window.location.href='/login'; });
-        }
-        
         async function sendOtp() { 
             const userVal = document.getElementById('otpUser').value.trim();
             if (!userVal) { showError('Vui lòng nhập định danh.'); return; }
@@ -82,7 +66,7 @@
 
             if(r.status==='ok'){ 
                 document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); 
-                Swal.fire({ background: '#ffffff', color: '#9333ea', icon: 'info', title: 'Đã gửi mã OTP vào Email', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false, customClass: {popup: 'border border-purple-100 shadow-xl'} });
+                showSuccess('Tín Hiệu Đã Gửi', 'Mã xác thực OTP đã được gửi đến hòm thư của bạn.', 'Tiếp Tục', null);
             } else { showError(r.msg); } 
         }
         
@@ -90,9 +74,9 @@
             const btn = document.getElementById('btnResetByOtp');
             btn.disabled = true; btn.innerHTML = '<div class="spinner-led-btn mr-2"></div> ĐANG XỬ LÝ...'; 
             const r=await postData('/api/auth/reset-by-otp',{dinh_danh:document.getElementById('otpUser').value, otp:document.getElementById('otpInput').value, pass_moi:document.getElementById('otpNewPass').value}); 
-            btn.disabled = false; btn.innerText = 'XÁC NHẬN THAY ĐỔI';
+            btn.disabled = false; btn.innerText = 'XÁC NHẬN & GHI ĐÈ';
 
-            if(r.status==='ok') { showSuccess('Khôi phục mật khẩu thành công!'); } else { showError(r.msg); } 
+            if(r.status==='ok') { showSuccess('Đã Khôi Phục', 'Mật khẩu đã được ghi đè thành công!', 'Về Đăng Nhập', '/login'); } else { showError(r.msg); } 
         }
     </script>
     {{ template "footer_default_admin" . }}
