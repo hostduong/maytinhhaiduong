@@ -9,7 +9,7 @@
         .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .gdv-grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem; align-items: start; align-content: start;
         }
 
@@ -162,7 +162,7 @@
                                                 </div>
 
                                                 <div class="grid grid-cols-2 gap-4">
-                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Thứ tự ưu tiên (Số)</label><input type="number" id="g_xep_hang" class="input-premium font-bold text-slate-800" value="1"></div>
+                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Thứ tự hiển thị (Số)</label><input type="number" id="g_xep_hang" class="input-premium font-bold text-slate-800" value="1"></div>
                                                     <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phụ đề dưới tên</label><input type="text" id="g_phu_de" class="input-premium font-bold text-slate-800 text-sm" placeholder="VD: Được chọn nhiều nhất"></div>
                                                 </div>
 
@@ -201,7 +201,7 @@
                                             <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
                                             
                                             <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg> 2. Giới Hạn Mở Rộng
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> 2. Giới Hạn Mở Rộng
                                             </h4>
                                             
                                             <div class="grid grid-cols-2 gap-4 mb-4 relative z-10">
@@ -583,7 +583,7 @@
             let txtConLai = getV('g_conlai');
             let valConLai = txtConLai === "" ? -1 : parseInt(txtConLai);
 
-            // [THUẬT TOÁN ĐÓNG GÓI JSON GỬI API NGUYÊN KHỐI]
+            // Đóng gói JSON chuẩn cấu trúc
             let payload = {
                 ma_goi: getV("g_ma"),
                 slug_goi: getV("g_slug"),
@@ -597,7 +597,7 @@
                 mo_ta_goi: getV("g_mota_goi").split('\n').filter(i => i.trim() !== ""),
                 thoi_han_ngay: parseInt(getV("g_han")),
                 thoi_han_hien_thi: getV("g_han_hien_thi"),
-                khu_vuc_hien_thi: ["NEW", "HET_HAN"], // Có thể mở rộng sau nếu cần checkbox
+                khu_vuc_hien_thi: ["NEW", "HET_HAN"],
                 gia: {
                     gia_niem_yet: getNum("g_nyet"),
                     phan_tram_giam: parseFloat(getV("g_giam")) || 0,
@@ -621,7 +621,7 @@
                 const fd = new FormData();
                 fd.append('pin_xac_nhan', pinXacNhan);
                 fd.append('is_new', getV("g_is_new"));
-                fd.append('payload_json', JSON.stringify(payload)); // Truyền 1 cục JSON duy nhất
+                fd.append('payload_json', JSON.stringify(payload)); 
 
                 const res = await fetch('/master/api/goi-dich-vu/save', { method: 'POST', body: fd });
                 const data = await res.json();
