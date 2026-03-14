@@ -1,15 +1,22 @@
 package core
 
 // ==============================================================================
-// 1. ĐỊNH NGHĨA TÊN SHEET CHUẨN CHO 3 VŨ TRỤ (3-TIER ARCHITECTURE)
+// 1. ĐỊNH NGHĨA TÊN SHEET CHUẨN VÀ PREFIX (KEY-VALUE NOSQL)
 // ==============================================================================
 
 const (
 	TenSheetKhachHangMaster  = "KHACH_HANG_MASTER"
 	TenSheetPhanQuyenMaster  = "PHAN_QUYEN_MASTER"
-	TenSheetGoiDichVuMaster  = "GOI_DICH_VU_MASTER"
+	TenSheetCauHinhMaster    = "CAU_HINH_MASTER"
 	TenSheetTinNhanMaster    = "TIN_NHAN_MASTER"
 	TenSheetCauHinhThuocTinh = "CAU_HINH_THUOC_TINH" 
+)
+
+// BỘ PREFIX ĐỊNH TUYẾN DỮ LIỆU
+const (
+	PreGoiDichVu = "GoiDichVu__"
+	PrePhanQuyen = "PhanQuyen__"
+	PreHeThong   = "HeThong__"
 )
 
 const (
@@ -893,54 +900,6 @@ type ChiTietPhieuXuat struct {
 }
 
 const (
-	DongBatDau_GoiDichVu = 11
-
-	CotGDV_MaGoi              = 0  
-	CotGDV_TenGoi             = 1  
-	CotGDV_LoaiGoi            = 2  
-	CotGDV_ThoiHanNgay        = 3  
-	CotGDV_ThoiHanHienThi     = 4   
-	CotGDV_NhanHienThi        = 5  
-	CotGDV_GiaNiemYet         = 6  
-	CotGDV_GiaBan             = 7  
-	CotGDV_MaCodeKichHoatJson = 8  
-	CotGDV_GioiHanJson        = 9  
-	CotGDV_MoTa               = 10 
-	CotGDV_NgayBatDau         = 11 
-	CotGDV_NgayKetThuc        = 12 
-	CotGDV_SoLuongConLai      = 13 
-	CotGDV_TrangThai          = 14 
-)
-
-type CodeKichHoat struct {
-	Code     string  `json:"code"`
-	GiamTien float64 `json:"giam_tien"`
-	SoLuong  int     `json:"so_luong"` 
-}
-
-type GoiDichVu struct {
-	SpreadsheetID  string `json:"-"`
-	DongTrongSheet int    `json:"-"`
-
-	MaGoi              string          `json:"ma_goi"`
-	TenGoi             string          `json:"ten_goi"`
-	LoaiGoi            string          `json:"loai_goi"`
-	ThoiHanNgay        int             `json:"thoi_han_ngay"`
-	ThoiHanHienThi     string          `json:"thoi_han_hien_thi"` 
-	NhanHienThi        string          `json:"nhan_hien_thi"`
-	GiaNiemYet         float64         `json:"gia_niem_yet"`
-	GiaBan             float64         `json:"gia_ban"`
-	MaCodeKichHoatJson string          `json:"-"` 
-	DanhSachCode       []CodeKichHoat  `json:"danh_sach_code"` 
-	GioiHanJson        string          `json:"gioi_han_json"`
-	MoTa               string          `json:"mo_ta"`
-	NgayBatDau         string          `json:"ngay_bat_dau"`
-	NgayKetThuc        string          `json:"ngay_ket_thuc"`
-	SoLuongConLai      int             `json:"so_luong_con_lai"`
-	TrangThai          int             `json:"trang_thai"`
-}
-
-const (
 	DongBatDau_ThanhVienShop = 11
 
 	CotTVS_MaThanhVien    = 0  
@@ -974,3 +933,76 @@ type ThanhVienShop struct {
 	GhiChu      string `json:"ghi_chu"`
 	NgayTao     string `json:"ngay_tao"`
 }
+
+
+// ==============================================================================
+// ĐỊNH NGHĨA BẢNG CẤU HÌNH (NOSQL 2 CỘT)
+// ==============================================================================
+const (
+	DongBatDau_CauHinh = 11
+
+	CotCH_MaCauHinh = 0  // Cột A (GoiDichVu__PRO, PhanQuyen__ADMIN)
+	CotCH_DataJSON  = 1  // Cột B (Toàn bộ Object JSON)
+)
+
+type CodeKichHoat struct {
+	Code           string  `json:"code"`
+	Loai           string  `json:"loai"`
+	GiamTien       float64 `json:"giam_tien"`
+	GiamPhanTram   float64 `json:"giam_phan_tram"`
+	SoLuong        int     `json:"so_luong"`
+	DaSuDung       int     `json:"da_su_dung"`
+	NguoiGioiThieu string  `json:"nguoi_gioi_thieu"`
+	NgayHetHan     int64   `json:"ngay_het_han"`
+	TrangThai      int     `json:"trang_thai"`
+}
+
+type GoiDichVuGia struct {
+	GiaNiemYet   float64 `json:"gia_niem_yet"`
+	PhanTramGiam float64 `json:"phan_tram_giam"`
+	GiaBan       float64 `json:"gia_ban"`
+	TienTe       string  `json:"tien_te"`
+}
+
+type GoiDichVuGioiHan struct {
+	MaxSanPham        int `json:"max_san_pham"`
+	MaxNhanVien       int `json:"max_nhan_vien"`
+	MaxHoaDonThang    int `json:"max_hoa_don_thang"`
+	MaxKhachHang      int `json:"max_khach_hang"`
+	MaxApiRequestNgay int `json:"max_api_request_ngay"`
+}
+
+type GoiDichVu struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	Version          int              `json:"version"`
+	CreatedAt        int64            `json:"created_at"`
+	UpdatedAt        int64            `json:"updated_at"`
+
+	MaGoi            string           `json:"ma_goi"`
+	SlugGoi          string           `json:"slug_goi"`
+	MaGoiHienThi     string           `json:"ma_goi_hien_thi"`
+	TenGoi           string           `json:"ten_goi"`
+	XepHang          int              `json:"xep_hang"`
+	PhuDe            string           `json:"phu_de"`
+	Badge            string           `json:"badge"`
+	NhanHienThi      string           `json:"nhan_hien_thi"`
+	MoTa             string           `json:"mo_ta"`
+	MoTaGoi          []string         `json:"mo_ta_goi"`
+	
+	ThoiHanNgay      int              `json:"thoi_han_ngay"`
+	ThoiHanHienThi   string           `json:"thoi_han_hien_thi"`
+	KhuVucHienThi    []string         `json:"khu_vuc_hien_thi"`
+	
+	Gia              GoiDichVuGia     `json:"gia"`
+	CodeKichHoat     []CodeKichHoat   `json:"code_kich_hoat"`
+	GioiHan          GoiDichVuGioiHan `json:"gioi_han"`
+	Modules          map[string]bool  `json:"modules"`
+	
+	NgayBatDau       int64            `json:"ngay_bat_dau"`
+	NgayKetThuc      int64            `json:"ngay_ket_thuc"`
+	SoLuongConLai    int              `json:"so_luong_con_lai"`
+	TrangThai        int              `json:"trang_thai"`
+}
+
