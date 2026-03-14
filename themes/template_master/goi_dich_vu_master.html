@@ -10,7 +10,7 @@
         
         .gdv-grid-container {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem; align-items: start; align-content: start;
+            gap: 1.5rem; align-items: start; align-content: stretch; /* Stretch để các card cao bằng nhau */
         }
 
         .module-check-item {
@@ -69,7 +69,7 @@
         
         <div id="listPaneUI" class="saas-list-pane flex flex-col h-full pr-4 sm:pr-6 md:pr-8 xl:pr-0">
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full shrink-0 h-[42px] mt-2">
-                <div class="relative w-full h-full">
+                <div class="relative w-full max-w-[300px] h-full">
                     <input type="text" id="searchGDV" onkeyup="filterGDV()" placeholder="Tìm tên gói, mã gói..." class="w-full h-full pl-11 pr-4 py-2 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm input-premium">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -80,12 +80,12 @@
 
             <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 gdv-grid-container" id="listGDVContainer">
                 {{ range .ListGoi }}
-                <div class="animated-border-wrapper gdv-card-wrap cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }}" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
+                <div class="animated-border-wrapper gdv-card-wrap cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
                     <div class="animated-border-inner gdv-card-inner p-8 flex flex-col h-full transition-colors duration-300 bg-white pointer-events-none relative overflow-hidden">
                         
                         {{ if .Badge }}<div class="corner-ribbon-wrap"><div class="corner-ribbon text-[9px]">{{ .Badge }}</div></div>{{ end }}
                         
-                        <div class="text-center mb-6 relative z-10">
+                        <div class="text-center mb-6 relative z-10 shrink-0">
                             {{ if .MaGoiHienThi }}
                             <div class="flex justify-center mb-4">
                                 <span class="border border-purple-200 bg-purple-50 text-purple-700 rounded-lg px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] shadow-sm">{{ .MaGoiHienThi }}</span>
@@ -96,10 +96,10 @@
                             {{ if .PhuDe }}<p class="text-[11px] font-bold text-slate-400 uppercase mt-2 gdv-search-target">{{ .PhuDe }}</p>{{ end }}
                         </div>
 
-                        <div class="text-center mb-6 pb-6 relative z-10 flex flex-col items-center justify-center">
+                        <div class="text-center mb-6 pb-6 relative z-10 flex flex-col items-center justify-center shrink-0">
                             {{ if gt .Gia.GiaNiemYet .Gia.GiaBan }}
                             <div class="flex items-center justify-center gap-2 mb-1.5">
-                                <span class="text-[13px] font-black text-slate-400 line-through decoration-slate-400 decoration-[1.5px]">{{ format_money .Gia.GiaNiemYet }}₫</span>
+                                <span class="text-[16px] font-black text-slate-400 line-through decoration-slate-400 decoration-2">{{ format_money .Gia.GiaNiemYet }}₫</span>
                                 {{ if gt .Gia.PhanTramGiam 0.0 }}
                                 <span class="bg-red-50 text-red-500 border border-red-100 text-[9px] font-black px-1.5 py-0.5 rounded-md">-{{ .Gia.PhanTramGiam }}%</span>
                                 {{ end }}
@@ -118,10 +118,10 @@
                             {{ end }}
                         </div>
 
-                        <div class="flex-1 space-y-3.5 relative z-10 text-left border-t border-slate-100 pt-5">
+                        <div class="flex-1 space-y-3.5 relative z-10 text-left border-t border-slate-100 pt-5 min-h-[100px]">
                             
                             {{ if .NhanHienThi }}
-                            <div class="absolute right-0 top-4 rotate-[15deg] z-0 pointer-events-none opacity-80">
+                            <div class="absolute right-0 top-1/2 -translate-y-1/2 rotate-[-15deg] z-0 pointer-events-none opacity-90">
                                 <div class="border-[3px] border-orange-500 text-orange-500 px-3 py-1 rounded-lg text-[13px] font-black uppercase tracking-widest bg-white/80 backdrop-blur-sm shadow-sm">{{ .NhanHienThi }}</div>
                             </div>
                             {{ end }}
@@ -133,6 +133,14 @@
                             </div>
                             {{ end }}
                         </div>
+                        
+                        <div class="mt-auto pt-6 w-full relative z-20">
+                            <div class="w-full bg-slate-50 text-slate-500 group-hover:bg-purple-100 group-hover:text-purple-700 group-hover:shadow-inner font-black py-3 rounded-xl transition-all duration-300 text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2 border border-slate-100 group-hover:border-purple-200">
+                                Sửa Gói Cước
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 {{ end }}
@@ -370,7 +378,6 @@
             });
         }
 
-        // Quét Input có dữ liệu để nhúng CSS nền Tím (has-data)
         function checkInputHasData() {
             document.querySelectorAll('.input-premium').forEach(inp => {
                 if (inp.value && inp.value.trim() !== '') inp.classList.add('has-data');
@@ -409,7 +416,6 @@
             });
         }
 
-        // Bỏ Background xám của dòng mã code
         function addCodeRow(code = "", giam = 0, sl = -1, nguoiGt = "") {
             const container = document.getElementById('codeHub');
             const div = document.createElement('div');
