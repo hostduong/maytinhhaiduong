@@ -8,9 +8,6 @@
         .custom-scroll-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
-        .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; box-shadow: inset 0 0 0 2px #d8b4fe; }
-
         .gdv-grid-container {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1.25rem; align-items: start; align-content: start;
@@ -27,17 +24,20 @@
         .module-check-item .txt-label { color: #64748b; font-weight: 700; font-size: 11px; transition: 0.2s; }
         .module-check-item.active .txt-label { color: #7e22ce; }
         
-        /* Hiệu ứng checkbox tùy chỉnh */
         .custom-checkbox-box {
             width: 18px; height: 18px; border-radius: 6px; border: 2px solid #cbd5e1;
             display: flex; align-items: center; justify-content: center; transition: all 0.2s;
             background: white;
         }
-        .module-check-item.active .custom-checkbox-box {
-            background: #9333ea; border-color: #9333ea;
-        }
+        .module-check-item.active .custom-checkbox-box { background: #9333ea; border-color: #9333ea; }
         .custom-checkbox-box svg { opacity: 0; transform: scale(0.5); transition: all 0.2s; color: white; width: 12px; height: 12px; }
         .module-check-item.active .custom-checkbox-box svg { opacity: 1; transform: scale(1); }
+
+        /* ĐÃ FIX: Chỉ giữ nền tím nhạt và viền LED cho Thẻ đang chọn */
+        .gdv-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .gdv-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
+        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
+        .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; border: none; }
     </style>
 
     <div id="data_island" style="display:none;">
@@ -212,17 +212,15 @@
                                             </div>
 
                                             <div class="flex-1 flex flex-col relative z-10">
-                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Chức năng khả dụng (Modules)</label>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 border-b border-slate-100 pb-1">Chức năng khả dụng (Modules)</label>
                                                 
-                                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex-1 flex flex-col">
-                                                    <div id="moduleTagsContainer" class="flex flex-wrap gap-2 mb-4 empty:hidden">
-                                                        </div>
-                                                    
-                                                    <button type="button" onclick="openModuleModal()" class="mt-auto w-full bg-white border border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 rounded-xl py-3 text-xs font-black tracking-widest uppercase transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                                                        Thêm chức năng
-                                                    </button>
-                                                </div>
+                                                <div id="moduleTagsContainer" class="flex flex-wrap gap-2 mb-4 empty:hidden">
+                                                    </div>
+                                                
+                                                <button type="button" onclick="openModuleModal()" class="mt-auto w-full bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 rounded-xl py-3 text-xs font-black tracking-widest uppercase transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                                                    Thêm chức năng
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -237,15 +235,12 @@
                                             <div class="space-y-4 relative z-10">
                                                 <div id="codeHub" class="space-y-2 max-h-[120px] overflow-y-auto custom-scroll pr-1"></div>
                                                 
-                                                <div class="grid grid-cols-2 gap-4 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                <div class="grid grid-cols-2 gap-4 items-center mt-2">
                                                     <div class="flex flex-col justify-center">
-                                                        <label class="flex items-center gap-2.5 cursor-pointer group">
-                                                            <div class="relative flex items-center">
-                                                                <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
-                                                                <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-purple-600 transition duration-300"></div>
-                                                                <div class="absolute left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-4 shadow-sm"></div>
-                                                            </div>
-                                                            <span class="text-[11px] font-black text-purple-900 uppercase tracking-widest transition whitespace-nowrap">Cho Phép Bán</span>
+                                                        <label class="relative inline-flex items-center cursor-pointer mt-3">
+                                                            <input type="checkbox" name="trang_thai" id="g_tt" class="sr-only peer" checked>
+                                                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                                            <span class="ml-3 text-[11px] font-black text-purple-900 uppercase tracking-widest transition whitespace-nowrap">Cho Phép Bán</span>
                                                         </label>
                                                     </div>
                                                     <div>
@@ -294,7 +289,7 @@
             <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
                 <button type="button" onclick="closeModuleModal()" class="px-5 py-2.5 text-slate-600 font-bold hover:bg-slate-200 rounded-xl transition text-xs uppercase tracking-widest">Hủy Bỏ</button>
                 <button type="button" onclick="confirmModules()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-lg shadow-purple-200 transition active:scale-95 text-xs uppercase tracking-widest flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Xác Nhận Chức Năng
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Xác Nhận Chọn
                 </button>
             </div>
         </div>
@@ -396,7 +391,6 @@
             "custom_domain": "Trỏ Tên Miền Riêng"
         };
 
-        // Render cấu trúc Checkbox vào Modal
         const gridSelector = document.getElementById('moduleGridSelector');
         for (const [key, name] of Object.entries(MODULE_DATA)) {
             gridSelector.innerHTML += `
@@ -408,7 +402,6 @@
             `;
         }
 
-        // Bắt sự kiện Click Checkbox trong Modal
         document.querySelectorAll('.module-checkbox-input').forEach(cb => {
             cb.addEventListener('change', function() {
                 if(this.checked) this.closest('.module-check-item').classList.add('active');
@@ -416,15 +409,14 @@
             });
         });
 
-        // Hàm vẽ Tags ra màn hình
         function renderModuleTags() {
             const container = document.getElementById('moduleTagsContainer');
             container.innerHTML = '';
             document.querySelectorAll('.module-checkbox-input:checked').forEach(cb => {
                 const name = MODULE_DATA[cb.value];
                 container.innerHTML += `
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-widest shadow-sm">
-                        <svg class="w-3 h-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                        <svg class="w-3 h-3 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                         ${name}
                     </span>
                 `;
@@ -445,10 +437,7 @@
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        function confirmModules() {
-            renderModuleTags();
-            closeModuleModal();
-        }
+        function confirmModules() { renderModuleTags(); closeModuleModal(); }
         // =========================================================
 
         function openNewGDV() { 
@@ -457,7 +446,6 @@
             document.getElementById('is_new_gdv').value = "true"; 
             document.getElementById('g_ma').readOnly = false;
             
-            // Xóa rỗng Modal Checkbox và Tags
             document.querySelectorAll('.module-checkbox-input').forEach(cb => { cb.checked = false; cb.dispatchEvent(new Event('change')); });
             renderModuleTags();
 
@@ -480,7 +468,6 @@
             document.getElementById('g_conlai').value = (g.conlai == "-1" || g.conlai === "") ? "" : g.conlai;
             document.getElementById('g_tt').checked = (g.tt === 1);
             
-            // Đọc Modules và gán vào Modal + Vẽ Tags
             document.querySelectorAll('.module-checkbox-input').forEach(cb => { cb.checked = false; cb.dispatchEvent(new Event('change')); });
 
             try {
@@ -503,7 +490,7 @@
                     }
                 }
             } catch(e) {}
-            renderModuleTags(); // Vẽ tags ra UI
+            renderModuleTags();
 
             document.getElementById('codeHub').innerHTML = "";
             if(g.codes) {
@@ -577,7 +564,6 @@
             
             document.getElementById('g_codes_json').value = buildCodesJson();
             
-            // Thu thập từ Checkbox ẩn (Lưu chuẩn JSON)
             let selectedModules = []; document.querySelectorAll('.module-checkbox-input:checked').forEach(cb => { selectedModules.push(cb.value); });
 
             let txtConLai = document.getElementById('g_conlai').value.trim();
