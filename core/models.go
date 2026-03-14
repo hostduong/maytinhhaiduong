@@ -984,6 +984,7 @@ type GoiDichVu struct {
 	SlugGoi          string           `json:"slug_goi"`
 	MaGoiHienThi     string           `json:"ma_goi_hien_thi"`
 	TenGoi           string           `json:"ten_goi"`
+	LoaiGoi          string           `json:"loai_goi"`
 	XepHang          int              `json:"xep_hang"`
 	PhuDe            string           `json:"phu_de"`
 	Badge            string           `json:"badge"`
