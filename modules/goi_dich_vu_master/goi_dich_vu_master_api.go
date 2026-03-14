@@ -3,7 +3,7 @@ package goi_dich_vu_master
 import (
 	"app/config"
 	"app/core"
-	"strconv"
+	"encoding/json"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,6 @@ func API_LuuGoiDichVuMaster(c *gin.Context) {
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
 	me, _ := core.LayKhachHang(shopID, userID)
 	
-	// [ĐÃ FIX]: Thêm .BaoMat. vào trước MaPinHash
 	if me == nil || me.BaoMat.MaPinHash == "" {
 		c.JSON(200, gin.H{"status": "error", "msg": "Bạn chưa thiết lập Mã PIN bảo mật!"})
 		return
@@ -26,28 +25,20 @@ func API_LuuGoiDichVuMaster(c *gin.Context) {
 		return
 	}
 	
-	gn, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_niem_yet"), ".", ""), 64)
-	gb, _ := strconv.ParseFloat(strings.ReplaceAll(c.PostForm("gia_ban"), ".", ""), 64)
-	th, _ := strconv.Atoi(c.PostForm("thoi_han_ngay"))
-	sl, _ := strconv.Atoi(c.PostForm("so_luong_con_lai"))
-	tt := 0; if c.PostForm("trang_thai") == "on" || c.PostForm("trang_thai") == "1" { tt = 1 }
-
-	dto := DTO_LuuGoiDichVu{
-		IsNew: c.PostForm("is_new") == "true",
-		MaGoi: strings.ToUpper(strings.TrimSpace(c.PostForm("ma_goi"))),
-		TenGoi: c.PostForm("ten_goi"), LoaiGoi: c.PostForm("loai_goi"),
-		ThoiHanNgay: th, 
-		ThoiHanHienThi: c.PostForm("thoi_han_hien_thi"), 
-		GiaNiemYet: gn, GiaBan: gb,
-		CodesJson: c.PostForm("codes_json"), GioiHanJson: c.PostForm("gioi_han_json"),
-		MoTa: c.PostForm("mo_ta"), NhanHienThi: c.PostForm("nhan_hien_thi"),
-		NgayBatDau: c.PostForm("ngay_bat_dau"), NgayKetThuc: c.PostForm("ngay_ket_thuc"),
-		SoLuongConLai: sl, TrangThai: tt,
+	isNew := c.PostForm("is_new") == "true"
+	payloadJson := c.PostForm("payload_json")
+	
+	var input core.GoiDichVu
+	if err := json.Unmarshal([]byte(payloadJson), &input); err != nil {
+		c.JSON(200, gin.H{"status": "error", "msg": "Dữ liệu cấu hình không hợp lệ: " + err.Error()})
+		return
 	}
 
-	if err := Service_XuLyLuu(shopID, dto); err != nil {
+	input.MaGoi = strings.ToUpper(strings.TrimSpace(input.MaGoi))
+
+	if err := Service_XuLyLuu(shopID, isNew, &input); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"status": "ok", "msg": "Thành công!"})
+	c.JSON(200, gin.H{"status": "ok", "msg": "Lưu cấu hình Gói dịch vụ thành công!"})
 }
