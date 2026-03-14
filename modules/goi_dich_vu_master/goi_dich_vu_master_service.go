@@ -2,60 +2,39 @@ package goi_dich_vu_master
 
 import (
 	"app/core"
-	"encoding/json"
 	"errors"
+	"time"
 )
 
-type DTO_LuuGoiDichVu struct {
-	IsNew          bool
-	MaGoi          string
-	TenGoi         string
-	LoaiGoi        string
-	ThoiHanNgay    int
-	ThoiHanHienThi string 
-	GiaNiemYet     float64
-	GiaBan         float64
-	CodesJson      string 
-	GioiHanJson    string
-	MoTa           string
-	NhanHienThi    string
-	NgayBatDau     string
-	NgayKetThuc    string
-	SoLuongConLai  int
-	TrangThai      int
-}
-
-func Service_XuLyLuu(shopID string, input DTO_LuuGoiDichVu) error {
+func Service_XuLyLuu(shopID string, isNew bool, input *core.GoiDichVu) error {
 	if input.MaGoi == "" || input.TenGoi == "" { return errors.New("Mã và Tên gói là bắt buộc") }
 
-	if input.IsNew {
-		if _, exist := Repo_FindByCode(shopID, input.MaGoi); exist { return errors.New("Mã gói đã tồn tại") }
+	if isNew {
+		if _, exist := Repo_FindByCode(shopID, input.MaGoi); exist { return errors.New("Mã gói đã tồn tại trên hệ thống") }
 		
-		newG := &core.GoiDichVu{
-			MaGoi: input.MaGoi, TenGoi: input.TenGoi, LoaiGoi: input.LoaiGoi,
-			ThoiHanNgay: input.ThoiHanNgay, ThoiHanHienThi: input.ThoiHanHienThi,
-			GiaNiemYet: input.GiaNiemYet, GiaBan: input.GiaBan,
-			MaCodeKichHoatJson: input.CodesJson, GioiHanJson: input.GioiHanJson,
-			MoTa: input.MoTa, NhanHienThi: input.NhanHienThi, NgayBatDau: input.NgayBatDau,
-			NgayKetThuc: input.NgayKetThuc, SoLuongConLai: input.SoLuongConLai, TrangThai: input.TrangThai,
-		}
-		_ = json.Unmarshal([]byte(input.CodesJson), &newG.DanhSachCode)
-		Repo_Insert(shopID, newG)
+		input.Version = 1
+		input.CreatedAt = time.Now().Unix()
+		input.UpdatedAt = input.CreatedAt
+		if input.NgayBatDau == 0 { input.NgayBatDau = input.CreatedAt }
+		
+		Repo_Insert(shopID, input)
 	} else {
-		g, ok := Repo_FindByCode(shopID, input.MaGoi)
-		if !ok { return errors.New("Không tìm thấy gói để cập nhật") }
+		old, ok := Repo_FindByCode(shopID, input.MaGoi)
+		if !ok { return errors.New("Không tìm thấy gói cước để cập nhật") }
 
-		lock := core.GetSheetLock(shopID, core.TenSheetGoiDichVuMaster)
+		lock := core.GetSheetLock(shopID, core.TenSheetCauHinh)
 		lock.Lock()
-		g.TenGoi = input.TenGoi; g.LoaiGoi = input.LoaiGoi; g.ThoiHanNgay = input.ThoiHanNgay
-		g.ThoiHanHienThi = input.ThoiHanHienThi 
-		g.GiaNiemYet = input.GiaNiemYet; g.GiaBan = input.GiaBan; g.MaCodeKichHoatJson = input.CodesJson
-		g.GioiHanJson = input.GioiHanJson; g.MoTa = input.MoTa; g.NhanHienThi = input.NhanHienThi
-		g.SoLuongConLai = input.SoLuongConLai; g.TrangThai = input.TrangThai
-		_ = json.Unmarshal([]byte(input.CodesJson), &g.DanhSachCode)
+		
+		// Kế thừa dữ liệu hệ thống
+		input.SpreadsheetID = old.SpreadsheetID
+		input.DongTrongSheet = old.DongTrongSheet
+		input.CreatedAt = old.CreatedAt
+		input.Version = old.Version + 1
+		input.UpdatedAt = time.Now().Unix()
+		
 		lock.Unlock()
 
-		Repo_Update(shopID, g)
+		Repo_Update(shopID, input)
 	}
 	return nil
 }
