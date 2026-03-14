@@ -4,7 +4,7 @@
     <div class="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] shadow-2xl shadow-purple-900/5 border border-white relative mt-4">
         <div class="text-center mb-8">
             <h2 class="text-3xl font-black title-gradient-purple tracking-tight">Đăng Nhập</h2>
-            <p class="mt-2 text-sm text-slate-500 font-medium">Truy cập Tổng kho Quản trị Cửa hàng</p>
+            <p class="mt-2 text-sm text-slate-500 font-medium">Truy cập Quản trị Cửa hàng</p>
         </div>
 
         {{ if .Loi }}
@@ -31,7 +31,7 @@
             <div class="space-y-5">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên miền / Email</label>
-                    <input id="user" name="input_dinh_danh" type="text" class="input-premium font-bold text-purple-900" placeholder="VD: shopcuaban hoặc admin@99k.vn" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
+                    <input id="user" name="input_dinh_danh" type="text" class="input-premium font-bold text-purple-900" placeholder="shopcuaban hoặc email" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
                 </div>
 
                 <div>
@@ -59,7 +59,7 @@
             </button>
 
             <div class="text-center mt-8 pt-6 border-t border-slate-100">
-                <span class="text-[13px] font-medium text-slate-500">Chưa mở Cửa hàng? </span>
+                <span class="text-[13px] font-medium text-slate-500">Chưa có tài khoản? </span>
                 <a href="/register" class="text-[13px] font-black text-purple-600 hover:text-purple-800 transition">Đăng ký ngay</a>
             </div>
         </form>
