@@ -13,8 +13,8 @@
 
             <div id="step1" class="space-y-5">
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Định Danh / Email</label>
-                    <input type="text" id="otpUser" placeholder="Nhập ID hoặc Email..." class="input-premium font-bold text-purple-900" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Shopcuaban / Email</label>
+                    <input type="text" id="otpUser" placeholder="Shopcuaban hoặc Email..." class="input-premium font-bold text-purple-900" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
                 <button id="btnSendOtp" onclick="sendOtp()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-black tracking-widest uppercase hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-500/30 transition active:scale-95">PHÁT TÍN HIỆU CẤP MÃ</button>
             </div>
@@ -90,7 +90,7 @@
             const btn = document.getElementById('btnResetByOtp');
             btn.disabled = true; btn.innerHTML = '<div class="spinner-led-btn mr-2"></div> ĐANG XỬ LÝ...'; 
             const r=await postData('/api/auth/reset-by-otp',{dinh_danh:document.getElementById('otpUser').value, otp:document.getElementById('otpInput').value, pass_moi:document.getElementById('otpNewPass').value}); 
-            btn.disabled = false; btn.innerText = 'XÁC NHẬN & GHI ĐÈ';
+            btn.disabled = false; btn.innerText = 'XÁC NHẬN THAY ĐỔI';
 
             if(r.status==='ok') { showSuccess('Khôi phục mật khẩu thành công!'); } else { showError(r.msg); } 
         }
