@@ -9,8 +9,8 @@
         <div class="led-border-inner p-8 sm:p-10">
             
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-black text-violet-700 tracking-tight">Khai Sinh Cửa Hàng</h2>
-                <p class="mt-2 text-sm text-slate-500 font-bold">Hệ thống Quản trị Bán hàng Đa Kênh 99K.vn</p>
+                <h2 class="text-3xl font-black text-violet-700 tracking-tight">ĐĂNG KÝ TÀI KHOẢN</h2>
+                <p class="mt-2 text-sm text-slate-500 font-bold">Hệ thống Quản trị Bán hàng Đa Kênh</p>
             </div>
 
             {{ if .Loi }}
@@ -22,11 +22,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Cửa Hàng <span class="text-red-500">*</span></label>
-                        <input id="ten_cua_hang" name="ten_cua_hang" type="text" class="input-premium" placeholder="VD: Máy tính Hải Dương">
+                        <input id="ten_cua_hang" name="ten_cua_hang" type="text" class="input-premium" placeholder="Máy tính Hải Dương">
                         <p id="err_ten_cua_hang" class="error-text">Tên cửa hàng 3-50 ký tự.</p>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Định danh (Subdomain) <span class="text-red-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên miền <span class="text-red-500">*</span></label>
                         <div class="flex items-stretch group">
                             <input id="ten_dang_nhap" name="ten_dang_nhap" type="text" class="input-premium !rounded-r-none z-10 focus:z-20 border-r-0" placeholder="maytinhhaiduong">
                             <span id="domain_tail" class="domain-span bg-slate-50 border border-slate-300 border-l-0 px-4 py-3 text-slate-500 rounded-r-lg font-mono text-sm flex items-center group-focus-within:border-violet-500 transition-colors duration-200">.99k.vn</span>
@@ -38,7 +38,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Họ và tên Chủ sở hữu <span class="text-red-500">*</span></label>
-                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="VD: Nguyễn Văn A">
+                        <input id="ho_ten" name="ho_ten" type="text" class="input-premium" placeholder="Nguyễn Văn A">
                         <p id="err_ho_ten" class="error-text">Họ tên 6-50 ký tự, không chứa số.</p>
                     </div>
                     <div>
@@ -119,11 +119,11 @@
                 
                 <div class="pt-4">
                     <button type="submit" id="btnSubmit" disabled class="w-full flex justify-center py-4 px-4 border border-transparent text-[14px] font-black tracking-widest rounded-xl text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-xl shadow-violet-500/30 transition transform hover:-translate-y-0.5 active:scale-95 uppercase">
-                        KHỞI TẠO CỬA HÀNG
+                        KHỞI TẠO TÀI KHOẢN
                     </button>
                 </div>
                 <div class="text-center text-[13px] font-bold text-slate-500 mt-6 pb-2">
-                    Đã có cửa hàng? <a href="/login" class="text-violet-600 hover:text-violet-800 transition">Đăng nhập tại đây</a>
+                    Đã có tài khoản? <a href="/login" class="text-violet-600 hover:text-violet-800 transition">Đăng nhập tại đây</a>
                 </div>
             </form>
         </div>
