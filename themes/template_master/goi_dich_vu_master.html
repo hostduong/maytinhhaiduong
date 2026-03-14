@@ -13,7 +13,6 @@
             gap: 1.25rem; align-items: start; align-content: start;
         }
 
-        /* Nút chọn Module trong Popup */
         .module-check-item {
             display: flex; align-items: center; justify-content: flex-start; gap: 10px;
             padding: 10px 14px; background: #f8fafc; border-radius: 12px;
@@ -33,7 +32,6 @@
         .custom-checkbox-box svg { opacity: 0; transform: scale(0.5); transition: all 0.2s; color: white; width: 12px; height: 12px; }
         .module-check-item.active .custom-checkbox-box svg { opacity: 1; transform: scale(1); }
 
-        /* ĐÃ FIX: Chỉ giữ nền tím nhạt và viền LED cho Thẻ đang chọn */
         .gdv-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
         .gdv-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
         .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
@@ -77,16 +75,16 @@
                             {{ if .NhanHienThi }}<span class="badge-animated-wrap theme-5 tier-s mb-4"><span class="badge-inner text-[10px] px-4 py-1.5">{{ .NhanHienThi }}</span></span>{{ end }}
                             
                             <h3 class="text-2xl font-black text-gradient-animated tracking-tight gdv-search-target leading-tight mb-2">{{ .TenGoi }}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-widest gdv-search-target">{{ .MaGoi }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest gdv-search-target">{{ .MaGoi }}</p>
                             
-                            <div class="flex flex-col items-center justify-center w-full">
+                            <div class="mt-4 flex flex-col items-center justify-center w-full">
                                 {{ if gt .GiaNiemYet .GiaBan }}
-                                <div class="text-[12px] font-black text-slate-300 line-through decoration-slate-300 decoration-2 mb-1">{{ format_money .GiaNiemYet }}₫</div>
+                                <div class="text-[12px] font-black text-slate-300 line-through decoration-slate-300 decoration-2 mb-1.5">{{ format_money .GiaNiemYet }}₫</div>
                                 {{ end }}
-                                <div class="flex items-baseline justify-center gap-1 w-full whitespace-nowrap">
-                                    <span class="text-3xl font-black text-purple-600 tracking-tighter drop-shadow-sm">{{ format_money .GiaBan }}₫</span>
-                                    <span class="text-slate-400 font-bold text-xs">/{{ .ThoiHanHienThi }}</span>
-                                </div>
+                                <div class="text-[32px] md:text-[36px] font-black text-purple-600 tracking-tighter drop-shadow-sm leading-none">{{ format_money .GiaBan }}₫</div>
+                                {{ if .ThoiHanHienThi }}
+                                <div class="text-slate-400 font-bold text-[11px] mt-2 tracking-widest">{{ .ThoiHanHienThi }}</div>
+                                {{ end }}
                             </div>
                         </div>
 
@@ -127,18 +125,18 @@
                     </button>
                 </div>
                 
-                <div class="overflow-y-auto custom-scroll relative flex-1 min-h-0 pb-32 pr-1 px-2 xl:px-0">
+                <div class="overflow-y-auto custom-scroll relative flex-1 min-h-0 pb-40 pr-1 px-2 xl:px-0">
                     <form id="formGDV" class="flex flex-col gap-6" autocomplete="off" spellcheck="false">
                         <input type="hidden" name="is_new" id="is_new_gdv" value="true">
                         <input type="hidden" name="gioi_han_json" id="g_limit_json">
                         <input type="hidden" name="codes_json" id="g_codes_json">
                         
-                        <div class="edit-form-container w-full">
+                        <div class="edit-form-container w-full pb-8">
                             <div class="responsive-grid-form">
                                 
                                 <div class="flex flex-col gap-6">
-                                    <div class="animated-border-wrapper shadow-md shadow-purple-100/50 h-full">
-                                        <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col h-full">
+                                    <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
+                                        <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col">
                                             <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
                                             <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 1. Định Danh & Mức Giá
@@ -174,12 +172,12 @@
                                                 
                                                 <div class="grid grid-cols-2 gap-4">
                                                     <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Thời hạn (Ngày)</label><input type="number" name="thoi_han_ngay" id="g_han" class="input-premium font-black text-center text-slate-800" value="30"></div>
-                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hiển thị (UI)</label><input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="input-premium font-black text-center text-slate-800" placeholder="VD: 01 tháng"></div>
+                                                    <div><label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Hiển thị (UI)</label><input type="text" name="thoi_han_hien_thi" id="g_han_hien_thi" class="input-premium font-black text-center text-slate-800" placeholder="VD: /1 tháng"></div>
                                                 </div>
 
                                                 <div class="pt-4 mt-2 border-t border-purple-50">
                                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nhãn nổi bật (Badge)</label>
-                                                    <input type="text" name="nhan_hien_thi" id="g_nhan" class="input-premium font-black text-orange-600 text-sm border-orange-200" placeholder="VD: PHỔ BIẾN NHẤT">
+                                                    <input type="text" name="nhan_hien_thi" id="g_nhan" class="input-premium font-black text-slate-800 text-sm" placeholder="VD: Phổ biến nhất">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Đặc quyền (Dùng | ngắt dòng)</label>
@@ -190,10 +188,10 @@
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col gap-6 h-full">
+                                <div class="flex flex-col gap-6">
                                     
-                                    <div class="animated-border-wrapper shadow-md shadow-purple-100/50 h-full">
-                                        <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col h-full">
+                                    <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
+                                        <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col">
                                             <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
                                             
                                             <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-5 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
@@ -212,12 +210,12 @@
                                             </div>
 
                                             <div class="flex-1 flex flex-col relative z-10">
-                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 border-b border-slate-100 pb-1">Chức năng khả dụng (Modules)</label>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1.5">Chức năng khả dụng (Modules)</label>
                                                 
                                                 <div id="moduleTagsContainer" class="flex flex-wrap gap-2 mb-4 empty:hidden">
                                                     </div>
                                                 
-                                                <button type="button" onclick="openModuleModal()" class="mt-auto w-full bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 rounded-xl py-3 text-xs font-black tracking-widest uppercase transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                                <button type="button" onclick="openModuleModal()" class="mt-auto w-full bg-white border border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 rounded-xl py-3 text-xs font-black tracking-widest uppercase transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                                                     Thêm chức năng
                                                 </button>
