@@ -10,7 +10,7 @@
         
         .gdv-grid-container {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem; align-items: start; align-content: stretch; /* Stretch để các card cao bằng nhau */
+            gap: 1.5rem; align-items: start; align-content: stretch;
         }
 
         .module-check-item {
@@ -37,14 +37,12 @@
         .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
         .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; border: none; }
 
-        /* Động cơ Bẻ cột Form */
         .edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
         .responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
         @container formPanel (min-width: 800px) { 
             .responsive-grid-form { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } 
         }
 
-        /* Lưới Auto-fluid co giãn 1-4 cột */
         .fluid-grid-auto {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -236,7 +234,7 @@
 
                                                 <div>
                                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả đặc quyền (Mỗi dòng 1 thẻ Tick xanh)</label>
-                                                    <textarea id="g_mota_goi" rows="4" class="input-premium !py-2 !px-3 !text-[11px] resize-none" placeholder="1.000 sản phẩm&#10;1.000 hóa đơn / tháng&#10;5 nhân viên"></textarea>
+                                                    <textarea id="g_mota_goi" rows="4" class="input-premium !py-2 !px-3 !text-[11px] resize-y min-h-[100px]" placeholder="1.000 sản phẩm&#10;1.000 hóa đơn / tháng&#10;5 nhân viên"></textarea>
                                                 </div>
                                             </div>
                                         </div>
