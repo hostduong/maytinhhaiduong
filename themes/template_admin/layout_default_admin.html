@@ -30,21 +30,41 @@
                 radial-gradient(at 100% 0%, hsla(279,100%,95%,1) 0, transparent 50%);
         }
 
+        /* ---------------------------------------------------- */
+        /* LOGO PREMIUM BẤT KHẢ XÂM PHẠM (Phục hồi 100%)        */
+        /* ---------------------------------------------------- */
+        .logo-premium-icon {
+            position: relative; background: linear-gradient(135deg, #9333ea, #6366f1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4); overflow: hidden;
+        }
+        .logo-premium-icon::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent);
+            transform: skewX(-25deg); animation: logo-sweep-shine 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes logo-sweep-shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        
+        .logo-premium-text-light {
+            background: linear-gradient(to right, #4c1d95, #9333ea, #4f46e5, #4c1d95);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: text-shine-logo 4s linear infinite;
+        }
+        @keyframes text-shine-logo { to { background-position: 200% center; } }
+
         /* KHỐI FORM CÓ VIỀN LED (Kích hoạt khi Hover) */
         .led-border-wrapper {
             position: relative; padding: 2px; border-radius: 2rem; overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.15);
-            background: #ffffff; /* Nền tĩnh ban đầu */
-            transition: all 0.3s ease;
-            z-index: 1;
+            background: #ffffff;
+            transition: all 0.3s ease; z-index: 1;
         }
         .led-border-wrapper::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, transparent, #9333ea, #6366f1, transparent);
             animation: spin-slow 8s linear infinite; z-index: -1;
-            opacity: 0; transition: opacity 0.4s ease; /* Ẩn LED ban đầu */
+            opacity: 0; transition: opacity 0.4s ease; 
         }
-        .led-border-wrapper:hover::before { opacity: 1; } /* Hiện LED khi di chuột */
+        .led-border-wrapper:hover::before { opacity: 1; }
         .led-border-inner { position: relative; background: rgba(255,255,255,0.9); backdrop-filter: blur(16px); border-radius: calc(2rem - 2px); z-index: 10; height: 100%; }
 
         /* INPUT CHUYÊN NGHIỆP */
@@ -76,12 +96,13 @@
     
     <header class="relative z-50 w-full pt-6 pb-2 px-4 sm:px-8">
         <div class="max-w-7xl mx-auto flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/50 shadow-sm rounded-2xl px-6 py-4">
+            
             <a href="https://www.99k.vn" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 transition transform group-hover:scale-105 border-2 border-white">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] logo-premium-icon flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 transition transform group-hover:scale-105">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-[20px] sm:text-[24px] font-black text-slate-800 tracking-tight leading-none">99K<span class="text-violet-600">.vn</span></span>
+                    <span class="text-[20px] sm:text-[24px] font-black logo-premium-text-light tracking-tight leading-none">99K<span class="text-purple-600">.vn</span></span>
                     <span class="text-[10px] font-bold text-violet-600 tracking-[0.2em] hidden sm:block uppercase mt-0.5">Enterprise Platform</span>
                 </div>
             </a>
