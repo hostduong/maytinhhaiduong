@@ -5,6 +5,8 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"log"
+	"os"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -13,7 +15,17 @@ import (
 )
 
 // --- PHẦN MÃ HÓA ---
-const SECRET_KEY = "MayTinhShop_@2026_Secret_Key_!@#$$^KeepItSecret"
+// [ĐÃ FIX]: Không dùng const cứng nữa, chuyển thành var để lấy từ Cloud Run
+var SECRET_KEY = os.Getenv("APP_SECRET_KEY")
+
+// Hàm init tự động chạy khi khởi động server
+func init() {
+	if SECRET_KEY == "" {
+		log.Println("⚠️ CẢNH BÁO AN NINH: Không tìm thấy biến môi trường 'APP_SECRET_KEY' trên Cloud Run!")
+		log.Println("⚠️ Đang tạm sử dụng Key mặc định để tránh sập hệ thống. Vui lòng cấu hình ngay!")
+		SECRET_KEY = "MayTinhShop_@2026_Secret_Key_!@#$$^KeepItSecret"
+	}
+}
 
 func HashMatKhau(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
