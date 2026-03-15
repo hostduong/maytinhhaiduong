@@ -2,45 +2,6 @@
     {{ template "header_master" . }}
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .custom-scroll-modal::-webkit-scrollbar { width: 6px; }
-        .custom-scroll-modal::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .pq-grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem; align-items: start; align-content: stretch;
-        }
-
-        .pq-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
-        .pq-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
-        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
-        .card-active-purple .animated-border-inner { background-color: #faf5ff !important; border: none; }
-
-        /* [ĐÃ FIX YÊU CẦU 2]: Ép chữ đậm, không mờ khi ô nhập liệu bị khóa */
-        input:disabled, select:disabled, input[readonly], textarea[readonly] {
-            opacity: 1 !important;
-            -webkit-text-fill-color: #1e293b !important; /* Chống mờ trên Safari/iOS */
-            color: #1e293b !important;
-            font-weight: 900 !important;
-            background-color: #f1f5f9 !important;
-            border-color: #cbd5e1 !important;
-        }
-
-        /* Checkbox Quyền Hạn */
-        .cbx-action {
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 5px 8px; border-radius: 8px; border: 1px solid #cbd5e1;
-            background: white; cursor: pointer; transition: all 0.2s; user-select: none;
-        }
-        .cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
-        .cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
-        .cbx-action.disabled { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
-        .cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
-        .cbx-action.checked .icon { opacity: 1; transform: scale(1); }
-    </style>
-
     <textarea id="raw_pq_json" class="hidden" style="display: none;">{{ .ListPQJson }}</textarea>
     <script>
         let rawPQList = [];
