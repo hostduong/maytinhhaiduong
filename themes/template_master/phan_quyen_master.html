@@ -1,0 +1,633 @@
+{{ define "phan_quyen_master" }}
+    {{ template "header_master" . }}
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .custom-scroll-modal::-webkit-scrollbar { width: 6px; }
+        .custom-scroll-modal::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .pq-grid-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; align-items: start; align-content: stretch;
+        }
+
+        .pq-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .pq-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
+        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
+        .card-active-purple .animated-border-inner { background-color: #faf5ff !important; border: none; }
+
+        /* UI cho Matrix Phân Quyền */
+        .matrix-group-header { background: linear-gradient(to right, #f8fafc, #ffffff); border-bottom: 2px solid #e2e8f0; }
+        .matrix-module-row { transition: background 0.2s; border-bottom: 1px solid #f1f5f9; }
+        .matrix-module-row:hover { background-color: #f8fafc; }
+        
+        .cbx-action {
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1;
+            background: white; cursor: pointer; transition: all 0.2s;
+            user-select: none;
+        }
+        .cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
+        .cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
+        .cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
+        .cbx-action.checked .icon { opacity: 1; transform: scale(1); }
+    </style>
+
+    <textarea id="raw_pq_json" class="hidden" style="display: none;">{{ .ListPQJson }}</textarea>
+    <script>
+        let rawPQList = [];
+        const mapPQ = {};
+        try {
+            const rawTxt = document.getElementById('raw_pq_json').value;
+            rawPQList = JSON.parse(rawTxt || "[]");
+            if (rawPQList && rawPQList.length > 0) {
+                rawPQList.forEach(p => { mapPQ[p.ma_vai_tro] = p; });
+            }
+        } catch(e) { console.error("Lỗi nạp JSON ban đầu:", e); }
+    </script>
+
+    <div id="splitUIContainer" class="saas-split-wrapper w-full pb-6 mb-24 sm:mb-10 pl-4 sm:pl-6 md:pl-8">
+        
+        <div id="listPaneUI" class="saas-list-pane flex flex-col h-full pr-4 sm:pr-6 md:pr-8 xl:pr-0">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 w-full shrink-0 h-[42px] mt-2">
+                <div class="relative w-full max-w-[300px] h-full">
+                    <input type="text" id="searchPQ" onkeyup="filterPQ()" placeholder="Tìm vai trò, cấp bậc..." class="w-full h-full pl-11 pr-4 py-2 text-sm font-medium border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition bg-white shadow-sm input-premium">
+                    <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <button type="button" onclick="openNewPQ()" class="h-full w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 rounded-xl font-bold shadow-lg shadow-purple-200 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 whitespace-nowrap active:scale-95">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg> TẠO VAI TRÒ
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 pq-grid-container" id="listPQContainer">
+                {{ range .ListPQ }}
+                <div class="animated-border-wrapper pq-card cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaVaiTro }}" onclick="editPQ('{{ .MaVaiTro }}')">
+                    <div class="animated-border-inner p-6 flex flex-col h-full transition-colors duration-300 bg-white pointer-events-none relative overflow-hidden">
+                        
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <div class="bg-purple-50 text-purple-700 font-black text-[10px] px-3 py-1.5 rounded-lg border border-purple-200 shadow-sm">
+                                LEVEL {{ .Level }}
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-xl shadow-sm">
+                                {{ if eq .Level 0 }} 👑 {{ else if eq .Level 1 }} ⚡ {{ else if eq .Level 2 }} 🛡️ {{ else if eq .Level 3 }} ⭐ {{ else if eq .Level 4 }} 🎯 {{ else if eq .Level 5 }} 💼 {{ else if eq .Level 6 }} ⚖️ {{ else if eq .Level 7 }} 🚀 {{ else if eq .Level 8 }} 🤝 {{ else }} 👤 {{ end }}
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 shrink-0">
+                            <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight pq-search-target">{{ .TenVaiTro }}</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-1 pq-search-target">{{ .MaVaiTro }}</p>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex-1 relative z-10">
+                            {{ if .MoTa }}<p class="text-[11.5px] font-medium text-slate-500 line-clamp-2 leading-relaxed">{{ .MoTa }}</p>{{ end }}
+                            <div class="mt-4 flex items-center gap-2">
+                                <span class="inline-block w-2 h-2 rounded-full {{ if eq .TrangThai 1 }}bg-emerald-500{{ else }}bg-amber-500{{ end }}"></span>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ if eq .TrangThai 1 }}Hoạt động{{ else }}Tạm khóa{{ end }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto pt-5 w-full relative z-20">
+                            <div class="w-full bg-slate-50 text-slate-500 group-hover:bg-purple-100 group-hover:text-purple-700 group-hover:shadow-inner font-black py-2.5 rounded-xl transition-all duration-300 text-[11px] uppercase tracking-widest text-center flex items-center justify-center gap-2 border border-slate-100 group-hover:border-purple-200">
+                                CHỈNH SỬA
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+
+        <div id="dragResizerUI" class="saas-drag-bar group">
+            <div class="sticky top-[50vh] -translate-y-1/2 w-1.5 h-16 bg-slate-200 group-hover:bg-purple-500 rounded-full transition-colors mx-auto relative flex items-center justify-center cursor-col-resize"></div>
+        </div>
+
+        <div id="modalEdit" class="saas-detail-pane hidden">
+            <div class="absolute inset-0 z-0 xl:hidden bg-slate-900/70 backdrop-blur-sm" onclick="closeModalEdit()"></div>
+
+            <div class="saas-detail-box w-full transform transition-all flex flex-col relative z-10 h-full">
+                
+                <div class="flex justify-between items-center mb-4 shrink-0 z-20 h-[42px] px-2 xl:px-0 mt-2">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-gradient-to-br from-purple-100 to-indigo-100 p-2 rounded-xl text-purple-600 shadow-inner border border-purple-200/50">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </span>
+                        <h3 class="text-[15px] font-black tracking-widest text-slate-800 uppercase" id="modalTitle">Thiết lập Phân Quyền</h3>
+                    </div>
+                    <button onclick="savePQ()" id="btnSavePQ" class="h-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 rounded-xl font-bold shadow-lg shadow-purple-500/30 transition transform hover:-translate-y-0.5 active:scale-95 text-[13px] uppercase tracking-widest flex items-center justify-center gap-1.5 shrink-0 border border-purple-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> LƯU HỆ THỐNG
+                    </button>
+                </div>
+                
+                <div class="overflow-y-auto custom-scroll relative flex-1 min-h-0 pb-40 pr-1 px-2 xl:px-0">
+                    <form id="formPQ" class="flex flex-col gap-6" autocomplete="off" spellcheck="false">
+                        <input type="hidden" id="p_is_new" value="true">
+                        
+                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
+                            <div class="animated-border-inner p-5 sm:p-6 relative flex flex-col">
+                                <div class="absolute top-0 right-0 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none z-0"></div>
+                                <h4 class="font-black text-purple-700 border-b border-purple-50 pb-3 mb-4 uppercase tracking-widest text-[11px] flex items-center gap-2 relative z-10">
+                                    1. Định Danh Vai Trò
+                                </h4>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
+                                        <input type="text" id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700 bg-slate-50 read-only:!bg-purple-50/50 read-only:!opacity-100 read-only:!text-purple-900" placeholder="VD: QUAN_LY">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
+                                        <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px]" placeholder="VD: Quản lý chi nhánh">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
+                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
+                                            <option value="0">Level 0 (Quản trị Hệ thống)</option>
+                                            <option value="1">Level 1 (Admin Hệ thống)</option>
+                                            <option value="2">Level 2 (IT Hệ thống)</option>
+                                            <option value="3">Level 3 (Chủ Cửa Hàng)</option>
+                                            <option value="4">Level 4 (Giám Đốc/Admin Shop)</option>
+                                            <option value="5" selected>Level 5 (Quản Lý/Trưởng Phòng)</option>
+                                            <option value="6">Level 6 (Kế Toán/Thủ Kho)</option>
+                                            <option value="7">Level 7 (Nhân viên Sale/CSKH)</option>
+                                            <option value="8">Level 8 (Cộng tác viên)</option>
+                                            <option value="9">Level 9 (Khách Hàng)</option>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
+                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
+                                            <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
+                                            <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-3">
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả nhiệm vụ</label>
+                                        <textarea id="p_mota" rows="2" class="input-premium !py-2 !px-3 !text-[12px] resize-none" placeholder="Quyền hạn dành cho..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
+                            <div class="animated-border-inner bg-white relative flex flex-col">
+                                <div class="p-5 sm:p-6 border-b border-slate-100">
+                                    <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex justify-between items-center">
+                                        <span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> 2. Ma Trận Quyền Hạn</span>
+                                        <button type="button" onclick="checkAllMatrix(true)" class="text-[9px] bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm">BẬT TẤT CẢ</button>
+                                    </h4>
+                                </div>
+                                
+                                <div id="matrixContainer" class="flex flex-col"></div>
+                                
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <button onclick="closeModalEdit()" class="fixed xl:absolute bottom-6 right-6 xl:bottom-12 xl:right-4 w-14 h-14 flex items-center justify-center rounded-full bg-white text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all text-xl font-bold shadow-[0_10px_40px_rgba(147,51,234,0.25)] border border-slate-100 z-50 group hover:scale-110 active:scale-95">
+                    <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const listPane = document.getElementById('listPaneUI');
+        const detailPane = document.getElementById('modalEdit'); 
+        const dragBar = document.getElementById('dragResizerUI');
+        const splitContainer = document.getElementById('splitUIContainer');
+        let isResizing = false;
+
+        if (dragBar) {
+            dragBar.addEventListener('mousedown', function(e) {
+                isResizing = true; document.body.classList.add('cursor-col-resize', 'select-none'); listPane.style.transition = 'none'; 
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return; e.preventDefault(); 
+                let offsetLeft = e.clientX - splitContainer.getBoundingClientRect().left;
+                let percentage = (offsetLeft / splitContainer.getBoundingClientRect().width) * 100;
+                if (percentage < 30) percentage = 30; if (percentage > 70) percentage = 70; 
+                listPane.style.width = percentage + '%'; listPane.style.flex = 'none'; detailPane.style.width = (100 - percentage) + '%'; detailPane.style.flex = 'none'; 
+            });
+            document.addEventListener('mouseup', function(e) {
+                if (isResizing) { isResizing = false; document.body.classList.remove('cursor-col-resize', 'select-none'); listPane.style.transition = ''; }
+            });
+        }
+
+        function checkInputHasData() {
+            document.querySelectorAll('.input-premium').forEach(inp => {
+                if (inp.value && inp.value.trim() !== '') inp.classList.add('has-data');
+                else inp.classList.remove('has-data');
+            });
+        }
+        document.addEventListener('input', e => { if (e.target.classList.contains('input-premium')) checkInputHasData(); });
+        document.addEventListener('change', e => { if (e.target.classList.contains('input-premium')) checkInputHasData(); });
+
+        function getV(id) { const el = document.getElementById(id); return el ? el.value.trim() : ""; }
+
+        function filterPQ() {
+            const query = getV('searchPQ').toLowerCase();
+            const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+            const queryClean = removeAccents(query);
+
+            document.querySelectorAll('#listPQContainer .pq-card').forEach(card => {
+                let text = "";
+                card.querySelectorAll('.pq-search-target').forEach(el => text += el.innerText + " ");
+                if (removeAccents(text.toLowerCase()).includes(queryClean)) { card.style.display = ''; } else { card.style.display = 'none'; }
+            });
+        }
+
+        function clearActiveCards() {
+            document.querySelectorAll('.pq-card').forEach(r => { r.classList.remove('card-active-purple'); });
+        }
+
+        // ==========================================
+        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN
+        // ĐẢM BẢO CHUẨN 100% CÁC QUYỀN SẾP ĐÃ LIỆT KÊ
+        // ==========================================
+        const ACTION_LABELS = {
+            "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
+            "duyet": "Duyệt", "huy": "Hủy", "in": "In", "export": "Export", "import": "Import",
+            "cap_nhat": "Cập nhật", "cau_hinh": "Cấu hình", "thuc_hien": "Thực hiện",
+            "tinh_toan": "Tính toán", "doi_gia": "Đổi giá", "xem_gia_von": "Xem giá vốn",
+            "them": "Thêm", "phan_cong": "Phân công", "ket_noi": "Kết nối", "ngat_ket_noi": "Ngắt kết nối",
+            "tra_loi": "Trả lời", "dong_bo": "Đồng bộ", "phat_hanh": "Phát hành", "gui": "Gửi"
+        };
+
+        const MATRIX_DEF = [
+            {
+                group: "Quản Lý Bán Hàng",
+                modules: [
+                    { id: "ban_hang_pos", name: "Bán hàng POS", actions: ["xem", "tao", "huy", "in"] },
+                    { id: "hoa_don", name: "Hóa đơn / Đơn hàng", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in", "export", "doi_gia"] },
+                    { id: "tra_hang", name: "Trả hàng / Hoàn tiền", actions: ["xem", "tao", "duyet", "huy", "in"] },
+                    { id: "phong_ban", name: "Phòng / Bàn", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "huy", "in"] }
+                ]
+            },
+            {
+                group: "Quản Lý Sửa Chữa",
+                modules: [
+                    { id: "phieu_sua_chua", name: "Phiếu sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in", "xoa"] },
+                    { id: "bao_gia_sua_chua", name: "Báo giá sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
+                    { id: "tinh_trang_sua", name: "Tình trạng sửa", actions: ["xem", "cap_nhat"] },
+                    { id: "linh_kien_thay_the", name: "Linh kiện thay thế", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "lich_su_sua", name: "Lịch sử sửa", actions: ["xem"] },
+                    { id: "hoa_hong_sua_chua", name: "Tính hoa hồng", actions: ["xem", "cap_nhat"] }
+                ]
+            },
+            {
+                group: "Quản Lý Sản Phẩm",
+                modules: [
+                    { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "xem_gia_von"] },
+                    { id: "danh_muc", name: "Danh mục", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "thuong_hieu", name: "Thương hiệu", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "huy"] },
+                    { id: "serial_number", name: "Serial Number", actions: ["xem", "tao", "sua", "xoa"] }
+                ]
+            },
+            {
+                group: "Quản Lý Kho",
+                modules: [
+                    { id: "kho_hang", name: "Kho hàng", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "nhap_kho", name: "Nhập kho", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
+                    { id: "xuat_kho", name: "Xuất kho", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
+                    { id: "kiem_kho", name: "Kiểm kho", actions: ["xem", "tao", "duyet"] },
+                    { id: "dieu_chuyen_kho", name: "Điều chuyển kho", actions: ["xem", "tao", "duyet", "huy"] },
+                    { id: "tra_hang_nha_cung_cap", name: "Trả hàng NCC", actions: ["xem", "tao", "duyet", "huy"] },
+                    { id: "canh_bao_ton_kho", name: "Cảnh báo tồn kho", actions: ["xem", "cau_hinh"] }
+                ]
+            },
+            {
+                group: "Quản Lý Khách Hàng",
+                modules: [
+                    { id: "khach_hang", name: "Danh sách Khách hàng", actions: ["xem", "tao", "sua", "xoa", "export", "import"] },
+                    { id: "tich_diem", name: "Tích điểm", actions: ["xem", "cap_nhat"] },
+                    { id: "hang_thanh_vien", name: "Hạng thành viên", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "cham_soc_khach_hang", name: "Chăm sóc sau bán", actions: ["xem", "tao"] },
+                    { id: "lich_su_mua_hang", name: "Lịch sử mua hàng", actions: ["xem"] }
+                ]
+            },
+            {
+                group: "Quản Lý Đối Tác",
+                modules: [
+                    { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa"] }
+                ]
+            },
+            {
+                group: "Quản Lý Tài Chính",
+                modules: [
+                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "duyet", "huy", "in", "xoa"] },
+                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem", "chot_ca"] },
+                    { id: "cong_no_khach_hang", name: "Công nợ khách hàng", actions: ["xem", "cap_nhat"] },
+                    { id: "cong_no_nha_cung_cap", name: "Công nợ nhà cung cấp", actions: ["xem", "cap_nhat"] },
+                    { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet"] },
+                    { id: "luong_nhan_vien", name: "Lương cơ bản", actions: ["xem", "cap_nhat"] },
+                    { id: "chi_phi_hoat_dong", name: "Chi phí hoạt động", actions: ["xem", "tao", "sua", "xoa"] }
+                ]
+            },
+            {
+                group: "Quản Lý Nhân Sự",
+                modules: [
+                    { id: "nhan_vien", name: "Nhân viên", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "phan_quyen", name: "Phân quyền", actions: ["xem", "cap_nhat"] }
+                ]
+            },
+            {
+                group: "Quản Lý Báo Cáo",
+                modules: [
+                    { id: "bao_cao_ban_hang", name: "Báo cáo bán hàng", actions: ["xem", "export"] },
+                    { id: "bao_cao_nhap_hang", name: "Báo cáo nhập hàng", actions: ["xem", "export"] },
+                    { id: "bao_cao_lai_lo", name: "Báo cáo lãi lỗ", actions: ["xem", "export"] },
+                    { id: "bao_cao_cong_no", name: "Báo cáo công nợ", actions: ["xem", "export"] },
+                    { id: "bao_cao_ton_kho", name: "Báo cáo tồn kho", actions: ["xem", "export"] },
+                    { id: "bao_cao_san_pham_ban_chay", name: "Sản phẩm bán chạy", actions: ["xem", "export"] },
+                    { id: "bao_cao_nhan_vien_ban_hang", name: "Nhân viên bán hàng", actions: ["xem", "export"] },
+                    { id: "bao_cao_khach_hang", name: "Báo cáo khách hàng", actions: ["xem", "export"] }
+                ]
+            },
+            {
+                group: "Quản Lý Hệ Thống",
+                modules: [
+                    { id: "goi_dich_vu", name: "Gói dịch vụ", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "thanh_toan_goi", name: "Thanh toán gói", actions: ["xem", "tao"] },
+                    { id: "lich_su_thanh_toan", name: "Lịch sử thanh toán", actions: ["xem"] },
+                    { id: "import_du_lieu", name: "Import dữ liệu", actions: ["thuc_hien"] },
+                    { id: "export_du_lieu", name: "Export dữ liệu", actions: ["thuc_hien"] },
+                    { id: "nhat_ky_hoat_dong", name: "Nhật ký hoạt động", actions: ["xem"] },
+                    { id: "cau_hinh_cua_hang", name: "Cấu hình cửa hàng", actions: ["xem", "cap_nhat"] },
+                    { id: "sao_luu_du_lieu", name: "Sao lưu", actions: ["thuc_hien"] },
+                    { id: "khoi_phuc_du_lieu", name: "Khôi phục", actions: ["thuc_hien"] },
+                    { id: "in_an", name: "In ấn", actions: ["cau_hinh"] },
+                    { id: "cau_hinh_vat", name: "Cấu hình VAT", actions: ["xem", "cap_nhat"] },
+                    { id: "ho_so", name: "Hồ sơ", actions: ["xem", "cap_nhat"] },
+                    { id: "api_key", name: "API Key", actions: ["xem", "tao", "xoa"] }
+                ]
+            },
+            {
+                group: "Quản Lý Chi Nhánh",
+                modules: [
+                    { id: "chi_nhanh", name: "Chi nhánh", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "bao_cao_chi_nhanh", name: "Báo cáo chi nhánh", actions: ["xem", "export"] },
+                    { id: "ton_kho_chi_nhanh", name: "Tồn kho chi nhánh", actions: ["xem"] },
+                    { id: "gia_chi_nhanh", name: "Giá theo chi nhánh", actions: ["xem", "cap_nhat"] },
+                    { id: "nhan_vien_chi_nhanh", name: "Nhân viên chi nhánh", actions: ["xem", "cap_nhat", "phan_cong"] }
+                ]
+            },
+            {
+                group: "Quản Lý Bài Viết",
+                modules: [
+                    { id: "bai_viet", name: "Bài viết", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] }
+                ]
+            },
+            {
+                group: "Quản Lý Đa Kênh",
+                modules: [
+                    { id: "ket_noi_san_tmdt", name: "Kết nối Sàn TMĐT", actions: ["xem", "ket_noi", "ngat_ket_noi", "cau_hinh"] },
+                    { id: "chat_da_kenh", name: "Quản lý Chat đa kênh", actions: ["xem", "tra_loi", "tao"] },
+                    { id: "dong_bo_ton_kho", name: "Đồng bộ tồn kho tự động", actions: ["xem", "dong_bo", "cap_nhat"] },
+                    { id: "gia_theo_kenh", name: "Giá theo kênh", actions: ["xem", "cap_nhat"] }
+                ]
+            },
+            {
+                group: "Quản Lý Vận Chuyển",
+                modules: [
+                    { id: "don_vi_van_chuyen", name: "Kết nối Hãng VC", actions: ["xem", "ket_noi", "cau_hinh"] },
+                    { id: "so_sanh_gia_cuoc", name: "So sánh giá cước", actions: ["xem"] },
+                    { id: "tao_van_don", name: "Đẩy đơn & Lấy mã", actions: ["tao"] },
+                    { id: "tracking_don_hang", name: "Theo dõi lộ trình", actions: ["xem"] }
+                ]
+            },
+            {
+                group: "Quản Lý Thanh Toán & HĐ",
+                modules: [
+                    { id: "qr_code", name: "Thanh toán QR Code", actions: ["tao"] },
+                    { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "ket_noi", "cau_hinh"] },
+                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử", actions: ["xem", "phat_hanh", "tao"] }
+                ]
+            },
+            {
+                group: "Quản Lý Marketing",
+                modules: [
+                    { id: "sms_marketing", name: "SMS Marketing", actions: ["tao", "gui"] },
+                    { id: "email_marketing", name: "Email Marketing", actions: ["tao", "gui"] },
+                    { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["xem", "tao", "sua", "xoa", "cap_nhat"] }
+                ]
+            },
+            {
+                group: "Quản Lý Automation",
+                modules: [
+                    { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
+                    { id: "ai_bao_cao", name: "AI Báo cáo", actions: ["xem"] },
+                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán tồn kho", actions: ["xem"] }
+                ]
+            }
+        ];
+
+        // Hàm render Matrix ra HTML
+        function renderMatrix() {
+            const container = document.getElementById('matrixContainer');
+            let html = '';
+            
+            MATRIX_DEF.forEach((grp, gIdx) => {
+                html += `<div class="matrix-group-header px-5 py-3 sticky top-0 z-10 flex justify-between items-center shadow-sm">
+                            <span class="font-black text-slate-700 text-[11.5px] uppercase tracking-widest">${grp.group}</span>
+                            <label class="flex items-center gap-2 cursor-pointer group/chk">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Nhóm</span>
+                                <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
+                            </label>
+                         </div>`;
+                         
+                grp.modules.forEach((mod) => {
+                    html += `<div class="matrix-module-row px-5 py-4 grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4 items-center">
+                                <div class="font-bold text-[12px] text-slate-600">${mod.name}</div>
+                                <div class="flex flex-wrap gap-2">`;
+                    
+                    mod.actions.forEach((act) => {
+                        // Key siêu đỉnh: quan_ly_kho.nhap_kho.tao
+                        const permKey = `${mod.id}.${act}`;
+                        const label = ACTION_LABELS[act] || act;
+                        
+                        html += `<label class="cbx-action group-perm-${gIdx}">
+                                    <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                                    <div class="icon bg-white rounded-sm flex items-center justify-center"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wide leading-none pt-[1px]">${label}</span>
+                                 </label>`;
+                    });
+                    
+                    html += `   </div>
+                             </div>`;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        renderMatrix(); // Khởi chạy vẽ Matrix
+
+        function toggleGroup(gIdx, isChecked) {
+            document.querySelectorAll(`.group-perm-${gIdx} input[type="checkbox"]`).forEach(cb => {
+                cb.checked = isChecked;
+                if(isChecked) cb.parentElement.classList.add('checked');
+                else cb.parentElement.classList.remove('checked');
+            });
+        }
+        
+        function checkAllMatrix(isChecked) {
+            document.querySelectorAll('.matrix-cbx').forEach(cb => {
+                cb.checked = isChecked;
+                if(isChecked) cb.parentElement.classList.add('checked');
+                else cb.parentElement.classList.remove('checked');
+            });
+            document.querySelectorAll('input[class*="chk-group-"]').forEach(cb => cb.checked = isChecked);
+        }
+
+        function getSelectedPermissions() {
+            let perms = [];
+            document.querySelectorAll('.matrix-cbx:checked').forEach(cb => perms.push(cb.value));
+            return perms;
+        }
+
+        function openNewPQ() { 
+            document.getElementById('formPQ').reset(); 
+            document.getElementById('p_is_new').value = "true"; 
+            document.getElementById('p_ma').readOnly = false;
+            checkAllMatrix(false); // Reset toàn bộ
+            clearActiveCards();
+            
+            document.getElementById('modalEdit').classList.remove('hidden');
+            document.getElementById('modalEdit').classList.add('is-open');
+            document.getElementById('dragResizerUI').classList.add('is-open');
+            setTimeout(checkInputHasData, 50); 
+        }
+
+        function editPQ(ma) {
+            const p = mapPQ[ma]; if(!p) return;
+            document.getElementById('p_is_new').value = "false";
+            
+            const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+
+            setV('p_ma', p.ma_vai_tro); document.getElementById('p_ma').readOnly = true;
+            setV('p_ten', p.ten_vai_tro || "");
+            setV('p_level', p.level || 5);
+            setV('p_mota', p.mo_ta || "");
+            setV('p_trang_thai', p.trang_thai);
+
+            // Tick lại quyền lên UI
+            checkAllMatrix(false);
+            if (p.quyen_han && Array.isArray(p.quyen_han)) {
+                p.quyen_han.forEach(perm => {
+                    let cb = document.querySelector(`.matrix-cbx[value="${perm}"]`);
+                    if (cb) {
+                        cb.checked = true;
+                        cb.parentElement.classList.add('checked');
+                    }
+                });
+            }
+
+            clearActiveCards();
+            const activeRow = document.querySelector(`.pq-card[data-id="${ma}"]`);
+            if(activeRow) { activeRow.classList.add('card-active-purple'); }
+
+            document.getElementById('modalEdit').classList.remove('hidden');
+            document.getElementById('modalEdit').classList.add('is-open');
+            document.getElementById('dragResizerUI').classList.add('is-open');
+            setTimeout(checkInputHasData, 50); 
+        }
+
+        function closeModalEdit() { 
+            document.getElementById('modalEdit').classList.add('hidden');
+            document.getElementById('modalEdit').classList.remove('is-open');
+            document.getElementById('dragResizerUI').classList.remove('is-open');
+            document.getElementById('listPaneUI').style.width = '100%';
+            document.getElementById('modalEdit').style.width = '';
+            clearActiveCards();
+        }
+
+        window.toggleSwalPin = function() {
+            const input = document.getElementById('swal-pin-input');
+            const eyeSlash = document.getElementById('eye_slash_swal'); const eyeOpen = document.getElementById('eye_open_swal');
+            if (input.type === "password") { input.type = "text"; eyeSlash.classList.add('hidden'); eyeOpen.classList.remove('hidden'); } 
+            else { input.type = "password"; eyeOpen.classList.add('hidden'); eyeSlash.classList.remove('hidden'); }
+        };
+
+        window.checkPinLength = function(input) {
+            if (input.value.length === 8) {
+                input.classList.remove('border-purple-500', 'focus:border-purple-500', 'focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)]');
+                input.classList.add('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600', 'focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]');
+                input.style.transform = 'scale(1.03)'; setTimeout(() => input.style.transform = 'scale(1)', 150);
+            } else {
+                input.classList.remove('border-emerald-500', 'focus:border-emerald-500', 'text-emerald-600', 'focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]');
+                input.classList.add('border-purple-500', 'focus:border-purple-500', 'text-slate-800', 'focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)]');
+            }
+        }
+
+        async function savePQ() {
+            const btn = document.getElementById('btnSavePQ'); 
+            const oldHtml = btn.innerHTML;
+
+            try {
+                const { value: pinXacNhan } = await Swal.fire({
+                    title: '<div class="flex flex-col items-center gap-3"><div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><span class="text-2xl font-black tracking-tight text-gradient-animated">Bảo mật 2 lớp</span></div>',
+                    customClass: { popup: 'swal-master-success', confirmButton: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-purple-200 transition transform hover:-translate-y-0.5 active:scale-95', cancelButton: 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-8 py-3 transition active:scale-95 border border-slate-200' },
+                    buttonsStyling: false, 
+                    html: `
+                        <div class="text-[14px] text-slate-600 mb-8 font-medium leading-relaxed">Hệ thống yêu cầu xác minh danh tính.<br>Vui lòng nhập <b class="text-purple-700">Mã PIN</b> của bạn.</div>
+                        <div class="relative w-full max-w-[280px] mx-auto group">
+                            <div class="absolute inset-0 bg-purple-500/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
+                            <input type="password" id="swal-pin-input" class="relative w-full box-border bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-center tracking-[0.25em] font-black text-2xl text-slate-800 outline-none transition-all duration-300 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(147,51,234,0.1)] placeholder-slate-300" maxlength="8" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" placeholder="••••••••" oninput="this.value = this.value.replace(/[^0-9]/g, ''); document.getElementById('swal-custom-err').classList.add('hidden'); checkPinLength(this);">
+                            <button type="button" onclick="toggleSwalPin()" class="absolute inset-y-0 right-2 w-10 flex items-center justify-center text-slate-400 hover:text-purple-600 transition z-10 bg-white my-1 rounded-xl"><svg id="eye_slash_swal" class="w-6 h-6 block" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg><svg id="eye_open_swal" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                        </div>
+                        <div id="swal-custom-err" class="hidden text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-2 text-[13px] font-bold mt-4 flex items-center justify-center gap-1.5 w-full max-w-[280px] mx-auto shadow-sm"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Vui lòng nhập đủ 8 số!</div>
+                    `,
+                    showCancelButton: true, confirmButtonText: 'Xác nhận Lưu', cancelButtonText: 'Hủy bỏ', reverseButtons: true, 
+                    didOpen: () => { setTimeout(() => { const input = document.getElementById('swal-pin-input'); input.removeAttribute('readonly'); input.focus(); }, 100); },
+                    preConfirm: () => { 
+                        const input = document.getElementById('swal-pin-input'); const errBox = document.getElementById('swal-custom-err'); const val = input.value; 
+                        if (val.length < 8) { errBox.classList.remove('hidden'); errBox.classList.add('animate-bounce'); setTimeout(() => errBox.classList.remove('animate-bounce'), 1000); return false; } 
+                        return val; 
+                    }
+                });
+                
+                if(!pinXacNhan) return; 
+
+                btn.disabled = true; btn.innerHTML = 'ĐANG XỬ LÝ...';
+
+                let payload = {
+                    ma_vai_tro: getV("p_ma"),
+                    ten_vai_tro: getV("p_ten"),
+                    level: parseInt(getV("p_level")) || 5,
+                    mo_ta: getV("p_mota"),
+                    trang_thai: parseInt(getV("p_trang_thai")) || 0,
+                    quyen_han: getSelectedPermissions()
+                };
+
+                const fd = new FormData();
+                fd.append('pin_xac_nhan', pinXacNhan);
+                fd.append('is_new', getV("p_is_new"));
+                fd.append('payload_json', JSON.stringify(payload)); 
+
+                const res = await fetch('/master/api/phan-quyen/save', { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if(data.status === 'ok') {
+                    Swal.fire({ title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600 rounded-full flex items-center justify-center shadow-inner border border-purple-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div><span class="text-3xl font-black title-gradient-purple">Hoàn Tất</span></div>', html: `<div class="text-[15px] text-slate-600 font-medium px-4">${data.msg}</div>`, customClass: { popup: 'swal-master-success' }, showConfirmButton: false, timer: 1500 }).then(() => location.reload());
+                } else {
+                    Swal.fire({ title: '<div class="flex flex-col items-center gap-3"><div class="w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-inner border border-orange-200"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><span class="text-3xl font-black title-gradient-red">Lỗi Hệ Thống</span></div>', html: `<div class="text-[15px] text-orange-900 font-medium px-4">${data.msg}</div>`, customClass: { popup: 'swal-master-error', confirmButton: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl px-8 py-3 shadow-lg shadow-orange-200 transition transform hover:-translate-y-0.5 active:scale-95' }, buttonsStyling: false, confirmButtonText: 'Đã hiểu' });
+                    btn.disabled = false; btn.innerHTML = oldHtml;
+                }
+            } catch(e) { 
+                console.error(e);
+                Swal.fire('Lỗi', e.message, 'error');
+                btn.disabled = false; btn.innerHTML = oldHtml; 
+            }
+        }
+        
+        setTimeout(checkInputHasData, 100);
+    </script>
+    {{ template "footer_master" . }}
+{{ end }}
