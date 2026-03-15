@@ -51,7 +51,7 @@
                             {{ if .IsLocked }}
                             <div class="mt-3 inline-flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-md border border-red-100 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                <span class="text-[10px] font-black uppercase tracking-wider">Đã Khóa</span>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Đã Khóa Locker</span>
                             </div>
                             {{ end }}
                         </div>
@@ -114,7 +114,7 @@
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Chọn Chức Danh (Role) <span class="text-red-500">*</span></label>
                                         <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-3 !px-4 cursor-pointer flex justify-between items-center group hover:border-purple-400 bg-white transition-all">
-                                            <span id="roleTriggerText" class="text-[13px] font-medium text-slate-400">-- Nhấn để chọn chức năng từ thư viện --</span>
+                                            <span id="roleTriggerText" class="text-[13px] font-medium text-slate-400">-- Nhấn để chọn chức danh --</span>
                                             <div class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center transition-colors">
                                                 <svg class="w-4 h-4 text-slate-500 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
@@ -124,10 +124,10 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
-                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px]" placeholder="VD: Quản lý chi nhánh">
+                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-slate-800" placeholder="VD: Quản lý chi nhánh">
                                         </div>
                                         <div>
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái (Đăng nhập)</label>
                                             <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
                                                 <option value="1" class="text-emerald-600">🟢 Hoạt động (Cho phép dùng)</option>
                                                 <option value="0" class="text-amber-600">🟡 Tạm khóa (Cấm dùng)</option>
@@ -135,15 +135,15 @@
                                         </div>
                                     </div>
 
-                                    <div id="lockedWarningBanner" class="hidden bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-3">
+                                    <div id="lockedWarningBanner" class="hidden bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-3 mt-1 shadow-inner">
                                         <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                         <div>
-                                            <h4 class="text-[12px] font-black text-red-700 uppercase">Vai trò này đã bị khóa cấu hình</h4>
-                                            <p class="text-[11px] text-red-600 mt-0.5">Mọi thao tác chỉnh sửa quyền hạn đã bị vô hiệu hóa để bảo vệ hệ thống. Chỉ Sáng lập viên mới có thể mở khóa.</p>
+                                            <h4 class="text-[12px] font-black text-red-700 uppercase">Cấu hình vai trò đã bị đóng băng (Locker)</h4>
+                                            <p class="text-[11px] text-red-600 mt-1 leading-relaxed">Không ai được phép sửa đổi ma trận quyền. Master hãy <b class="font-black">TẮT nút Locker bên dưới</b> để rã đông form và chỉnh sửa.</p>
                                         </div>
                                     </div>
                                     
-                                    {{ if eq .Session.UserID "0000000000000000001" }}
+                                    {{ if eq .NhanVien.MaKhachHang "0000000000000000001" }}
                                     <div class="pt-1" id="masterLockWrapper">
                                         <label class="flex items-center gap-2.5 cursor-pointer group w-fit">
                                             <div class="relative">
@@ -173,9 +173,7 @@
                                 </div>
                                 
                                 <div id="matrixTabsHeader" class="saas-tabs-container"></div>
-                                
                                 <div id="matrixTabsContent" class="flex-1 overflow-y-auto custom-scroll"></div>
-                                
                             </div>
                         </div>
                     </form>
@@ -579,7 +577,7 @@
                 modules: [
                     { id: "qr_code", name: "QR Code động", actions: ["tao"] },
                     { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
-                    { id: "hoa_don_dien_tu", name: "Hóa điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy", "in"] }
+                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy", "in"] }
                 ]
             },
             {
@@ -793,22 +791,27 @@
             return perms;
         }
 
-        // ================= ĐỘNG CƠ READ-ONLY KHI BỊ KHÓA =================
+        // ================= ĐỘNG CƠ ĐÓNG BĂNG KHI LOCKER BẬT =================
         function toggleLockMode(isLocked) {
-            const isMaster = "{{ .Session.UserID }}" === "0000000000000000001";
+            // Kiểm tra xem user hiện tại có phải Master 001 không
+            const isMaster = "{{ .NhanVien.MaKhachHang }}" === "0000000000000000001";
             
-            // 1. Vô hiệu hóa Input thông tin
+            // 1. Khóa/Mở Input thông tin
             const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
-                if(el) { el.disabled = isLocked; el.readOnly = isLocked; }
+                if(el) { 
+                    el.disabled = isLocked; 
+                    if(isLocked) el.classList.add('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
+                    else el.classList.remove('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
+                }
             });
 
-            // 2. Khóa Nút Chọn Role
+            // 2. Khóa/Mở Nút Chọn Role Modal
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) {
                 const isNew = document.getElementById('p_is_new').value === "true";
-                // Khóa nếu form đang bị Locked, HOẶC đang sửa form cũ (không cho phép đổi Role)
+                // Khi đang xem form cũ (isNew=false), không bao giờ cho đổi Role. Hoặc khi đang bị khóa -> Đóng băng.
                 if (isLocked || !isNew) {
                     btnRole.classList.add('pointer-events-none', 'opacity-60', 'bg-slate-100');
                 } else {
@@ -816,11 +819,11 @@
                 }
             }
 
-            // 3. Khóa Matrix Checkbox & Nút Check All
+            // 3. Khóa/Mở Matrix Checkbox & Nút Check All
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = isLocked;
-                if(isLocked) cb.parentElement.classList.add('disabled');
-                else cb.parentElement.classList.remove('disabled');
+                if(isLocked) cb.parentElement.classList.add('disabled', 'opacity-60');
+                else cb.parentElement.classList.remove('disabled', 'opacity-60');
             });
             const btnCheckAll = document.getElementById('btnCheckAllSys');
             if(btnCheckAll) {
@@ -833,6 +836,16 @@
             if(banner) {
                 if(isLocked) banner.classList.remove('hidden');
                 else banner.classList.add('hidden');
+            }
+            
+            // 5. Nếu bị khóa và KHÔNG PHẢI MASTER, ẩn luôn nút Save (Chỉ master mới thấy để có thể tự unlock)
+            const btnSave = document.getElementById('btnSavePQ');
+            if(btnSave) {
+                if(isLocked && !isMaster) {
+                    btnSave.classList.add('hidden');
+                } else {
+                    btnSave.classList.remove('hidden');
+                }
             }
         }
         // =================================================================
@@ -862,6 +875,9 @@
             tempSelectedRoleVal = "";
             tempSelectedRoleText = "";
 
+            // Gạt Locker về OFF và mở khóa toàn bộ form
+            const lockToggle = document.getElementById('p_is_locked');
+            if(lockToggle) lockToggle.checked = false;
             toggleLockMode(false); 
 
             checkAllMatrix(false); 
@@ -904,13 +920,11 @@
                 }
             }
 
-            // KÍCH HOẠT CHẾ ĐỘ READ-ONLY THEO IS_LOCKED
+            // NẠP TRẠNG THÁI LOCKER & ĐÓNG BĂNG FORM NẾU CẦN
             const lockToggle = document.getElementById('p_is_locked');
             if(lockToggle) lockToggle.checked = p.is_locked;
             
-            // Master có quyền Admin tối cao, chỉ bị khóa form nếu p.is_locked = true.
-            // Nếu không phải Master, thì cứ bị is_locked là vĩnh viễn không mở được.
-            toggleLockMode(p.is_locked || p.ma_vai_tro === "QUAN_TRI_HE_THONG"); 
+            toggleLockMode(p.is_locked); 
 
             clearActiveCards();
             const activeRow = document.querySelector(`.saas-card[data-id="${ma}"]`);
