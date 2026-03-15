@@ -373,197 +373,14 @@
                             </div>
                             
                             <div class="p-5 border-t border-slate-100 bg-white flex justify-end gap-3 rounded-b-2xl">
-                                <button onclick="closeRoleModal()" class="px-6 py-2.5 rounded-xl font-bold text-[12px] text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors uppercase tracking-widest">HỦY BỎ</button>
-                                <button onclick="confirmRoleSelection()" class="px-8 py-2.5 rounded-xl font-bold text-[12px] text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-200 transition-colors uppercase tracking-widest flex items-center gap-2">
+                                <button type="button" onclick="closeRoleModal()" class="px-6 py-2.5 rounded-xl font-bold text-[12px] text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors uppercase tracking-widest">HỦY BỎ</button>
+                                <button type="button" onclick="confirmRoleSelection()" class="px-8 py-2.5 rounded-xl font-bold text-[12px] text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-200 transition-colors uppercase tracking-widest flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> XÁC NHẬN CHỌN
                                 </button>
                             </div>
                         </div>
                     </div>
-                    ```
-
----
-
-### BƯỚC 3: Thay Thế Javascript Động Cơ Mới
-Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến việc chọn Role, AutoFill, EditPQ, OpenNewPQ** cũ (Sếp có thể xóa từ đoạn `// BẢNG MAP: ÁNH XẠ...` đến trước hàm `function closeModalEdit()`), và dán đoạn này vào:
-
-```javascript
-        // BẢNG MAP: ÁNH XẠ CHỨC DANH SANG CẤP BẬC (LEVEL) TỰ ĐỘNG
-        const ROLE_LEVEL_MAP = {
-            "QUAN_TRI_HE_THONG": 0, "QUAN_TRI_VIEN_HE_THONG": 1, "QUAN_TRI_IT_HE_THONG": 2,
-            "QUAN_TRI_CUA_HANG": 3, "QUAN_TRI_VIEN_CUA_HANG": 4, "QUAN_TRI_IT_CUA_HANG": 4, "QUAN_TRI_WEBSITE_CUA_HANG": 4,
-            "GIAM_DOC": 4, "QUAN_LY_CHI_NHANH": 5, "QUAN_LY_VUNG": 5,
-            "KE_TOAN_TRUONG": 5, "KE_TOAN": 6, "THU_QUY": 6, "KIEM_SOAT_NOI_BO": 5,
-            "TRUONG_PHONG_KINH_DOANH": 5, "KINH_DOANH": 7, "MARKETING": 7, "CHAM_SOC_KHACH_HANG": 7, "NHAN_VIEN_BAN_HANG": 7,
-            "TRUONG_KHO": 5, "THU_KHO": 6, "NHAN_VIEN_KHO": 7,
-            "TRUONG_BO_PHAN_KY_THUAT": 5, "KY_THUAT_VIEN": 7,
-            "NHAN_VIEN": 7, "NHA_CUNG_CAP": 8, "DOI_TAC": 8, "BIEN_TAP_VIEN": 7, "DIEU_PHOI_DON_HANG": 7, "SUPPORT_VIEWER": 9
-        };
-
-        // Biến lưu tạm Role khi đang chọn trong Modal
-        let tempSelectedRoleVal = "";
-        let tempSelectedRoleText = "";
-
-        function openRoleModal() {
-            if(document.getElementById('btnOpenRoleModal').classList.contains('pointer-events-none')) return;
-            document.getElementById('roleSelectionModal').classList.remove('hidden');
-        }
-        function closeRoleModal() {
-            document.getElementById('roleSelectionModal').classList.add('hidden');
-        }
-
-        // Click chọn trong Modal (Hiệu ứng Radio Button)
-        function selectRoleModal(el) {
-            document.querySelectorAll('#roleGridContainer .role-item').forEach(item => {
-                item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-                item.querySelector('.role-radio').innerHTML = '';
-                item.querySelector('.role-radio').classList.remove('!border-purple-600');
-                item.querySelector('.role-text').classList.remove('!text-purple-700');
-            });
-
-            el.classList.add('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-            el.querySelector('.role-radio').classList.add('!border-purple-600');
-            el.querySelector('.role-radio').innerHTML = '<div class="w-2.5 h-2.5 bg-purple-600 rounded-full"></div>';
-            el.querySelector('.role-text').classList.add('!text-purple-700');
-
-            tempSelectedRoleVal = el.getAttribute('data-val');
-            tempSelectedRoleText = el.getAttribute('data-text');
-        }
-
-        // Ấn Xác Nhận trên Modal
-        function confirmRoleSelection() {
-            if(!tempSelectedRoleVal) return closeRoleModal();
-            
-            document.getElementById('p_ma').value = tempSelectedRoleVal;
-            
-            // Cập nhật UI Nút Chọn
-            const triggerText = document.getElementById('roleTriggerText');
-            triggerText.innerHTML = `<span class="font-black text-purple-700">${tempSelectedRoleText}</span> <span class="text-slate-400 font-normal text-[11px] ml-2">(${tempSelectedRoleVal})</span>`;
-            document.getElementById('btnOpenRoleModal').classList.add('!border-purple-400', '!bg-purple-50');
-
-            autoFillRoleName(tempSelectedRoleVal, tempSelectedRoleText);
-            closeRoleModal();
-        }
-
-        function autoFillRoleName(val, text) {
-            const inputTen = document.getElementById('p_ten');
-            const inputLevel = document.getElementById('p_level');
-            if (val) {
-                if (inputTen.value.trim() === "") inputTen.value = text;
-                const lvl = ROLE_LEVEL_MAP[val] !== undefined ? ROLE_LEVEL_MAP[val] : 7;
-                if(inputLevel) inputLevel.value = lvl;
-                checkInputHasData();
-            }
-        }
-
-        // ================= ĐỘNG CƠ READ-ONLY KHI BỊ KHÓA =================
-        function toggleLockMode(isLocked) {
-            const isMaster = "{{ .Session.UserID }}" === "0000000000000000001";
-            
-            // 1. Vô hiệu hóa Input thông tin
-            const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
-            inputs.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { el.disabled = isLocked; el.readOnly = isLocked; }
-            });
-
-            // 2. Khóa Nút Chọn Role
-            const btnRole = document.getElementById('btnOpenRoleModal');
-            if (isLocked || document.getElementById('p_is_new').value === "false") {
-                btnRole.classList.add('pointer-events-none', 'opacity-60', 'bg-slate-100');
-            } else {
-                btnRole.classList.remove('pointer-events-none', 'opacity-60', 'bg-slate-100');
-            }
-
-            // 3. Khóa Matrix Checkbox & Nút Check All
-            document.querySelectorAll('.matrix-cbx').forEach(cb => {
-                cb.disabled = isLocked;
-                if(isLocked) cb.parentElement.classList.add('disabled');
-                else cb.parentElement.classList.remove('disabled');
-            });
-            const btnCheckAll = document.getElementById('btnCheckAllSys');
-            if(btnCheckAll) {
-                if(isLocked) btnCheckAll.classList.add('hidden');
-                else btnCheckAll.classList.remove('hidden');
-            }
-
-            // 4. Bật/Tắt Banner Cảnh Báo
-            const banner = document.getElementById('lockedWarningBanner');
-            if(isLocked) banner.classList.remove('hidden');
-            else banner.classList.add('hidden');
-        }
-        // =================================================================
-
-        function openNewPQ() { 
-            document.getElementById('formPQ').reset(); 
-            document.getElementById('p_is_new').value = "true"; 
-            document.getElementById('p_ma').value = "";
-            document.getElementById('p_level').value = "5";
-            
-            document.getElementById('roleTriggerText').innerHTML = "-- Nhấn để chọn chức năng từ thư viện --";
-            document.getElementById('btnOpenRoleModal').classList.remove('!border-purple-400', '!bg-purple-50');
-            
-            toggleLockMode(false); // Mở khóa hoàn toàn khi tạo mới
-
-            checkAllMatrix(false); 
-            clearActiveCards();
-            
-            document.getElementById('modalEdit').classList.remove('hidden');
-            document.getElementById('modalEdit').classList.add('is-open');
-            document.getElementById('dragResizerUI').classList.add('is-open');
-            setTimeout(checkInputHasData, 50); 
-        }
-
-        function editPQ(ma) {
-            const p = mapPQ[ma]; if(!p) return;
-            document.getElementById('p_is_new').value = "false";
-
-            const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-            setV('p_ma', p.ma_vai_tro); 
-            setV('p_ten', p.ten_vai_tro || "");
-            setV('p_mota', p.mo_ta || "");
-
-            // Cập nhật UI Nút Chọn (Read-only)
-            const triggerText = document.getElementById('roleTriggerText');
-            triggerText.innerHTML = `<span class="font-black text-purple-700">${p.ten_vai_tro || p.ma_vai_tro}</span> <span class="text-slate-400 font-normal text-[11px] ml-2">(${p.ma_vai_tro})</span>`;
-            document.getElementById('btnOpenRoleModal').classList.add('!border-purple-400', '!bg-purple-50');
-
-            // Cập nhật Matrix
-            checkAllMatrix(false);
-            if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
-                setV('p_level', 0);
-                setV('p_trang_thai', 1);
-                document.querySelectorAll('.matrix-cbx').forEach(cb => { cb.checked = true; cb.parentElement.classList.add('checked'); });
-            } else {
-                setV('p_level', p.level);
-                setV('p_trang_thai', p.trang_thai);
-                if (p.quyen_han && Array.isArray(p.quyen_han)) {
-                    p.quyen_han.forEach(perm => {
-                        let cb = document.querySelector(`.matrix-cbx[value="${perm}"]`);
-                        if (cb) { cb.checked = true; cb.parentElement.classList.add('checked'); }
-                    });
-                }
-            }
-
-            // KÍCH HOẠT CHẾ ĐỘ READ-ONLY THEO IS_LOCKED
-            const lockToggle = document.getElementById('p_is_locked');
-            if(lockToggle) lockToggle.checked = p.is_locked;
-            
-            // Master có quyền Admin tối cao, chỉ bị khóa form nếu p.is_locked = true.
-            // Nếu không phải Master, thì cứ bị is_locked là vĩnh viễn không mở được.
-            toggleLockMode(p.is_locked || p.ma_vai_tro === "QUAN_TRI_HE_THONG"); 
-
-            clearActiveCards();
-            const activeRow = document.querySelector(`.saas-card[data-id="${ma}"]`);
-            if(activeRow) { activeRow.classList.add('card-active-purple'); }
-
-            document.getElementById('modalEdit').classList.remove('hidden');
-            document.getElementById('modalEdit').classList.add('is-open');
-            document.getElementById('dragResizerUI').classList.add('is-open');
-            setTimeout(checkInputHasData, 50); 
-        }
-                    
-                </div>
+                    </div>
                 
                 <button onclick="closeModalEdit()" class="btn-close-pane">
                     <svg class="w-6 h-6 transition-transform hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -762,7 +579,7 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
                 modules: [
                     { id: "qr_code", name: "QR Code động", actions: ["tao"] },
                     { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
-                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy", "in"] }
+                    { id: "hoa_don_dien_tu", name: "Hóa điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy", "in"] }
                 ]
             },
             {
@@ -831,41 +648,62 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
             "NHAN_VIEN": 7, "NHA_CUNG_CAP": 8, "DOI_TAC": 8, "BIEN_TAP_VIEN": 7, "DIEU_PHOI_DON_HANG": 7, "SUPPORT_VIEWER": 9
         };
 
-        // Hàm click vào Grid Chọn chức danh
-        function selectRole(el) {
-            if(document.getElementById('roleSelectorContainer').classList.contains('pointer-events-none')) return;
+        // Biến lưu tạm Role khi đang chọn trong Modal
+        let tempSelectedRoleVal = "";
+        let tempSelectedRoleText = "";
 
-            document.querySelectorAll('.role-item').forEach(item => {
+        function openRoleModal() {
+            if(document.getElementById('btnOpenRoleModal').classList.contains('pointer-events-none')) return;
+            document.getElementById('roleSelectionModal').classList.remove('hidden');
+        }
+        
+        function closeRoleModal() {
+            document.getElementById('roleSelectionModal').classList.add('hidden');
+        }
+
+        // Click chọn trong Modal (Hiệu ứng Radio Button)
+        function selectRoleModal(el) {
+            document.querySelectorAll('#roleGridContainer .role-item').forEach(item => {
                 item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-                item.querySelector('.role-radio').innerHTML = '';
-                item.querySelector('.role-radio').classList.remove('!border-purple-600');
-                item.querySelector('.role-text').classList.remove('!text-purple-700');
+                let radio = item.querySelector('.role-radio');
+                if(radio) { radio.innerHTML = ''; radio.classList.remove('!border-purple-600'); }
+                let text = item.querySelector('.role-text');
+                if(text) text.classList.remove('!text-purple-700');
             });
 
             el.classList.add('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-            el.querySelector('.role-radio').classList.add('!border-purple-600');
-            el.querySelector('.role-radio').innerHTML = '<div class="w-2 h-2 bg-purple-600 rounded-full"></div>';
-            el.querySelector('.role-text').classList.add('!text-purple-700');
+            let radio = el.querySelector('.role-radio');
+            if(radio) { radio.classList.add('!border-purple-600'); radio.innerHTML = '<div class="w-2.5 h-2.5 bg-purple-600 rounded-full"></div>'; }
+            let text = el.querySelector('.role-text');
+            if(text) text.classList.add('!text-purple-700');
 
-            const val = el.getAttribute('data-val');
-            const text = el.getAttribute('data-text');
-            document.getElementById('p_ma').value = val;
-
-            autoFillRoleName(val, text);
+            tempSelectedRoleVal = el.getAttribute('data-val');
+            tempSelectedRoleText = el.getAttribute('data-text');
         }
 
-        // Động cơ tự động lấy Tên Chức Danh & Level nạp ẩn
+        // Ấn Xác Nhận trên Modal
+        function confirmRoleSelection() {
+            if(!tempSelectedRoleVal) return closeRoleModal();
+            
+            document.getElementById('p_ma').value = tempSelectedRoleVal;
+            
+            const triggerText = document.getElementById('roleTriggerText');
+            if(triggerText) triggerText.innerHTML = `<span class="font-black text-purple-700">${tempSelectedRoleText}</span> <span class="text-slate-400 font-normal text-[11px] ml-2">(${tempSelectedRoleVal})</span>`;
+            
+            const btnRole = document.getElementById('btnOpenRoleModal');
+            if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
+
+            autoFillRoleName(tempSelectedRoleVal, tempSelectedRoleText);
+            closeRoleModal();
+        }
+
         function autoFillRoleName(val, text) {
             const inputTen = document.getElementById('p_ten');
             const inputLevel = document.getElementById('p_level');
-            
             if (val) {
-                if (inputTen.value.trim() === "") {
-                    inputTen.value = text;
-                }
+                if (inputTen && inputTen.value.trim() === "") inputTen.value = text;
                 const lvl = ROLE_LEVEL_MAP[val] !== undefined ? ROLE_LEVEL_MAP[val] : 7;
                 if(inputLevel) inputLevel.value = lvl;
-                
                 checkInputHasData();
             }
         }
@@ -955,36 +793,82 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
             return perms;
         }
 
+        // ================= ĐỘNG CƠ READ-ONLY KHI BỊ KHÓA =================
+        function toggleLockMode(isLocked) {
+            const isMaster = "{{ .Session.UserID }}" === "0000000000000000001";
+            
+            // 1. Vô hiệu hóa Input thông tin
+            const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.disabled = isLocked; el.readOnly = isLocked; }
+            });
+
+            // 2. Khóa Nút Chọn Role
+            const btnRole = document.getElementById('btnOpenRoleModal');
+            if(btnRole) {
+                const isNew = document.getElementById('p_is_new').value === "true";
+                // Khóa nếu form đang bị Locked, HOẶC đang sửa form cũ (không cho phép đổi Role)
+                if (isLocked || !isNew) {
+                    btnRole.classList.add('pointer-events-none', 'opacity-60', 'bg-slate-100');
+                } else {
+                    btnRole.classList.remove('pointer-events-none', 'opacity-60', 'bg-slate-100');
+                }
+            }
+
+            // 3. Khóa Matrix Checkbox & Nút Check All
+            document.querySelectorAll('.matrix-cbx').forEach(cb => {
+                cb.disabled = isLocked;
+                if(isLocked) cb.parentElement.classList.add('disabled');
+                else cb.parentElement.classList.remove('disabled');
+            });
+            const btnCheckAll = document.getElementById('btnCheckAllSys');
+            if(btnCheckAll) {
+                if(isLocked) btnCheckAll.classList.add('hidden');
+                else btnCheckAll.classList.remove('hidden');
+            }
+
+            // 4. Bật/Tắt Banner Cảnh Báo
+            const banner = document.getElementById('lockedWarningBanner');
+            if(banner) {
+                if(isLocked) banner.classList.remove('hidden');
+                else banner.classList.add('hidden');
+            }
+        }
+        // =================================================================
+
         function openNewPQ() { 
-            document.getElementById('formPQ').reset(); 
+            const form = document.getElementById('formPQ');
+            if(form) form.reset(); 
+            
             document.getElementById('p_is_new').value = "true"; 
             document.getElementById('p_ma').value = "";
             document.getElementById('p_level').value = "5";
             
-            const roleContainer = document.getElementById('roleSelectorContainer');
-            roleContainer.classList.remove('pointer-events-none', 'opacity-70', 'bg-slate-100/50');
+            const triggerText = document.getElementById('roleTriggerText');
+            if(triggerText) triggerText.innerHTML = "-- Nhấn để chọn chức năng từ thư viện --";
             
-            // Xóa highlight của grid chọn chức danh
-            document.querySelectorAll('.role-item').forEach(item => {
+            const btnRole = document.getElementById('btnOpenRoleModal');
+            if(btnRole) btnRole.classList.remove('!border-purple-400', '!bg-purple-50');
+            
+            // Xóa rỗng các lựa chọn tạm trong Modal
+            document.querySelectorAll('#roleGridContainer .role-item').forEach(item => {
                 item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-                item.querySelector('.role-radio').innerHTML = '';
-                item.querySelector('.role-radio').classList.remove('!border-purple-600');
-                item.querySelector('.role-text').classList.remove('!text-purple-700');
+                let radio = item.querySelector('.role-radio');
+                if(radio) { radio.innerHTML = ''; radio.classList.remove('!border-purple-600'); }
+                let text = item.querySelector('.role-text');
+                if(text) text.classList.remove('!text-purple-700');
             });
+            tempSelectedRoleVal = "";
+            tempSelectedRoleText = "";
 
-            document.getElementById('p_trang_thai').disabled = false;
-            document.getElementById('btnCheckAllSys').classList.remove('hidden');
-            
-            document.querySelectorAll('.matrix-cbx').forEach(cb => {
-                cb.disabled = false;
-                cb.parentElement.classList.remove('disabled');
-            });
+            toggleLockMode(false); 
 
             checkAllMatrix(false); 
             clearActiveCards();
             
             document.getElementById('modalEdit').classList.remove('hidden');
-            document.getElementById('modalEdit').classList.add('is-open');
+            setTimeout(() => { document.getElementById('modalEdit').classList.add('is-open'); }, 10);
             document.getElementById('dragResizerUI').classList.add('is-open');
             setTimeout(checkInputHasData, 50); 
         }
@@ -993,57 +877,22 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
             const p = mapPQ[ma]; if(!p) return;
             document.getElementById('p_is_new').value = "false";
 
-            if(document.getElementById('p_is_locked')) document.getElementById('p_is_locked').checked = p.is_locked;
-            
-            const roleContainer = document.getElementById('roleSelectorContainer');
-            roleContainer.classList.remove('pointer-events-none', 'opacity-70', 'bg-slate-100/50');
-
-            // Highlight đúng ô chức danh trong grid UI
-            document.querySelectorAll('.role-item').forEach(item => {
-                if(item.getAttribute('data-val') === p.ma_vai_tro) {
-                    item.classList.add('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-                    item.querySelector('.role-radio').classList.add('!border-purple-600');
-                    item.querySelector('.role-radio').innerHTML = '<div class="w-2 h-2 bg-purple-600 rounded-full"></div>';
-                    item.querySelector('.role-text').classList.add('!text-purple-700');
-                } else {
-                    item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
-                    item.querySelector('.role-radio').innerHTML = '';
-                    item.querySelector('.role-radio').classList.remove('!border-purple-600');
-                    item.querySelector('.role-text').classList.remove('!text-purple-700');
-                }
-            });
-
             const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-
             setV('p_ma', p.ma_vai_tro); 
-            // Khóa grid UI không cho đổi chức danh nữa
-            roleContainer.classList.add('pointer-events-none', 'opacity-70', 'bg-slate-100/50');
-            
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
-            document.getElementById('p_trang_thai').disabled = false;
-            document.getElementById('btnCheckAllSys').classList.remove('hidden');
-            
-            // Xả chốt tất cả checkbox để nạp dữ liệu mới
-            document.querySelectorAll('.matrix-cbx').forEach(cb => {
-                cb.disabled = false;
-                cb.parentElement.classList.remove('disabled');
-            });
-            checkAllMatrix(false);
+            // Cập nhật UI Nút Chọn (Read-only)
+            const triggerText = document.getElementById('roleTriggerText');
+            if(triggerText) triggerText.innerHTML = `<span class="font-black text-purple-700">${p.ten_vai_tro || p.ma_vai_tro}</span> <span class="text-slate-400 font-normal text-[11px] ml-2">(${p.ma_vai_tro})</span>`;
+            const btnRole = document.getElementById('btnOpenRoleModal');
+            if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
 
-            // LOGIC KIỂM TRA QUYỀN TỐI CAO
+            checkAllMatrix(false);
             if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
                 setV('p_level', 0);
                 setV('p_trang_thai', 1);
-                document.getElementById('p_trang_thai').disabled = true;
-                document.getElementById('btnCheckAllSys').classList.add('hidden');
-                
-                document.querySelectorAll('.matrix-cbx').forEach(cb => {
-                    cb.checked = true;
-                    cb.disabled = true;
-                    cb.parentElement.classList.add('checked', 'disabled');
-                });
+                document.querySelectorAll('.matrix-cbx').forEach(cb => { cb.checked = true; cb.parentElement.classList.add('checked'); });
             } else {
                 setV('p_level', p.level);
                 setV('p_trang_thai', p.trang_thai);
@@ -1055,20 +904,31 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
                 }
             }
 
+            // KÍCH HOẠT CHẾ ĐỘ READ-ONLY THEO IS_LOCKED
+            const lockToggle = document.getElementById('p_is_locked');
+            if(lockToggle) lockToggle.checked = p.is_locked;
+            
+            // Master có quyền Admin tối cao, chỉ bị khóa form nếu p.is_locked = true.
+            // Nếu không phải Master, thì cứ bị is_locked là vĩnh viễn không mở được.
+            toggleLockMode(p.is_locked || p.ma_vai_tro === "QUAN_TRI_HE_THONG"); 
+
             clearActiveCards();
             const activeRow = document.querySelector(`.saas-card[data-id="${ma}"]`);
             if(activeRow) { activeRow.classList.add('card-active-purple'); }
 
             document.getElementById('modalEdit').classList.remove('hidden');
-            document.getElementById('modalEdit').classList.add('is-open');
+            setTimeout(() => { document.getElementById('modalEdit').classList.add('is-open'); }, 10);
             document.getElementById('dragResizerUI').classList.add('is-open');
             setTimeout(checkInputHasData, 50); 
         }
 
         function closeModalEdit() { 
-            document.getElementById('modalEdit').classList.add('hidden');
             document.getElementById('modalEdit').classList.remove('is-open');
             document.getElementById('dragResizerUI').classList.remove('is-open');
+            
+            setTimeout(() => { 
+                document.getElementById('modalEdit').classList.add('hidden'); 
+            }, 300);
             
             if (listPane) { listPane.style.width = ''; listPane.style.flex = ''; }
             if (detailPane) { detailPane.style.width = ''; detailPane.style.flex = ''; }
@@ -1101,7 +961,7 @@ Sếp cuộn xuống dưới, **bôi đen các hàm Javascript liên quan đến
             try {
                 // Kiểm tra xem Chủ shop đã chọn Chức danh chưa
                 if (!getV("p_ma")) {
-                    Swal.fire('Lỗi', 'Vui lòng chọn Chức danh từ bảng!', 'warning');
+                    Swal.fire('Lỗi', 'Vui lòng chọn Chức danh (Role) từ thư viện!', 'warning');
                     return;
                 }
 
