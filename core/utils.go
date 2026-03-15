@@ -73,25 +73,32 @@ func ThemKhachHangVaoRam(kh *KhachHang) {
 }
 
 // =======================================================
-// PHÂN QUYỀN & HỆ THỐNG (Dùng khóa TenSheetPhanQuyen)
+// PHÂN QUYỀN & HỆ THỐNG (Chuẩn mới NoSQL JSON)
 // =======================================================
 func LayCapBacVaiTro(shopID, userID, role string) int {
 	if userID == "0000000000000000001" || role == "quan_tri_he_thong" { return 0 }
-	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
-	lock.RLock(); defer lock.RUnlock()
-	for _, v := range CacheDanhSachVaiTro[shopID] {
-		if v.MaVaiTro == role { return v.StyleLevel }
+	
+	lock := GetSheetLock(shopID, TenSheetCauHinhMaster)
+	lock.RLock()
+	defer lock.RUnlock()
+	
+	if pq, ok := CacheMapPhanQuyen[TaoCompositeKey(shopID, role)]; ok {
+		return pq.Level
 	}
-	return 9
+	return 9 // Mặc định là Khách hàng nếu không tìm thấy
 }
 
 func KiemTraQuyen(shopID, role, maChucNang string) bool {
 	if role == "quan_tri_he_thong" { return true }
-	lock := GetSheetLock(shopID, TenSheetPhanQuyen)
-	lock.RLock(); defer lock.RUnlock()
-	if shopMap, ok := CachePhanQuyen[shopID]; ok {
-		if listQuyen, exists := shopMap[role]; exists {
-			if allowed, has := listQuyen[maChucNang]; has && allowed { return true }
+	
+	lock := GetSheetLock(shopID, TenSheetCauHinhMaster)
+	lock.RLock()
+	defer lock.RUnlock()
+	
+	if pq, ok := CacheMapPhanQuyen[TaoCompositeKey(shopID, role)]; ok {
+		// Thuật toán quét mảng quyền hạn
+		for _, q := range pq.QuyenHan {
+			if q == maChucNang { return true }
 		}
 	}
 	return false
