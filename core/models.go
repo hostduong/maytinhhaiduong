@@ -1044,12 +1044,14 @@ var DanhSachQuyenHanChuan = map[string]bool{
 	"lich_su_sua.xem": true, "lich_su_sua.export": true,
 	"hoa_hong_sua_chua.xem": true, "hoa_hong_sua_chua.sua": true,
 
-	// Sản Phẩm
+	// Sản Phẩm (Đã bổ sung: Biên Lợi Nhuận & Thuộc Tính)
 	"san_pham.xem": true, "san_pham.tao": true, "san_pham.sua": true, "san_pham.xoa": true, "san_pham.import": true, "san_pham.export": true, "san_pham.copy": true, "san_pham.khoa": true, "san_pham.xem_gia_von": true, "san_pham.xem_gia_ban": true, "san_pham.doi_gia": true, "san_pham.in": true, "san_pham.in_tem": true,
 	"danh_muc.xem": true, "danh_muc.tao": true, "danh_muc.sua": true, "danh_muc.xoa": true,
 	"thuong_hieu.xem": true, "thuong_hieu.tao": true, "thuong_hieu.sua": true, "thuong_hieu.xoa": true,
 	"khuyen_mai.xem": true, "khuyen_mai.tao": true, "khuyen_mai.sua": true, "khuyen_mai.xoa": true, "khuyen_mai.huy": true, "khuyen_mai.copy": true, "khuyen_mai.duyet": true,
 	"serial_number.xem": true, "serial_number.tao": true, "serial_number.sua": true, "serial_number.xoa": true, "serial_number.import": true, "serial_number.in_tem": true,
+	"bien_loi_nhuan.xem": true, "bien_loi_nhuan.tao": true, "bien_loi_nhuan.sua": true, "bien_loi_nhuan.xoa": true,
+	"thuoc_tinh_san_pham.xem": true, "thuoc_tinh_san_pham.tao": true, "thuoc_tinh_san_pham.sua": true, "thuoc_tinh_san_pham.xoa": true,
 
 	// Kho Hàng
 	"kho_hang.xem": true, "kho_hang.tao": true, "kho_hang.sua": true, "kho_hang.xoa": true,
@@ -1132,7 +1134,7 @@ var DanhSachQuyenHanChuan = map[string]bool{
 	"ai_bao_cao.xem": true,
 	"ai_du_doan_ton_kho.xem": true,
 
-	// Hệ Thống
+	// Hệ Thống (Đã bổ sung: Tin nhắn Hệ thống)
 	"goi_dich_vu.xem": true, "goi_dich_vu.tao": true, "goi_dich_vu.sua": true, "goi_dich_vu.xoa": true,
 	"thanh_toan_goi.xem": true, "thanh_toan_goi.tao": true,
 	"lich_su_thanh_toan.xem": true,
@@ -1144,4 +1146,5 @@ var DanhSachQuyenHanChuan = map[string]bool{
 	"ho_so.xem": true, "ho_so.sua": true,
 	"api_key.xem": true, "api_key.tao": true, "api_key.sua": true, "api_key.xoa": true,
 	"tep_tin.xem": true, "tep_tin.tao": true, "tep_tin.xoa": true,
+	"tin_nhan_he_thong.xem": true, "tin_nhan_he_thong.gui": true, "tin_nhan_he_thong.xoa": true,
 }
