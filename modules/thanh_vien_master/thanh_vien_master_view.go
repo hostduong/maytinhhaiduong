@@ -36,6 +36,14 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	}
 	core.KhoaHeThong.RUnlock()
 
+	if len(listVaiTroRaw) == 0 {
+		listVaiTroRaw = []core.VaiTroInfo{
+			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Sáng Lập Viên", StyleLevel: 0, StyleTheme: 9},
+			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
+			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
+		}
+	}
+
 	mapStyle := make(map[string]core.VaiTroInfo)
 	for _, v := range listVaiTroRaw { mapStyle[v.MaVaiTro] = v }
 
