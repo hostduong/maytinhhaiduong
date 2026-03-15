@@ -45,7 +45,7 @@ func Service_LuuCuaHang(dto DTO_UpdateCuaHang) error {
 		if dto.ChucVu != "" { kh.ChucVu = dto.ChucVu 
 		} else {
 			kh.ChucVu = dto.VaiTro
-			if pq, ok := core.CacheMapPhanQuyen[core.TaoCompositeKey(dto.ShopID, dto.VaiTro)]; ok {
+			if pq, ok := core.CacheMapPhanQuyen[core.TaoCompositeKey(adminID, dto.VaiTro)]; ok {
 				kh.ChucVu = pq.TenVaiTro
 			}
 		}
