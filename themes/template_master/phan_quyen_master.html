@@ -18,37 +18,25 @@
         .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
         .card-active-purple .animated-border-inner { background-color: #faf5ff !important; border: none; }
 
-        /* [NÂNG CẤP 3] UI TABS CHO MA TRẬN */
-        .matrix-tabs-container {
-            display: flex; overflow-x: auto; gap: 8px; padding: 12px 20px;
-            background: #f8fafc; border-bottom: 2px solid #e2e8f0;
-            scrollbar-width: none; /* Firefox */
+        /* [ĐÃ FIX YÊU CẦU 2]: Ép chữ đậm, không mờ khi ô nhập liệu bị khóa */
+        input:disabled, select:disabled, input[readonly], textarea[readonly] {
+            opacity: 1 !important;
+            -webkit-text-fill-color: #1e293b !important; /* Chống mờ trên Safari/iOS */
+            color: #1e293b !important;
+            font-weight: 900 !important;
+            background-color: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
         }
-        .matrix-tabs-container::-webkit-scrollbar { display: none; } /* Chrome */
-        
-        .tab-btn {
-            padding: 8px 16px; border-radius: 10px; font-size: 11px; font-weight: 800;
-            white-space: nowrap; cursor: pointer; transition: all 0.2s;
-            background: white; color: #64748b; border: 1px solid #e2e8f0;
-        }
-        .tab-btn:hover { background: #f1f5f9; color: #334155; }
-        .tab-btn.active { background: #9333ea; color: white; border-color: #9333ea; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2); }
 
-        .matrix-tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .matrix-tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .matrix-module-row { transition: background 0.2s; border-bottom: 1px solid #f1f5f9; padding: 16px 20px; }
-        .matrix-module-row:hover { background-color: #f8fafc; }
-        
+        /* Checkbox Quyền Hạn */
         .cbx-action {
             display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+            padding: 5px 8px; border-radius: 8px; border: 1px solid #cbd5e1;
             background: white; cursor: pointer; transition: all 0.2s; user-select: none;
         }
         .cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
         .cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
-        .cbx-action.disabled { opacity: 0.5; pointer-events: none; }
+        .cbx-action.disabled { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
         .cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
         .cbx-action.checked .icon { opacity: 1; transform: scale(1); }
     </style>
@@ -88,14 +76,18 @@
                             <div class="bg-purple-50 text-purple-700 font-black text-[10px] px-3 py-1.5 rounded-lg border border-purple-200 shadow-sm">
                                 LEVEL {{ .Level }}
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-xl shadow-sm">
-                                {{ if eq .Level 0 }} 👑 {{ else if eq .Level 1 }} ⚡ {{ else if eq .Level 2 }} 🛡️ {{ else if eq .Level 3 }} ⭐ {{ else if eq .Level 4 }} 🎯 {{ else if eq .Level 5 }} 💼 {{ else if eq .Level 6 }} ⚖️ {{ else if eq .Level 7 }} 🚀 {{ else if eq .Level 8 }} 🤝 {{ else }} 👤 {{ end }}
-                            </div>
                         </div>
 
-                        <div class="relative z-10 shrink-0">
-                            <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight pq-search-target">{{ .TenVaiTro }}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-1 pq-search-target">{{ .MaVaiTro }}</p>
+                        <div class="relative z-10 shrink-0 pb-1">
+                            <div class="relative inline-flex items-center mr-auto max-w-full">
+                                <div class="badge-animated-wrap theme-{{ if eq .Level 0 }}9{{else}}5{{end}} tier-s !mt-0 !mr-0 max-w-full">
+                                    <div class="badge-inner shadow-sm truncate pq-search-target max-w-[200px] text-[13px]">{{ .TenVaiTro }}</div>
+                                </div>
+                                <div class="floating-icon {{ if eq .Level 0 }}icon-lvl-0{{ else }}icon-lvl-9{{ end }}">
+                                    {{ if eq .Level 0 }} 👑 {{ else if eq .Level 1 }} ⚡ {{ else if eq .Level 2 }} 🛡️ {{ else if eq .Level 3 }} ⭐ {{ else if eq .Level 4 }} 🎯 {{ else if eq .Level 5 }} 💼 {{ else if eq .Level 6 }} ⚖️ {{ else if eq .Level 7 }} 🚀 {{ else if eq .Level 8 }} 🤝 {{ else }} 👤 {{ end }}
+                                </div>
+                            </div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-2 pq-search-target">{{ .MaVaiTro }}</p>
                         </div>
 
                         <div class="mt-4 pt-4 border-t border-slate-100 flex-1 relative z-10">
@@ -153,7 +145,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
-                                        <input type="text" id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700 bg-slate-50 read-only:!bg-purple-50/50 read-only:!opacity-100 read-only:!text-purple-900" placeholder="VD: QUAN_LY">
+                                        <input type="text" id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700" placeholder="VD: QUAN_LY">
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
@@ -161,8 +153,8 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
-                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer disabled:opacity-50">
-                                            <option value="0">Level 0 (Quản trị Hệ thống)</option>
+                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
+                                            <option value="0">Level 0 (Sáng Lập Viên)</option>
                                             <option value="1">Level 1 (Admin Hệ thống)</option>
                                             <option value="2">Level 2 (IT Hệ thống)</option>
                                             <option value="3">Level 3 (Chủ Cửa Hàng)</option>
@@ -176,7 +168,7 @@
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
-                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer disabled:opacity-50">
+                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
                                             <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
                                             <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
                                         </select>
@@ -189,7 +181,7 @@
                             </div>
                         </div>
 
-                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50 flex-1 flex flex-col min-h-[400px]">
+                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
                             <div class="animated-border-inner bg-white relative flex flex-col h-full">
                                 <div class="px-5 pt-5 pb-3 flex justify-between items-center border-b border-purple-50">
                                     <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex items-center gap-2">
@@ -198,9 +190,7 @@
                                     <button type="button" id="btnCheckAllSys" onclick="checkAllMatrix(true)" class="text-[9px] bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm font-black tracking-widest">BẬT TOÀN BỘ</button>
                                 </div>
                                 
-                                <div id="matrixTabsHeader" class="matrix-tabs-container"></div>
-                                
-                                <div id="matrixTabsContent" class="flex-1 overflow-y-auto custom-scroll pb-6"></div>
+                                <div id="matrixGridContent" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 p-4 lg:p-5 bg-slate-50/50"></div>
                                 
                             </div>
                         </div>
@@ -264,10 +254,6 @@
             document.querySelectorAll('.pq-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
-        // ==========================================
-        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN TABS
-        // [ĐÃ TỐI ƯU CÁC ĐỘNG TỪ CHUẨN MỰC TỪ SẾP]
-        // ==========================================
         const ACTION_LABELS = {
             "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
             "duyet": "Duyệt", "huy": "Hủy", "in": "In", "export": "Export", "import": "Import",
@@ -324,7 +310,7 @@
             {
                 group: "Khách Hàng",
                 modules: [
-                    { id: "khach_hang", name: "Danh sách Khách hàng", actions: ["xem", "tao", "sua", "xoa", "export", "import"] },
+                    { id: "khach_hang", name: "Danh sách Khách", actions: ["xem", "tao", "sua", "xoa", "export", "import"] },
                     { id: "tich_diem", name: "Tích điểm", actions: ["xem", "cap_nhat"] },
                     { id: "hang_thanh_vien", name: "Hạng thành viên", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "cham_soc_khach_hang", name: "Chăm sóc sau bán", actions: ["xem", "tao"] },
@@ -379,7 +365,7 @@
                     { id: "cau_hinh_vat", name: "Thuế VAT", actions: ["xem", "cap_nhat"] },
                     { id: "ho_so", name: "Hồ sơ công ty", actions: ["xem", "cap_nhat"] },
                     { id: "api_key", name: "API Key", actions: ["xem", "tao", "xoa"] },
-                    { id: "tep_tin", name: "Quản lý Tệp (Media)", actions: ["xem", "tao", "xoa"] }
+                    { id: "tep_tin", name: "Quản lý Tệp", actions: ["xem", "tao", "xoa"] }
                 ]
             },
             {
@@ -399,7 +385,7 @@
             {
                 group: "Mở Rộng",
                 modules: [
-                    { id: "don_vi_van_chuyen", name: "Kết nối Hãng VC", actions: ["xem", "cau_hinh"] },
+                    { id: "don_vi_van_chuyen", name: "Hãng Vận Chuyển", actions: ["xem", "cau_hinh"] },
                     { id: "so_sanh_gia_cuoc", name: "So sánh giá cước", actions: ["xem"] },
                     { id: "tao_van_don", name: "Đẩy đơn", actions: ["tao"] },
                     { id: "tracking_don_hang", name: "Tracking Vận đơn", actions: ["xem"] },
@@ -419,70 +405,60 @@
                     { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["tao", "cap_nhat"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
-                    { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
-                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán Nhập kho", actions: ["xem"] }
+                    { id: "ai_bao_cao", name: "AI Phân tích", actions: ["xem"] },
+                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán", actions: ["xem"] }
                 ]
             }
         ];
 
-        // Hàm render Matrix TABS ra HTML
-        function renderMatrixTabs() {
-            const tabsHeader = document.getElementById('matrixTabsHeader');
-            const tabsContent = document.getElementById('matrixTabsContent');
-            
-            let headerHTML = '';
-            let contentHTML = '';
-            
+        // [ĐÃ FIX YÊU CẦU 1]: Hàm render Grid tự động sắp xếp 1-2-3 cột
+        function renderMatrixCards() {
+            const container = document.getElementById('matrixGridContent');
+            let html = '';
+
             MATRIX_DEF.forEach((grp, gIdx) => {
-                // Render Tab Buttons
-                const activeClass = gIdx === 0 ? 'active' : '';
-                headerHTML += `<div class="tab-btn ${activeClass}" onclick="switchMatrixTab(${gIdx}, this)">${grp.group}</div>`;
-                
-                // Render Tab Content
-                const contentClass = gIdx === 0 ? 'active' : '';
-                contentHTML += `<div id="matrix-tab-${gIdx}" class="matrix-tab-content ${contentClass}">
-                                    <div class="px-5 py-3 bg-slate-50 flex justify-between items-center border-b border-slate-200">
-                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Thiết lập nhóm: ${grp.group}</span>
-                                        <label class="flex items-center gap-2 cursor-pointer group/chk">
-                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Bật Cả Nhóm Này</span>
-                                            <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
-                                        </label>
-                                    </div>`;
-                         
+                html += `
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-all hover:border-purple-300 hover:shadow-md">
+                    <div class="px-4 py-3 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 flex justify-between items-center">
+                        <h5 class="font-black text-slate-700 text-[12px] uppercase tracking-widest flex items-center gap-2">
+                            ${grp.group}
+                        </h5>
+                        <label class="flex items-center gap-2 cursor-pointer group/chk">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Bật Nhóm</span>
+                            <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
+                        </label>
+                    </div>
+                    <div class="p-4 flex flex-col gap-4">
+                `;
+
                 grp.modules.forEach((mod) => {
-                    contentHTML += `<div class="matrix-module-row grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-3 items-center">
-                                        <div class="font-bold text-[12px] text-slate-700">${mod.name}</div>
-                                        <div class="flex flex-wrap gap-2">`;
-                    
+                    html += `
+                        <div class="flex flex-col gap-2">
+                            <div class="font-bold text-[11px] text-slate-500 uppercase tracking-wider">${mod.name}</div>
+                            <div class="flex flex-wrap gap-1.5">
+                    `;
                     mod.actions.forEach((act) => {
                         const permKey = `${mod.id}.${act}`;
                         const label = ACTION_LABELS[act] || act;
-                        
-                        contentHTML += `<label class="cbx-action group-perm-${gIdx}">
-                                            <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
-                                            <div class="icon bg-white rounded-sm flex items-center justify-center"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
-                                            <span class="text-[10px] font-bold uppercase tracking-wide leading-none pt-[1px]">${label}</span>
-                                        </label>`;
+
+                        html += `
+                                <label class="cbx-action group-perm-${gIdx} flex-1 min-w-[70px]">
+                                    <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                                    <div class="icon bg-white rounded-sm flex items-center justify-center shrink-0"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                    <span class="text-[9.5px] font-bold uppercase tracking-wider leading-none pt-[1px] whitespace-nowrap">${label}</span>
+                                </label>
+                        `;
                     });
-                    contentHTML += `    </div>
-                                    </div>`;
+                    html += `</div></div>`;
                 });
-                contentHTML += `</div>`;
+
+                html += `</div></div>`;
             });
-            
-            tabsHeader.innerHTML = headerHTML;
-            tabsContent.innerHTML = contentHTML;
+
+            container.innerHTML = html;
         }
 
-        function switchMatrixTab(tabId, element) {
-            document.querySelectorAll('.matrix-tabs-container .tab-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            document.querySelectorAll('.matrix-tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`matrix-tab-${tabId}`).classList.add('active');
-        }
-
-        renderMatrixTabs(); // Khởi chạy vẽ Matrix Tabs
+        renderMatrixCards(); // Khởi chạy vẽ Grid Cards
 
         function toggleGroup(gIdx, isChecked) {
             document.querySelectorAll(`.group-perm-${gIdx} input[type="checkbox"]:not(:disabled)`).forEach(cb => {
@@ -501,7 +477,6 @@
             document.querySelectorAll('input[class*="chk-group-"]').forEach(cb => cb.checked = isChecked);
         }
 
-        // Tự động thu thập toàn bộ các quyền hiện có trong lưới
         function getAllPossiblePermissions() {
             let perms = [];
             document.querySelectorAll('.matrix-cbx').forEach(cb => perms.push(cb.value));
@@ -522,13 +497,12 @@
             document.getElementById('p_trang_thai').disabled = false;
             document.getElementById('btnCheckAllSys').classList.remove('hidden');
             
-            // Xóa disable của ma trận
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = false;
                 cb.parentElement.classList.remove('disabled');
             });
 
-            checkAllMatrix(false); // Reset toàn bộ
+            checkAllMatrix(false); 
             clearActiveCards();
             
             document.getElementById('modalEdit').classList.remove('hidden');
@@ -547,7 +521,6 @@
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
-            // Gỡ bỏ Disable cũ
             document.getElementById('p_level').disabled = false;
             document.getElementById('p_trang_thai').disabled = false;
             document.getElementById('btnCheckAllSys').classList.remove('hidden');
@@ -557,7 +530,6 @@
             });
             checkAllMatrix(false);
 
-            // [LUẬT THÉP 2 - UI]: Bất tử hóa QUAN_TRI_HE_THONG
             if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
                 setV('p_level', 0);
                 setV('p_trang_thai', 1);
@@ -565,7 +537,6 @@
                 document.getElementById('p_trang_thai').disabled = true;
                 document.getElementById('btnCheckAllSys').classList.add('hidden');
                 
-                // Cấp Full quyền và Khóa mờ
                 document.querySelectorAll('.matrix-cbx').forEach(cb => {
                     cb.checked = true;
                     cb.disabled = true;
@@ -650,14 +621,13 @@
 
                 btn.disabled = true; btn.innerHTML = 'ĐANG XỬ LÝ...';
 
-                // [LỖI 1 FIXED]: Xử lý Parse số nguyên cẩn thận
+                // Ép kiểu chuẩn để đảm bảo Level 0 không bị JS hiểu nhầm thành false
                 let parsedLevel = parseInt(getV("p_level"), 10);
                 if (isNaN(parsedLevel)) parsedLevel = 5;
 
                 let maVaiTro = getV("p_ma").toUpperCase();
                 let quyenHanGuiLen = getSelectedPermissions();
 
-                // [LUẬT THÉP 2 - CLIENT SIDE]: Đóng gói Full Quyền cho QUAN_TRI_HE_THONG
                 if (maVaiTro === "QUAN_TRI_HE_THONG") {
                     parsedLevel = 0;
                     quyenHanGuiLen = getAllPossiblePermissions();
