@@ -1,5 +1,7 @@
 package core
 
+import "time"
+
 // ==============================================================================
 // 1. ĐỊNH NGHĨA TÊN SHEET CHUẨN VÀ PREFIX (KEY-VALUE NOSQL)
 // ==============================================================================
@@ -1147,4 +1149,28 @@ var DanhSachQuyenHanChuan = map[string]bool{
 	"api_key.xem": true, "api_key.tao": true, "api_key.sua": true, "api_key.xoa": true,
 	"tep_tin.xem": true, "tep_tin.tao": true, "tep_tin.xoa": true,
 	"tin_nhan_he_thong.xem": true, "tin_nhan_he_thong.gui": true, "tin_nhan_he_thong.xoa": true,
+}
+
+
+
+// ==============================================================================
+// [MỚI] TRẠM KIỂM TOÁN LÕI (AUDIT TRAIL)
+// Dùng để ghi vết mọi sự thay đổi nhạy cảm (Phân quyền, Sản phẩm, Hóa đơn...)
+// ==============================================================================
+func GhiNhatKyHeThong(shopID, nguoiThucHien, phanHe, hanhDong, moTa, duLieuCu, duLieuMoi string) {
+	// Ghi Append vào Sheet NHAT_KY_HOAT_DONG (Hoặc NHAT_KY_HOAT_DONG_MASTER nếu ở tầng lõi)
+	sheetName := "NHAT_KY_HOAT_DONG"
+	if shopID == config.BienCauHinh.IdFileSheetMaster {
+		sheetName = "NHAT_KY_HOAT_DONG_MASTER" // Master dùng file riêng
+	}
+
+	PushAppend(shopID, sheetName, []interface{}{
+		time.Now().Format("2006-01-02 15:04:05"), // Timestamp rõ ràng
+		nguoiThucHien,                            // Tránh việc đổ thừa cho nhau
+		phanHe,                                   // Ví dụ: PHÂN QUYỀN, SẢN PHẨM
+		hanhDong,                                 // CREATE, UPDATE, DELETE
+		moTa,
+		duLieuCu,                                 // Chuỗi JSON trước khi bị đè
+		duLieuMoi,                                // Chuỗi JSON sau khi lưu
+	})
 }
