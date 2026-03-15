@@ -8,7 +8,14 @@ import (
 
 func Service_XuLyLuu(masterID string, isNew bool, input *core.PhanQuyen) error {
 	if input.MaVaiTro == "" || input.TenVaiTro == "" { return errors.New("Mã và Tên vai trò là bắt buộc") }
-	if input.Level < 0 || input.Level > 9 { return errors.New("Cấp bậc (Level) phải từ 0 đến 9") }
+
+	// [LUẬT THÉP 2]: Đóng đinh các chỉ số cho QUAN_TRI_HE_THONG
+	if input.MaVaiTro == "QUAN_TRI_HE_THONG" {
+		input.Level = 0
+		input.TrangThai = 1
+	} else {
+		if input.Level < 1 || input.Level > 9 { return errors.New("Cấp bậc (Level) phải từ 1 đến 9") }
+	}
 
 	if isNew {
 		if _, exist := Repo_FindByCode(masterID, input.MaVaiTro); exist { 
