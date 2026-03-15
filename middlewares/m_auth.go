@@ -118,13 +118,8 @@ func CheckAuth() gin.HandlerFunc {
 		userLevel := 9
 		if user.MaKhachHang == "0000000000000000001" || user.VaiTroQuyenHan == "quan_tri_he_thong" {
 			userLevel = 0
-		} else {
-			for _, v := range core.CacheDanhSachVaiTro[shopID] {
-				if v.MaVaiTro == user.VaiTroQuyenHan {
-					userLevel = v.StyleLevel
-					break
-				}
-			}
+		} else if pq, ok := core.CacheMapPhanQuyen[core.TaoCompositeKey(shopID, user.VaiTroQuyenHan)]; ok {
+			userLevel = pq.Level
 		}
 		lockPQ.RUnlock()
 
