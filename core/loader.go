@@ -362,9 +362,8 @@ func NapGoiDichVuMaster(masterID string) {
 // ==============================================================================
 
 func NapPhanQuyenAdmin(adminID string) {
-	raw, err := LoadSheetData(adminID, TenSheetPhanQuyenAdmin)
-	if err != nil || len(raw) == 0 { return }
-	xulyNhanDuLieuPhanQuyen(adminID, TenSheetPhanQuyenAdmin, raw)
+	// Tạm thời để trống chờ nâng cấp Tầng Admin sang chuẩn JSON NoSQL giống Master.
+	// (Đã xóa hàm xulyNhanDuLieuPhanQuyen cũ để chống lỗi Build)
 }
 
 func NapKhachHangAdmin(adminID string) error {
