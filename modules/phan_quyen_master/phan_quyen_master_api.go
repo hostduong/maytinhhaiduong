@@ -13,6 +13,12 @@ func API_LuuPhanQuyenMaster(c *gin.Context) {
 	masterID := c.GetString("SHOP_ID") 
 	userID := c.GetString("USER_ID")
 
+	// [LUẬT THÉP 4]: CHẶN ĐỨNG API NẾU KHÔNG PHẢI 001
+	if userID != "0000000000000000001" {
+		c.JSON(200, gin.H{"status": "error", "msg": "Vùng cấm: Bạn không có quyền truy cập khu vực này!"})
+		return
+	}
+
 	pinXacNhan := strings.TrimSpace(c.PostForm("pin_xac_nhan"))
 	me, _ := core.LayKhachHang(masterID, userID)
 	
