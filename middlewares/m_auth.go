@@ -77,6 +77,19 @@ func CheckAuth() gin.HandlerFunc {
 			return
 		}
 
+		// [BẢO MẬT MỚI]: BẮT BUỘC KIỂM TRA CHỮ KÝ HMAC VÀ USER-AGENT
+		cookieSign, _ := c.Cookie("session_sign")
+		userAgent := c.Request.UserAgent()
+		expectedSign := config.TaoChuKyBaoMat(cookie, userAgent)
+		
+		if cookieSign == "" || cookieSign != expectedSign {
+			// Kẻ gian ăn cắp cookie gắn sang máy khác -> Chữ ký bị sai -> Xóa ngay Cookie độc hại
+			c.SetCookie("session_token", "", -1, "/", "", false, true)
+			c.SetCookie("session_sign", "", -1, "/", "", false, true)
+			TuChoiTruyCap(c, http.StatusUnauthorized, "⛔ CẢNH BÁO AN NINH: Phiên đăng nhập bị từ chối do có dấu hiệu giả mạo hoặc thay đổi thiết bị!")
+			return
+		}
+
 		sheetKH := core.TenSheetKhachHang
 		sheetPQ := core.TenSheetPhanQuyen
 		if appMode == "MASTER_CORE" {
