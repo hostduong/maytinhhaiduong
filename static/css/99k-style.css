@@ -22,15 +22,16 @@
     box-shadow: 0 0 0 4px rgba(147,51,234,0.15) !important; background-color: #ffffff !important; 
 }
 
-/* [ĐÃ FIX 1]: Ép chữ đậm, giữ NỀN TÍM NHẠT VÀ CHỮ TÍM ĐẬM khi form bị Khóa (Readonly/Disabled) */
+/* [ĐÃ FIX]: Ép chữ siêu đậm, NỀN TÍM NHẠT VÀ CHỮ TÍM ĐẬM cho MỌI form bị Khóa */
 .input-premium:disabled, .input-premium[readonly], textarea.input-premium[readonly], select.input-premium:disabled {
     opacity: 1 !important;
     background-color: #faf5ff !important;
-    border-color: #d8b4fe !important;
+    border-color: #e9d5ff !important;
     color: #4c1d95 !important;
-    -webkit-text-fill-color: #4c1d95 !important; /* Chống trình duyệt Safari/iOS làm mờ chữ */
+    -webkit-text-fill-color: #4c1d95 !important; /* Chống Safari làm mờ chữ */
     font-weight: 900 !important;
     cursor: not-allowed;
+}cursor: not-allowed;
 }
 
 /* 2. FIX FULL CHIỀU RỘNG CHO INTL-TEL-INPUT (SĐT) */
@@ -996,3 +997,40 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 [data-theme="dark"] .module-check-item .txt-label { color: var(--text-muted); }
 [data-theme="dark"] .module-check-item.active .txt-label { color: #e9d5ff; }
 [data-theme="dark"] .custom-checkbox-box { background: var(--bg-panel); border-color: var(--border-light); }
+
+/* ==============================================================
+   26. GIAO DIỆN HÀNG (ROW) & TABS CHO MA TRẬN PHÂN QUYỀN
+   ============================================================== */
+   
+/* Kẻ vạch, tạo khoảng cách giữa các hàng tính năng */
+.matrix-module-row {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0; /* Đường vạch kẻ xám nhạt */
+    transition: background-color 0.2s ease;
+}
+.matrix-module-row:last-child {
+    border-bottom: none; /* Dòng cuối không cần kẻ */
+}
+.matrix-module-row:hover {
+    background-color: #f8fafc; /* Di chuột vào đổi màu nền nhẹ */
+}
+
+/* Ép thẳng cột Tên Module và Cột Checkbox trên PC */
+@media (min-width: 1024px) {
+    .matrix-module-row { 
+        display: grid !important;
+        grid-template-columns: 180px 1fr !important; /* Cột chữ 180px, cột Checkbox trải dài */
+        gap: 16px;
+    }
+}
+
+/* Đóng khung cho khu vực nội dung bên dưới Tabs để tạo thành 1 khối gắn kết */
+.saas-tab-content { 
+    display: none; 
+    animation: fadeIn 0.3s ease; 
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-top: none; /* Gắn liền với thanh tab bên trên */
+    border-radius: 0 0 12px 12px;
+}
+.saas-tab-content.active { display: block; }
