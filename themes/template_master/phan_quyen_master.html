@@ -48,7 +48,12 @@
                                     {{ if eq .Level 0 }} 👑 {{ else if eq .Level 1 }} ⚡ {{ else if eq .Level 2 }} 🛡️ {{ else if eq .Level 3 }} ⭐ {{ else if eq .Level 4 }} 🎯 {{ else if eq .Level 5 }} 💼 {{ else if eq .Level 6 }} ⚖️ {{ else if eq .Level 7 }} 🚀 {{ else if eq .Level 8 }} 🤝 {{ else }} 👤 {{ end }}
                                 </div>
                             </div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-2 pq-search-target">{{ .MaVaiTro }}</p>
+                            {{ if .IsLocked }}
+                            <div class="mt-3 inline-flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-md border border-red-100 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Đã Khóa</span>
+                            </div>
+                            {{ end }}
                         </div>
 
                         <div class="mt-4 pt-4 border-t border-slate-100 flex-1 relative z-10">
@@ -166,20 +171,37 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
-                                            <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
-                                                <option value="0">Level 0 (Sáng Lập Viên)</option>
-                                                <option value="1">Level 1 (Admin Hệ thống)</option>
-                                                <option value="2">Level 2 (IT Hệ thống)</option>
-                                                <option value="3">Level 3 (Chủ Cửa Hàng)</option>
-                                                <option value="4">Level 4 (Giám Đốc/Admin Shop)</option>
-                                                <option value="5" selected>Level 5 (Quản Lý/Trưởng Phòng)</option>
-                                                <option value="6">Level 6 (Kế Toán/Thủ Kho)</option>
-                                                <option value="7">Level 7 (Nhân viên Sale/CSKH)</option>
-                                                <option value="8">Level 8 (Cộng tác viên)</option>
-                                                <option value="9">Level 9 (Khách Hàng)</option>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Auto) <span class="text-red-500">*</span></label>
+                                            <input type="text" id="p_level_display" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-slate-500 bg-slate-100 cursor-not-allowed border-dashed" readonly placeholder="Tự động theo chức danh">
+                                            <input type="hidden" id="p_level" value="5">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
+                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px]" placeholder="VD: Quản lý chi nhánh">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
+                                            <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
+                                                <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
+                                                <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
                                             </select>
                                         </div>
+                                        
+                                        {{ if eq .Session.UserID "0000000000000000001" }}
+                                        <div class="pt-1">
+                                            <label class="flex items-center gap-2.5 cursor-pointer group w-fit">
+                                                <div class="relative">
+                                                    <input type="checkbox" id="p_is_locked" class="sr-only peer">
+                                                    <div class="w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
+                                                </div>
+                                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-red-600 transition">Khóa cứng (Master)</span>
+                                            </label>
+                                        </div>
+                                        {{ end }}
+                                    </div>
                                     </div>
                                     
                                     <div class="flex flex-col gap-4">
@@ -491,15 +513,36 @@
             }
         ];
 
-        // Động cơ tự động lấy Tên Chức Danh nạp sang ô Hiển thị
+        // BẢNG MAP: ÁNH XẠ CHỨC DANH SANG CẤP BẬC (LEVEL) TỰ ĐỘNG
+        const ROLE_LEVEL_MAP = {
+            "QUAN_TRI_HE_THONG": 0, "QUAN_TRI_VIEN_HE_THONG": 1, "QUAN_TRI_IT_HE_THONG": 2,
+            "QUAN_TRI_CUA_HANG": 3, "QUAN_TRI_VIEN_CUA_HANG": 4, "QUAN_TRI_IT_CUA_HANG": 4, "QUAN_TRI_WEBSITE_CUA_HANG": 4,
+            "GIAM_DOC": 4, "QUAN_LY_CHI_NHANH": 5, "QUAN_LY_VUNG": 5,
+            "KE_TOAN_TRUONG": 5, "KE_TOAN": 6, "THU_QUY": 6, "KIEM_SOAT_NOI_BO": 5,
+            "TRUONG_PHONG_KINH_DOANH": 5, "KINH_DOANH": 7, "MARKETING": 7, "CHAM_SOC_KHACH_HANG": 7, "NHAN_VIEN_BAN_HANG": 7,
+            "TRUONG_KHO": 5, "THU_KHO": 6, "NHAN_VIEN_KHO": 7,
+            "TRUONG_BO_PHAN_KY_THUAT": 5, "KY_THUAT_VIEN": 7,
+            "NHAN_VIEN": 7, "NHA_CUNG_CAP": 8, "DOI_TAC": 8, "BIEN_TAP_VIEN": 7, "DIEU_PHOI_DON_HANG": 7, "SUPPORT_VIEWER": 9
+        };
+
+        // Động cơ tự động lấy Tên Chức Danh & Level nạp sang ô Hiển thị
         function autoFillRoleName() {
             const selectMa = document.getElementById('p_ma');
             const inputTen = document.getElementById('p_ten');
+            const inputLevel = document.getElementById('p_level');
+            const inputLevelDisplay = document.getElementById('p_level_display');
             
-            // Nếu người dùng vừa chọn Chức danh và ô Tên đang bị trống
-            if (selectMa.value && inputTen.value.trim() === "") {
-                // Bế nguyên text Tiếng Việt đập sang ô Tên (vd: "Quản lý Chi nhánh")
-                inputTen.value = selectMa.options[selectMa.selectedIndex].text;
+            if (selectMa.value) {
+                // 1. Điền tên hiển thị
+                if (inputTen.value.trim() === "") {
+                    inputTen.value = selectMa.options[selectMa.selectedIndex].text;
+                }
+                
+                // 2. Điền Level tự động
+                const lvl = ROLE_LEVEL_MAP[selectMa.value] !== undefined ? ROLE_LEVEL_MAP[selectMa.value] : 7;
+                if(inputLevel) inputLevel.value = lvl;
+                if(inputLevelDisplay) inputLevelDisplay.value = `Level ${lvl}`;
+                
                 checkInputHasData(); // Quét màu tím cho ô vừa điền
             }
         }
@@ -614,6 +657,8 @@
         function editPQ(ma) {
             const p = mapPQ[ma]; if(!p) return;
             document.getElementById('p_is_new').value = "false";
+
+            if(document.getElementById('p_is_locked')) document.getElementById('p_is_locked').checked = p.is_locked;
             
             // [BẢO HIỂM]: Nếu Mã cũ không có trong Dropdown, tự động tạo option ảo để hiển thị
             let selectMa = document.getElementById('p_ma');
@@ -742,15 +787,19 @@
                     quyenHanGuiLen = getAllPossiblePermissions();
                 }
 
+                // (Chèn đoạn này vào chỗ tạo payload)
+                const isLockedUI = document.getElementById('p_is_locked');
+                
                 let payload = {
                     ma_vai_tro: maVaiTro,
                     ten_vai_tro: getV("p_ten"),
                     level: parsedLevel,
                     mo_ta: getV("p_mota"),
                     trang_thai: parseInt(getV("p_trang_thai")) || 0,
+                    is_locked: isLockedUI ? isLockedUI.checked : false, // Bắt biến Master Lock
                     quyen_han: quyenHanGuiLen
                 };
-
+                
                 const fd = new FormData();
                 fd.append('pin_xac_nhan', pinXacNhan);
                 fd.append('is_new', getV("p_is_new"));
