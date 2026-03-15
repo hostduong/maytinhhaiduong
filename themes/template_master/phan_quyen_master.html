@@ -42,7 +42,7 @@
                         <div class="relative z-10 shrink-0 pb-1">
                             <div class="relative inline-flex items-center mr-auto max-w-full">
                                 <div class="badge-animated-wrap theme-{{ if eq .Level 0 }}9{{else}}5{{end}} tier-s !mt-0 !mr-0 max-w-full">
-                                    <div class="badge-inner shadow-sm truncate pq-search-target max-w-[200px] text-[13px]">{{ .TenVaiTro }}</div>
+                                    <div class="badge-inner shadow-sm pq-search-target text-[13px] whitespace-normal leading-tight pr-4">{{ .TenVaiTro }}</div>
                                 </div>
                                 <div class="floating-icon {{ if eq .Level 0 }}icon-lvl-0{{ else }}icon-lvl-9{{ end }}">
                                     {{ if eq .Level 0 }} 👑 {{ else if eq .Level 1 }} ⚡ {{ else if eq .Level 2 }} 🛡️ {{ else if eq .Level 3 }} ⭐ {{ else if eq .Level 4 }} 🎯 {{ else if eq .Level 5 }} 💼 {{ else if eq .Level 6 }} ⚖️ {{ else if eq .Level 7 }} 🚀 {{ else if eq .Level 8 }} 🤝 {{ else }} 👤 {{ end }}
@@ -229,9 +229,9 @@
         const ACTION_LABELS = {
             "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
             "duyet": "Duyệt", "huy": "Hủy", "in": "In", "export": "Export", "import": "Import",
-            "cap_nhat": "Cập nhật", "cau_hinh": "Cấu hình",
+            "cap_nhat": "Cập nhật", "cau_hinh": "Cấu hình", "thuc_hien": "Thực hiện",
             "tinh_toan": "Tính toán", "doi_gia": "Đổi giá", "xem_gia_von": "Xem giá vốn",
-            "them": "Thêm", "phat_hanh": "Phát hành", 
+            "them": "Thêm", "phat_hanh": "Phát hành", "chot_ca": "Chốt ca",
             "khoa": "Khóa", "chuyen_chi_nhanh": "Chuyển C.Nhánh", "export_template": "Tải Template", "reset_mat_khau": "Reset Pass"
         };
 
@@ -239,22 +239,22 @@
             {
                 group: "Bán Hàng",
                 modules: [
-                    { id: "ban_hang_pos", name: "Bán hàng POS", actions: ["xem", "tao", "huy", "in"] },
+                    { id: "ban_hang_pos", name: "Bán hàng POS", actions: ["xem", "tao", "sua", "xoa", "in", "huy"] },
                     { id: "hoa_don", name: "Hóa đơn / Đơn hàng", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in", "export", "doi_gia", "khoa", "chuyen_chi_nhanh"] },
                     { id: "tra_hang", name: "Trả hàng / Hoàn tiền", actions: ["xem", "tao", "duyet", "huy", "in"] },
                     { id: "phong_ban", name: "Phòng / Bàn", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "huy"] }
+                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "xoa", "huy"] }
                 ]
             },
             {
                 group: "Sửa Chữa",
                 modules: [
-                    { id: "phieu_sua_chua", name: "Phiếu sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
+                    { id: "phieu_sua_chua", name: "Phiếu sửa chữa", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in"] },
                     { id: "bao_gia_sua_chua", name: "Báo giá sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
                     { id: "tinh_trang_sua", name: "Tình trạng sửa", actions: ["xem", "cap_nhat"] },
-                    { id: "linh_kien_thay_the", name: "Linh kiện thay thế", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "linh_kien_thay_the", name: "Linh kiện thay thế", actions: ["xem", "tao", "sua", "xoa", "them"] },
                     { id: "lich_su_sua", name: "Lịch sử sửa", actions: ["xem"] },
-                    { id: "hoa_hong_sua_chua", name: "Tính hoa hồng", actions: ["xem", "cap_nhat"] }
+                    { id: "hoa_hong_sua_chua", name: "Tính hoa hồng", actions: ["xem", "tinh_toan", "cap_nhat"] }
                 ]
             },
             {
@@ -263,8 +263,8 @@
                     { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "xem_gia_von", "export_template"] },
                     { id: "danh_muc", name: "Danh mục", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thuong_hieu", name: "Thương hiệu", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "huy"] },
-                    { id: "serial_number", name: "Serial Number", actions: ["xem", "tao", "sua", "xoa"] }
+                    { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "xoa", "huy"] },
+                    { id: "serial_number", name: "Serial Number", actions: ["xem", "tao", "sua", "xoa", "them"] }
                 ]
             },
             {
@@ -292,11 +292,11 @@
             {
                 group: "Tài Chính",
                 modules: [
-                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "duyet", "huy"] },
-                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem"] },
+                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy"] },
+                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem", "chot_ca"] },
                     { id: "cong_no_khach_hang", name: "Công nợ Khách", actions: ["xem", "cap_nhat"] },
                     { id: "cong_no_nha_cung_cap", name: "Công nợ NCC", actions: ["xem", "cap_nhat"] },
-                    { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet"] },
+                    { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet", "chot_ca"] },
                     { id: "luong_nhan_vien", name: "Lương nhân viên", actions: ["xem", "cap_nhat"] },
                     { id: "chi_phi_hoat_dong", name: "Chi phí hoạt động", actions: ["xem", "tao", "sua", "xoa"] }
                 ]
@@ -327,10 +327,10 @@
                     { id: "goi_dich_vu", name: "Gói dịch vụ", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thanh_toan_goi", name: "Thanh toán gói", actions: ["xem", "tao"] },
                     { id: "lich_su_thanh_toan", name: "Lịch sử hóa đơn", actions: ["xem"] },
-                    { id: "import_du_lieu", name: "Import DB", actions: ["tao"] },
-                    { id: "export_du_lieu", name: "Export DB", actions: ["tao"] },
-                    { id: "sao_luu_du_lieu", name: "Sao lưu Backup", actions: ["tao"] },
-                    { id: "khoi_phuc_du_lieu", name: "Khôi phục Restore", actions: ["tao"] },
+                    { id: "import_du_lieu", name: "Import DB", actions: ["tao", "thuc_hien"] },
+                    { id: "export_du_lieu", name: "Export DB", actions: ["tao", "thuc_hien"] },
+                    { id: "sao_luu_du_lieu", name: "Sao lưu Backup", actions: ["tao", "thuc_hien"] },
+                    { id: "khoi_phuc_du_lieu", name: "Khôi phục Restore", actions: ["tao", "thuc_hien"] },
                     { id: "nhat_ky_hoat_dong", name: "Nhật ký hệ thống", actions: ["xem"] },
                     { id: "cau_hinh_cua_hang", name: "Cấu hình cửa hàng", actions: ["xem", "cap_nhat"] },
                     { id: "in_an", name: "Cấu hình In ấn", actions: ["cau_hinh"] },
@@ -347,7 +347,7 @@
                     { id: "bao_cao_chi_nhanh", name: "Báo cáo chi nhánh", actions: ["xem", "export"] },
                     { id: "ton_kho_chi_nhanh", name: "Tồn kho chi nhánh", actions: ["xem"] },
                     { id: "gia_chi_nhanh", name: "Giá theo chi nhánh", actions: ["xem", "cap_nhat"] },
-                    { id: "nhan_vien_chi_nhanh", name: "Nhân viên C.Nhánh", actions: ["xem", "cap_nhat"] },
+                    { id: "nhan_vien_chi_nhanh", name: "Nhân viên C.Nhánh", actions: ["xem", "cap_nhat", "phan_cong"] },
                     { id: "ket_noi_san_tmdt", name: "Kết nối Sàn TMĐT", actions: ["xem", "cau_hinh"] },
                     { id: "chat_da_kenh", name: "Chat đa kênh", actions: ["xem", "tao"] },
                     { id: "dong_bo_ton_kho", name: "Đồng bộ tồn kho", actions: ["xem", "cap_nhat"] },
@@ -363,7 +363,7 @@
                     { id: "tracking_don_hang", name: "Tracking Vận đơn", actions: ["xem"] },
                     { id: "qr_code", name: "QR Code động", actions: ["tao"] },
                     { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
-                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử", actions: ["xem", "tao"] },
+                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử", actions: ["xem", "tao", "phat_hanh"] },
                     { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "bai_viet", name: "Bài viết SEO", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] }
@@ -372,9 +372,9 @@
             {
                 group: "Marketing & AI",
                 modules: [
-                    { id: "sms_marketing", name: "SMS Marketing", actions: ["tao"] },
-                    { id: "email_marketing", name: "Email Marketing", actions: ["tao"] },
-                    { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["tao", "cap_nhat"] },
+                    { id: "sms_marketing", name: "SMS Marketing", actions: ["tao", "gui"] },
+                    { id: "email_marketing", name: "Email Marketing", actions: ["tao", "gui"] },
+                    { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["xem", "tao", "sua", "xoa", "cap_nhat"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
                     { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
