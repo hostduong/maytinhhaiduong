@@ -72,8 +72,8 @@ func Service_LuuThanhVien(dto DTO_UpdateThanhVien) error {
 		if dto.ChucVu != "" { kh.ChucVu = dto.ChucVu 
 		} else {
 			kh.ChucVu = dto.VaiTro
-			for _, v := range core.CacheDanhSachVaiTro[dto.ShopID] {
-				if v.MaVaiTro == dto.VaiTro { kh.ChucVu = v.TenVaiTro; break }
+			if pq, ok := core.CacheMapPhanQuyen[core.TaoCompositeKey(dto.ShopID, dto.VaiTro)]; ok {
+				kh.ChucVu = pq.TenVaiTro
 			}
 		}
 	}
