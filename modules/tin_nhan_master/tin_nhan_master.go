@@ -29,9 +29,13 @@ func TrangTinNhanMaster(c *gin.Context) {
 	listAll := core.LayDanhSachKhachHang(masterShopID)
 	
 	core.KhoaHeThong.RLock()
-	listVaiTro := core.CacheDanhSachVaiTro[masterShopID]
+	var listVaiTro []core.VaiTroInfo
+	for _, pq := range core.CachePhanQuyen[masterShopID] {
+		listVaiTro = append(listVaiTro, core.VaiTroInfo{
+			MaVaiTro: pq.MaVaiTro, TenVaiTro: pq.TenVaiTro, StyleLevel: pq.Level, StyleTheme: 5,
+		})
+	}
 	core.KhoaHeThong.RUnlock()
-
 	mapStyle := make(map[string]core.VaiTroInfo)
 	for _, v := range listVaiTro { mapStyle[v.MaVaiTro] = v }
 
