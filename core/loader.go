@@ -275,11 +275,39 @@ func NapSanPhamGeneric(shopID string) {
 // ==============================================================================
 
 func NapPhanQuyenMaster(masterID string) {
-	raw, err := LoadSheetData(masterID, TenSheetPhanQuyenMaster)
+	raw, err := LoadSheetData(masterID, TenSheetCauHinhMaster)
 	if err != nil || len(raw) == 0 { return }
-	xulyNhanDuLieuPhanQuyen(masterID, TenSheetPhanQuyenMaster, raw)
-}
+	
+	lock := GetSheetLock(masterID, TenSheetCauHinhMaster)
+	lock.Lock()
+	defer lock.Unlock()
 
+	list := []*PhanQuyen{}
+	for i, r := range raw {
+		if i < DongBatDau_CauHinh-1 { continue }
+		
+		maCH := LayString(r, CotCH_MaCauHinh)
+		dataJSON := LayString(r, CotCH_DataJSON)
+		
+		if !strings.HasPrefix(maCH, PrePhanQuyen) { continue }
+		if dataJSON == "" { continue }
+		
+		var pq PhanQuyen
+		if err := json.Unmarshal([]byte(dataJSON), &pq); err == nil {
+			pq.SpreadsheetID = masterID
+			pq.DongTrongSheet = i + 1
+			list = append(list, &pq)
+		} else {
+			log.Printf("⚠️ [LOADER] Lỗi Unmarshal JSON Phân Quyền %s: %v", maCH, err)
+		}
+	}
+
+	CachePhanQuyen[masterID] = list
+	for _, p := range list { 
+		CacheMapPhanQuyen[TaoCompositeKey(masterID, p.MaVaiTro)] = p 
+	}
+	log.Println("✅ [LOADER] Đã nạp Phân Quyền từ Két Sắt NoSQL.")
+}
 func NapKhachHangMaster(masterID string) error {
 	raw, err := LoadSheetData(masterID, TenSheetKhachHangMaster)
 	if err != nil || len(raw) == 0 { return err }
