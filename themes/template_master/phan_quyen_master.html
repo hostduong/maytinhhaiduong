@@ -223,18 +223,19 @@
             document.querySelectorAll('.saas-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
-        // ==========================================
-        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN TABS
-        // ==========================================
+        // BỘ TỪ ĐIỂN CHUẨN HÓA NGHIỆP VỤ (VIỆT HÓA 100%)
         const ACTION_LABELS = {
-            "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
-            "duyet": "Duyệt", "duyet_lai": "Duyệt lại", "huy": "Hủy",
-            "in": "In", "export": "Export", "import": "Import", "copy": "Sao chép",
-            "cau_hinh": "Cấu hình", "doi_gia": "Đổi giá", "xem_gia_von": "Xem giá vốn",
-            "xem_gia_nhap": "Xem giá nhập", "sua_gia_nhap": "Sửa giá nhập",
-            "khoa": "Khóa", "void": "Void", "chuyen_chi_nhanh": "Chuyển chi nhánh",
-            "phan_cong": "Phân công", "gui": "Gửi", "phat_hanh": "Phát hành",
-            "chot_ca": "Chốt ca", "xac_nhan_thanh_toan": "Xác nhận TT", "reset_mat_khau": "Reset Pass"
+            "xem": "Xem", "tao": "Tạo mới", "sua": "Cập nhật", "xoa": "Xóa",
+            "duyet": "Phê duyệt", "duyet_lai": "Mở khóa / Duyệt lại", "huy": "Hủy bỏ",
+            "in": "In ấn", "export": "Xuất dữ liệu", "import": "Nhập dữ liệu", "copy": "Sao chép",
+            "cau_hinh": "Cấu hình", "doi_gia": "Đổi giá bán", "xem_gia_von": "Xem giá vốn",
+            "xem_gia_nhap": "Xem giá nhập", "sua_gia_nhap": "Sửa giá nhập", "xem_gia_ban": "Xem giá bán",
+            "in_tem": "In mã vạch", "khoa": "Khóa / Ngừng", "void": "Void (Hủy lưu vết)", 
+            "chuyen_chi_nhanh": "Chuyển chi nhánh", "phan_cong": "Phân công", "gui": "Gửi đi", 
+            "phat_hanh": "Phát hành", "chot_ca": "Chốt ca", "xac_nhan_thanh_toan": "Xác nhận tiền về", 
+            "reset_mat_khau": "Cấp lại mật khẩu", "thuc_hien": "Thực thi", "khoi_phuc": "Khôi phục", 
+            "xem_lich_su": "Xem lịch sử", "nhan_hang": "Nhận hàng", "thanh_toan_no": "Thanh toán nợ",
+            "tra_loi": "Trả lời"
         };
 
         const MATRIX_DEF = [
@@ -245,7 +246,7 @@
                     { id: "hoa_don", name: "Hóa đơn / Đơn hàng", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in", "export", "copy", "doi_gia", "khoa", "chuyen_chi_nhanh", "xac_nhan_thanh_toan"] },
                     { id: "tra_hang", name: "Trả hàng / Hoàn tiền", actions: ["xem", "tao", "duyet", "huy", "in"] },
                     { id: "phong_ban", name: "Phòng / Bàn", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "xoa", "huy"] }
+                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "xoa", "huy", "in"] }
                 ]
             },
             {
@@ -262,64 +263,75 @@
             {
                 group: "Sản Phẩm",
                 modules: [
-                    { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "copy", "xem_gia_von"] },
+                    { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "copy", "khoa", "xem_gia_von", "xem_gia_ban", "in", "in_tem"] },
                     { id: "danh_muc", name: "Danh mục", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thuong_hieu", name: "Thương hiệu", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "xoa", "huy", "copy"] },
-                    { id: "serial_number", name: "Serial Number", actions: ["xem", "tao", "sua", "xoa", "import"] }
+                    { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "xoa", "huy", "copy", "duyet"] },
+                    { id: "serial_number", name: "Serial Number", actions: ["xem", "tao", "sua", "xoa", "import", "in_tem"] }
                 ]
             },
             {
                 group: "Kho Hàng",
                 modules: [
                     { id: "kho_hang", name: "Kho hàng", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "nhap_kho", name: "Nhập kho", actions: ["xem", "tao", "sua", "duyet", "duyet_lai", "huy", "in", "xem_gia_nhap", "sua_gia_nhap"] },
-                    { id: "xuat_kho", name: "Xuất kho", actions: ["xem", "tao", "sua", "duyet", "duyet_lai", "huy", "in"] },
-                    { id: "kiem_kho", name: "Kiểm kho", actions: ["xem", "tao", "sua", "duyet", "huy"] },
-                    { id: "dieu_chuyen_kho", name: "Điều chuyển kho", actions: ["xem", "tao", "duyet", "huy"] },
-                    { id: "tra_hang_nha_cung_cap", name: "Trả hàng NCC", actions: ["xem", "tao", "duyet", "huy"] },
+                    { id: "nhap_kho", name: "Nhập kho", actions: ["xem", "tao", "sua", "duyet", "duyet_lai", "huy", "in", "export", "xem_gia_nhap", "sua_gia_nhap"] },
+                    { id: "xuat_kho", name: "Xuất kho", actions: ["xem", "tao", "sua", "duyet", "duyet_lai", "huy", "in", "export"] },
+                    { id: "kiem_kho", name: "Kiểm kho", actions: ["xem", "tao", "sua", "duyet", "huy", "export", "import"] },
+                    { id: "dieu_chuyen_kho", name: "Điều chuyển kho", actions: ["xem", "tao", "duyet", "nhan_hang", "huy", "export"] },
+                    { id: "tra_hang_nha_cung_cap", name: "Trả hàng NCC", actions: ["xem", "tao", "duyet", "huy", "export"] },
                     { id: "canh_bao_ton_kho", name: "Cảnh báo tồn kho", actions: ["xem", "cau_hinh"] }
                 ]
             },
             {
                 group: "Khách Hàng",
                 modules: [
-                    { id: "khach_hang", name: "Danh sách Khách", actions: ["xem", "tao", "sua", "xoa", "export", "import"] },
+                    { id: "khach_hang", name: "Danh sách Khách", actions: ["xem", "tao", "sua", "xoa", "export", "import", "phan_cong"] },
                     { id: "tich_diem", name: "Tích điểm", actions: ["xem", "sua"] },
                     { id: "hang_thanh_vien", name: "Hạng thành viên", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "cham_soc_khach_hang", name: "Chăm sóc sau bán", actions: ["xem", "tao"] },
-                    { id: "lich_su_mua_hang", name: "Lịch sử mua hàng", actions: ["xem"] }
+                    { id: "lich_su_mua_hang", name: "Lịch sử mua hàng", actions: ["xem", "export"] }
                 ]
             },
             {
-                group: "Đối Tác", // Đã tách
+                group: "Đối Tác",
                 modules: [
-                    { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa"] }
+                    { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa", "import", "export"] }
                 ]
             },
             {
                 group: "Tài Chính",
                 modules: [
-                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "xoa", "duyet", "duyet_lai", "huy", "in"] },
-                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem", "chot_ca"] },
-                    { id: "cong_no_khach_hang", name: "Công nợ Khách", actions: ["xem", "sua"] },
-                    { id: "cong_no_nha_cung_cap", name: "Công nợ NCC", actions: ["xem", "sua"] },
-                    { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet", "chot_ca"] },
+                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "xoa", "duyet", "duyet_lai", "huy", "in", "export"] },
+                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem", "chot_ca", "export"] },
+                    { id: "cong_no_khach_hang", name: "Công nợ Khách", actions: ["xem", "sua", "thanh_toan_no", "export"] },
+                    { id: "cong_no_nha_cung_cap", name: "Công nợ NCC", actions: ["xem", "sua", "thanh_toan_no", "export"] },
+                    { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet", "chot_ca", "export"] },
                     { id: "luong_nhan_vien", name: "Lương nhân viên", actions: ["xem", "tao", "sua", "duyet", "export"] },
                     { id: "chi_phi_hoat_dong", name: "Chi phí hoạt động", actions: ["xem", "tao", "sua", "xoa"] }
                 ]
             },
             {
-                group: "Thanh Toán", // Đã tách
+                group: "Website",
                 modules: [
-                    { id: "qr_code", name: "QR Code động", actions: ["tao"] },
-                    { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
-                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy"] }
+                    { id: "don_hang_online", name: "Đơn hàng Website", actions: ["xem", "sua", "duyet", "huy", "phan_cong", "in", "export"] },
+                    { id: "giao_dien", name: "Giao diện Website", actions: ["xem", "sua", "cau_hinh"] },
+                    { id: "trang_noi_dung", name: "Trang nội dung", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "menu_website", name: "Menu Website", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "banner", name: "Banner / Slider", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "bai_viet", name: "Bài viết SEO", actions: ["xem", "tao", "sua", "xoa", "copy"] },
+                    { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "binh_luan", name: "Bình luận & Đánh giá", actions: ["xem", "tra_loi", "duyet", "xoa"] },
+                    { id: "cau_hinh_seo", name: "Cấu hình SEO tổng", actions: ["xem", "sua"] },
+                    { id: "domain_website", name: "Tên miền Website", actions: ["xem", "cau_hinh"] },
+                    { id: "form_lien_he", name: "Form liên hệ/Đăng ký", actions: ["xem", "xoa", "export"] },
+                    { id: "live_chat", name: "Live Chat Website", actions: ["xem", "tra_loi", "cau_hinh"] },
+                    { id: "landing_page", name: "Landing Page", actions: ["xem", "tao", "sua", "xoa", "copy"] }
                 ]
             },
             {
-                group: "Vận Chuyển", // Đã tách
+                group: "Vận Chuyển",
                 modules: [
+                    { id: "van_chuyen", name: "Quản lý Vận chuyển", actions: ["xem", "tao", "sua", "huy", "in"] },
                     { id: "don_vi_van_chuyen", name: "Hãng Vận Chuyển", actions: ["xem", "cau_hinh"] },
                     { id: "so_sanh_gia_cuoc", name: "So sánh giá cước", actions: ["xem"] },
                     { id: "tao_van_don", name: "Đẩy đơn", actions: ["tao"] },
@@ -335,22 +347,23 @@
                     { id: "gia_chi_nhanh", name: "Giá theo chi nhánh", actions: ["xem", "sua"] },
                     { id: "nhan_vien_chi_nhanh", name: "Nhân viên C.Nhánh", actions: ["xem", "sua", "phan_cong"] },
                     { id: "ket_noi_san_tmdt", name: "Kết nối Sàn TMĐT", actions: ["xem", "cau_hinh"] },
-                    { id: "chat_da_kenh", name: "Chat đa kênh", actions: ["xem", "tao"] },
+                    { id: "chat_da_kenh", name: "Chat đa kênh", actions: ["xem", "tra_loi", "tao"] },
                     { id: "dong_bo_ton_kho", name: "Đồng bộ tồn kho", actions: ["xem", "sua"] },
                     { id: "gia_theo_kenh", name: "Giá theo kênh", actions: ["xem", "sua"] }
                 ]
             },
             {
-                group: "Website", // Đã tách
+                group: "Thanh Toán",
                 modules: [
-                    { id: "bai_viet", name: "Bài viết SEO", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] }
+                    { id: "qr_code", name: "QR Code động", actions: ["tao"] },
+                    { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
+                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử VAT", actions: ["xem", "tao", "phat_hanh", "huy", "in"] }
                 ]
             },
             {
                 group: "Nhân Sự",
                 modules: [
-                    { id: "nhan_vien", name: "Nhân viên", actions: ["xem", "tao", "sua", "xoa", "reset_mat_khau", "khoa", "phan_cong"] },
+                    { id: "nhan_vien", name: "Nhân viên", actions: ["xem", "tao", "sua", "xoa", "reset_mat_khau", "khoa", "phan_cong", "xem_lich_su"] },
                     { id: "phan_quyen", name: "Phân quyền", actions: ["xem", "tao", "sua", "xoa"] }
                 ]
             },
@@ -374,7 +387,7 @@
                     { id: "email_marketing", name: "Email Marketing", actions: ["xem", "tao", "gui"] },
                     { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
+                    { id: "webhook", name: "Webhook", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
                     { id: "ai_du_doan_ton_kho", name: "AI Dự đoán Nhập kho", actions: ["xem"] }
                 ]
@@ -385,11 +398,12 @@
                     { id: "goi_dich_vu", name: "Gói dịch vụ", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thanh_toan_goi", name: "Thanh toán gói", actions: ["xem", "tao"] },
                     { id: "lich_su_thanh_toan", name: "Lịch sử hóa đơn", actions: ["xem"] },
-                    { id: "import_du_lieu", name: "Import DB", actions: ["tao"] },
-                    { id: "export_du_lieu", name: "Export DB", actions: ["tao"] },
-                    { id: "sao_luu_du_lieu", name: "Sao lưu Backup", actions: ["tao"] },
-                    { id: "khoi_phuc_du_lieu", name: "Khôi phục Restore", actions: ["tao"] },
+                    { id: "import_du_lieu", name: "Import DB", actions: ["thuc_hien"] },
+                    { id: "export_du_lieu", name: "Export DB", actions: ["thuc_hien"] },
+                    { id: "sao_luu_du_lieu", name: "Sao lưu Backup", actions: ["thuc_hien"] },
+                    { id: "khoi_phuc_du_lieu", name: "Khôi phục Restore", actions: ["thuc_hien"] },
                     { id: "nhat_ky_hoat_dong", name: "Nhật ký hệ thống", actions: ["xem"] },
+                    { id: "nhat_ky_truy_cap", name: "Nhật ký truy cập", actions: ["xem", "export"] },
                     { id: "cau_hinh_cua_hang", name: "Cấu hình cửa hàng", actions: ["xem", "sua"] },
                     { id: "in_an", name: "Cấu hình In ấn", actions: ["cau_hinh"] },
                     { id: "cau_hinh_vat", name: "Thuế VAT", actions: ["xem", "sua"] },
@@ -399,6 +413,7 @@
                 ]
             }
         ];
+        
 
         function renderMatrixTabs() {
             const tabsHeader = document.getElementById('matrixTabsHeader');
