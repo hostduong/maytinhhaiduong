@@ -599,7 +599,7 @@
         function openNewPQ() { 
             document.getElementById('formPQ').reset(); 
             document.getElementById('p_is_new').value = "true"; 
-            document.getElementById('p_ma').readOnly = false;
+            document.getElementById('p_ma').disabled = false;
             document.getElementById('p_level').disabled = false;
             document.getElementById('p_trang_thai').disabled = false;
             document.getElementById('btnCheckAllSys').classList.remove('hidden');
@@ -624,7 +624,11 @@
             
             const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
 
-            setV('p_ma', p.ma_vai_tro); document.getElementById('p_ma').readOnly = true;
+            let selectMa = document.getElementById('p_ma');
+            if (!Array.from(selectMa.options).some(opt => opt.value === p.ma_vai_tro)) {
+                selectMa.add(new Option(p.ma_vai_tro, p.ma_vai_tro));
+            }
+            setV('p_ma', p.ma_vai_tro); document.getElementById('p_ma').disabled = true;
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
