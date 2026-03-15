@@ -22,15 +22,21 @@
     box-shadow: 0 0 0 4px rgba(147,51,234,0.15) !important; background-color: #ffffff !important; 
 }
 
-/* [ĐÃ FIX]: Ép chữ đậm, màu xám đen nét căng khi form bị Khóa (Readonly/Disabled) */
+/* [ĐÃ FIX]: Ép chữ đậm, giữ nguyên MÀU TÍM hoặc MÀU CHỦ ĐẠO khi form bị Khóa */
 .input-premium:disabled, .input-premium[readonly], textarea.input-premium[readonly], select.input-premium:disabled {
     opacity: 1 !important;
-    -webkit-text-fill-color: #1e293b !important; /* Chống mờ trên Safari/iOS */
-    color: #1e293b !important;
-    font-weight: 900 !important;
     background-color: #f1f5f9 !important;
     border-color: #cbd5e1 !important;
     cursor: not-allowed;
+}
+
+/* Dành riêng cho ô nhập liệu có dữ liệu sẵn (đã được fill màu) khi bị khóa */
+.input-premium.has-data:disabled, .input-premium.has-data[readonly], textarea.input-premium.has-data[readonly], select.input-premium.has-data:disabled {
+    background-color: #faf5ff !important;
+    border-color: #d8b4fe !important;
+    color: #4c1d95 !important; /* Giữ màu tím quyền lực */
+    -webkit-text-fill-color: #4c1d95 !important;
+    font-weight: 900 !important;
 }
 /* 2. FIX FULL CHIỀU RỘNG CHO INTL-TEL-INPUT (SĐT) */
 .iti { width: 100%; } 
