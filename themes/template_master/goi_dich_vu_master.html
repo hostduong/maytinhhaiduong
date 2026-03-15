@@ -2,53 +2,6 @@
     {{ template "header_master" . }}
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .custom-scroll-modal::-webkit-scrollbar { width: 6px; }
-        .custom-scroll-modal::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scroll-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .gdv-grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem; align-items: start; align-content: stretch;
-        }
-
-        .module-check-item {
-            display: flex; align-items: center; justify-content: flex-start; gap: 10px;
-            padding: 10px 14px; background: #f8fafc; border-radius: 12px;
-            cursor: pointer; transition: all 0.2s; border: 1px solid #e2e8f0;
-        }
-        .module-check-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
-        .module-check-item.active { background: #faf5ff; border-color: #d8b4fe; box-shadow: inset 0 0 0 1px #f3e8ff; }
-        .module-check-item .txt-label { color: #64748b; font-weight: 700; font-size: 11px; transition: 0.2s; }
-        .module-check-item.active .txt-label { color: #7e22ce; }
-        
-        .custom-checkbox-box {
-            width: 18px; height: 18px; border-radius: 6px; border: 2px solid #cbd5e1;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
-            background: white; flex-shrink: 0;
-        }
-        .module-check-item.active .custom-checkbox-box { background: #9333ea; border-color: #9333ea; }
-        .custom-checkbox-box svg { opacity: 0; transform: scale(0.5); transition: all 0.2s; color: white; width: 12px; height: 12px; }
-        .module-check-item.active .custom-checkbox-box svg { opacity: 1; transform: scale(1); }
-
-        .gdv-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
-        .gdv-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
-        .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
-        .card-active-purple .gdv-card-inner { background-color: #faf5ff !important; border: none; }
-
-        .edit-form-container { container-type: inline-size; container-name: formPanel; width: 100%; min-width: 0; }
-        .responsive-grid-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
-        @container formPanel (min-width: 800px) { 
-            .responsive-grid-form { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } 
-        }
-
-        .fluid-grid-auto {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-        }
-    </style>
 
     <textarea id="raw_gdv_json" class="hidden" style="display: none;">{{ .ListGoiJson }}</textarea>
     <script>
