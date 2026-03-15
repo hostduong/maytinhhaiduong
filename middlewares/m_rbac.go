@@ -33,14 +33,15 @@ func RequirePermission(maChucNang string) gin.HandlerFunc {
 		defer lockPQ.RUnlock()
 
 		hasPermission := false
-		if shopMap, ok := core.CachePhanQuyen[shopID]; ok {
-			if listQuyen, exists := shopMap[role]; exists {
-				if allowed, has := listQuyen[maChucNang]; has && allowed {
+		if pq, ok := core.CacheMapPhanQuyen[core.TaoCompositeKey(shopID, role)]; ok {
+			// Thuật toán quét mảng quyền hạn Dot Notation
+			for _, q := range pq.QuyenHan {
+				if q == maChucNang {
 					hasPermission = true
+					break
 				}
 			}
 		}
-
 		if !hasPermission {
 			TuChoiTruyCap(c, http.StatusForbidden, "Bạn không có quyền thao tác tính năng này ("+maChucNang+")!")
 			return
