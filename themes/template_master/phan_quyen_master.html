@@ -494,20 +494,16 @@
             }
         ];
 
-        // Động cơ tự động lấy Tên Vai Trò từ trong ngoặc đơn của Dropdown
+        // Động cơ tự động lấy Tên Chức Danh nạp sang ô Hiển thị
         function autoFillRoleName() {
             const selectMa = document.getElementById('p_ma');
             const inputTen = document.getElementById('p_ten');
             
-            // Nếu người dùng chọn một Mã và ô Tên đang bị trống
+            // Nếu người dùng vừa chọn Chức danh và ô Tên đang bị trống
             if (selectMa.value && inputTen.value.trim() === "") {
-                const optionText = selectMa.options[selectMa.selectedIndex].text;
-                // Dùng Regex cắt lấy phần chữ Tiếng Việt trong ngoặc đơn "()"
-                const nameMatch = optionText.match(/\(([^)]+)\)/);
-                if (nameMatch) {
-                    inputTen.value = nameMatch[1];
-                    checkInputHasData(); // Quét lại CSS màu tím cho ô vừa điền
-                }
+                // Bế nguyên text Tiếng Việt đập sang ô Tên (vd: "Quản lý Chi nhánh")
+                inputTen.value = selectMa.options[selectMa.selectedIndex].text;
+                checkInputHasData(); // Quét màu tím cho ô vừa điền
             }
         }
 
@@ -622,6 +618,12 @@
             const p = mapPQ[ma]; if(!p) return;
             document.getElementById('p_is_new').value = "false";
             
+            // [BẢO HIỂM]: Nếu Mã cũ không có trong Dropdown, tự động tạo 1 option ảo để hiển thị
+            let selectMa = document.getElementById('p_ma');
+            if (!Array.from(selectMa.options).some(opt => opt.value === p.ma_vai_tro)) {
+                selectMa.add(new Option(p.ten_vai_tro || p.ma_vai_tro, p.ma_vai_tro));
+            }
+
             const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
 
             let selectMa = document.getElementById('p_ma');
