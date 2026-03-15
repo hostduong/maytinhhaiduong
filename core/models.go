@@ -1007,3 +1007,21 @@ type GoiDichVu struct {
 	TrangThai        int              `json:"trang_thai"`
 }
 
+// ==============================================================================
+// CẤU TRÚC PHÂN QUYỀN (NOSQL 2 CỘT - LƯU CHUNG BẢNG CẤU HÌNH)
+// ==============================================================================
+type PhanQuyen struct {
+	SpreadsheetID  string `json:"-"`
+	DongTrongSheet int    `json:"-"`
+
+	Version   int      `json:"version"`
+	CreatedAt int64    `json:"created_at"`
+	UpdatedAt int64    `json:"updated_at"`
+
+	MaVaiTro  string   `json:"ma_vai_tro"`
+	TenVaiTro string   `json:"ten_vai_tro"`
+	Level     int      `json:"level"`
+	MoTa      string   `json:"mo_ta"`
+	QuyenHan  []string `json:"quyen_han"` // Mảng chứa: ["nhap_kho.tao", "hoa_don.doi_gia"]
+	TrangThai int      `json:"trang_thai"` // 1: Hoạt động, 0: Tạm khóa
+}
