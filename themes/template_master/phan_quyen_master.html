@@ -108,62 +108,62 @@
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
                                             <div>
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
-                                            <select id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700 bg-slate-50 cursor-pointer disabled:opacity-100 disabled:bg-purple-50 disabled:text-purple-900" onchange="autoFillRoleName()">
-                                                <option value="" class="font-normal text-slate-500">-- Chọn mã phân quyền --</option>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Chọn Chức Danh <span class="text-red-500">*</span></label>
+                                            <select id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black text-indigo-700 bg-slate-50 cursor-pointer disabled:opacity-100 disabled:bg-purple-50 disabled:text-purple-900" onchange="autoFillRoleName()">
+                                                <option value="" class="font-normal text-slate-500">-- Click chọn chức danh --</option>
                                                 
                                                 <optgroup label="👑 HỆ THỐNG 99K.VN (ĐẶC QUYỀN)">
-                                                    <option value="QUAN_TRI_HE_THONG">QUAN_TRI_HE_THONG (Quản trị Hệ thống)</option>
-                                                    <option value="QUAN_TRI_VIEN_HE_THONG">QUAN_TRI_VIEN_HE_THONG (Quản trị viên Hệ thống)</option>
-                                                    <option value="QUAN_TRI_IT_HE_THONG">QUAN_TRI_IT_HE_THONG (Quản trị IT Hệ thống)</option>
+                                                    <option value="QUAN_TRI_HE_THONG">Quản trị Hệ thống (Sáng lập)</option>
+                                                    <option value="QUAN_TRI_VIEN_HE_THONG">Quản trị viên Hệ thống (Admin)</option>
+                                                    <option value="QUAN_TRI_IT_HE_THONG">Quản trị IT Hệ thống</option>
                                                 </optgroup>
                                                 
                                                 <optgroup label="🏢 QUẢN TRỊ CỬA HÀNG">
-                                                    <option value="QUAN_TRI_CUA_HANG">QUAN_TRI_CUA_HANG (Quản trị Cửa hàng)</option>
-                                                    <option value="QUAN_TRI_VIEN_CUA_HANG">QUAN_TRI_VIEN_CUA_HANG (Quản trị viên Cửa hàng)</option>
-                                                    <option value="QUAN_TRI_IT_CUA_HANG">QUAN_TRI_IT_CUA_HANG (Quản trị IT Cửa hàng)</option>
-                                                    <option value="QUAN_TRI_WEBSITE_CUA_HANG">QUAN_TRI_WEBSITE_CUA_HANG (Quản trị Website)</option>
+                                                    <option value="QUAN_TRI_CUA_HANG">Quản trị Cửa hàng</option>
+                                                    <option value="QUAN_TRI_VIEN_CUA_HANG">Quản trị viên Cửa hàng</option>
+                                                    <option value="QUAN_TRI_IT_CUA_HANG">Quản trị IT Cửa hàng</option>
+                                                    <option value="QUAN_TRI_WEBSITE_CUA_HANG">Quản trị Website</option>
                                                 </optgroup>
                                                 
                                                 <optgroup label="🎯 LÃNH ĐẠO">
-                                                    <option value="GIAM_DOC">GIAM_DOC (Giám đốc)</option>
-                                                    <option value="QUAN_LY_CHI_NHANH">QUAN_LY_CHI_NHANH (Quản lý Chi nhánh)</option>
-                                                    <option value="QUAN_LY_VUNG">QUAN_LY_VUNG (Quản lý Vùng)</option>
+                                                    <option value="GIAM_DOC">Giám đốc</option>
+                                                    <option value="QUAN_LY_CHI_NHANH">Quản lý Chi nhánh</option>
+                                                    <option value="QUAN_LY_VUNG">Quản lý Vùng</option>
                                                 </optgroup>
 
                                                 <optgroup label="💰 TÀI CHÍNH KẾ TOÁN">
-                                                    <option value="KE_TOAN_TRUONG">KE_TOAN_TRUONG (Kế toán Trưởng)</option>
-                                                    <option value="KE_TOAN">KE_TOAN (Kế toán)</option>
-                                                    <option value="THU_QUY">THU_QUY (Thủ quỹ)</option>
-                                                    <option value="KIEM_SOAT_NOI_BO">KIEM_SOAT_NOI_BO (Kiểm soát Nội bộ)</option>
+                                                    <option value="KE_TOAN_TRUONG">Kế toán Trưởng</option>
+                                                    <option value="KE_TOAN">Kế toán</option>
+                                                    <option value="THU_QUY">Thủ quỹ</option>
+                                                    <option value="KIEM_SOAT_NOI_BO">Kiểm soát Nội bộ</option>
                                                 </optgroup>
 
                                                 <optgroup label="🚀 KINH DOANH & MARKETING">
-                                                    <option value="TRUONG_PHONG_KINH_DOANH">TRUONG_PHONG_KINH_DOANH (Trưởng phòng Kinh doanh)</option>
-                                                    <option value="KINH_DOANH">KINH_DOANH (Kinh doanh)</option>
-                                                    <option value="MARKETING">MARKETING (Marketing)</option>
-                                                    <option value="CHAM_SOC_KHACH_HANG">CHAM_SOC_KHACH_HANG (Chăm sóc Khách hàng)</option>
-                                                    <option value="NHAN_VIEN_BAN_HANG">NHAN_VIEN_BAN_HANG (Nhân viên Bán hàng)</option>
+                                                    <option value="TRUONG_PHONG_KINH_DOANH">Trưởng phòng Kinh doanh</option>
+                                                    <option value="KINH_DOANH">Nhân viên Kinh doanh</option>
+                                                    <option value="MARKETING">Nhân viên Marketing</option>
+                                                    <option value="CHAM_SOC_KHACH_HANG">Chăm sóc Khách hàng</option>
+                                                    <option value="NHAN_VIEN_BAN_HANG">Nhân viên Bán hàng</option>
                                                 </optgroup>
 
                                                 <optgroup label="📦 KHO HÀNG">
-                                                    <option value="TRUONG_KHO">TRUONG_KHO (Trưởng Kho)</option>
-                                                    <option value="THU_KHO">THU_KHO (Thủ Kho)</option>
-                                                    <option value="NHAN_VIEN_KHO">NHAN_VIEN_KHO (Nhân viên Kho)</option>
+                                                    <option value="TRUONG_KHO">Trưởng Kho</option>
+                                                    <option value="THU_KHO">Thủ Kho</option>
+                                                    <option value="NHAN_VIEN_KHO">Nhân viên Kho</option>
                                                 </optgroup>
 
                                                 <optgroup label="🔧 SỬA CHỮA KỸ THUẬT">
-                                                    <option value="TRUONG_BO_PHAN_KY_THUAT">TRUONG_BO_PHAN_KY_THUAT (Trưởng bộ phận Kỹ thuật)</option>
-                                                    <option value="KY_THUAT_VIEN">KY_THUAT_VIEN (Kỹ thuật viên)</option>
+                                                    <option value="TRUONG_BO_PHAN_KY_THUAT">Trưởng Kỹ thuật</option>
+                                                    <option value="KY_THUAT_VIEN">Kỹ thuật viên</option>
                                                 </optgroup>
 
                                                 <optgroup label="🤝 KHÁC (ĐỐI TÁC / NHÂN SỰ)">
-                                                    <option value="NHAN_VIEN">NHAN_VIEN (Nhân viên chung)</option>
-                                                    <option value="NHA_CUNG_CAP">NHA_CUNG_CAP (Nhà cung cấp)</option>
-                                                    <option value="DOI_TAC">DOI_TAC (Đối tác)</option>
-                                                    <option value="BIEN_TAP_VIEN">BIEN_TAP_VIEN (Biên tập viên)</option>
-                                                    <option value="DIEU_PHOI_DON_HANG">DIEU_PHOI_DON_HANG (Điều phối Đơn hàng)</option>
-                                                    <option value="SUPPORT_VIEWER">SUPPORT_VIEWER (Support Viewer)</option>
+                                                    <option value="NHAN_VIEN">Nhân viên chung</option>
+                                                    <option value="NHA_CUNG_CAP">Nhà cung cấp</option>
+                                                    <option value="DOI_TAC">Đối tác</option>
+                                                    <option value="BIEN_TAP_VIEN">Biên tập viên</option>
+                                                    <option value="DIEU_PHOI_DON_HANG">Điều phối Đơn hàng</option>
+                                                    <option value="SUPPORT_VIEWER">Hỗ trợ viên (Chỉ xem)</option>
                                                 </optgroup>
                                             </select>
                                         </div>
