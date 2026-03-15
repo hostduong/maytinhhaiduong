@@ -155,8 +155,9 @@ func SetupRouter() *gin.Engine {
 	{
 		// Cụm gọi trực tiếp về Trạm kiểm soát chung (Verify)
 		apiAuth.POST("/send-otp", auth_verify.API_SendOtp)
-		apiAuth.POST("/check-otp", auth_verify.API_CheckOtp) 
-		apiAuth.POST("/check-pin", auth_verify.API_CheckPin) 
+		// Cho phép nhập sai tối đa 10 lần, khóa 15 phút
+		apiAuth.POST("/check-otp", middlewares.BruteForceDefender(10, 15), auth_verify.API_CheckOtp) 
+		apiAuth.POST("/check-pin", middlewares.BruteForceDefender(10, 15), auth_verify.API_CheckPin) 
 
 		// Cụm đổi mật khẩu: Sau khi Verify xong, phân luồng về Module để đổi pass
 		apiAuth.POST("/reset-by-pin", func(c *gin.Context) {
