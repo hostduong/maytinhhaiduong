@@ -18,19 +18,37 @@
         .card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
         .card-active-purple .animated-border-inner { background-color: #faf5ff !important; border: none; }
 
-        /* UI cho Matrix Phân Quyền */
-        .matrix-group-header { background: linear-gradient(to right, #f8fafc, #ffffff); border-bottom: 2px solid #e2e8f0; }
-        .matrix-module-row { transition: background 0.2s; border-bottom: 1px solid #f1f5f9; }
+        /* [NÂNG CẤP 3] UI TABS CHO MA TRẬN */
+        .matrix-tabs-container {
+            display: flex; overflow-x: auto; gap: 8px; padding: 12px 20px;
+            background: #f8fafc; border-bottom: 2px solid #e2e8f0;
+            scrollbar-width: none; /* Firefox */
+        }
+        .matrix-tabs-container::-webkit-scrollbar { display: none; } /* Chrome */
+        
+        .tab-btn {
+            padding: 8px 16px; border-radius: 10px; font-size: 11px; font-weight: 800;
+            white-space: nowrap; cursor: pointer; transition: all 0.2s;
+            background: white; color: #64748b; border: 1px solid #e2e8f0;
+        }
+        .tab-btn:hover { background: #f1f5f9; color: #334155; }
+        .tab-btn.active { background: #9333ea; color: white; border-color: #9333ea; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2); }
+
+        .matrix-tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .matrix-tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .matrix-module-row { transition: background 0.2s; border-bottom: 1px solid #f1f5f9; padding: 16px 20px; }
         .matrix-module-row:hover { background-color: #f8fafc; }
         
         .cbx-action {
             display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1;
-            background: white; cursor: pointer; transition: all 0.2s;
-            user-select: none;
+            padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+            background: white; cursor: pointer; transition: all 0.2s; user-select: none;
         }
         .cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
         .cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
+        .cbx-action.disabled { opacity: 0.5; pointer-events: none; }
         .cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
         .cbx-action.checked .icon { opacity: 1; transform: scale(1); }
     </style>
@@ -143,7 +161,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
-                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
+                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer disabled:opacity-50">
                                             <option value="0">Level 0 (Quản trị Hệ thống)</option>
                                             <option value="1">Level 1 (Admin Hệ thống)</option>
                                             <option value="2">Level 2 (IT Hệ thống)</option>
@@ -158,7 +176,7 @@
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
-                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
+                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer disabled:opacity-50">
                                             <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
                                             <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
                                         </select>
@@ -171,16 +189,18 @@
                             </div>
                         </div>
 
-                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
-                            <div class="animated-border-inner bg-white relative flex flex-col">
-                                <div class="p-5 sm:p-6 border-b border-slate-100">
-                                    <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex justify-between items-center">
-                                        <span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> 2. Ma Trận Quyền Hạn</span>
-                                        <button type="button" onclick="checkAllMatrix(true)" class="text-[9px] bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm">BẬT TẤT CẢ</button>
+                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50 flex-1 flex flex-col min-h-[400px]">
+                            <div class="animated-border-inner bg-white relative flex flex-col h-full">
+                                <div class="px-5 pt-5 pb-3 flex justify-between items-center border-b border-purple-50">
+                                    <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> 2. Ma Trận Cấp Quyền
                                     </h4>
+                                    <button type="button" id="btnCheckAllSys" onclick="checkAllMatrix(true)" class="text-[9px] bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm font-black tracking-widest">BẬT TOÀN BỘ</button>
                                 </div>
                                 
-                                <div id="matrixContainer" class="flex flex-col"></div>
+                                <div id="matrixTabsHeader" class="matrix-tabs-container"></div>
+                                
+                                <div id="matrixTabsContent" class="flex-1 overflow-y-auto custom-scroll pb-6"></div>
                                 
                             </div>
                         </div>
@@ -245,33 +265,33 @@
         }
 
         // ==========================================
-        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN
-        // ĐẢM BẢO CHUẨN 100% CÁC QUYỀN SẾP ĐÃ LIỆT KÊ
+        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN TABS
+        // [ĐÃ TỐI ƯU CÁC ĐỘNG TỪ CHUẨN MỰC TỪ SẾP]
         // ==========================================
         const ACTION_LABELS = {
             "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
             "duyet": "Duyệt", "huy": "Hủy", "in": "In", "export": "Export", "import": "Import",
-            "cap_nhat": "Cập nhật", "cau_hinh": "Cấu hình", "thuc_hien": "Thực hiện",
+            "cap_nhat": "Cập nhật", "cau_hinh": "Cấu hình",
             "tinh_toan": "Tính toán", "doi_gia": "Đổi giá", "xem_gia_von": "Xem giá vốn",
-            "them": "Thêm", "phan_cong": "Phân công", "ket_noi": "Kết nối", "ngat_ket_noi": "Ngắt kết nối",
-            "tra_loi": "Trả lời", "dong_bo": "Đồng bộ", "phat_hanh": "Phát hành", "gui": "Gửi"
+            "them": "Thêm", "phat_hanh": "Phát hành", 
+            "khoa": "Khóa", "chuyen_chi_nhanh": "Chuyển C.Nhánh", "export_template": "Tải Template", "reset_mat_khau": "Reset Pass"
         };
 
         const MATRIX_DEF = [
             {
-                group: "Quản Lý Bán Hàng",
+                group: "Bán Hàng",
                 modules: [
                     { id: "ban_hang_pos", name: "Bán hàng POS", actions: ["xem", "tao", "huy", "in"] },
-                    { id: "hoa_don", name: "Hóa đơn / Đơn hàng", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in", "export", "doi_gia"] },
+                    { id: "hoa_don", name: "Hóa đơn / Đơn hàng", actions: ["xem", "tao", "sua", "xoa", "duyet", "huy", "in", "export", "doi_gia", "khoa", "chuyen_chi_nhanh"] },
                     { id: "tra_hang", name: "Trả hàng / Hoàn tiền", actions: ["xem", "tao", "duyet", "huy", "in"] },
                     { id: "phong_ban", name: "Phòng / Bàn", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "huy", "in"] }
+                    { id: "bao_hanh", name: "Bảo hành", actions: ["xem", "tao", "sua", "huy"] }
                 ]
             },
             {
-                group: "Quản Lý Sửa Chữa",
+                group: "Sửa Chữa",
                 modules: [
-                    { id: "phieu_sua_chua", name: "Phiếu sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in", "xoa"] },
+                    { id: "phieu_sua_chua", name: "Phiếu sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
                     { id: "bao_gia_sua_chua", name: "Báo giá sửa chữa", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
                     { id: "tinh_trang_sua", name: "Tình trạng sửa", actions: ["xem", "cap_nhat"] },
                     { id: "linh_kien_thay_the", name: "Linh kiện thay thế", actions: ["xem", "tao", "sua", "xoa"] },
@@ -280,9 +300,9 @@
                 ]
             },
             {
-                group: "Quản Lý Sản Phẩm",
+                group: "Sản Phẩm",
                 modules: [
-                    { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "xem_gia_von"] },
+                    { id: "san_pham", name: "Sản phẩm", actions: ["xem", "tao", "sua", "xoa", "import", "export", "xem_gia_von", "export_template"] },
                     { id: "danh_muc", name: "Danh mục", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thuong_hieu", name: "Thương hiệu", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "khuyen_mai", name: "Khuyến mãi", actions: ["xem", "tao", "sua", "huy"] },
@@ -290,7 +310,7 @@
                 ]
             },
             {
-                group: "Quản Lý Kho",
+                group: "Kho Hàng",
                 modules: [
                     { id: "kho_hang", name: "Kho hàng", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "nhap_kho", name: "Nhập kho", actions: ["xem", "tao", "sua", "duyet", "huy", "in"] },
@@ -302,7 +322,7 @@
                 ]
             },
             {
-                group: "Quản Lý Khách Hàng",
+                group: "Khách Hàng",
                 modules: [
                     { id: "khach_hang", name: "Danh sách Khách hàng", actions: ["xem", "tao", "sua", "xoa", "export", "import"] },
                     { id: "tich_diem", name: "Tích điểm", actions: ["xem", "cap_nhat"] },
@@ -312,165 +332,160 @@
                 ]
             },
             {
-                group: "Quản Lý Đối Tác",
+                group: "Tài Chính",
                 modules: [
-                    { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa"] }
-                ]
-            },
-            {
-                group: "Quản Lý Tài Chính",
-                modules: [
-                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "duyet", "huy", "in", "xoa"] },
-                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem", "chot_ca"] },
-                    { id: "cong_no_khach_hang", name: "Công nợ khách hàng", actions: ["xem", "cap_nhat"] },
-                    { id: "cong_no_nha_cung_cap", name: "Công nợ nhà cung cấp", actions: ["xem", "cap_nhat"] },
+                    { id: "thu_chi", name: "Thu chi", actions: ["xem", "tao", "sua", "duyet", "huy"] },
+                    { id: "so_quy", name: "Sổ quỹ", actions: ["xem"] },
+                    { id: "cong_no_khach_hang", name: "Công nợ Khách", actions: ["xem", "cap_nhat"] },
+                    { id: "cong_no_nha_cung_cap", name: "Công nợ NCC", actions: ["xem", "cap_nhat"] },
                     { id: "quyet_toan_ca", name: "Quyết toán ca", actions: ["xem", "tao", "duyet"] },
-                    { id: "luong_nhan_vien", name: "Lương cơ bản", actions: ["xem", "cap_nhat"] },
+                    { id: "luong_nhan_vien", name: "Lương nhân viên", actions: ["xem", "cap_nhat"] },
                     { id: "chi_phi_hoat_dong", name: "Chi phí hoạt động", actions: ["xem", "tao", "sua", "xoa"] }
                 ]
             },
             {
-                group: "Quản Lý Nhân Sự",
+                group: "Nhân Sự",
                 modules: [
-                    { id: "nhan_vien", name: "Nhân viên", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "nhan_vien", name: "Nhân viên", actions: ["xem", "tao", "sua", "xoa", "reset_mat_khau"] },
                     { id: "phan_quyen", name: "Phân quyền", actions: ["xem", "cap_nhat"] }
                 ]
             },
             {
-                group: "Quản Lý Báo Cáo",
+                group: "Báo Cáo",
                 modules: [
                     { id: "bao_cao_ban_hang", name: "Báo cáo bán hàng", actions: ["xem", "export"] },
                     { id: "bao_cao_nhap_hang", name: "Báo cáo nhập hàng", actions: ["xem", "export"] },
                     { id: "bao_cao_lai_lo", name: "Báo cáo lãi lỗ", actions: ["xem", "export"] },
                     { id: "bao_cao_cong_no", name: "Báo cáo công nợ", actions: ["xem", "export"] },
                     { id: "bao_cao_ton_kho", name: "Báo cáo tồn kho", actions: ["xem", "export"] },
-                    { id: "bao_cao_san_pham_ban_chay", name: "Sản phẩm bán chạy", actions: ["xem", "export"] },
-                    { id: "bao_cao_nhan_vien_ban_hang", name: "Nhân viên bán hàng", actions: ["xem", "export"] },
-                    { id: "bao_cao_khach_hang", name: "Báo cáo khách hàng", actions: ["xem", "export"] }
+                    { id: "bao_cao_san_pham_ban_chay", name: "SP bán chạy", actions: ["xem", "export"] },
+                    { id: "bao_cao_nhan_vien_ban_hang", name: "NV bán hàng", actions: ["xem", "export"] },
+                    { id: "bao_cao_khach_hang", name: "Báo cáo khách", actions: ["xem", "export"] }
                 ]
             },
             {
-                group: "Quản Lý Hệ Thống",
+                group: "Hệ Thống",
                 modules: [
                     { id: "goi_dich_vu", name: "Gói dịch vụ", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "thanh_toan_goi", name: "Thanh toán gói", actions: ["xem", "tao"] },
-                    { id: "lich_su_thanh_toan", name: "Lịch sử thanh toán", actions: ["xem"] },
-                    { id: "import_du_lieu", name: "Import dữ liệu", actions: ["thuc_hien"] },
-                    { id: "export_du_lieu", name: "Export dữ liệu", actions: ["thuc_hien"] },
-                    { id: "nhat_ky_hoat_dong", name: "Nhật ký hoạt động", actions: ["xem"] },
+                    { id: "lich_su_thanh_toan", name: "Lịch sử hóa đơn", actions: ["xem"] },
+                    { id: "import_du_lieu", name: "Import DB", actions: ["tao"] },
+                    { id: "export_du_lieu", name: "Export DB", actions: ["tao"] },
+                    { id: "sao_luu_du_lieu", name: "Sao lưu Backup", actions: ["tao"] },
+                    { id: "khoi_phuc_du_lieu", name: "Khôi phục Restore", actions: ["tao"] },
+                    { id: "nhat_ky_hoat_dong", name: "Nhật ký hệ thống", actions: ["xem"] },
                     { id: "cau_hinh_cua_hang", name: "Cấu hình cửa hàng", actions: ["xem", "cap_nhat"] },
-                    { id: "sao_luu_du_lieu", name: "Sao lưu", actions: ["thuc_hien"] },
-                    { id: "khoi_phuc_du_lieu", name: "Khôi phục", actions: ["thuc_hien"] },
-                    { id: "in_an", name: "In ấn", actions: ["cau_hinh"] },
-                    { id: "cau_hinh_vat", name: "Cấu hình VAT", actions: ["xem", "cap_nhat"] },
-                    { id: "ho_so", name: "Hồ sơ", actions: ["xem", "cap_nhat"] },
-                    { id: "api_key", name: "API Key", actions: ["xem", "tao", "xoa"] }
+                    { id: "in_an", name: "Cấu hình In ấn", actions: ["cau_hinh"] },
+                    { id: "cau_hinh_vat", name: "Thuế VAT", actions: ["xem", "cap_nhat"] },
+                    { id: "ho_so", name: "Hồ sơ công ty", actions: ["xem", "cap_nhat"] },
+                    { id: "api_key", name: "API Key", actions: ["xem", "tao", "xoa"] },
+                    { id: "tep_tin", name: "Quản lý Tệp (Media)", actions: ["xem", "tao", "xoa"] }
                 ]
             },
             {
-                group: "Quản Lý Chi Nhánh",
+                group: "Đa Kênh & Chi Nhánh",
                 modules: [
                     { id: "chi_nhanh", name: "Chi nhánh", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "bao_cao_chi_nhanh", name: "Báo cáo chi nhánh", actions: ["xem", "export"] },
                     { id: "ton_kho_chi_nhanh", name: "Tồn kho chi nhánh", actions: ["xem"] },
                     { id: "gia_chi_nhanh", name: "Giá theo chi nhánh", actions: ["xem", "cap_nhat"] },
-                    { id: "nhan_vien_chi_nhanh", name: "Nhân viên chi nhánh", actions: ["xem", "cap_nhat", "phan_cong"] }
-                ]
-            },
-            {
-                group: "Quản Lý Bài Viết",
-                modules: [
-                    { id: "bai_viet", name: "Bài viết", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] }
-                ]
-            },
-            {
-                group: "Quản Lý Đa Kênh",
-                modules: [
-                    { id: "ket_noi_san_tmdt", name: "Kết nối Sàn TMĐT", actions: ["xem", "ket_noi", "ngat_ket_noi", "cau_hinh"] },
-                    { id: "chat_da_kenh", name: "Quản lý Chat đa kênh", actions: ["xem", "tra_loi", "tao"] },
-                    { id: "dong_bo_ton_kho", name: "Đồng bộ tồn kho tự động", actions: ["xem", "dong_bo", "cap_nhat"] },
+                    { id: "nhan_vien_chi_nhanh", name: "Nhân viên C.Nhánh", actions: ["xem", "cap_nhat"] },
+                    { id: "ket_noi_san_tmdt", name: "Kết nối Sàn TMĐT", actions: ["xem", "cau_hinh"] },
+                    { id: "chat_da_kenh", name: "Chat đa kênh", actions: ["xem", "tao"] },
+                    { id: "dong_bo_ton_kho", name: "Đồng bộ tồn kho", actions: ["xem", "cap_nhat"] },
                     { id: "gia_theo_kenh", name: "Giá theo kênh", actions: ["xem", "cap_nhat"] }
                 ]
             },
             {
-                group: "Quản Lý Vận Chuyển",
+                group: "Mở Rộng",
                 modules: [
-                    { id: "don_vi_van_chuyen", name: "Kết nối Hãng VC", actions: ["xem", "ket_noi", "cau_hinh"] },
+                    { id: "don_vi_van_chuyen", name: "Kết nối Hãng VC", actions: ["xem", "cau_hinh"] },
                     { id: "so_sanh_gia_cuoc", name: "So sánh giá cước", actions: ["xem"] },
-                    { id: "tao_van_don", name: "Đẩy đơn & Lấy mã", actions: ["tao"] },
-                    { id: "tracking_don_hang", name: "Theo dõi lộ trình", actions: ["xem"] }
+                    { id: "tao_van_don", name: "Đẩy đơn", actions: ["tao"] },
+                    { id: "tracking_don_hang", name: "Tracking Vận đơn", actions: ["xem"] },
+                    { id: "qr_code", name: "QR Code động", actions: ["tao"] },
+                    { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "cau_hinh"] },
+                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử", actions: ["xem", "tao"] },
+                    { id: "nha_cung_cap", name: "Nhà cung cấp", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "bai_viet", name: "Bài viết SEO", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "danh_muc_bai_viet", name: "Danh mục bài viết", actions: ["xem", "tao", "sua", "xoa"] }
                 ]
             },
             {
-                group: "Quản Lý Thanh Toán & HĐ",
+                group: "Marketing & AI",
                 modules: [
-                    { id: "qr_code", name: "Thanh toán QR Code", actions: ["tao"] },
-                    { id: "cong_thanh_toan", name: "Cổng thanh toán", actions: ["xem", "ket_noi", "cau_hinh"] },
-                    { id: "hoa_don_dien_tu", name: "Hóa đơn điện tử", actions: ["xem", "phat_hanh", "tao"] }
-                ]
-            },
-            {
-                group: "Quản Lý Marketing",
-                modules: [
-                    { id: "sms_marketing", name: "SMS Marketing", actions: ["tao", "gui"] },
-                    { id: "email_marketing", name: "Email Marketing", actions: ["tao", "gui"] },
-                    { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["xem", "tao", "sua", "xoa", "cap_nhat"] }
-                ]
-            },
-            {
-                group: "Quản Lý Automation",
-                modules: [
+                    { id: "sms_marketing", name: "SMS Marketing", actions: ["tao"] },
+                    { id: "email_marketing", name: "Email Marketing", actions: ["tao"] },
+                    { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["tao", "cap_nhat"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
-                    { id: "ai_bao_cao", name: "AI Báo cáo", actions: ["xem"] },
-                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán tồn kho", actions: ["xem"] }
+                    { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
+                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán Nhập kho", actions: ["xem"] }
                 ]
             }
         ];
 
-        // Hàm render Matrix ra HTML
-        function renderMatrix() {
-            const container = document.getElementById('matrixContainer');
-            let html = '';
+        // Hàm render Matrix TABS ra HTML
+        function renderMatrixTabs() {
+            const tabsHeader = document.getElementById('matrixTabsHeader');
+            const tabsContent = document.getElementById('matrixTabsContent');
+            
+            let headerHTML = '';
+            let contentHTML = '';
             
             MATRIX_DEF.forEach((grp, gIdx) => {
-                html += `<div class="matrix-group-header px-5 py-3 sticky top-0 z-10 flex justify-between items-center shadow-sm">
-                            <span class="font-black text-slate-700 text-[11.5px] uppercase tracking-widest">${grp.group}</span>
-                            <label class="flex items-center gap-2 cursor-pointer group/chk">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Nhóm</span>
-                                <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
-                            </label>
-                         </div>`;
+                // Render Tab Buttons
+                const activeClass = gIdx === 0 ? 'active' : '';
+                headerHTML += `<div class="tab-btn ${activeClass}" onclick="switchMatrixTab(${gIdx}, this)">${grp.group}</div>`;
+                
+                // Render Tab Content
+                const contentClass = gIdx === 0 ? 'active' : '';
+                contentHTML += `<div id="matrix-tab-${gIdx}" class="matrix-tab-content ${contentClass}">
+                                    <div class="px-5 py-3 bg-slate-50 flex justify-between items-center border-b border-slate-200">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Thiết lập nhóm: ${grp.group}</span>
+                                        <label class="flex items-center gap-2 cursor-pointer group/chk">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Bật Cả Nhóm Này</span>
+                                            <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
+                                        </label>
+                                    </div>`;
                          
                 grp.modules.forEach((mod) => {
-                    html += `<div class="matrix-module-row px-5 py-4 grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4 items-center">
-                                <div class="font-bold text-[12px] text-slate-600">${mod.name}</div>
-                                <div class="flex flex-wrap gap-2">`;
+                    contentHTML += `<div class="matrix-module-row grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-3 items-center">
+                                        <div class="font-bold text-[12px] text-slate-700">${mod.name}</div>
+                                        <div class="flex flex-wrap gap-2">`;
                     
                     mod.actions.forEach((act) => {
-                        // Key siêu đỉnh: quan_ly_kho.nhap_kho.tao
                         const permKey = `${mod.id}.${act}`;
                         const label = ACTION_LABELS[act] || act;
                         
-                        html += `<label class="cbx-action group-perm-${gIdx}">
-                                    <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
-                                    <div class="icon bg-white rounded-sm flex items-center justify-center"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wide leading-none pt-[1px]">${label}</span>
-                                 </label>`;
+                        contentHTML += `<label class="cbx-action group-perm-${gIdx}">
+                                            <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                                            <div class="icon bg-white rounded-sm flex items-center justify-center"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                            <span class="text-[10px] font-bold uppercase tracking-wide leading-none pt-[1px]">${label}</span>
+                                        </label>`;
                     });
-                    
-                    html += `   </div>
-                             </div>`;
+                    contentHTML += `    </div>
+                                    </div>`;
                 });
+                contentHTML += `</div>`;
             });
-            container.innerHTML = html;
+            
+            tabsHeader.innerHTML = headerHTML;
+            tabsContent.innerHTML = contentHTML;
         }
 
-        renderMatrix(); // Khởi chạy vẽ Matrix
+        function switchMatrixTab(tabId, element) {
+            document.querySelectorAll('.matrix-tabs-container .tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.matrix-tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`matrix-tab-${tabId}`).classList.add('active');
+        }
+
+        renderMatrixTabs(); // Khởi chạy vẽ Matrix Tabs
 
         function toggleGroup(gIdx, isChecked) {
-            document.querySelectorAll(`.group-perm-${gIdx} input[type="checkbox"]`).forEach(cb => {
+            document.querySelectorAll(`.group-perm-${gIdx} input[type="checkbox"]:not(:disabled)`).forEach(cb => {
                 cb.checked = isChecked;
                 if(isChecked) cb.parentElement.classList.add('checked');
                 else cb.parentElement.classList.remove('checked');
@@ -478,12 +493,19 @@
         }
         
         function checkAllMatrix(isChecked) {
-            document.querySelectorAll('.matrix-cbx').forEach(cb => {
+            document.querySelectorAll('.matrix-cbx:not(:disabled)').forEach(cb => {
                 cb.checked = isChecked;
                 if(isChecked) cb.parentElement.classList.add('checked');
                 else cb.parentElement.classList.remove('checked');
             });
             document.querySelectorAll('input[class*="chk-group-"]').forEach(cb => cb.checked = isChecked);
+        }
+
+        // Tự động thu thập toàn bộ các quyền hiện có trong lưới
+        function getAllPossiblePermissions() {
+            let perms = [];
+            document.querySelectorAll('.matrix-cbx').forEach(cb => perms.push(cb.value));
+            return perms;
         }
 
         function getSelectedPermissions() {
@@ -496,6 +518,16 @@
             document.getElementById('formPQ').reset(); 
             document.getElementById('p_is_new').value = "true"; 
             document.getElementById('p_ma').readOnly = false;
+            document.getElementById('p_level').disabled = false;
+            document.getElementById('p_trang_thai').disabled = false;
+            document.getElementById('btnCheckAllSys').classList.remove('hidden');
+            
+            // Xóa disable của ma trận
+            document.querySelectorAll('.matrix-cbx').forEach(cb => {
+                cb.disabled = false;
+                cb.parentElement.classList.remove('disabled');
+            });
+
             checkAllMatrix(false); // Reset toàn bộ
             clearActiveCards();
             
@@ -513,20 +545,41 @@
 
             setV('p_ma', p.ma_vai_tro); document.getElementById('p_ma').readOnly = true;
             setV('p_ten', p.ten_vai_tro || "");
-            setV('p_level', p.level || 5);
             setV('p_mota', p.mo_ta || "");
-            setV('p_trang_thai', p.trang_thai);
 
-            // Tick lại quyền lên UI
+            // Gỡ bỏ Disable cũ
+            document.getElementById('p_level').disabled = false;
+            document.getElementById('p_trang_thai').disabled = false;
+            document.getElementById('btnCheckAllSys').classList.remove('hidden');
+            document.querySelectorAll('.matrix-cbx').forEach(cb => {
+                cb.disabled = false;
+                cb.parentElement.classList.remove('disabled');
+            });
             checkAllMatrix(false);
-            if (p.quyen_han && Array.isArray(p.quyen_han)) {
-                p.quyen_han.forEach(perm => {
-                    let cb = document.querySelector(`.matrix-cbx[value="${perm}"]`);
-                    if (cb) {
-                        cb.checked = true;
-                        cb.parentElement.classList.add('checked');
-                    }
+
+            // [LUẬT THÉP 2 - UI]: Bất tử hóa QUAN_TRI_HE_THONG
+            if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
+                setV('p_level', 0);
+                setV('p_trang_thai', 1);
+                document.getElementById('p_level').disabled = true;
+                document.getElementById('p_trang_thai').disabled = true;
+                document.getElementById('btnCheckAllSys').classList.add('hidden');
+                
+                // Cấp Full quyền và Khóa mờ
+                document.querySelectorAll('.matrix-cbx').forEach(cb => {
+                    cb.checked = true;
+                    cb.disabled = true;
+                    cb.parentElement.classList.add('checked', 'disabled');
                 });
+            } else {
+                setV('p_level', p.level);
+                setV('p_trang_thai', p.trang_thai);
+                if (p.quyen_han && Array.isArray(p.quyen_han)) {
+                    p.quyen_han.forEach(perm => {
+                        let cb = document.querySelector(`.matrix-cbx[value="${perm}"]`);
+                        if (cb) { cb.checked = true; cb.parentElement.classList.add('checked'); }
+                    });
+                }
             }
 
             clearActiveCards();
@@ -597,13 +650,26 @@
 
                 btn.disabled = true; btn.innerHTML = 'ĐANG XỬ LÝ...';
 
+                // [LỖI 1 FIXED]: Xử lý Parse số nguyên cẩn thận
+                let parsedLevel = parseInt(getV("p_level"), 10);
+                if (isNaN(parsedLevel)) parsedLevel = 5;
+
+                let maVaiTro = getV("p_ma").toUpperCase();
+                let quyenHanGuiLen = getSelectedPermissions();
+
+                // [LUẬT THÉP 2 - CLIENT SIDE]: Đóng gói Full Quyền cho QUAN_TRI_HE_THONG
+                if (maVaiTro === "QUAN_TRI_HE_THONG") {
+                    parsedLevel = 0;
+                    quyenHanGuiLen = getAllPossiblePermissions();
+                }
+
                 let payload = {
-                    ma_vai_tro: getV("p_ma"),
+                    ma_vai_tro: maVaiTro,
                     ten_vai_tro: getV("p_ten"),
-                    level: parseInt(getV("p_level")) || 5,
+                    level: parsedLevel,
                     mo_ta: getV("p_mota"),
                     trang_thai: parseInt(getV("p_trang_thai")) || 0,
-                    quyen_han: getSelectedPermissions()
+                    quyen_han: quyenHanGuiLen
                 };
 
                 const fd = new FormData();
