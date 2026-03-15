@@ -13,8 +13,11 @@ func API_LuuPhanQuyenMaster(c *gin.Context) {
 	masterID := c.GetString("SHOP_ID") 
 	userID := c.GetString("USER_ID")
 
+	// Xác định đây có phải là Sáng Lập Viên tối cao không
+	isMasterUser := (userID == "0000000000000000001")
+
 	// [LUẬT THÉP 4]: CHẶN ĐỨNG API NẾU KHÔNG PHẢI 001
-	if userID != "0000000000000000001" {
+	if !isMasterUser {
 		c.JSON(200, gin.H{"status": "error", "msg": "Vùng cấm: Bạn không có quyền truy cập khu vực này!"})
 		return
 	}
@@ -40,9 +43,8 @@ func API_LuuPhanQuyenMaster(c *gin.Context) {
 		return
 	}
 
-	input.MaVaiTro = strings.ToUpper(strings.TrimSpace(input.MaVaiTro))
-
-	if err := Service_XuLyLuu(masterID, isNew, &input); err != nil {
+	// Gọi thẳng vào Trái tim xử lý (Đẩy theo cờ isMasterUser)
+	if err := Service_XuLyLuu(masterID, isNew, &input, isMasterUser); err != nil {
 		c.JSON(200, gin.H{"status": "error", "msg": err.Error()})
 		return
 	}
