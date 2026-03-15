@@ -31,7 +31,7 @@
 
             <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 saas-grid-container" id="listGDVContainer">
                 {{ range .ListGoi }}
-                <div class="animated-border-wrapper gdv-card-wrap cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
+                <div class="animated-border-wrapper saas-card cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaGoi }}" onclick="editGDV('{{ .MaGoi }}')">
                     <div class="animated-border-inner gdv-card-inner p-8 flex flex-col h-full transition-colors duration-300 bg-white pointer-events-none relative overflow-hidden">
                         
                         {{ if .Badge }}<div class="corner-ribbon-wrap"><div class="corner-ribbon text-[9px]">{{ .Badge }}</div></div>{{ end }}
@@ -360,7 +360,7 @@
             const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             const queryClean = removeAccents(query);
 
-            document.querySelectorAll('#listGDVContainer .gdv-card-wrap').forEach(card => {
+            document.querySelectorAll('#listGDVContainer .saas-card').forEach(card => {
                 let text = "";
                 card.querySelectorAll('.gdv-search-target').forEach(el => text += el.innerText + " ");
                 if (removeAccents(text.toLowerCase()).includes(queryClean)) { card.style.display = ''; } else { card.style.display = 'none'; }
@@ -399,7 +399,7 @@
         }
 
         function clearActiveCards() {
-            document.querySelectorAll('.gdv-card-wrap').forEach(r => { r.classList.remove('card-active-purple'); });
+            document.querySelectorAll('.saas-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
         const MODULE_DATA = {
@@ -550,7 +550,7 @@
             }
 
             clearActiveCards();
-            const activeRow = document.querySelector(`.gdv-card-wrap[data-id="${ma}"]`);
+            const activeRow = document.querySelector(`.saas-card[data-id="${ma}"]`);
             if(activeRow) { activeRow.classList.add('card-active-purple'); }
 
             document.getElementById('modalEdit').classList.remove('hidden');
