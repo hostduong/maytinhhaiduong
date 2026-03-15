@@ -58,8 +58,8 @@ var (
 	StatusMutex          sync.RWMutex
 
 	// --- HỆ THỐNG & PHÂN QUYỀN ---
-	CachePhanQuyen      = make(map[string]map[string]map[string]bool)
-	CacheDanhSachVaiTro = make(map[string][]VaiTroInfo)              
+	CachePhanQuyen    = make(map[string][]*PhanQuyen)
+	CacheMapPhanQuyen = make(map[string]*PhanQuyen)          
 
 	// --- KHÁCH HÀNG & NHÂN SỰ ---
 	CacheKhachHang    = make(map[string][]*KhachHang)   
