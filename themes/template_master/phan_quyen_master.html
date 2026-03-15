@@ -149,7 +149,7 @@
                         </div>
 
                         <div class="animated-border-wrapper shadow-md shadow-purple-100/50 flex-1 flex flex-col min-h-[400px]">
-                            <div class="animated-border-inner bg-white relative flex flex-col h-full">
+                            <div class="animated-border-inner bg-white relative flex flex-col flex-1 w-full h-full">
                                 <div class="px-5 pt-5 pb-3 flex justify-between items-center border-b border-purple-50">
                                     <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> 2. Ma Trận Cấp Quyền
@@ -194,6 +194,27 @@
             document.addEventListener('mouseup', function(e) {
                 if (isResizing) { isResizing = false; document.body.classList.remove('cursor-col-resize', 'select-none'); listPane.style.transition = ''; }
             });
+        }
+
+        // [ĐÃ FIX LỖI 2]: Bộ quét tự động xóa lệnh ép cứng khi màn hình bị thu nhỏ (Dưới 1280px)
+        window.addEventListener('resize', function() {
+            if (window.innerWidth < 1280) {
+                if (listPane) { listPane.style.width = ''; listPane.style.flex = ''; }
+                if (detailPane) { detailPane.style.width = ''; detailPane.style.flex = ''; }
+            }
+        });
+
+        // Hàm Đóng Modal cũng được nâng cấp để xả chốt sạch sẽ
+        function closeModalEdit() { 
+            document.getElementById('modalEdit').classList.add('hidden');
+            document.getElementById('modalEdit').classList.remove('is-open');
+            document.getElementById('dragResizerUI').classList.remove('is-open');
+            
+            // Xóa sạch dấu vết ép cứng Layout
+            if (listPane) { listPane.style.width = ''; listPane.style.flex = ''; }
+            if (detailPane) { detailPane.style.width = ''; detailPane.style.flex = ''; }
+            
+            clearActiveCards();
         }
 
         function checkInputHasData() {
