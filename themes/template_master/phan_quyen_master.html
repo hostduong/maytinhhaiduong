@@ -28,9 +28,9 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 pq-grid-container" id="listPQContainer">
+            <div class="flex-1 overflow-y-auto custom-scroll pr-2 pb-10 saas-grid-container" id="listPQContainer">
                 {{ range .ListPQ }}
-                <div class="animated-border-wrapper pq-card cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaVaiTro }}" onclick="editPQ('{{ .MaVaiTro }}')">
+                <div class="animated-border-wrapper saas-card cursor-pointer group {{ if eq .TrangThai 0 }}opacity-60 grayscale{{ end }} h-full" data-id="{{ .MaVaiTro }}" onclick="editPQ('{{ .MaVaiTro }}')">
                     <div class="animated-border-inner p-6 flex flex-col h-full transition-colors duration-300 bg-white pointer-events-none relative overflow-hidden">
                         
                         <div class="flex justify-between items-start mb-4 relative z-10">
@@ -204,7 +204,7 @@
             const removeAccents = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
             const queryClean = removeAccents(query);
 
-            document.querySelectorAll('#listPQContainer .pq-card').forEach(card => {
+            document.querySelectorAll('#listPQContainer .saas-card').forEach(card => {
                 let text = "";
                 card.querySelectorAll('.pq-search-target').forEach(el => text += el.innerText + " ");
                 if (removeAccents(text.toLowerCase()).includes(queryClean)) { card.style.display = ''; } else { card.style.display = 'none'; }
@@ -212,7 +212,7 @@
         }
 
         function clearActiveCards() {
-            document.querySelectorAll('.pq-card').forEach(r => { r.classList.remove('card-active-purple'); });
+            document.querySelectorAll('.saas-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
         const ACTION_LABELS = {
@@ -515,7 +515,7 @@
             }
 
             clearActiveCards();
-            const activeRow = document.querySelector(`.pq-card[data-id="${ma}"]`);
+            const activeRow = document.querySelector(`.saas-card[data-id="${ma}"]`);
             if(activeRow) { activeRow.classList.add('card-active-purple'); }
 
             document.getElementById('modalEdit').classList.remove('hidden');
