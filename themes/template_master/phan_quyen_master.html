@@ -117,7 +117,7 @@
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Chọn Chức Danh <span class="text-red-500">*</span></label>
                                             <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-2.5 !px-3 cursor-pointer flex justify-between items-center group hover:border-purple-400 bg-white transition-all h-[38px]">
-                                                <span id="roleTriggerText" class="text-[12px] font-medium text-slate-400 truncate">-- Nhấn để chọn --</span>
+                                                <span id="roleTriggerText" class="text-[12px] font-medium text-slate-400 truncate w-full text-left">-- Nhấn để chọn --</span>
                                                 <div class="w-5 h-5 rounded-full bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center transition-colors shrink-0">
                                                     <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                                                 </div>
@@ -126,22 +126,22 @@
 
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tên Vai Trò (Tùy chỉnh) <span class="text-red-500">*</span></label>
-                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-slate-800 h-[38px]" placeholder="VD: Quản lý cửa hàng">
+                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-purple-900 h-[38px]" placeholder="VD: Quản lý cửa hàng">
                                         </div>
 
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Trạng Thái (App)</label>
-                                            <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer h-[38px]">
-                                                <option value="1" class="text-emerald-600">🟢 Hoạt động (Cho phép dùng)</option>
-                                                <option value="0" class="text-amber-600">🟡 Tạm khóa (Cấm dùng)</option>
+                                            <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer h-[38px] text-purple-900">
+                                                <option value="1">🟢 Hoạt động (Cho phép dùng)</option>
+                                                <option value="0">🟡 Tạm khóa (Cấm dùng)</option>
                                             </select>
                                         </div>
 
                                         {{ if eq .NhanVien.MaKhachHang "0000000000000000001" }}
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[160px]" id="masterLockWrapper">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Locker (Master)</label>
-                                            <div class="input-premium !py-2 !px-3 flex items-center justify-between h-[38px] bg-white">
-                                                <span class="text-[12px] font-bold text-slate-700">Khóa form</span>
+                                            <div id="lockerBoxUI" class="input-premium !py-2 !px-3 flex items-center justify-between h-[38px] bg-white transition-all">
+                                                <span id="lockerTextUI" class="text-[12px] font-bold text-purple-900">Khóa sửa chữa</span>
                                                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                                     <input type="checkbox" id="p_is_locked" class="sr-only peer" onchange="toggleLockMode(this.checked)">
                                                     <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
@@ -162,7 +162,7 @@
                                     
                                     <div class="flex flex-col h-full mt-2">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả nhiệm vụ</label>
-                                        <textarea id="p_mota" class="input-premium !py-2 !px-3 !text-[12px] resize-none h-full min-h-[70px]" placeholder="Ghi chú thêm về quyền hạn này..."></textarea>
+                                        <textarea id="p_mota" class="input-premium !py-2 !px-3 !text-[12px] resize-none h-full min-h-[70px] text-purple-900 font-bold" placeholder="Ghi chú thêm về quyền hạn này..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -690,7 +690,7 @@
             document.getElementById('p_ma').value = tempSelectedRoleVal;
             
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="font-black text-purple-700 truncate block w-full text-left">${tempSelectedRoleText}</span>`;
+            if(triggerText) triggerText.innerHTML = `<span class="font-bold text-purple-900 truncate block w-full text-left">${tempSelectedRoleText}</span>`;
             
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
@@ -799,26 +799,62 @@
         function toggleLockMode(isLocked) {
             const isMaster = "{{ .NhanVien.MaKhachHang }}" === "0000000000000000001";
             
+            // 1. Khóa Input Text & Select
             const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { 
                     el.disabled = isLocked; 
-                    if(isLocked) el.classList.add('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
-                    else el.classList.remove('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
+                    // Loại bỏ class thừa thãi, để CSS .input-premium:disabled tự áp dụng nền tím/chữ tím (#4c1d95)
+                    el.classList.remove('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
                 }
             });
 
+            // 2. Khóa Nút Chọn Role Modal (Mô phỏng y hệt CSS :disabled)
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) {
                 const isNew = document.getElementById('p_is_new').value === "true";
                 if (isLocked || !isNew) {
-                    btnRole.classList.add('pointer-events-none', 'opacity-60', 'bg-slate-100');
+                    btnRole.setAttribute('readonly', 'true');
+                    btnRole.classList.add('pointer-events-none');
+                    btnRole.classList.remove('bg-white');
+                    
+                    const spanInside = btnRole.querySelector('span');
+                    if(spanInside && spanInside.innerText !== "-- Nhấn để chọn --") {
+                        spanInside.classList.remove('text-purple-900', 'font-bold');
+                        spanInside.classList.add('text-[#4c1d95]', 'font-black');
+                    }
                 } else {
-                    btnRole.classList.remove('pointer-events-none', 'opacity-60', 'bg-slate-100');
+                    btnRole.removeAttribute('readonly');
+                    btnRole.classList.remove('pointer-events-none');
+                    btnRole.classList.add('bg-white');
+                    
+                    const spanInside = btnRole.querySelector('span');
+                    if(spanInside && spanInside.innerText !== "-- Nhấn để chọn --") {
+                        spanInside.classList.remove('text-[#4c1d95]', 'font-black');
+                        spanInside.classList.add('text-purple-900', 'font-bold');
+                    }
                 }
             }
 
+            // 3. Khóa Nút Locker Box (Mô phỏng y hệt CSS :disabled)
+            const lockerBox = document.getElementById('lockerBoxUI');
+            const lockerText = document.getElementById('lockerTextUI');
+            if (lockerBox && lockerText) {
+                if (isLocked) {
+                    lockerBox.setAttribute('readonly', 'true');
+                    lockerBox.classList.remove('bg-white');
+                    lockerText.classList.remove('text-purple-900', 'font-bold');
+                    lockerText.classList.add('text-[#4c1d95]', 'font-black');
+                } else {
+                    lockerBox.removeAttribute('readonly');
+                    lockerBox.classList.add('bg-white');
+                    lockerText.classList.remove('text-[#4c1d95]', 'font-black');
+                    lockerText.classList.add('text-purple-900', 'font-bold');
+                }
+            }
+
+            // 4. Khóa Matrix Checkbox & Nút Check All
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = isLocked;
                 if(isLocked) cb.parentElement.classList.add('disabled', 'opacity-60', 'pointer-events-none');
@@ -830,12 +866,14 @@
                 else btnCheckAll.classList.remove('hidden');
             }
 
+            // 5. Bật/Tắt Banner Cảnh Báo
             const banner = document.getElementById('lockedWarningBanner');
             if(banner) {
                 if(isLocked) banner.classList.remove('hidden');
                 else banner.classList.add('hidden');
             }
             
+            // 6. Ẩn nút Save nếu bị khóa và không phải Master
             const btnSave = document.getElementById('btnSavePQ');
             if(btnSave) {
                 if(isLocked && !isMaster) {
@@ -856,7 +894,7 @@
             document.getElementById('p_level').value = "5";
             
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="text-[12px] font-medium text-slate-400 truncate">-- Nhấn để chọn --</span>`;
+            if(triggerText) triggerText.innerHTML = `<span class="text-[12px] font-medium text-slate-400 truncate w-full text-left">-- Nhấn để chọn --</span>`;
             
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) btnRole.classList.remove('!border-purple-400', '!bg-purple-50');
@@ -901,7 +939,7 @@
             }
 
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="font-black text-purple-700 truncate block w-full text-left">${catalogName}</span>`;
+            if(triggerText) triggerText.innerHTML = `<span class="font-bold text-purple-900 truncate block w-full text-left">${catalogName}</span>`;
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
 
