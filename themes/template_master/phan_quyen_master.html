@@ -615,7 +615,7 @@
             const p = mapPQ[ma]; if(!p) return;
             document.getElementById('p_is_new').value = "false";
             
-            // [BẢO HIỂM]: Nếu Mã cũ không có trong Dropdown, tự động tạo 1 option ảo để hiển thị
+            // [BẢO HIỂM]: Nếu Mã cũ không có trong Dropdown, tự động tạo option ảo để hiển thị
             let selectMa = document.getElementById('p_ma');
             if (!Array.from(selectMa.options).some(opt => opt.value === p.ma_vai_tro)) {
                 selectMa.add(new Option(p.ten_vai_tro || p.ma_vai_tro, p.ma_vai_tro));
@@ -623,23 +623,23 @@
 
             const setV = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
 
-            let selectMa = document.getElementById('p_ma');
-            if (!Array.from(selectMa.options).some(opt => opt.value === p.ma_vai_tro)) {
-                selectMa.add(new Option(p.ma_vai_tro, p.ma_vai_tro));
-            }
-            setV('p_ma', p.ma_vai_tro); document.getElementById('p_ma').disabled = true;
+            setV('p_ma', p.ma_vai_tro); 
+            document.getElementById('p_ma').disabled = true; // Khóa không cho sửa Mã
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
             document.getElementById('p_level').disabled = false;
             document.getElementById('p_trang_thai').disabled = false;
             document.getElementById('btnCheckAllSys').classList.remove('hidden');
+            
+            // Xả chốt tất cả checkbox để nạp dữ liệu mới
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = false;
                 cb.parentElement.classList.remove('disabled');
             });
             checkAllMatrix(false);
 
+            // LOGIC KIỂM TRA QUYỀN TỐI CAO
             if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
                 setV('p_level', 0);
                 setV('p_trang_thai', 1);
