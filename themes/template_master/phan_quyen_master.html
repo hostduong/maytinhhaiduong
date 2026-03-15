@@ -103,46 +103,52 @@
                                     1. Định Danh Vai Trò
                                 </h4>
                                 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
-                                        <input type="text" id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700" placeholder="VD: QUAN_LY">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
+                                    <div class="flex flex-col gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mã Vai Trò (Key) <span class="text-red-500">*</span></label>
+                                            <input type="text" id="p_ma" class="input-premium !py-2 !px-3 !text-[12px] font-black uppercase text-indigo-700 bg-slate-50" placeholder="VD: QUAN_LY">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
+                                            <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
+                                                <option value="0">Level 0 (Sáng Lập Viên)</option>
+                                                <option value="1">Level 1 (Admin Hệ thống)</option>
+                                                <option value="2">Level 2 (IT Hệ thống)</option>
+                                                <option value="3">Level 3 (Chủ Cửa Hàng)</option>
+                                                <option value="4">Level 4 (Giám Đốc/Admin Shop)</option>
+                                                <option value="5" selected>Level 5 (Quản Lý/Trưởng Phòng)</option>
+                                                <option value="6">Level 6 (Kế Toán/Thủ Kho)</option>
+                                                <option value="7">Level 7 (Nhân viên Sale/CSKH)</option>
+                                                <option value="8">Level 8 (Cộng tác viên)</option>
+                                                <option value="9">Level 9 (Khách Hàng)</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
-                                        <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px]" placeholder="VD: Quản lý chi nhánh">
+                                    
+                                    <div class="flex flex-col gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tên Vai Trò hiển thị <span class="text-red-500">*</span></label>
+                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px]" placeholder="VD: Quản lý chi nhánh">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
+                                            <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
+                                                <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
+                                                <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Cấp Bậc (Level 0-9) <span class="text-red-500">*</span></label>
-                                        <select id="p_level" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-indigo-700 cursor-pointer">
-                                            <option value="0">Level 0 (Sáng Lập Viên)</option>
-                                            <option value="1">Level 1 (Admin Hệ thống)</option>
-                                            <option value="2">Level 2 (IT Hệ thống)</option>
-                                            <option value="3">Level 3 (Chủ Cửa Hàng)</option>
-                                            <option value="4">Level 4 (Giám Đốc/Admin Shop)</option>
-                                            <option value="5" selected>Level 5 (Quản Lý/Trưởng Phòng)</option>
-                                            <option value="6">Level 6 (Kế Toán/Thủ Kho)</option>
-                                            <option value="7">Level 7 (Nhân viên Sale/CSKH)</option>
-                                            <option value="8">Level 8 (Cộng tác viên)</option>
-                                            <option value="9">Level 9 (Khách Hàng)</option>
-                                        </select>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trạng Thái</label>
-                                        <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer">
-                                            <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
-                                            <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
-                                        </select>
-                                    </div>
-                                    <div class="sm:col-span-3">
+                                    
+                                    <div class="flex flex-col h-full">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả nhiệm vụ</label>
-                                        <textarea id="p_mota" rows="2" class="input-premium !py-2 !px-3 !text-[12px] resize-none" placeholder="Quyền hạn dành cho..."></textarea>
+                                        <textarea id="p_mota" class="input-premium !py-2 !px-3 !text-[12px] resize-none h-full min-h-[90px]" placeholder="Quyền hạn dành cho..."></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50">
+                        <div class="animated-border-wrapper shadow-md shadow-purple-100/50 flex-1 flex flex-col min-h-[400px]">
                             <div class="animated-border-inner bg-white relative flex flex-col h-full">
                                 <div class="px-5 pt-5 pb-3 flex justify-between items-center border-b border-purple-50">
                                     <h4 class="font-black text-purple-700 uppercase tracking-widest text-[11px] flex items-center gap-2">
@@ -151,7 +157,9 @@
                                     <button type="button" id="btnCheckAllSys" onclick="checkAllMatrix(true)" class="text-[9px] bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm font-black tracking-widest">BẬT TOÀN BỘ</button>
                                 </div>
                                 
-                                <div id="matrixGridContent" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 p-4 lg:p-5 bg-slate-50/50"></div>
+                                <div id="matrixTabsHeader" class="saas-tabs-container"></div>
+                                
+                                <div id="matrixTabsContent" class="flex-1 overflow-y-auto custom-scroll pb-6"></div>
                                 
                             </div>
                         </div>
@@ -215,6 +223,9 @@
             document.querySelectorAll('.saas-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
+        // ==========================================
+        // KHỐI ĐỘNG CƠ RENDER MA TRẬN QUYỀN HẠN TABS
+        // ==========================================
         const ACTION_LABELS = {
             "xem": "Xem", "tao": "Tạo", "sua": "Sửa", "xoa": "Xóa",
             "duyet": "Duyệt", "huy": "Hủy", "in": "In", "export": "Export", "import": "Import",
@@ -326,7 +337,7 @@
                     { id: "cau_hinh_vat", name: "Thuế VAT", actions: ["xem", "cap_nhat"] },
                     { id: "ho_so", name: "Hồ sơ công ty", actions: ["xem", "cap_nhat"] },
                     { id: "api_key", name: "API Key", actions: ["xem", "tao", "xoa"] },
-                    { id: "tep_tin", name: "Quản lý Tệp", actions: ["xem", "tao", "xoa"] }
+                    { id: "tep_tin", name: "Quản lý Tệp (Media)", actions: ["xem", "tao", "xoa"] }
                 ]
             },
             {
@@ -366,60 +377,67 @@
                     { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["tao", "cap_nhat"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
-                    { id: "ai_bao_cao", name: "AI Phân tích", actions: ["xem"] },
-                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán", actions: ["xem"] }
+                    { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
+                    { id: "ai_du_doan_ton_kho", name: "AI Dự đoán Nhập kho", actions: ["xem"] }
                 ]
             }
         ];
 
-        // [ĐÃ FIX YÊU CẦU 1]: Hàm render Grid tự động sắp xếp 1-2-3 cột
-        function renderMatrixCards() {
-            const container = document.getElementById('matrixGridContent');
-            let html = '';
-
+        function renderMatrixTabs() {
+            const tabsHeader = document.getElementById('matrixTabsHeader');
+            const tabsContent = document.getElementById('matrixTabsContent');
+            
+            let headerHTML = '';
+            let contentHTML = '';
+            
             MATRIX_DEF.forEach((grp, gIdx) => {
-                html += `
-                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-all hover:border-purple-300 hover:shadow-md">
-                    <div class="px-4 py-3 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 flex justify-between items-center">
-                        <h5 class="font-black text-slate-700 text-[12px] uppercase tracking-widest flex items-center gap-2">
-                            ${grp.group}
-                        </h5>
-                        <label class="flex items-center gap-2 cursor-pointer group/chk">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Bật Nhóm</span>
-                            <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
-                        </label>
-                    </div>
-                    <div class="p-4 flex flex-col gap-4">
-                `;
-
+                const activeClass = gIdx === 0 ? 'active' : '';
+                headerHTML += `<div class="saas-tab-btn ${activeClass}" onclick="switchMatrixTab(${gIdx}, this)">${grp.group}</div>`;
+                
+                const contentClass = gIdx === 0 ? 'active' : '';
+                contentHTML += `<div id="matrix-tab-${gIdx}" class="saas-tab-content ${contentClass}">
+                                    <div class="px-5 py-3 bg-slate-50 flex justify-between items-center border-b border-slate-200">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Thiết lập nhóm: ${grp.group}</span>
+                                        <label class="flex items-center gap-2 cursor-pointer group/chk">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest group-hover/chk:text-purple-600 transition">Bật Cả Nhóm Này</span>
+                                            <input type="checkbox" onchange="toggleGroup(${gIdx}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer chk-group-${gIdx}">
+                                        </label>
+                                    </div>`;
+                         
                 grp.modules.forEach((mod) => {
-                    html += `
-                        <div class="flex flex-col gap-2">
-                            <div class="font-bold text-[11px] text-slate-500 uppercase tracking-wider">${mod.name}</div>
-                            <div class="flex flex-wrap gap-1.5">
-                    `;
+                    contentHTML += `<div class="matrix-module-row grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-3 items-center">
+                                        <div class="font-bold text-[12px] text-slate-700">${mod.name}</div>
+                                        <div class="flex flex-wrap gap-2">`;
+                    
                     mod.actions.forEach((act) => {
                         const permKey = `${mod.id}.${act}`;
                         const label = ACTION_LABELS[act] || act;
-
-                        html += `
-                                <label class="cbx-action group-perm-${gIdx} flex-1 min-w-[70px]">
-                                    <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
-                                    <div class="icon bg-white rounded-sm flex items-center justify-center shrink-0"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
-                                    <span class="text-[9.5px] font-bold uppercase tracking-wider leading-none pt-[1px] whitespace-nowrap">${label}</span>
-                                </label>
-                        `;
+                        
+                        contentHTML += `<label class="cbx-action group-perm-${gIdx}">
+                                            <input type="checkbox" class="sr-only matrix-cbx" value="${permKey}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                                            <div class="icon bg-white rounded-sm flex items-center justify-center"><svg class="w-2.5 h-2.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                            <span class="text-[10px] font-bold uppercase tracking-wide leading-none pt-[1px]">${label}</span>
+                                        </label>`;
                     });
-                    html += `</div></div>`;
+                    contentHTML += `    </div>
+                                    </div>`;
                 });
-
-                html += `</div></div>`;
+                contentHTML += `</div>`;
             });
-
-            container.innerHTML = html;
+            
+            tabsHeader.innerHTML = headerHTML;
+            tabsContent.innerHTML = contentHTML;
         }
 
-        renderMatrixCards(); // Khởi chạy vẽ Grid Cards
+        function switchMatrixTab(tabId, element) {
+            document.querySelectorAll('.saas-tabs-container .saas-tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.saas-tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`matrix-tab-${tabId}`).classList.add('active');
+        }
+
+        renderMatrixTabs();
 
         function toggleGroup(gIdx, isChecked) {
             document.querySelectorAll(`.group-perm-${gIdx} input[type="checkbox"]:not(:disabled)`).forEach(cb => {
@@ -582,7 +600,6 @@
 
                 btn.disabled = true; btn.innerHTML = 'ĐANG XỬ LÝ...';
 
-                // Ép kiểu chuẩn để đảm bảo Level 0 không bị JS hiểu nhầm thành false
                 let parsedLevel = parseInt(getV("p_level"), 10);
                 if (isNaN(parsedLevel)) parsedLevel = 5;
 
