@@ -223,7 +223,7 @@
             document.querySelectorAll('.saas-card').forEach(r => { r.classList.remove('card-active-purple'); });
         }
 
-        // BỘ TỪ ĐIỂN CHUẨN HÓA NGHIỆP VỤ (VIỆT HÓA 100%)
+        // BỘ TỪ ĐIỂN CHUẨN HÓA NGHIỆP VỤ (VIỆT HÓA 100% - ĐÃ XÓA TRÙNG LẶP)
         const ACTION_LABELS = {
             "xem": "Xem", "tao": "Tạo mới", "sua": "Cập nhật", "xoa": "Xóa",
             "duyet": "Phê duyệt", "duyet_lai": "Mở khóa / Duyệt lại", "huy": "Hủy bỏ",
@@ -235,8 +235,7 @@
             "phat_hanh": "Phát hành", "chot_ca": "Chốt ca", "xac_nhan_thanh_toan": "Xác nhận tiền về", 
             "reset_mat_khau": "Cấp lại mật khẩu", "thuc_hien": "Thực thi", "khoi_phuc": "Khôi phục", 
             "xem_lich_su": "Xem lịch sử", "nhan_hang": "Nhận hàng", "thanh_toan_no": "Thanh toán nợ",
-            "thuc_hien": "Thực thi", "khoi_phuc": "Khôi phục", "xem_lich_su": "Xem lịch sử", "nhan_hang": "Nhận hàng", "thanh_toan_no": "Thanh toán nợ", "tra_loi": "Trả lời", "chot_luong": "Chốt lương",
-            "tra_loi": "Trả lời"
+            "tra_loi": "Trả lời", "chot_luong": "Chốt lương"
         };
 
         const MATRIX_DEF = [
@@ -388,7 +387,7 @@
                     { id: "email_marketing", name: "Email Marketing", actions: ["xem", "tao", "gui"] },
                     { id: "khuyen_mai_tu_dong", name: "Khuyến mãi tự động", actions: ["xem", "tao", "sua", "xoa"] },
                     { id: "workflow", name: "Workflow tự động", actions: ["xem", "tao", "sua", "xoa"] },
-                    { id: "webhook", name: "Webhook", actions: ["xem", "tao", "sua", "xoa"] },
+                    { id: "webhook", name: "Webhook", actions: ["xem", "tao", "xoa"] },
                     { id: "ai_bao_cao", name: "AI Phân tích Báo cáo", actions: ["xem"] },
                     { id: "ai_du_doan_ton_kho", name: "AI Dự đoán Nhập kho", actions: ["xem"] }
                 ]
@@ -414,7 +413,6 @@
                 ]
             }
         ];
-        
 
         function renderMatrixTabs() {
             const tabsHeader = document.getElementById('matrixTabsHeader');
