@@ -1022,6 +1022,126 @@ type PhanQuyen struct {
 	TenVaiTro string   `json:"ten_vai_tro"`
 	Level     int      `json:"level"`
 	MoTa      string   `json:"mo_ta"`
-	QuyenHan  []string `json:"quyen_han"` // Mảng chứa: ["nhap_kho.tao", "hoa_don.doi_gia"]
+	QuyenHan  []string `json:"quyen_han"`  // Mảng chứa: ["nhap_kho.tao", "hoa_don.doi_gia"]
 	TrangThai int      `json:"trang_thai"` // 1: Hoạt động, 0: Tạm khóa
+	IsLocked  bool     `json:"is_locked"`  // [MỚI] Cờ khóa cứng từ Master
+}
+
+// BẢNG MASTER QUYỀN HẠN (White-list: Dùng để filter data từ trình duyệt gửi lên)
+var DanhSachQuyenHanChuan = map[string]bool{
+	// Bán Hàng & Hóa Đơn
+	"ban_hang_pos.xem": true, "ban_hang_pos.tao": true, "ban_hang_pos.sua": true, "ban_hang_pos.xoa": true, "ban_hang_pos.in": true, "ban_hang_pos.huy": true, "ban_hang_pos.doi_gia": true, "ban_hang_pos.void": true,
+	"hoa_don.xem": true, "hoa_don.tao": true, "hoa_don.sua": true, "hoa_don.xoa": true, "hoa_don.duyet": true, "hoa_don.huy": true, "hoa_don.in": true, "hoa_don.export": true, "hoa_don.copy": true, "hoa_don.doi_gia": true, "hoa_don.khoa": true, "hoa_don.chuyen_chi_nhanh": true, "hoa_don.xac_nhan_thanh_toan": true,
+	"tra_hang.xem": true, "tra_hang.tao": true, "tra_hang.duyet": true, "tra_hang.huy": true, "tra_hang.in": true,
+	"phong_ban.xem": true, "phong_ban.tao": true, "phong_ban.sua": true, "phong_ban.xoa": true,
+	"bao_hanh.xem": true, "bao_hanh.tao": true, "bao_hanh.sua": true, "bao_hanh.xoa": true, "bao_hanh.huy": true, "bao_hanh.in": true,
+	
+	// Sửa Chữa
+	"phieu_sua_chua.xem": true, "phieu_sua_chua.tao": true, "phieu_sua_chua.sua": true, "phieu_sua_chua.xoa": true, "phieu_sua_chua.duyet": true, "phieu_sua_chua.huy": true, "phieu_sua_chua.in": true, "phieu_sua_chua.phan_cong": true,
+	"bao_gia_sua_chua.xem": true, "bao_gia_sua_chua.tao": true, "bao_gia_sua_chua.sua": true, "bao_gia_sua_chua.duyet": true, "bao_gia_sua_chua.huy": true, "bao_gia_sua_chua.in": true,
+	"tinh_trang_sua.xem": true, "tinh_trang_sua.sua": true,
+	"linh_kien_thay_the.xem": true, "linh_kien_thay_the.tao": true, "linh_kien_thay_the.sua": true, "linh_kien_thay_the.xoa": true,
+	"lich_su_sua.xem": true, "lich_su_sua.export": true,
+	"hoa_hong_sua_chua.xem": true, "hoa_hong_sua_chua.sua": true,
+
+	// Sản Phẩm
+	"san_pham.xem": true, "san_pham.tao": true, "san_pham.sua": true, "san_pham.xoa": true, "san_pham.import": true, "san_pham.export": true, "san_pham.copy": true, "san_pham.khoa": true, "san_pham.xem_gia_von": true, "san_pham.xem_gia_ban": true, "san_pham.doi_gia": true, "san_pham.in": true, "san_pham.in_tem": true,
+	"danh_muc.xem": true, "danh_muc.tao": true, "danh_muc.sua": true, "danh_muc.xoa": true,
+	"thuong_hieu.xem": true, "thuong_hieu.tao": true, "thuong_hieu.sua": true, "thuong_hieu.xoa": true,
+	"khuyen_mai.xem": true, "khuyen_mai.tao": true, "khuyen_mai.sua": true, "khuyen_mai.xoa": true, "khuyen_mai.huy": true, "khuyen_mai.copy": true, "khuyen_mai.duyet": true,
+	"serial_number.xem": true, "serial_number.tao": true, "serial_number.sua": true, "serial_number.xoa": true, "serial_number.import": true, "serial_number.in_tem": true,
+
+	// Kho Hàng
+	"kho_hang.xem": true, "kho_hang.tao": true, "kho_hang.sua": true, "kho_hang.xoa": true,
+	"nhap_kho.xem": true, "nhap_kho.tao": true, "nhap_kho.sua": true, "nhap_kho.duyet": true, "nhap_kho.duyet_lai": true, "nhap_kho.huy": true, "nhap_kho.in": true, "nhap_kho.export": true, "nhap_kho.xem_gia_nhap": true, "nhap_kho.sua_gia_nhap": true,
+	"xuat_kho.xem": true, "xuat_kho.tao": true, "xuat_kho.sua": true, "xuat_kho.duyet": true, "xuat_kho.duyet_lai": true, "xuat_kho.huy": true, "xuat_kho.in": true, "xuat_kho.export": true,
+	"kiem_kho.xem": true, "kiem_kho.tao": true, "kiem_kho.sua": true, "kiem_kho.duyet": true, "kiem_kho.huy": true, "kiem_kho.export": true, "kiem_kho.import": true,
+	"dieu_chuyen_kho.xem": true, "dieu_chuyen_kho.tao": true, "dieu_chuyen_kho.duyet": true, "dieu_chuyen_kho.nhan_hang": true, "dieu_chuyen_kho.huy": true, "dieu_chuyen_kho.export": true,
+	"tra_hang_nha_cung_cap.xem": true, "tra_hang_nha_cung_cap.tao": true, "tra_hang_nha_cung_cap.duyet": true, "tra_hang_nha_cung_cap.huy": true, "tra_hang_nha_cung_cap.export": true,
+	"canh_bao_ton_kho.xem": true, "canh_bao_ton_kho.cau_hinh": true,
+
+	// Khách Hàng & Đối Tác
+	"khach_hang.xem": true, "khach_hang.tao": true, "khach_hang.sua": true, "khach_hang.xoa": true, "khach_hang.export": true, "khach_hang.import": true, "khach_hang.phan_cong": true,
+	"tich_diem.xem": true, "tich_diem.sua": true,
+	"hang_thanh_vien.xem": true, "hang_thanh_vien.tao": true, "hang_thanh_vien.sua": true, "hang_thanh_vien.xoa": true,
+	"cham_soc_khach_hang.xem": true, "cham_soc_khach_hang.tao": true,
+	"lich_su_mua_hang.xem": true, "lich_su_mua_hang.export": true,
+	"nha_cung_cap.xem": true, "nha_cung_cap.tao": true, "nha_cung_cap.sua": true, "nha_cung_cap.xoa": true, "nha_cung_cap.import": true, "nha_cung_cap.export": true,
+
+	// Tài Chính
+	"thu_chi.xem": true, "thu_chi.tao": true, "thu_chi.sua": true, "thu_chi.xoa": true, "thu_chi.duyet": true, "thu_chi.duyet_lai": true, "thu_chi.huy": true, "thu_chi.in": true, "thu_chi.export": true,
+	"so_quy.xem": true, "so_quy.chot_ca": true, "so_quy.export": true,
+	"cong_no_khach_hang.xem": true, "cong_no_khach_hang.sua": true, "cong_no_khach_hang.thanh_toan_no": true, "cong_no_khach_hang.export": true,
+	"cong_no_nha_cung_cap.xem": true, "cong_no_nha_cung_cap.sua": true, "cong_no_nha_cung_cap.thanh_toan_no": true, "cong_no_nha_cung_cap.export": true,
+	"quyet_toan_ca.xem": true, "quyet_toan_ca.tao": true, "quyet_toan_ca.duyet": true, "quyet_toan_ca.chot_ca": true, "quyet_toan_ca.export": true,
+	"luong_nhan_vien.xem": true, "luong_nhan_vien.tao": true, "luong_nhan_vien.sua": true, "luong_nhan_vien.duyet": true, "luong_nhan_vien.chot_luong": true, "luong_nhan_vien.export": true,
+	"chi_phi_hoat_dong.xem": true, "chi_phi_hoat_dong.tao": true, "chi_phi_hoat_dong.sua": true, "chi_phi_hoat_dong.xoa": true,
+
+	// Website
+	"don_hang_online.xem": true, "don_hang_online.sua": true, "don_hang_online.duyet": true, "don_hang_online.huy": true, "don_hang_online.phan_cong": true, "don_hang_online.in": true, "don_hang_online.export": true,
+	"giao_dien.xem": true, "giao_dien.sua": true, "giao_dien.cau_hinh": true,
+	"trang_noi_dung.xem": true, "trang_noi_dung.tao": true, "trang_noi_dung.sua": true, "trang_noi_dung.xoa": true,
+	"menu_website.xem": true, "menu_website.tao": true, "menu_website.sua": true, "menu_website.xoa": true,
+	"banner.xem": true, "banner.tao": true, "banner.sua": true, "banner.xoa": true,
+	"bai_viet.xem": true, "bai_viet.tao": true, "bai_viet.sua": true, "bai_viet.xoa": true, "bai_viet.copy": true,
+	"danh_muc_bai_viet.xem": true, "danh_muc_bai_viet.tao": true, "danh_muc_bai_viet.sua": true, "danh_muc_bai_viet.xoa": true,
+	"binh_luan.xem": true, "binh_luan.tra_loi": true, "binh_luan.duyet": true, "binh_luan.xoa": true,
+	"cau_hinh_seo.xem": true, "cau_hinh_seo.sua": true,
+	"domain_website.xem": true, "domain_website.cau_hinh": true,
+	"form_lien_he.xem": true, "form_lien_he.xoa": true, "form_lien_he.export": true,
+	"live_chat.xem": true, "live_chat.tra_loi": true, "live_chat.cau_hinh": true,
+	"landing_page.xem": true, "landing_page.tao": true, "landing_page.sua": true, "landing_page.xoa": true, "landing_page.copy": true,
+
+	// Vận Chuyển & Đa Kênh
+	"van_chuyen.xem": true, "van_chuyen.tao": true, "van_chuyen.sua": true, "van_chuyen.huy": true, "van_chuyen.in": true,
+	"don_vi_van_chuyen.xem": true, "don_vi_van_chuyen.cau_hinh": true,
+	"so_sanh_gia_cuoc.xem": true,
+	"tao_van_don.tao": true,
+	"tracking_don_hang.xem": true,
+	"chi_nhanh.xem": true, "chi_nhanh.tao": true, "chi_nhanh.sua": true, "chi_nhanh.xoa": true,
+	"bao_cao_chi_nhanh.xem": true, "bao_cao_chi_nhanh.export": true,
+	"ton_kho_chi_nhanh.xem": true,
+	"gia_chi_nhanh.xem": true, "gia_chi_nhanh.sua": true,
+	"nhan_vien_chi_nhanh.xem": true, "nhan_vien_chi_nhanh.sua": true, "nhan_vien_chi_nhanh.phan_cong": true,
+	"ket_noi_san_tmdt.xem": true, "ket_noi_san_tmdt.cau_hinh": true,
+	"chat_da_kenh.xem": true, "chat_da_kenh.tra_loi": true, "chat_da_kenh.tao": true,
+	"dong_bo_ton_kho.xem": true, "dong_bo_ton_kho.sua": true,
+	"gia_theo_kenh.xem": true, "gia_theo_kenh.sua": true,
+
+	// Thanh Toán, Nhân Sự & Báo Cáo
+	"qr_code.tao": true,
+	"cong_thanh_toan.xem": true, "cong_thanh_toan.cau_hinh": true,
+	"hoa_don_dien_tu.xem": true, "hoa_don_dien_tu.tao": true, "hoa_don_dien_tu.phat_hanh": true, "hoa_don_dien_tu.huy": true, "hoa_don_dien_tu.in": true,
+	"nhan_vien.xem": true, "nhan_vien.tao": true, "nhan_vien.sua": true, "nhan_vien.xoa": true, "nhan_vien.reset_mat_khau": true, "nhan_vien.khoa": true, "nhan_vien.phan_cong": true, "nhan_vien.xem_lich_su": true,
+	"phan_quyen.xem": true, "phan_quyen.tao": true, "phan_quyen.sua": true, "phan_quyen.xoa": true,
+	"bao_cao_ban_hang.xem": true, "bao_cao_ban_hang.export": true,
+	"bao_cao_nhap_hang.xem": true, "bao_cao_nhap_hang.export": true,
+	"bao_cao_lai_lo.xem": true, "bao_cao_lai_lo.export": true,
+	"bao_cao_cong_no.xem": true, "bao_cao_cong_no.export": true,
+	"bao_cao_ton_kho.xem": true, "bao_cao_ton_kho.export": true,
+	"bao_cao_san_pham_ban_chay.xem": true, "bao_cao_san_pham_ban_chay.export": true,
+	"bao_cao_nhan_vien_ban_hang.xem": true, "bao_cao_nhan_vien_ban_hang.export": true,
+	"bao_cao_khach_hang.xem": true, "bao_cao_khach_hang.export": true,
+
+	// Marketing & AI
+	"sms_marketing.xem": true, "sms_marketing.tao": true, "sms_marketing.gui": true,
+	"email_marketing.xem": true, "email_marketing.tao": true, "email_marketing.gui": true,
+	"khuyen_mai_tu_dong.xem": true, "khuyen_mai_tu_dong.tao": true, "khuyen_mai_tu_dong.sua": true, "khuyen_mai_tu_dong.xoa": true,
+	"workflow.xem": true, "workflow.tao": true, "workflow.sua": true, "workflow.xoa": true,
+	"webhook.xem": true, "webhook.tao": true, "webhook.xoa": true,
+	"ai_bao_cao.xem": true,
+	"ai_du_doan_ton_kho.xem": true,
+
+	// Hệ Thống
+	"goi_dich_vu.xem": true, "goi_dich_vu.tao": true, "goi_dich_vu.sua": true, "goi_dich_vu.xoa": true,
+	"thanh_toan_goi.xem": true, "thanh_toan_goi.tao": true,
+	"lich_su_thanh_toan.xem": true,
+	"import_du_lieu.thuc_hien": true, "export_du_lieu.thuc_hien": true, "sao_luu_du_lieu.thuc_hien": true, "khoi_phuc_du_lieu.thuc_hien": true,
+	"nhat_ky_hoat_dong.xem": true, "nhat_ky_truy_cap.xem": true, "nhat_ky_truy_cap.export": true,
+	"cau_hinh_cua_hang.xem": true, "cau_hinh_cua_hang.sua": true,
+	"in_an.cau_hinh": true,
+	"cau_hinh_vat.xem": true, "cau_hinh_vat.sua": true,
+	"ho_so.xem": true, "ho_so.sua": true,
+	"api_key.xem": true, "api_key.tao": true, "api_key.sua": true, "api_key.xoa": true,
+	"tep_tin.xem": true, "tep_tin.tao": true, "tep_tin.xoa": true,
 }
