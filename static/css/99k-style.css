@@ -939,9 +939,17 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 .cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
 .cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
-.cbx-action.disabled { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
+
+/* [ĐÃ FIX 2]: Xóa bộ lọc Xám, chỉ giảm nhẹ độ sáng để giữ nguyên MÀU TÍM tuyệt đẹp */
+.cbx-action.disabled { opacity: 0.8; pointer-events: none; filter: none !important; }
+
 .cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
 .cbx-action.checked .icon { opacity: 1; transform: scale(1); }
+
+/* [ĐÃ FIX 3]: Mở rộng cột bên trái của Tab Hệ Thống để chữ không bị ép chật */
+@media (min-width: 1024px) {
+    .matrix-module-row { grid-template-columns: 200px 1fr !important; }
+}
 
 /* --- E. Tối ưu Giao diện Dark Mode cho Hệ sinh thái mới --- */
 [data-theme="dark"] .saas-tab-btn { background: var(--bg-panel); border-color: var(--border-light); color: var(--text-muted); }
