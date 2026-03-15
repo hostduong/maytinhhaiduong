@@ -2,6 +2,53 @@
     {{ template "header_master" . }}
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* 1. Trả lại màu xám mờ cho ô Trống & Placeholder (Dù có bị Khóa) */
+        .input-premium:disabled:not(.has-data), 
+        .input-premium[readonly]:not(.has-data), 
+        textarea.input-premium[readonly]:not(.has-data), 
+        select.input-premium:disabled:not(.has-data),
+        div.input-premium.pointer-events-none:not(.has-data) {
+            background-color: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+            font-weight: 500 !important;
+        }
+        
+        /* 2. Đồng bộ màu Tím rực rỡ khi CÓ DỮ LIỆU (Bất chấp Khóa/Mở) */
+        .input-premium.has-data,
+        .input-premium.has-data:disabled, 
+        .input-premium.has-data[readonly], 
+        textarea.input-premium.has-data, 
+        select.input-premium.has-data {
+            background-color: #faf5ff !important;
+            border-color: #d8b4fe !important;
+            color: #4c1d95 !important;
+            -webkit-text-fill-color: #4c1d95 !important;
+            font-weight: 700 !important;
+        }
+        
+        /* 3. CSS riêng cho 2 thẻ DIV (Chọn Chức Danh & Locker) */
+        div.input-premium.has-data {
+            background-color: #faf5ff !important;
+            border-color: #d8b4fe !important;
+            color: #4c1d95 !important;
+            font-weight: 700 !important;
+        }
+        div.input-premium.has-data span {
+            color: inherit !important;
+            font-weight: inherit !important;
+        }
+        div.input-premium:not(.has-data) {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #94a3b8 !important;
+            font-weight: 500 !important;
+        }
+    </style>
+
     <textarea id="raw_pq_json" class="hidden" style="display: none;">{{ .ListPQJson }}</textarea>
     <script>
         let rawPQList = [];
@@ -51,7 +98,7 @@
                             {{ if .IsLocked }}
                             <div class="mt-3 inline-flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-md border border-red-100 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                <span class="text-[10px] font-black uppercase tracking-wider">Đã Khóa Locker</span>
+                                <span class="text-[10px] font-black uppercase tracking-wider">Đã Khóa Sửa Chữa</span>
                             </div>
                             {{ end }}
                         </div>
@@ -65,7 +112,7 @@
                         </div>
                         
                         <div class="mt-auto pt-5 w-full relative z-20">
-                            <div class="w-full bg-slate-50 text-slate-500 group-hover:bg-purple-100 group-hover:text-purple-700 group-hover:shadow-inner font-black py-2.5 rounded-xl transition-all duration-300 text-[11px] uppercase tracking-widest text-center flex items-center justify-center gap-2 border border-slate-100 group-hover:border-purple-200">
+                            <div class="w-full bg-purple-100 text-purple-700 group-hover:bg-purple-600 group-hover:text-white font-black py-2.5 rounded-xl transition-all duration-300 text-[11px] uppercase tracking-widest text-center flex items-center justify-center gap-2 border border-purple-200 group-hover:border-purple-600 shadow-sm">
                                 CHỈNH SỬA
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </div>
@@ -113,25 +160,24 @@
                                 <div class="flex flex-col gap-5 relative z-10">
                                     
                                     <div class="flex flex-wrap gap-4 items-start w-full">
-                                        
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Chọn Chức Danh <span class="text-red-500">*</span></label>
-                                            <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-2.5 !px-3 cursor-pointer flex justify-between items-center group hover:border-purple-400 bg-white transition-all h-[38px]">
-                                                <span id="roleTriggerText" class="text-[12px] font-medium text-slate-400 truncate w-full text-left">-- Nhấn để chọn --</span>
-                                                <div class="w-5 h-5 rounded-full bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center transition-colors shrink-0">
-                                                    <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                                            <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-2.5 !px-3 cursor-pointer flex justify-between items-center group transition-all h-[38px]">
+                                                <span id="roleTriggerText" class="text-[12px] truncate w-full text-left">-- Nhấn để chọn --</span>
+                                                <div class="w-5 h-5 rounded-full bg-purple-100/50 flex items-center justify-center transition-colors shrink-0">
+                                                    <svg class="w-3.5 h-3.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tên Vai Trò (Tùy chỉnh) <span class="text-red-500">*</span></label>
-                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-purple-900 h-[38px]" placeholder="VD: Quản lý cửa hàng">
+                                            <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] h-[38px]" placeholder="VD: Quản lý cửa hàng">
                                         </div>
 
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Trạng Thái (App)</label>
-                                            <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer h-[38px] text-purple-900">
+                                            <select id="p_trang_thai" class="input-premium has-data !py-2 !px-3 !text-[12px] cursor-pointer h-[38px]">
                                                 <option value="1">🟢 Hoạt động (Cho phép dùng)</option>
                                                 <option value="0">🟡 Tạm khóa (Cấm dùng)</option>
                                             </select>
@@ -140,11 +186,11 @@
                                         {{ if eq .NhanVien.MaKhachHang "0000000000000000001" }}
                                         <div class="flex flex-col gap-1.5 flex-1 min-w-[160px]" id="masterLockWrapper">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Locker (Master)</label>
-                                            <div id="lockerBoxUI" class="input-premium !py-2 !px-3 flex items-center justify-between h-[38px] bg-white transition-all">
-                                                <span id="lockerTextUI" class="text-[12px] font-bold text-purple-900">Khóa sửa chữa</span>
+                                            <div id="lockerBoxUI" class="input-premium has-data !py-2 !px-3 flex items-center justify-between h-[38px] transition-all">
+                                                <span id="lockerTextUI" class="text-[12px]">Khóa sửa chữa</span>
                                                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                                     <input type="checkbox" id="p_is_locked" class="sr-only peer" onchange="toggleLockMode(this.checked)">
-                                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
+                                                    <div class="w-9 h-5 bg-purple-200/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
                                                 </label>
                                             </div>
                                         </div>
@@ -162,7 +208,7 @@
                                     
                                     <div class="flex flex-col h-full mt-2">
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mô tả nhiệm vụ</label>
-                                        <textarea id="p_mota" class="input-premium !py-2 !px-3 !text-[12px] resize-none h-full min-h-[70px] text-purple-900 font-bold" placeholder="Ghi chú thêm về quyền hạn này..."></textarea>
+                                        <textarea id="p_mota" class="input-premium !py-2 !px-3 !text-[12px] resize-none h-full min-h-[70px]" placeholder="Ghi chú thêm về quyền hạn này..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -421,8 +467,9 @@
             }
         });
 
+        // ĐÃ FIX: Hàm quét input giờ loại trừ các thẻ DIV ảo để không làm mất trạng thái của chúng
         function checkInputHasData() {
-            document.querySelectorAll('.input-premium').forEach(inp => {
+            document.querySelectorAll('input.input-premium, select.input-premium, textarea.input-premium').forEach(inp => {
                 if (inp.value && inp.value.trim() !== '') inp.classList.add('has-data');
                 else inp.classList.remove('has-data');
             });
@@ -690,10 +737,10 @@
             document.getElementById('p_ma').value = tempSelectedRoleVal;
             
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="font-bold text-purple-900 truncate block w-full text-left">${tempSelectedRoleText}</span>`;
+            if(triggerText) triggerText.innerHTML = tempSelectedRoleText;
             
             const btnRole = document.getElementById('btnOpenRoleModal');
-            if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
+            if(btnRole) btnRole.classList.add('has-data');
 
             autoFillRoleName(tempSelectedRoleVal, tempSelectedRoleText);
             closeRoleModal();
@@ -795,66 +842,29 @@
             return perms;
         }
 
-        // ================= ĐỘNG CƠ ĐÓNG BĂNG KHI LOCKER BẬT =================
+        // ================= ĐỘNG CƠ ĐÓNG BĂNG (CHỈ DÙNG LOGIC, BỎ ĐỔI MÀU MANUALLY) =================
         function toggleLockMode(isLocked) {
             const isMaster = "{{ .NhanVien.MaKhachHang }}" === "0000000000000000001";
             
-            // 1. Khóa Input Text & Select
+            // 1. Khóa Input (Chỉ disable, CSS mới ở trên sẽ tự xử lý màu)
             const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
-                if(el) { 
-                    el.disabled = isLocked; 
-                    // Loại bỏ class thừa thãi, để CSS .input-premium:disabled tự áp dụng nền tím/chữ tím (#4c1d95)
-                    el.classList.remove('opacity-70', 'bg-slate-50', 'cursor-not-allowed');
-                }
+                if(el) { el.disabled = isLocked; }
             });
 
-            // 2. Khóa Nút Chọn Role Modal (Mô phỏng y hệt CSS :disabled)
+            // 2. Khóa Nút Chọn Role Modal
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) {
                 const isNew = document.getElementById('p_is_new').value === "true";
                 if (isLocked || !isNew) {
-                    btnRole.setAttribute('readonly', 'true');
                     btnRole.classList.add('pointer-events-none');
-                    btnRole.classList.remove('bg-white');
-                    
-                    const spanInside = btnRole.querySelector('span');
-                    if(spanInside && spanInside.innerText !== "-- Nhấn để chọn --") {
-                        spanInside.classList.remove('text-purple-900', 'font-bold');
-                        spanInside.classList.add('text-[#4c1d95]', 'font-black');
-                    }
                 } else {
-                    btnRole.removeAttribute('readonly');
                     btnRole.classList.remove('pointer-events-none');
-                    btnRole.classList.add('bg-white');
-                    
-                    const spanInside = btnRole.querySelector('span');
-                    if(spanInside && spanInside.innerText !== "-- Nhấn để chọn --") {
-                        spanInside.classList.remove('text-[#4c1d95]', 'font-black');
-                        spanInside.classList.add('text-purple-900', 'font-bold');
-                    }
                 }
             }
 
-            // 3. Khóa Nút Locker Box (Mô phỏng y hệt CSS :disabled)
-            const lockerBox = document.getElementById('lockerBoxUI');
-            const lockerText = document.getElementById('lockerTextUI');
-            if (lockerBox && lockerText) {
-                if (isLocked) {
-                    lockerBox.setAttribute('readonly', 'true');
-                    lockerBox.classList.remove('bg-white');
-                    lockerText.classList.remove('text-purple-900', 'font-bold');
-                    lockerText.classList.add('text-[#4c1d95]', 'font-black');
-                } else {
-                    lockerBox.removeAttribute('readonly');
-                    lockerBox.classList.add('bg-white');
-                    lockerText.classList.remove('text-[#4c1d95]', 'font-black');
-                    lockerText.classList.add('text-purple-900', 'font-bold');
-                }
-            }
-
-            // 4. Khóa Matrix Checkbox & Nút Check All
+            // 3. Khóa Matrix Checkbox & Nút Check All
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = isLocked;
                 if(isLocked) cb.parentElement.classList.add('disabled', 'opacity-60', 'pointer-events-none');
@@ -866,14 +876,14 @@
                 else btnCheckAll.classList.remove('hidden');
             }
 
-            // 5. Bật/Tắt Banner Cảnh Báo
+            // 4. Bật/Tắt Banner Cảnh Báo
             const banner = document.getElementById('lockedWarningBanner');
             if(banner) {
                 if(isLocked) banner.classList.remove('hidden');
                 else banner.classList.add('hidden');
             }
             
-            // 6. Ẩn nút Save nếu bị khóa và không phải Master
+            // 5. Ẩn nút Save nếu bị khóa và không phải Master
             const btnSave = document.getElementById('btnSavePQ');
             if(btnSave) {
                 if(isLocked && !isMaster) {
@@ -894,10 +904,10 @@
             document.getElementById('p_level').value = "5";
             
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="text-[12px] font-medium text-slate-400 truncate w-full text-left">-- Nhấn để chọn --</span>`;
+            if(triggerText) triggerText.innerHTML = "-- Nhấn để chọn --";
             
             const btnRole = document.getElementById('btnOpenRoleModal');
-            if(btnRole) btnRole.classList.remove('!border-purple-400', '!bg-purple-50');
+            if(btnRole) btnRole.classList.remove('has-data');
             
             document.querySelectorAll('#roleGridContainer .role-item').forEach(item => {
                 item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
@@ -931,17 +941,14 @@
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
-            // Tìm tên danh mục chuẩn xác từ trong kho Modal để hiển thị
             let catalogName = p.ten_vai_tro || p.ma_vai_tro;
             const roleItemDOM = document.querySelector(`.role-item[data-val="${p.ma_vai_tro}"]`);
-            if (roleItemDOM) {
-                catalogName = roleItemDOM.getAttribute('data-text');
-            }
+            if (roleItemDOM) { catalogName = roleItemDOM.getAttribute('data-text'); }
 
             const triggerText = document.getElementById('roleTriggerText');
-            if(triggerText) triggerText.innerHTML = `<span class="font-bold text-purple-900 truncate block w-full text-left">${catalogName}</span>`;
+            if(triggerText) triggerText.innerHTML = catalogName;
             const btnRole = document.getElementById('btnOpenRoleModal');
-            if(btnRole) btnRole.classList.add('!border-purple-400', '!bg-purple-50');
+            if(btnRole) btnRole.classList.add('has-data');
 
             checkAllMatrix(false);
             if (p.ma_vai_tro === "QUAN_TRI_HE_THONG") {
