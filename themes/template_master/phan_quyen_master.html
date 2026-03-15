@@ -114,7 +114,7 @@
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Chọn Chức Danh (Role) <span class="text-red-500">*</span></label>
                                         <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-3 !px-4 cursor-pointer flex justify-between items-center group hover:border-purple-400 bg-white transition-all">
-                                            <span id="roleTriggerText" class="text-[13px] font-medium text-slate-400">-- Nhấn để chọn chức danh --</span>
+                                            <span id="roleTriggerText" class="text-[13px] font-medium text-slate-400">-- Nhấn để chọn chức năng từ thư viện --</span>
                                             <div class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center transition-colors">
                                                 <svg class="w-4 h-4 text-slate-500 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
@@ -177,208 +177,7 @@
                             </div>
                         </div>
                     </form>
-
-                    <div id="roleSelectionModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeRoleModal()"></div>
-                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative z-10 animate-[fadeIn_0.2s_ease-out]">
-                            <div class="flex justify-between items-center px-6 py-4 border-b border-slate-100">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-[15px] font-black text-slate-800 uppercase tracking-wide">Kho Chức Danh Hệ Thống</h3>
-                                        <p class="text-[11px] text-slate-500 font-medium">Chỉ được chọn 1 chức danh cho mỗi vai trò</p>
-                                    </div>
-                                </div>
-                                <button onclick="closeRoleModal()" class="w-8 h-8 bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-500 rounded-full flex items-center justify-center transition-colors">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-                            
-                            <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50">
-                                <div class="flex flex-col gap-6" id="roleGridContainer">
-                                    
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">👑</span> Hệ Thống 99K.vn</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_HE_THONG" data-text="Quản trị Hệ thống" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Hệ thống</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_VIEN_HE_THONG" data-text="Quản trị viên Hệ thống" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị viên Hệ thống</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_IT_HE_THONG" data-text="Quản trị IT Hệ thống" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị IT Hệ thống</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🏢</span> Quản Trị Cửa Hàng</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_CUA_HANG" data-text="Quản trị Cửa hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Cửa hàng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_VIEN_CUA_HANG" data-text="Quản trị viên Cửa hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị viên Cửa hàng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_IT_CUA_HANG" data-text="Quản trị IT Cửa hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị IT Cửa hàng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_WEBSITE_CUA_HANG" data-text="Quản trị Website" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Website</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🎯</span> Lãnh Đạo</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="GIAM_DOC" data-text="Giám đốc" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Giám đốc</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_LY_CHI_NHANH" data-text="Quản lý Chi nhánh" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản lý Chi nhánh</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_LY_VUNG" data-text="Quản lý Vùng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản lý Vùng</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">💰</span> Tài Chính Kế Toán</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KE_TOAN_TRUONG" data-text="Kế toán Trưởng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kế toán Trưởng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KE_TOAN" data-text="Kế toán" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kế toán</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="THU_QUY" data-text="Thủ quỹ" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Thủ quỹ</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KIEM_SOAT_NOI_BO" data-text="Kiểm soát Nội bộ" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kiểm soát Nội bộ</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🚀</span> Kinh Doanh & Marketing</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_PHONG_KINH_DOANH" data-text="Trưởng phòng Kinh doanh" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng phòng Kinh doanh</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KINH_DOANH" data-text="Nhân viên Kinh doanh" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Kinh doanh</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="MARKETING" data-text="Nhân viên Marketing" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Marketing</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="CHAM_SOC_KHACH_HANG" data-text="Chăm sóc Khách hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Chăm sóc Khách hàng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN_BAN_HANG" data-text="Nhân viên Bán hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Bán hàng</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">📦</span> Kho Hàng</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_KHO" data-text="Trưởng Kho" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng Kho</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="THU_KHO" data-text="Thủ Kho" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Thủ Kho</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN_KHO" data-text="Nhân viên Kho" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Kho</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🔧</span> Sửa Chữa Kỹ Thuật</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_BO_PHAN_KY_THUAT" data-text="Trưởng Kỹ thuật" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng Kỹ thuật</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KY_THUAT_VIEN" data-text="Kỹ thuật viên" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kỹ thuật viên</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="role-group">
-                                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🤝</span> Khác (Đối tác / Nhân sự)</div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN" data-text="Nhân viên chung" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên chung</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHA_CUNG_CAP" data-text="Nhà cung cấp" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhà cung cấp</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="DOI_TAC" data-text="Đối tác" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Đối tác</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="BIEN_TAP_VIEN" data-text="Biên tập viên" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Biên tập viên</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="DIEU_PHOI_DON_HANG" data-text="Điều phối Đơn hàng" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Điều phối Đơn hàng</span>
-                                            </div>
-                                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="SUPPORT_VIEWER" data-text="Hỗ trợ viên (Chỉ xem)" onclick="selectRoleModal(this)">
-                                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
-                                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Hỗ trợ viên (Chỉ xem)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                            
-                            <div class="p-5 border-t border-slate-100 bg-white flex justify-end gap-3 rounded-b-2xl">
-                                <button type="button" onclick="closeRoleModal()" class="px-6 py-2.5 rounded-xl font-bold text-[12px] text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors uppercase tracking-widest">HỦY BỎ</button>
-                                <button type="button" onclick="confirmRoleSelection()" class="px-8 py-2.5 rounded-xl font-bold text-[12px] text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-200 transition-colors uppercase tracking-widest flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> XÁC NHẬN CHỌN
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
+                </div>
                 
                 <button onclick="closeModalEdit()" class="btn-close-pane">
                     <svg class="w-6 h-6 transition-transform hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -387,6 +186,206 @@
         </div>
     </div>
 
+    <div id="roleSelectionModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeRoleModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative z-10 animate-[fadeIn_0.2s_ease-out]">
+            <div class="flex justify-between items-center px-6 py-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-[15px] font-black text-slate-800 uppercase tracking-wide">Kho Chức Danh Hệ Thống</h3>
+                        <p class="text-[11px] text-slate-500 font-medium">Chỉ được chọn 1 chức danh cho mỗi vai trò</p>
+                    </div>
+                </div>
+                <button onclick="closeRoleModal()" class="w-8 h-8 bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-500 rounded-full flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50">
+                <div class="flex flex-col gap-6" id="roleGridContainer">
+                    
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">👑</span> Hệ Thống 99K.vn</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_HE_THONG" data-text="Quản trị Hệ thống" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Hệ thống</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_VIEN_HE_THONG" data-text="Quản trị viên Hệ thống" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị viên Hệ thống</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_IT_HE_THONG" data-text="Quản trị IT Hệ thống" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị IT Hệ thống</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🏢</span> Quản Trị Cửa Hàng</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_CUA_HANG" data-text="Quản trị Cửa hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Cửa hàng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_VIEN_CUA_HANG" data-text="Quản trị viên Cửa hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị viên Cửa hàng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_IT_CUA_HANG" data-text="Quản trị IT Cửa hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị IT Cửa hàng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_TRI_WEBSITE_CUA_HANG" data-text="Quản trị Website" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản trị Website</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🎯</span> Lãnh Đạo</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="GIAM_DOC" data-text="Giám đốc" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Giám đốc</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_LY_CHI_NHANH" data-text="Quản lý Chi nhánh" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản lý Chi nhánh</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="QUAN_LY_VUNG" data-text="Quản lý Vùng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Quản lý Vùng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">💰</span> Tài Chính Kế Toán</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KE_TOAN_TRUONG" data-text="Kế toán Trưởng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kế toán Trưởng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KE_TOAN" data-text="Kế toán" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kế toán</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="THU_QUY" data-text="Thủ quỹ" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Thủ quỹ</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KIEM_SOAT_NOI_BO" data-text="Kiểm soát Nội bộ" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kiểm soát Nội bộ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🚀</span> Kinh Doanh & Marketing</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_PHONG_KINH_DOANH" data-text="Trưởng phòng Kinh doanh" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng phòng Kinh doanh</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KINH_DOANH" data-text="Nhân viên Kinh doanh" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Kinh doanh</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="MARKETING" data-text="Nhân viên Marketing" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Marketing</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="CHAM_SOC_KHACH_HANG" data-text="Chăm sóc Khách hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Chăm sóc Khách hàng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN_BAN_HANG" data-text="Nhân viên Bán hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Bán hàng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">📦</span> Kho Hàng</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_KHO" data-text="Trưởng Kho" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng Kho</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="THU_KHO" data-text="Thủ Kho" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Thủ Kho</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN_KHO" data-text="Nhân viên Kho" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên Kho</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🔧</span> Sửa Chữa Kỹ Thuật</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="TRUONG_BO_PHAN_KY_THUAT" data-text="Trưởng Kỹ thuật" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Trưởng Kỹ thuật</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="KY_THUAT_VIEN" data-text="Kỹ thuật viên" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Kỹ thuật viên</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-group">
+                        <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-2"><span class="text-base">🤝</span> Khác (Đối tác / Nhân sự)</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHAN_VIEN" data-text="Nhân viên chung" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhân viên chung</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="NHA_CUNG_CAP" data-text="Nhà cung cấp" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Nhà cung cấp</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="DOI_TAC" data-text="Đối tác" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Đối tác</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="BIEN_TAP_VIEN" data-text="Biên tập viên" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Biên tập viên</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="DIEU_PHOI_DON_HANG" data-text="Điều phối Đơn hàng" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Điều phối Đơn hàng</span>
+                            </div>
+                            <div class="role-item bg-white border border-slate-200 rounded-xl p-3.5 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all flex items-center gap-3" data-val="SUPPORT_VIEWER" data-text="Hỗ trợ viên (Chỉ xem)" onclick="selectRoleModal(this)">
+                                <div class="role-radio w-4.5 h-4.5 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center transition-all"></div>
+                                <span class="text-[12px] font-bold text-slate-600 role-text transition-all leading-tight">Hỗ trợ viên (Chỉ xem)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="p-5 border-t border-slate-100 bg-white flex justify-end gap-3 rounded-b-2xl">
+                <button type="button" onclick="closeRoleModal()" class="px-6 py-2.5 rounded-xl font-bold text-[12px] text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors uppercase tracking-widest">HỦY BỎ</button>
+                <button type="button" onclick="confirmRoleSelection()" class="px-8 py-2.5 rounded-xl font-bold text-[12px] text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-200 transition-colors uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> XÁC NHẬN CHỌN
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
         const listPane = document.getElementById('listPaneUI');
         const detailPane = document.getElementById('modalEdit'); 
@@ -793,10 +792,8 @@
 
         // ================= ĐỘNG CƠ ĐÓNG BĂNG KHI LOCKER BẬT =================
         function toggleLockMode(isLocked) {
-            // Kiểm tra xem user hiện tại có phải Master 001 không
             const isMaster = "{{ .NhanVien.MaKhachHang }}" === "0000000000000000001";
             
-            // 1. Khóa/Mở Input thông tin
             const inputs = ['p_ten', 'p_trang_thai', 'p_mota'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
@@ -807,11 +804,9 @@
                 }
             });
 
-            // 2. Khóa/Mở Nút Chọn Role Modal
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) {
                 const isNew = document.getElementById('p_is_new').value === "true";
-                // Khi đang xem form cũ (isNew=false), không bao giờ cho đổi Role. Hoặc khi đang bị khóa -> Đóng băng.
                 if (isLocked || !isNew) {
                     btnRole.classList.add('pointer-events-none', 'opacity-60', 'bg-slate-100');
                 } else {
@@ -819,7 +814,6 @@
                 }
             }
 
-            // 3. Khóa/Mở Matrix Checkbox & Nút Check All
             document.querySelectorAll('.matrix-cbx').forEach(cb => {
                 cb.disabled = isLocked;
                 if(isLocked) cb.parentElement.classList.add('disabled', 'opacity-60');
@@ -831,14 +825,12 @@
                 else btnCheckAll.classList.remove('hidden');
             }
 
-            // 4. Bật/Tắt Banner Cảnh Báo
             const banner = document.getElementById('lockedWarningBanner');
             if(banner) {
                 if(isLocked) banner.classList.remove('hidden');
                 else banner.classList.add('hidden');
             }
             
-            // 5. Nếu bị khóa và KHÔNG PHẢI MASTER, ẩn luôn nút Save (Chỉ master mới thấy để có thể tự unlock)
             const btnSave = document.getElementById('btnSavePQ');
             if(btnSave) {
                 if(isLocked && !isMaster) {
@@ -864,7 +856,6 @@
             const btnRole = document.getElementById('btnOpenRoleModal');
             if(btnRole) btnRole.classList.remove('!border-purple-400', '!bg-purple-50');
             
-            // Xóa rỗng các lựa chọn tạm trong Modal
             document.querySelectorAll('#roleGridContainer .role-item').forEach(item => {
                 item.classList.remove('!border-purple-500', '!bg-purple-50', 'ring-1', 'ring-purple-500');
                 let radio = item.querySelector('.role-radio');
@@ -875,7 +866,6 @@
             tempSelectedRoleVal = "";
             tempSelectedRoleText = "";
 
-            // Gạt Locker về OFF và mở khóa toàn bộ form
             const lockToggle = document.getElementById('p_is_locked');
             if(lockToggle) lockToggle.checked = false;
             toggleLockMode(false); 
@@ -898,7 +888,6 @@
             setV('p_ten', p.ten_vai_tro || "");
             setV('p_mota', p.mo_ta || "");
 
-            // Cập nhật UI Nút Chọn (Read-only)
             const triggerText = document.getElementById('roleTriggerText');
             if(triggerText) triggerText.innerHTML = `<span class="font-black text-purple-700">${p.ten_vai_tro || p.ma_vai_tro}</span> <span class="text-slate-400 font-normal text-[11px] ml-2">(${p.ma_vai_tro})</span>`;
             const btnRole = document.getElementById('btnOpenRoleModal');
@@ -920,7 +909,6 @@
                 }
             }
 
-            // NẠP TRẠNG THÁI LOCKER & ĐÓNG BĂNG FORM NẾU CẦN
             const lockToggle = document.getElementById('p_is_locked');
             if(lockToggle) lockToggle.checked = p.is_locked;
             
@@ -973,7 +961,6 @@
             const oldHtml = btn.innerHTML;
 
             try {
-                // Kiểm tra xem Chủ shop đã chọn Chức danh chưa
                 if (!getV("p_ma")) {
                     Swal.fire('Lỗi', 'Vui lòng chọn Chức danh (Role) từ thư viện!', 'warning');
                     return;
