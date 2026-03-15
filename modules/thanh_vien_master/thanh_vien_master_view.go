@@ -28,16 +28,13 @@ func TrangQuanLyThanhVienMaster(c *gin.Context) {
 	listAll := Repo_LayDanhSachMaster(masterShopID)
 	
 	core.KhoaHeThong.RLock()
-	listVaiTroRaw := core.CacheDanhSachVaiTro[masterShopID]
-	core.KhoaHeThong.RUnlock()
-
-	if len(listVaiTroRaw) == 0 {
-		listVaiTroRaw = []core.VaiTroInfo{
-			{MaVaiTro: "quan_tri_he_thong", TenVaiTro: "Sáng Lập Viên", StyleLevel: 0, StyleTheme: 9},
-			{MaVaiTro: "quan_tri_vien_he_thong", TenVaiTro: "Quản trị viên hệ thống", StyleLevel: 1, StyleTheme: 4},
-			{MaVaiTro: "quan_tri_it_he_thong", TenVaiTro: "Quản trị IT hệ thống", StyleLevel: 2, StyleTheme: 7},
-		}
+	var listVaiTroRaw []core.VaiTroInfo
+	for _, pq := range core.CachePhanQuyen[masterShopID] {
+		listVaiTroRaw = append(listVaiTroRaw, core.VaiTroInfo{
+			MaVaiTro: pq.MaVaiTro, TenVaiTro: pq.TenVaiTro, StyleLevel: pq.Level, StyleTheme: 5,
+		})
 	}
+	core.KhoaHeThong.RUnlock()
 
 	mapStyle := make(map[string]core.VaiTroInfo)
 	for _, v := range listVaiTroRaw { mapStyle[v.MaVaiTro] = v }
