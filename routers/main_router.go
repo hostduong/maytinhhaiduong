@@ -30,6 +30,7 @@ import (
 	"app/modules/cua_hang_master"
 	"app/modules/product_master"
 	"app/modules/setup"
+	"app/modules/phan_quyen_master"
 
 	"github.com/gin-gonic/gin"
 )
@@ -211,6 +212,7 @@ func SetupRouter() *gin.Engine {
 		master.GET("/cau-hinh", cau_hinh.TrangCaiDatCauHinhMaster)
 		master.GET("/thanh-vien", thanh_vien_master.TrangQuanLyThanhVienMaster) 
 		master.GET("/dong-bo-sheets", dong_bo_sheets.TrangDongBoSheetsMaster)
+		master.GET("/phan-quyen", phan_quyen_master.TrangPhanQuyenMaster)
 
 		apiMaster := master.Group("/api")
 		{
@@ -225,6 +227,7 @@ func SetupRouter() *gin.Engine {
 			apiMaster.POST("/nhap-hang/save", middlewares.RequirePermission("stock.import"), nhap_hang.API_LuuPhieuNhap)
 			apiMaster.POST("/nhap-hang/status", middlewares.RequirePermission("stock.import"), nhap_hang.API_DoiTrangThaiPhieu)
 
+			apiMaster.POST("/phan-quyen/save", phan_quyen_master.API_LuuPhanQuyenMaster)
 			apiMaster.POST("/dong-bo-sheets", dong_bo_sheets.API_NapLaiDuLieuMasterCoPIN)
 			apiMaster.POST("/thanh-vien/save", thanh_vien_master.API_LuuThanhVienMaster) 
 			apiMaster.POST("/thanh-vien/send-msg", thanh_vien_master.API_GuiTinNhanMaster) 
