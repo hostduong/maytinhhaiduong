@@ -112,8 +112,9 @@
                                 
                                 <div class="flex flex-col gap-5 relative z-10">
                                     
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
-                                        <div class="flex flex-col gap-1.5">
+                                    <div class="flex flex-wrap gap-4 items-start w-full">
+                                        
+                                        <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Chọn Chức Danh <span class="text-red-500">*</span></label>
                                             <div id="btnOpenRoleModal" onclick="openRoleModal()" class="input-premium !py-2.5 !px-3 cursor-pointer flex justify-between items-center group hover:border-purple-400 bg-white transition-all h-[38px]">
                                                 <span id="roleTriggerText" class="text-[12px] font-medium text-slate-400 truncate">-- Nhấn để chọn --</span>
@@ -123,31 +124,32 @@
                                             </div>
                                         </div>
 
-                                        <div class="flex flex-col gap-1.5">
+                                        <div class="flex flex-col gap-1.5 flex-1 min-w-[220px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tên Vai Trò (Tùy chỉnh) <span class="text-red-500">*</span></label>
                                             <input type="text" id="p_ten" class="input-premium !py-2 !px-3 !text-[12px] font-bold text-slate-800 h-[38px]" placeholder="VD: Quản lý cửa hàng">
                                         </div>
 
-                                        <div class="flex flex-col gap-1.5">
+                                        <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Trạng Thái (App)</label>
                                             <select id="p_trang_thai" class="input-premium !py-2 !px-3 !text-[12px] font-bold cursor-pointer h-[38px]">
-                                                <option value="1" class="text-emerald-600">🟢 Hoạt động</option>
-                                                <option value="0" class="text-amber-600">🟡 Tạm khóa</option>
+                                                <option value="1" class="text-emerald-600">🟢 Hoạt động (Cho phép dùng)</option>
+                                                <option value="0" class="text-amber-600">🟡 Tạm khóa (Cấm dùng)</option>
                                             </select>
                                         </div>
 
                                         {{ if eq .NhanVien.MaKhachHang "0000000000000000001" }}
-                                        <div class="flex flex-col gap-1.5" id="masterLockWrapper">
+                                        <div class="flex flex-col gap-1.5 flex-1 min-w-[160px]" id="masterLockWrapper">
                                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Locker (Master)</label>
                                             <div class="input-premium !py-2 !px-3 flex items-center justify-between h-[38px] bg-white">
-                                                <span class="text-[12px] font-bold text-slate-700">Khóa cấu hình</span>
-                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                <span class="text-[12px] font-bold text-slate-700">Khóa form</span>
+                                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                                     <input type="checkbox" id="p_is_locked" class="sr-only peer" onchange="toggleLockMode(this.checked)">
                                                     <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
                                                 </label>
                                             </div>
                                         </div>
                                         {{ end }}
+                                        
                                     </div>
 
                                     <div id="lockedWarningBanner" class="hidden bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-3 mt-1 shadow-inner">
