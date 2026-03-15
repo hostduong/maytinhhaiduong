@@ -494,6 +494,23 @@
             }
         ];
 
+        // Động cơ tự động lấy Tên Vai Trò từ trong ngoặc đơn của Dropdown
+        function autoFillRoleName() {
+            const selectMa = document.getElementById('p_ma');
+            const inputTen = document.getElementById('p_ten');
+            
+            // Nếu người dùng chọn một Mã và ô Tên đang bị trống
+            if (selectMa.value && inputTen.value.trim() === "") {
+                const optionText = selectMa.options[selectMa.selectedIndex].text;
+                // Dùng Regex cắt lấy phần chữ Tiếng Việt trong ngoặc đơn "()"
+                const nameMatch = optionText.match(/\(([^)]+)\)/);
+                if (nameMatch) {
+                    inputTen.value = nameMatch[1];
+                    checkInputHasData(); // Quét lại CSS màu tím cho ô vừa điền
+                }
+            }
+        }
+
         function renderMatrixTabs() {
             const tabsHeader = document.getElementById('matrixTabsHeader');
             const tabsContent = document.getElementById('matrixTabsContent');
