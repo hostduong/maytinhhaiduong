@@ -8,21 +8,30 @@
 .input-premium { 
     width: 100%; box-sizing: border-box; 
     background-color: #ffffff; 
-    border: 1.5px solid #cbd5e1; /* Viền xám mặc định */
+    border: 1.5px solid #cbd5e1;
     border-radius: 0.75rem; font-size: 0.9rem; padding: 0.75rem 1rem; 
     transition: all 0.25s ease; outline: none; 
 }
-.input-premium:hover { border-color: #a855f7 !important; } /* Di chuột: Tím đậm */
+.input-premium:hover { border-color: #a855f7 !important; }
 .input-premium.has-data { 
-    border-color: #d8b4fe; /* Có dữ liệu: Viền tím nhạt */
+    border-color: #d8b4fe;
     background-color: #faf5ff; font-weight: 700; color: #4c1d95;
 }
 .input-premium:focus { 
-    border-color: #9333ea !important; /* Đang nhập: Tím rực rỡ */
+    border-color: #9333ea !important;
     box-shadow: 0 0 0 4px rgba(147,51,234,0.15) !important; background-color: #ffffff !important; 
 }
-.input-premium:disabled, .input-premium[readonly] { cursor: not-allowed; opacity: 0.7; background-color: #f1f5f9; border-color: #e2e8f0 !important; }
 
+/* [ĐÃ FIX]: Ép chữ đậm, màu xám đen nét căng khi form bị Khóa (Readonly/Disabled) */
+.input-premium:disabled, .input-premium[readonly], textarea.input-premium[readonly], select.input-premium:disabled {
+    opacity: 1 !important;
+    -webkit-text-fill-color: #1e293b !important; /* Chống mờ trên Safari/iOS */
+    color: #1e293b !important;
+    font-weight: 900 !important;
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    cursor: not-allowed;
+}
 /* 2. FIX FULL CHIỀU RỘNG CHO INTL-TEL-INPUT (SĐT) */
 .iti { width: 100%; } 
 
@@ -873,3 +882,69 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 }
 [data-theme="dark"] .animated-warning-inner .text-orange-950 { color: #fdba74 !important; }
 [data-theme="dark"] .animated-warning-inner .text-orange-900 { color: #fb923c !important; }
+
+
+/* ==============================================================
+   24. HỆ SINH THÁI SPLIT-PANE UI (DÙNG CHUNG TOÀN HỆ THỐNG)
+   ============================================================== */
+
+/* --- A. Lưới Card Danh Sách (Bên Trái) --- */
+.saas-grid-container {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem; align-items: start; align-content: stretch;
+}
+.saas-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+.saas-card.card-active-purple { border-color: transparent !important; transform: scale(0.97); }
+.saas-card.card-active-purple::before { opacity: 1 !important; animation-duration: 4s !important; }
+.saas-card.card-active-purple .animated-border-inner { background-color: #faf5ff !important; border: none; }
+
+/* --- B. Nút Đóng Form (Ghim góc dưới cùng bên phải) --- */
+.btn-close-pane {
+    position: fixed; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background-color: #ffffff; color: #64748b;
+    transition: all 0.3s ease; font-weight: bold; border: 1px solid #f1f5f9;
+    box-shadow: 0 10px 40px rgba(147, 51, 234, 0.25); z-index: 50; cursor: pointer;
+}
+.btn-close-pane:hover { color: #ef4444; background-color: #fef2f2; transform: scale(1.1); }
+.btn-close-pane:active { transform: scale(0.95); }
+@media (min-width: 1280px) {
+    .btn-close-pane { position: absolute; bottom: 3rem; right: 1rem; width: 3.5rem; height: 3.5rem; }
+}
+@media (max-width: 1279px) {
+    .btn-close-pane { bottom: 1.5rem; right: 1.5rem; width: 3.5rem; height: 3.5rem; }
+}
+
+/* --- C. Hệ thống Tabs Kéo Ngang (Cho Form Phân Quyền/Cấu Hình) --- */
+.saas-tabs-container {
+    display: flex; overflow-x: auto; gap: 8px; padding: 12px 20px;
+    background: #f8fafc; border-bottom: 2px solid #e2e8f0; scrollbar-width: none;
+}
+.saas-tabs-container::-webkit-scrollbar { display: none; }
+.saas-tab-btn {
+    padding: 8px 16px; border-radius: 10px; font-size: 11px; font-weight: 800;
+    white-space: nowrap; cursor: pointer; transition: all 0.2s;
+    background: white; color: #64748b; border: 1px solid #e2e8f0;
+}
+.saas-tab-btn:hover { background: #f1f5f9; color: #334155; }
+.saas-tab-btn.active { background: #9333ea; color: white; border-color: #9333ea; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2); }
+.saas-tab-content { display: none; animation: fadeIn 0.3s ease; }
+.saas-tab-content.active { display: block; }
+
+/* --- D. Nút Checkbox Đa Năng (Tím khi tick - Matrix Quyền) --- */
+.cbx-action {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 5px 8px; border-radius: 8px; border: 1px solid #cbd5e1;
+    background: white; cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.cbx-action:hover { border-color: #a855f7; background: #faf5ff; }
+.cbx-action.checked { background: #9333ea; border-color: #9333ea; color: white; }
+.cbx-action.disabled { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
+.cbx-action .icon { opacity: 0; transform: scale(0.5); transition: 0.2s; width: 12px; height: 12px; }
+.cbx-action.checked .icon { opacity: 1; transform: scale(1); }
+
+/* --- E. Tối ưu Giao diện Dark Mode cho Hệ sinh thái mới --- */
+[data-theme="dark"] .saas-tab-btn { background: var(--bg-panel); border-color: var(--border-light); color: var(--text-muted); }
+[data-theme="dark"] .saas-tabs-container { background: var(--bg-base); border-color: var(--border-light); }
+[data-theme="dark"] .btn-close-pane { background: var(--bg-panel); border-color: var(--border-light); color: var(--text-main); }
+[data-theme="dark"] .cbx-action { background: var(--bg-panel); border-color: var(--border-light); color: var(--text-main); }
+[data-theme="dark"] .cbx-action:hover { background: #1e1b4b; border-color: #6d28d9; }
